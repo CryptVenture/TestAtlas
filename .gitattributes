@@ -1,0 +1,8 @@
+# Repository-wide: normalize line endings to LF on commit by default.
+# Pin specific test fixtures to CRLF or binary so git does NOT auto-convert.
+* text=auto eol=lf
+
+# Keep the CRLF marker fixture as CRLF on every platform — the parser must
+# tolerate CRLF input (WORK-03) and we want this fixture's bytes to round-trip
+# verbatim through any clone.
+test/fixtures/markers/crlf-line-endings.md text eol=crlf

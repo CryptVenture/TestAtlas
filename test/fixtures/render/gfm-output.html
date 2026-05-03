@@ -1,0 +1,18 @@
+<!--
+  Fixture: GFM HTML rendering of test/fixtures/markers/valid-multi-section.md.
+
+  Captured from GitHub's web preview of the equivalent markdown source. The
+  important property under test (TPL-06) is that GitHub-flavored markdown
+  preserves HTML comments byte-for-byte in the rendered output — so the
+  TestAtlas marker comments survive a render/edit/render round-trip in any
+  GFM-rendering surface (GitHub, GitLab, common WYSIWYG editors).
+-->
+<h1>Title</h1>
+<!-- TESTATLAS:GENERATED:START section="alpha" -->
+<p>Alpha content</p>
+<!-- TESTATLAS:GENERATED:END section="alpha" -->
+<p>Some prose.</p>
+<!-- TESTATLAS:GENERATED:START section="beta" -->
+<p>Beta content
+line two</p>
+<!-- TESTATLAS:GENERATED:END section="beta" -->
