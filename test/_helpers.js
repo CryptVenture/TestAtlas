@@ -23,11 +23,7 @@ export const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url
  * @param {{ withSuite?: boolean, override?: object|string, prefix?: string }} [opts]
  * @returns {Promise<{ cwd: string, cleanup: () => Promise<void> }>}
  */
-export async function makeWorkspaceFixture({
-  withSuite = true,
-  override,
-  prefix = 'ws-',
-} = {}) {
+export async function makeWorkspaceFixture({ withSuite = true, override, prefix = 'ws-' } = {}) {
   const cwd = await mkdtemp(path.join(tmpdir(), prefix));
   if (withSuite) {
     await cp(path.join(REPO_ROOT, '.testatlas'), path.join(cwd, '.testatlas'), {
