@@ -6,7 +6,7 @@
 // gate + dry-run wins).
 
 import { strict as assert } from 'node:assert';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
@@ -310,4 +310,221 @@ test('Dispatch: synthesized fixable=auto with unrecognized code → skipped', as
   const skip = healed.skipped.find((s) => s.code === 'TESTATLAS_UNKNOWN_BUT_FIXABLE');
   assert.ok(skip, 'unrecognized code skipped');
   assert.match(skip.reason, /unrecognized fixable code/);
+});
+
+// ─── HEAL-02: Regenerate 09_artifact_index.md ────────────────────────────────
+
+test('HEAL-02: --apply against missing 09_artifact_index.md regenerates the file', async (t) => {
+  const fx = await makeValidationFixture('_base-good');
+  t.after(fx.cleanup);
+
+  // Seed the missing scenario by deleting 09_artifact_index.md.
+  await rm(path.join(fx.wsDir, '09_artifact_index.md'));
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  const healed = await autoHealFindings(r.results, ctx, { dryRun: false, apply: true });
+
+  const heal02 = healed.applied.find((h) => h.healId === 'HEAL-02');
+  assert.ok(heal02, 'HEAL-02 entry present');
+
+  // File regenerated with marker-bounded sections; lists on-disk artifacts.
+  const text = await readFile(path.join(fx.wsDir, '09_artifact_index.md'), 'utf8');
+  assert.match(text, /TESTATLAS:GENERATED:START section="domain-docs"/);
+  assert.match(text, /TESTATLAS:GENERATED:START section="issue-docs"/);
+  assert.match(text, /ISSUE-001-foo/);
+  assert.match(text, /domains\/auth\/index\.md/);
+
+  // Re-run validate: missing-index finding for 09_artifact_index.md is gone.
+  const r2 = await runValidate(fx.cwd);
+  const stillMissing = r2.results
+    .flatMap((c) => c.findings)
+    .filter((f) => f.code === 'TESTATLAS_MISSING_INDEX' && f.path === '09_artifact_index.md');
+  assert.equal(stillMissing.length, 0, 'after HEAL-02: no missing-index for 09_artifact_index.md');
+});
+
+test('HEAL-02: preserves human prose outside markers in 09_artifact_index.md (Pitfall 5)', async (t) => {
+  const fx = await makeValidationFixture('_base-good');
+  t.after(fx.cleanup);
+
+  // Inject human prose around an existing marker section. The base-good
+  // fixture's 09_artifact_index.md already has marker-bounded sections; we
+  // just prepend human prose at the top to verify it survives a regen.
+  const targetPath = path.join(fx.wsDir, '09_artifact_index.md');
+  const original = await readFile(targetPath, 'utf8');
+  const HUMAN_PROSE =
+    '\n> NOTE: This is human-authored prose that must be preserved across HEAL-02.\n';
+  const seeded = HUMAN_PROSE + original;
+  await writeFile(targetPath, seeded, 'utf8');
+
+  // Force a stale-hash by also mutating an inner marker body (that triggers
+  // a stale-hash finding which is a NEVER-heal modified-content). To get a
+  // *fixable* HEAL-02 trigger here without deleting the file, we synthesize
+  // a fake TESTATLAS_INDEX_MISMATCH finding for the canonical artifact index.
+  const ctx = await buildCtx(fx.wsDir);
+  const fakeResults = [
+    {
+      id: 'check-issue-index-consistency',
+      prdRule: 5,
+      status: 'fail',
+      findings: [
+        {
+          severity: 'error',
+          path: '09_artifact_index.md',
+          code: 'TESTATLAS_INDEX_MISMATCH',
+          message: 'forced regen for prose-preservation test',
+          fixable: 'auto',
+        },
+      ],
+    },
+  ];
+  const healed = await autoHealFindings(fakeResults, ctx, { dryRun: false, apply: true });
+  assert.ok(healed.applied.find((h) => h.healId === 'HEAL-02'));
+
+  const after = await readFile(targetPath, 'utf8');
+  // Human prose preserved byte-for-byte.
+  assert.ok(
+    after.includes('NOTE: This is human-authored prose that must be preserved across HEAL-02.'),
+    'human prose outside markers preserved',
+  );
+  // Marker-bounded section content was regenerated (still has the artifact bullets).
+  assert.match(after, /ISSUE-001-foo/);
+});
+
+// ─── HEAL-03: Regenerate cross-cut + per-domain indexes ──────────────────────
+
+test('HEAL-03: --apply against broken-issue-index-mismatch regenerates indexes', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  const healed = await autoHealFindings(r.results, ctx, { dryRun: false, apply: true });
+
+  const heal03s = healed.applied.filter((h) => h.healId === 'HEAL-03');
+  assert.ok(heal03s.length >= 1, 'HEAL-03 entries present');
+
+  // Re-run validate: cross-cut INDEX_MISMATCH findings are gone.
+  const r2 = await runValidate(fx.cwd);
+  const remaining = r2.results
+    .flatMap((c) => c.findings)
+    .filter((f) => f.code === 'TESTATLAS_INDEX_MISMATCH');
+  assert.equal(remaining.length, 0, 'after HEAL-03: no INDEX_MISMATCH findings');
+
+  // Created file references the issue.
+  const byDomain = await readFile(
+    path.join(fx.wsDir, 'to_fix', 'by_domain', 'domain-auth.md'),
+    'utf8',
+  );
+  assert.match(byDomain, /ISSUE-001-foo/);
+});
+
+test('HEAL-03: --apply against broken-missing-index regenerates domain index.md', async (t) => {
+  const fx = await makeValidationFixture('broken-missing-index');
+  t.after(fx.cleanup);
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  const healed = await autoHealFindings(r.results, ctx, { dryRun: false, apply: true });
+
+  const heal03 = healed.applied.find((h) => h.healId === 'HEAL-03');
+  assert.ok(heal03, 'HEAL-03 entry present');
+
+  // domains/auth/index.md regenerated.
+  const text = await readFile(path.join(fx.wsDir, 'domains', 'auth', 'index.md'), 'utf8');
+  assert.match(text, /Domain.*auth/i);
+});
+
+test('HEAL-03: preserves human prose outside markers in cross-cut indexes', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  // Pre-seed by_severity/medium.md with marker-bounded entries section + human prose.
+  const targetPath = path.join(fx.wsDir, 'to_fix', 'by_severity', 'medium.md');
+  const seeded = [
+    '# Medium-severity issues',
+    '',
+    '> Human-prose: this paragraph must survive HEAL-03.',
+    '',
+    '<!-- TESTATLAS:GENERATED:START section="entries" -->',
+    '(stale)',
+    '<!-- TESTATLAS:GENERATED:END section="entries" -->',
+    '',
+  ].join('\n');
+  await writeFile(targetPath, seeded, 'utf8');
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  await autoHealFindings(r.results, ctx, { dryRun: false, apply: true });
+
+  const after = await readFile(targetPath, 'utf8');
+  assert.ok(
+    after.includes('Human-prose: this paragraph must survive HEAL-03.'),
+    'human prose preserved',
+  );
+  assert.match(after, /ISSUE-001-foo/);
+});
+
+test('HEAL-02 + HEAL-03: --dry-run --apply writes nothing; applied list still records', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  const targetPath = path.join(fx.wsDir, 'to_fix', 'by_severity', 'medium.md');
+  const beforeStat = await stat(targetPath);
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  const healed = await autoHealFindings(r.results, ctx, { dryRun: true, apply: true });
+
+  // Would-be heals still recorded.
+  assert.ok(healed.applied.length >= 1);
+
+  // No write occurred.
+  const afterStat = await stat(targetPath);
+  assert.equal(afterStat.mtimeMs, beforeStat.mtimeMs);
+});
+
+test('Round-trip: HEAL-01..04 against composite fixture leave 0 fixable findings', async (t) => {
+  // Compose a workspace exercising HEAL-01 (count-mismatch) +
+  // HEAL-04 (whitespace-only stale hash) + HEAL-03 (issue-index mismatch)
+  // simultaneously; HEAL-02 covered separately above.
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  // Inject a count-mismatch by claiming 5 issues when there's 1.
+  const manifestPath = path.join(fx.wsDir, '11_workspace_manifest.json');
+  const m = JSON.parse(await readFile(manifestPath, 'utf8'));
+  m.counts.issues = 5;
+  await writeFile(manifestPath, `${JSON.stringify(m, null, 2)}\n`, 'utf8');
+
+  // Inject a whitespace-only stale hash by re-using the broken-stale-hash-whitespace-only
+  // fixture's 03_execution_status.md verbatim (its hash already disagrees with manifest).
+  const wsOnly = await readFile(
+    path.join(
+      path.dirname(import.meta.url.replace('file://', '')),
+      'fixtures',
+      'workspaces',
+      'broken-stale-hash-whitespace-only',
+      '03_execution_status.md',
+    ),
+    'utf8',
+  );
+  await writeFile(path.join(fx.wsDir, '03_execution_status.md'), wsOnly, 'utf8');
+
+  const r = await runValidate(fx.cwd);
+  const ctx = await buildCtx(fx.wsDir);
+  await autoHealFindings(r.results, ctx, { dryRun: false, apply: true });
+
+  // Re-run validate. All 4 fixable categories must be 0.
+  const r2 = await runValidate(fx.cwd);
+  const fixableCodes = [
+    'TESTATLAS_COUNT_MISMATCH',
+    'TESTATLAS_INDEX_MISMATCH',
+    'TESTATLAS_MISSING_INDEX',
+    'TESTATLAS_STALE_GENERATED_HASH',
+  ];
+  for (const code of fixableCodes) {
+    const remaining = r2.results.flatMap((c) => c.findings).filter((f) => f.code === code);
+    assert.equal(remaining.length, 0, `after round-trip, no remaining ${code} findings`);
+  }
 });

@@ -38,10 +38,20 @@
 // HEAL-02 / HEAL-03 are filled by Task 2; this file initially ships HEAL-01
 // + HEAL-04 + the dispatch + the NEVER-heal classifier.
 
+import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from '../atomic-write.js';
 import { hashContent } from '../content-hash.js';
-import { parseMarkers } from '../markers.js';
+import { parseMarkers, renderSection } from '../markers.js';
+
+/**
+ * Ensure the parent directory of `absPath` exists before atomicWrite.
+ * Idempotent (recursive). Used by HEAL-03 to create cross-cut index dirs
+ * (to_fix/by_domain/, by_type/, etc.) that fixtures may lack.
+ */
+async function ensureParentDir(absPath) {
+  await mkdir(path.dirname(absPath), { recursive: true });
+}
 
 // ─── NEVER-heal canonical list ────────────────────────────────────────────────
 //
@@ -200,17 +210,375 @@ function extractSectionSlug(msg) {
   return m ? m[1] : null;
 }
 
-// ─── HEAL-02 / HEAL-03 stubs ─────────────────────────────────────────────────
+// ─── HEAL-02: Regenerate 09_artifact_index.md ────────────────────────────────
 //
-// Filled in Task 2. Until then they return null so the dispatcher records a
-// generic skipped entry. (Tests in this task do NOT exercise HEAL-02/03.)
+// The canonical artifact index is structured as 5 marker-bounded sections:
+//   domain-docs   — bullets pointing at domains/<slug>/index.md
+//   flow-docs     — bullets pointing at flows/FLOW-*.md
+//   issue-docs    — bullets pointing at to_fix/ISSUE-*.md
+//   evidence      — bullets listing EVIDENCE-* ids
+//   reports       — bullets pointing at reports/REPORT-*.md
+//
+// Strategy:
+//   - If 09_artifact_index.md is missing, write a fresh template (header +
+//     5 marker-bounded sections) atomically.
+//   - If present, use renderSection() per section so any human prose OUTSIDE
+//     the markers is byte-preserved (Pitfall 5).
+//   - On TESTATLAS_MARKER_INVALID: refuse and bubble up an error so the
+//     dispatcher records a `skipped` entry citing the marker error.
+//
+// The manifest's generatedSections[09_artifact_index.md][<section>] hashes
+// are refreshed in the same atomicWrite batch so post-heal validate doesn't
+// flag stale-hash on the just-regenerated content.
 
-async function applyHeal02(_ctx, _finding, _mode) {
-  return null;
+const ARTIFACT_INDEX_SECTIONS = ['domain-docs', 'flow-docs', 'issue-docs', 'evidence', 'reports'];
+
+const ARTIFACT_INDEX_TEMPLATE = `# 09 Artifact Index
+
+## Domain Documents
+
+<!-- TESTATLAS:GENERATED:START section="domain-docs" -->
+<!-- TESTATLAS:GENERATED:END section="domain-docs" -->
+
+## Flow Documents
+
+<!-- TESTATLAS:GENERATED:START section="flow-docs" -->
+<!-- TESTATLAS:GENERATED:END section="flow-docs" -->
+
+## Issue Documents
+
+<!-- TESTATLAS:GENERATED:START section="issue-docs" -->
+<!-- TESTATLAS:GENERATED:END section="issue-docs" -->
+
+## Evidence
+
+<!-- TESTATLAS:GENERATED:START section="evidence" -->
+<!-- TESTATLAS:GENERATED:END section="evidence" -->
+
+## Reports
+
+<!-- TESTATLAS:GENERATED:START section="reports" -->
+<!-- TESTATLAS:GENERATED:END section="reports" -->
+`;
+
+/**
+ * Build the per-section body lines for 09_artifact_index.md.
+ * Returns an object keyed by section slug → array of body lines (no marker
+ * lines, no terminators).
+ *
+ * @param {object} files
+ */
+function buildArtifactIndexBodies(files) {
+  const domainsBody = (files.domains ?? []).map((d) => `- domains/${d.slug}/index.md`).sort();
+  const flowsBody = (files.flows ?? [])
+    .filter((f) => f.mdPath)
+    .map((f) => `- flows/${path.basename(f.mdPath)}`)
+    .sort();
+  const issuesBody = (files.issues ?? [])
+    .filter((i) => i.mdPath)
+    .map((i) => `- to_fix/${path.basename(i.mdPath)}`)
+    .sort();
+  // Distinct EVIDENCE-* ids, sorted.
+  const evidIds = Array.from(new Set((files.evidenceFiles ?? []).map((e) => e.id)))
+    .filter(Boolean)
+    .sort();
+  const evidenceBody = evidIds.map((id) => `- ${id}`);
+  const reportsBody = (files.reports ?? [])
+    .filter((r) => r.mdPath)
+    .map((r) => `- reports/${path.basename(r.mdPath)}`)
+    .sort();
+  return {
+    'domain-docs': domainsBody,
+    'flow-docs': flowsBody,
+    'issue-docs': issuesBody,
+    evidence: evidenceBody,
+    reports: reportsBody,
+  };
 }
 
-async function applyHeal03(_ctx, _finding, _mode) {
-  return null;
+async function applyHeal02(ctx, _finding, { apply, dryRun }) {
+  const { files, wsDir } = ctx;
+  const filename = '09_artifact_index.md';
+  const targetAbs = path.join(wsDir, filename);
+
+  const bodies = buildArtifactIndexBodies(files);
+
+  // Locate existing content (if any) from ctx.files.allMarkdownFiles.
+  const existing = (files.allMarkdownFiles ?? []).find((f) => f.path === targetAbs);
+  let baseText = existing?.content ?? null;
+
+  // If file is absent OR present but lacking any of the required sections,
+  // start from the template. (We DON'T discard existing prose when sections
+  // are present — only when the file is wholly missing or its marker layout
+  // is incompatible.)
+  if (baseText !== null) {
+    let parsed;
+    try {
+      parsed = parseMarkers(baseText);
+    } catch (err) {
+      const e = new Error(`HEAL-02 refused: ${err.message}`);
+      e.code = err.code ?? 'TESTATLAS_MARKER_INVALID';
+      throw e;
+    }
+    if (parsed.errors.length > 0) {
+      const e = new Error(`HEAL-02 refused: marker errors in ${filename}`);
+      e.code = 'TESTATLAS_MARKER_INVALID';
+      throw e;
+    }
+    // If any required section is absent, fall back to the template
+    // (sections that the user removed cannot be patched in-place by
+    // renderSection — it requires the markers to be present).
+    const missingSections = ARTIFACT_INDEX_SECTIONS.filter((s) => !parsed.sections.has(s));
+    if (missingSections.length > 0) {
+      baseText = ARTIFACT_INDEX_TEMPLATE;
+    }
+  } else {
+    baseText = ARTIFACT_INDEX_TEMPLATE;
+  }
+
+  // Render each section into baseText one at a time (renderSection is pure;
+  // it accepts a string and returns a new string). Every section is touched
+  // so the file ends up wholly synced with on-disk artifacts.
+  let updated = baseText;
+  for (const section of ARTIFACT_INDEX_SECTIONS) {
+    updated = renderSection(updated, section, bodies[section]);
+  }
+
+  // Update manifest.generatedSections hashes for each section.
+  const newHashes = Object.fromEntries(
+    ARTIFACT_INDEX_SECTIONS.map((s) => [s, hashContent(bodies[s])]),
+  );
+
+  if (apply && !dryRun) {
+    await atomicWrite(targetAbs, updated);
+
+    // Refresh manifest hashes in a single atomicWrite.
+    const m = JSON.parse(JSON.stringify(ctx.manifest ?? {}));
+    if (!m.generatedSections) m.generatedSections = {};
+    m.generatedSections[filename] = { ...(m.generatedSections[filename] ?? {}), ...newHashes };
+    m.lastUpdatedAt = new Date().toISOString();
+    await atomicWrite(
+      path.join(wsDir, '11_workspace_manifest.json'),
+      `${JSON.stringify(m, null, 2)}\n`,
+    );
+    ctx.manifest = m;
+  }
+
+  return {
+    healId: 'HEAL-02',
+    path: filename,
+    summary: `regenerated ${ARTIFACT_INDEX_SECTIONS.length} sections; preserved human prose outside markers`,
+  };
+}
+
+// ─── HEAL-03: Regenerate cross-cut + per-domain indexes ──────────────────────
+//
+// Cross-cut indexes live at:
+//   to_fix/by_domain/<value>.md
+//   to_fix/by_severity/<value>.md
+//   to_fix/by_status/<value>.md
+//   to_fix/by_type/<value>.md
+// Per-domain indexes:
+//   domains/<slug>/index.md
+//   domains/<slug>/issues/index.md
+//
+// Each gets a `# Title` heading + a marker-bounded "entries" section that
+// lists the matching ISSUE-* ids. If the file already exists with the
+// "entries" marker pair, only the body is updated (renderSection preserves
+// human prose outside the markers — Pitfall 5). If the file is missing or
+// has no "entries" section, a fresh template is written.
+//
+// We re-derive the FULL set of expected indexes from on-disk issue metadata
+// (NOT from the inbound finding) and regenerate any whose path appears in
+// the dispatched findings — same operation per file path is de-duped via a
+// Set in the dispatcher's main loop.
+//
+// For per-domain index.md we only render IF the finding is for a per-domain
+// path (domains/<slug>/index.md or domains/<slug>/issues/index.md).
+
+const CROSSCUT_FACETS = [
+  { dir: 'by_domain', field: 'domain', titleFmt: (v) => `Issues for ${v}` },
+  { dir: 'by_severity', field: 'severity', titleFmt: (v) => `${capitalize(v)}-severity issues` },
+  { dir: 'by_status', field: 'status', titleFmt: (v) => `${capitalize(v)} issues` },
+  { dir: 'by_type', field: 'type', titleFmt: (v) => `${capitalize(v)}-type issues` },
+];
+
+function capitalize(s) {
+  return String(s).charAt(0).toUpperCase() + String(s).slice(1);
+}
+
+/**
+ * Build the marker-bounded entries body (array of bullet lines) for a
+ * cross-cut index keyed by `field === value`.
+ *
+ * @param {object[]} issues
+ * @param {string} field
+ * @param {string} value
+ */
+function buildCrosscutEntries(issues, field, value) {
+  const matched = (issues ?? [])
+    .filter((i) => i.parsed && i.parsed[field] === value)
+    .map((i) => `- ${i.id}-${i.slug}`)
+    .sort();
+  return matched.length > 0 ? matched : ['(none)'];
+}
+
+/**
+ * Build the body for a per-domain `domains/<slug>/issues/index.md` listing
+ * all issues in that domain.
+ *
+ * @param {object[]} issues
+ * @param {string} domainId Issue.domain field value, e.g. 'domain-auth'.
+ */
+function buildDomainIssuesBody(issues, domainId) {
+  return buildCrosscutEntries(issues, 'domain', domainId);
+}
+
+const ENTRIES_TEMPLATE = (title, body) =>
+  [
+    `# ${title}`,
+    '',
+    '<!-- TESTATLAS:GENERATED:START section="entries" -->',
+    ...body,
+    '<!-- TESTATLAS:GENERATED:END section="entries" -->',
+    '',
+  ].join('\n');
+
+const DOMAIN_INDEX_TEMPLATE = (slug) =>
+  [
+    `# Domain: ${slug}`,
+    '',
+    '(domain index — humans add notes here; preserved across runs)',
+    '',
+    '<!-- TESTATLAS:GENERATED:START section="entries" -->',
+    '(see issues/index.md)',
+    '<!-- TESTATLAS:GENERATED:END section="entries" -->',
+    '',
+  ].join('\n');
+
+/**
+ * Resolve the on-disk content (if any) for a relative path; null if absent.
+ *
+ * @param {object} files
+ * @param {string} absPath
+ */
+function findExistingContent(files, absPath) {
+  const md = (files.allMarkdownFiles ?? []).find((f) => f.path === absPath);
+  return md?.content ?? null;
+}
+
+async function applyHeal03(ctx, finding, { apply, dryRun }) {
+  const { files, wsDir } = ctx;
+  const relPath = finding.path;
+  const absPath = path.join(wsDir, relPath);
+
+  // Decide which kind of index we're regenerating.
+  const segs = relPath.split('/');
+  let title;
+  let body;
+  const entriesHashKey = 'entries';
+
+  if (segs[0] === 'to_fix' && segs.length === 3 && /^by_/.test(segs[1])) {
+    const facet = CROSSCUT_FACETS.find((f) => f.dir === segs[1]);
+    if (!facet) return null;
+    const value = segs[2].replace(/\.md$/, '');
+    title = facet.titleFmt(value);
+    body = buildCrosscutEntries(files.issues, facet.field, value);
+  } else if (segs[0] === 'domains' && segs.length === 3 && segs[2] === 'index.md') {
+    const slug = segs[1];
+    title = `Domain: ${slug}`;
+    // domains/<slug>/index.md is mostly human-curated; we still expose an
+    // "entries" marker pair pointing at issues/index.md so HEAL-03 can
+    // refresh it deterministically.
+    body = ['(see issues/index.md)'];
+  } else if (
+    segs[0] === 'domains' &&
+    segs.length === 4 &&
+    segs[2] === 'issues' &&
+    segs[3] === 'index.md'
+  ) {
+    const slug = segs[1];
+    // Look up the issue.domain id; fall back to slug if no domain.json link.
+    const dom = (files.domains ?? []).find((d) => d.slug === slug);
+    const domainId = dom?.parsed?.id ?? `domain-${slug}`;
+    title = `Issues for ${domainId}`;
+    body = buildDomainIssuesBody(files.issues, domainId);
+  } else {
+    // Unknown index shape — refuse.
+    return null;
+  }
+
+  // Read existing file (if any). Decide whether to renderSection or write
+  // the fresh template.
+  let updated;
+  const existing = findExistingContent(files, absPath);
+  if (existing !== null) {
+    // Try renderSection on existing markers; on missing markers, fall back
+    // to the template.
+    let parsed;
+    try {
+      parsed = parseMarkers(existing);
+    } catch (err) {
+      const e = new Error(`HEAL-03 refused: ${err.message}`);
+      e.code = err.code ?? 'TESTATLAS_MARKER_INVALID';
+      throw e;
+    }
+    if (parsed.errors.length > 0) {
+      const e = new Error(`HEAL-03 refused: marker errors in ${relPath}`);
+      e.code = 'TESTATLAS_MARKER_INVALID';
+      throw e;
+    }
+    if (parsed.sections.has('entries')) {
+      updated = renderSection(existing, 'entries', body);
+    } else {
+      // No "entries" section present; write a fresh template (this loses any
+      // pre-existing non-marker content, but the existing content carries
+      // no marker contract so the user expectation is "regenerate"). For the
+      // domains/<slug>/index.md case (which traditionally contains human
+      // prose without markers), preserve the existing prose by appending the
+      // marker block.
+      if (segs[0] === 'domains' && segs.length === 3 && segs[2] === 'index.md') {
+        updated = `${existing.replace(/\s*$/, '')}\n\n<!-- TESTATLAS:GENERATED:START section="entries" -->\n${body.join(
+          '\n',
+        )}\n<!-- TESTATLAS:GENERATED:END section="entries" -->\n`;
+      } else {
+        updated = ENTRIES_TEMPLATE(title, body);
+      }
+    }
+  } else if (segs[0] === 'domains' && segs.length === 3 && segs[2] === 'index.md') {
+    updated = DOMAIN_INDEX_TEMPLATE(segs[1]);
+    // Ensure the entries section is rendered with the computed body.
+    updated = renderSection(updated, 'entries', body);
+  } else {
+    updated = ENTRIES_TEMPLATE(title, body);
+  }
+
+  const newHash = hashContent(body);
+
+  if (apply && !dryRun) {
+    // Ensure parent dir exists (cross-cut by_*/ dirs may be absent in fresh
+    // workspaces with no issues of that facet value yet).
+    await ensureParentDir(absPath);
+    await atomicWrite(absPath, updated);
+
+    // Refresh manifest.generatedSections[<relPath>][<entriesHashKey>] hash.
+    const m = JSON.parse(JSON.stringify(ctx.manifest ?? {}));
+    if (!m.generatedSections) m.generatedSections = {};
+    if (!m.generatedSections[relPath]) m.generatedSections[relPath] = {};
+    m.generatedSections[relPath][entriesHashKey] = newHash;
+    m.lastUpdatedAt = new Date().toISOString();
+    await atomicWrite(
+      path.join(wsDir, '11_workspace_manifest.json'),
+      `${JSON.stringify(m, null, 2)}\n`,
+    );
+    ctx.manifest = m;
+  }
+
+  return {
+    healId: 'HEAL-03',
+    path: relPath,
+    summary: `regenerated ${relPath}; preserved human prose outside markers`,
+  };
 }
 
 // ─── Dispatch table ───────────────────────────────────────────────────────────
@@ -257,9 +625,12 @@ export async function autoHealFindings(results, ctx, opts = {}) {
 
   // De-dupe HEAL-01: TESTATLAS_COUNT_MISMATCH typically yields one finding per
   // count key (e.g., 5 findings if all 5 counts differ). A single HEAL-01
-  // pass refreshes ALL counts in one atomicWrite — so we apply it once and
-  // record once.
+  // pass refreshes ALL counts in one atomicWrite — so we apply it once.
+  // De-dupe HEAL-02: only one regen of 09_artifact_index.md per autoheal call.
+  // De-dupe HEAL-03: only one regen per index path per autoheal call.
   const seenCodesForSingleton = new Set();
+  const seenHeal02 = { done: false };
+  const seenHeal03Paths = new Set();
 
   const allFindings = (results ?? []).flatMap((r) => r.findings ?? []);
 
@@ -281,6 +652,17 @@ export async function autoHealFindings(results, ctx, opts = {}) {
       if (finding.code === 'TESTATLAS_COUNT_MISMATCH') {
         if (seenCodesForSingleton.has('TESTATLAS_COUNT_MISMATCH')) continue;
         seenCodesForSingleton.add('TESTATLAS_COUNT_MISMATCH');
+      }
+      // HEAL-02 dedup: 09_artifact_index.md regenerates entire file; once
+      // suffices regardless of how many findings target it.
+      if (handler === applyHeal02) {
+        if (seenHeal02.done) continue;
+        seenHeal02.done = true;
+      }
+      // HEAL-03 dedup: per relative path.
+      if (handler === applyHeal03) {
+        if (seenHeal03Paths.has(finding.path)) continue;
+        seenHeal03Paths.add(finding.path);
       }
 
       try {
