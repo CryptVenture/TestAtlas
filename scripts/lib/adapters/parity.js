@@ -1,0 +1,249 @@
+// scripts/lib/adapters/parity.js
+//
+// Plan 06-02: adapter-parity enumeration library.
+//
+// Single export `enumerate({ repoRoot })` returns the full (command × adapter)
+// matrix and a typed drift array. Used by:
+//   - scripts/check-adapter-parity.js  (CLI: prints + exits)
+//   - test/adapter-parity-stub.test.js (VAL-05 gate; rewritten in place by 06-02)
+//
+// Drift taxonomy (locked; downstream plans 06-03/04/05 do NOT extend):
+//   - missing       : expected file does not exist on disk
+//   - no-marker     : file exists but no adapter-marker envelope found
+//   - hash-mismatch : marker exists but marker.hash !== hashContent(currentSourceText)
+//                     (someone edited a source command without regenerating)
+//   - hand-edit     : marker hash matches source but the body bytes differ
+//                     from a fresh in-memory render (someone edited the
+//                     derived file directly). Layer-2 detection — only fires
+//                     for adapters whose renderer is registered in RENDERERS.
+//
+// Severity (transitional vs strict):
+//   - `missing` is tolerated UNTIL Plan 06-05 flips strict mode (every adapter
+//     shipped). The CLI's --strict flag elevates `missing` to a failure.
+//   - `no-marker`, `hash-mismatch`, `hand-edit` are NEVER tolerated — they
+//     fail the gate immediately in both modes.
+//
+// Matrix shape: 30 commands × 7 adapters = 210 obligations. Per-command-file
+// adapters (claude-code, generic, opencode, kilocode, cursor) emit 30 distinct
+// expected paths each. Concatenated/manifest adapters (aider, mcp) emit 30
+// obligations all pointing to the SAME single output file (so the missing-file
+// signal is per-(command, adapter) and the count stays uniform at 30/adapter).
+//
+// README files in adapter trees are intentionally NOT enumerated: they don't
+// match any adapter.outputPattern. This is the answer to 06-RESEARCH.md §Q3.2.
+
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { hashContent } from '../content-hash.js';
+import { listCommandFiles } from '../list-command-files.js';
+import { parseAdapterMarker } from './_shared.js';
+import { renderClaudeCode } from './render-claude-code.js';
+
+// Renderer dispatch table for layer-2 byte-compare. Plans 06-03/04 register
+// additional renderers here as they ship. An adapter without a registered
+// renderer skips the layer-2 hand-edit check (the marker-hash check still
+// runs, so source-drift is still caught).
+const RENDERERS = Object.freeze({
+  'claude-code': renderClaudeCode,
+});
+
+const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
+
+/**
+ * @typedef {Object} AdapterEntry
+ * @property {string} name
+ * @property {string} outputDir
+ * @property {string} outputPattern
+ * @property {string} fileExtension
+ * @property {string[]} capabilities
+ * @property {string} renderStrategy
+ */
+
+/**
+ * @typedef {Object} DriftEntry
+ * @property {'missing'|'no-marker'|'hash-mismatch'|'hand-edit'} kind
+ * @property {string} adapter           Adapter name.
+ * @property {string} command           Source command base name (no extension).
+ * @property {string} expectedPath      Absolute path the parity gate expected.
+ * @property {string} [sourcePath]      Absolute path of the source command.
+ * @property {string} [expectedHash]    For hash-mismatch: marker.hash on disk.
+ * @property {string} [actualHash]      For hash-mismatch: hashContent(currentSource).
+ */
+
+/**
+ * @typedef {Object} EnumerateResult
+ * @property {number} coverage         found / expected (0..1)
+ * @property {number} expected         Total obligations across the matrix.
+ * @property {number} found            expected - drift.length.
+ * @property {DriftEntry[]} drift      One entry per obligation that failed.
+ */
+
+/**
+ * Compute the absolute on-disk path for a (command, adapter) obligation.
+ *
+ * Per-command-file adapters: substitute {command} into outputPattern.
+ * Concatenated/manifest adapters: outputPattern is a static filename — every
+ * command obligation resolves to the same path (the single derived file).
+ *
+ * @param {string} repoRoot
+ * @param {AdapterEntry} adapter
+ * @param {string} commandBaseName e.g. 'init'
+ * @returns {string} absolute path
+ */
+function expectedPathFor(repoRoot, adapter, commandBaseName) {
+  const rel = adapter.outputPattern.includes('{command}')
+    ? adapter.outputPattern.replace('{command}', commandBaseName)
+    : adapter.outputPattern;
+  return path.join(repoRoot, adapter.outputDir, rel);
+}
+
+/**
+ * Determine drift kind for a single (command, adapter) obligation.
+ *
+ * @param {{
+ *   repoRoot: string,
+ *   adapter: AdapterEntry,
+ *   commandBaseName: string,
+ *   sourcePath: string,
+ *   sourceText: string,
+ * }} ctx
+ * @returns {Promise<DriftEntry | null>} null when the obligation is satisfied
+ */
+async function classifyOne(ctx) {
+  const { repoRoot, adapter, commandBaseName, sourcePath, sourceText } = ctx;
+  const expectedPath = expectedPathFor(repoRoot, adapter, commandBaseName);
+
+  let derivedText;
+  try {
+    derivedText = await readFile(expectedPath, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return {
+        kind: 'missing',
+        adapter: adapter.name,
+        command: commandBaseName,
+        expectedPath,
+        sourcePath,
+      };
+    }
+    throw err;
+  }
+
+  // Concatenated/manifest strategies: a single output file represents 30
+  // obligations. The marker check is per-command (the file is expected to
+  // contain ONE marker per command source). Plan 06-04 wires those renderers;
+  // for now any non-ENOENT presence is unexpected (renderer not shipped) but
+  // we still walk the marker path for forward-compat.
+  const marker = parseAdapterMarker(derivedText);
+
+  // For per-command-file: a single marker per file, source attribute selects
+  // which command this file belongs to. We need the marker for THIS command.
+  // For concatenated: parseAdapterMarker only returns the FIRST marker — when
+  // those renderers ship (06-04), this enumeration logic must be extended to
+  // walk every marker. Plan 06-02 stops at single-marker semantics, which
+  // matches the per-command-file adapters that exist today and falls back to
+  // `no-marker` cleanly for unshipped concatenated adapters whose file
+  // contains no marker at all yet.
+  if (!marker) {
+    return {
+      kind: 'no-marker',
+      adapter: adapter.name,
+      command: commandBaseName,
+      expectedPath,
+      sourcePath,
+    };
+  }
+
+  // For per-command-file adapters, the marker MUST belong to this command.
+  // A mismatched marker.source is a strong "wrong file at this path" signal —
+  // surface as no-marker (the right marker is missing).
+  if (adapter.renderStrategy === 'per-command-file') {
+    const expectedSourceRel = `commands/${commandBaseName}.md`;
+    if (marker.source !== expectedSourceRel) {
+      return {
+        kind: 'no-marker',
+        adapter: adapter.name,
+        command: commandBaseName,
+        expectedPath,
+        sourcePath,
+      };
+    }
+  }
+
+  const sourceHash = hashContent(sourceText);
+  if (marker.hash !== sourceHash) {
+    return {
+      kind: 'hash-mismatch',
+      adapter: adapter.name,
+      command: commandBaseName,
+      expectedPath,
+      sourcePath,
+      expectedHash: marker.hash,
+      actualHash: sourceHash,
+    };
+  }
+
+  // Layer 2: re-render in-memory and byte-compare. Catches hand-edits whose
+  // marker hash still matches the source (someone edited the derived file
+  // body without touching the marker line).
+  const render = RENDERERS[adapter.name];
+  if (render) {
+    const fresh = render({ sourceText, sourcePath });
+    if (fresh !== derivedText) {
+      return {
+        kind: 'hand-edit',
+        adapter: adapter.name,
+        command: commandBaseName,
+        expectedPath,
+        sourcePath,
+      };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Enumerate the (command × adapter) parity matrix against the live tree at
+ * `repoRoot` and report drift.
+ *
+ * @param {{ repoRoot?: string }} [opts]
+ * @returns {Promise<EnumerateResult>}
+ */
+export async function enumerate({ repoRoot = process.cwd() } = {}) {
+  const capsPath = path.join(repoRoot, ADAPTER_CAPS_REL);
+  const caps = JSON.parse(await readFile(capsPath, 'utf8'));
+  /** @type {AdapterEntry[]} */
+  const adapters = caps.adapters;
+
+  const sources = await listCommandFiles({ cwd: repoRoot });
+  const sourceTexts = await Promise.all(
+    sources.map(async (sp) => ({
+      sourcePath: sp,
+      commandBaseName: path.basename(sp, '.md'),
+      sourceText: await readFile(sp, 'utf8'),
+    })),
+  );
+
+  /** @type {DriftEntry[]} */
+  const drift = [];
+  let expected = 0;
+
+  for (const adapter of adapters) {
+    for (const src of sourceTexts) {
+      expected += 1;
+      const entry = await classifyOne({
+        repoRoot,
+        adapter,
+        commandBaseName: src.commandBaseName,
+        sourcePath: src.sourcePath,
+        sourceText: src.sourceText,
+      });
+      if (entry) drift.push(entry);
+    }
+  }
+
+  const found = expected - drift.length;
+  const coverage = expected === 0 ? 1 : found / expected;
+  return { coverage, expected, found, drift };
+}
