@@ -1,11 +1,18 @@
 // test/commands/dogfood-loop.test.js
 //
-// CMD-01: final structural test for Phase 3. Asserts the EXACT 9-file
-// dogfood-loop roster locked in CONTEXT.md (no missing files, no extras).
-// This test cannot live in Plan 03-01 because the roster is only complete
-// after Plans 03-02 + 03-03 ship the actual command files. The test acts
-// as a drift detector: if a future commit adds (or removes) a command file
-// without updating EXPECTED_ROSTER, the test fails with a clear diff.
+// CMD-01: structural test asserting the EXACT 30-file Phase 4 closure roster
+// (Phase 3 shipped 9; Phase 4 ships 21 NEW = 30 total). Cannot live in any
+// single plan because the roster is only complete after Wave 1 + Wave 2 of
+// Phase 4 lands. Acts as a drift detector: adding or removing a command
+// without updating EXPECTED_ROSTER fails the test with a clear diff.
+//
+// Build-up history:
+//   - Phase 3 (9):  init, bootstrap, validate-workspace, log-issue,
+//                   explore-codebase, map-domains, plan, test-flow, report
+//   - Phase 4 (+21): explore (umbrella), explore-{ui,cli,api,docs,runtime,
+//                   data,integrations,accessibility,performance,security},
+//                   test-{domain,regression,accessibility,performance},
+//                   triage, retest, consolidate, handoff, cleanup, update
 //
 // README.md is filtered out — it is an index page, not a command file.
 
@@ -17,18 +24,39 @@ import { test } from 'node:test';
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 
 const EXPECTED_ROSTER = [
-  'init.md',
   'bootstrap.md',
-  'validate-workspace.md',
-  'log-issue.md',
+  'cleanup.md',
+  'consolidate.md',
+  'explore-accessibility.md',
+  'explore-api.md',
+  'explore-cli.md',
   'explore-codebase.md',
+  'explore-data.md',
+  'explore-docs.md',
+  'explore-integrations.md',
+  'explore-performance.md',
+  'explore-runtime.md',
+  'explore-security.md',
+  'explore-ui.md',
+  'explore.md',
+  'handoff.md',
+  'init.md',
+  'log-issue.md',
   'map-domains.md',
   'plan.md',
-  'test-flow.md',
   'report.md',
+  'retest.md',
+  'test-accessibility.md',
+  'test-domain.md',
+  'test-flow.md',
+  'test-performance.md',
+  'test-regression.md',
+  'triage.md',
+  'update.md',
+  'validate-workspace.md',
 ];
 
-test('CMD-01: dogfood loop ships exactly 9 command files', async () => {
+test('CMD-01: dogfood loop ships exactly 30 command files', async () => {
   const files = await listCommandFiles();
   const basenames = files
     .map((f) => path.basename(f))
