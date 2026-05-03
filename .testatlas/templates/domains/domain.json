@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-PLACEHOLDER",
+  "name": "PLACEHOLDER",
+  "displayName": "Placeholder",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "TBD",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "0000-00-00T00:00:00Z"
+}
