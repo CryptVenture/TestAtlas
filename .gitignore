@@ -35,3 +35,5 @@ _testatlas/
 .openbrain/
 .openbrain/cache/
 .planning/
+.serena
+prd
