@@ -1,0 +1,8 @@
+# TestAtlas workspace gitignore — copied to _testatlas/.gitignore by init-workspace.
+# Mitigates Pitfall 8 (evidence sprawl + secret leakage in committed artifacts).
+evidence/screenshots/
+evidence/videos/
+evidence/traces/
+evidence/logs/
+scratch/
+.install-manifest.json

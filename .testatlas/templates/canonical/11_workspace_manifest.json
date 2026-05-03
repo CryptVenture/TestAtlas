@@ -1,0 +1,25 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/workspace-manifest.schema.json",
+  "suite": "TestAtlas",
+  "workspaceVersion": "1",
+  "workspaceDir": "_testatlas",
+  "initializedAt": "0000-00-00T00:00:00Z",
+  "lastUpdatedAt": "0000-00-00T00:00:00Z",
+  "project": {
+    "name": "",
+    "root": ".",
+    "detectedStack": [],
+    "packageManagers": [],
+    "runtimes": []
+  },
+  "counts": {
+    "domains": 0,
+    "flows": 0,
+    "issues": 0,
+    "evidenceRecords": 0,
+    "testRuns": 0
+  },
+  "latestReport": null,
+  "status": "initialized",
+  "generatedSections": {}
+}
