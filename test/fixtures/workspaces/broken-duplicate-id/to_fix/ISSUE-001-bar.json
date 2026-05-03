@@ -1,0 +1,33 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-bar",
+  "slug": "bar",
+  "title": "Dup ID",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "ux",
+  "domain": "domain-auth",
+  "flow": "FLOW-auth-login",
+  "environment": "local",
+  "persona": "end-user",
+  "foundOn": "2026-05-01T12:00:00Z",
+  "foundBy": "agent",
+  "summary": "Error banner disappears as soon as the email field gains focus.",
+  "expectedBehavior": "Error banner remains until user begins typing.",
+  "actualBehavior": "Banner disappears on focus.",
+  "userImpact": "Users miss the failure reason.",
+  "reproductionSteps": [
+    "visit /login",
+    "submit empty form",
+    "click email field"
+  ],
+  "frequency": "always",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "banner persists until input change"
+  ],
+  "lastUpdatedAt": "2026-05-01T12:00:00Z"
+}

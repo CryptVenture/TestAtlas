@@ -18,6 +18,7 @@
       "!**/_testatlas",
       "!**/.testatlas",
       "!**/.testatlas.backup-*",
+      "!test/fixtures/workspaces",
       "!**/coverage",
       "!**/dist",
       "!**/build",

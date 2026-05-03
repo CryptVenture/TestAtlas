@@ -1,0 +1,40 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/workspace-manifest.schema.json",
+  "suite": "TestAtlas",
+  "workspaceVersion": "1",
+  "workspaceDir": "_testatlas",
+  "initializedAt": "2026-05-01T12:00:00Z",
+  "lastUpdatedAt": "2026-05-01T12:00:00Z",
+  "project": {
+    "name": "fixture-app",
+    "root": ".",
+    "detectedStack": [],
+    "packageManagers": [],
+    "runtimes": []
+  },
+  "counts": {
+    "domains": 1,
+    "flows": 1,
+    "issues": 1,
+    "evidenceRecords": 1,
+    "testRuns": 0
+  },
+  "latestReport": "reports/REPORT-2026-05-01.md",
+  "status": "reporting",
+  "generatedSections": {
+    "00_overview.md": {
+      "current-status": "fcfe3d1978ba0737"
+    },
+    "03_execution_status.md": {
+      "current-run": "3bb0a4ed34b49dc6",
+      "counts": "31443d48f77d89bb"
+    },
+    "09_artifact_index.md": {
+      "domain-docs": "50c613caa3c23794",
+      "flow-docs": "e757ab3c02704078",
+      "issue-docs": "982066d6e2623cc3",
+      "evidence": "feb4a796c76dba77",
+      "reports": "a437a4ef17f9b885"
+    }
+  }
+}

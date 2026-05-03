@@ -1,0 +1,33 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-auth",
+  "name": "auth",
+  "displayName": "Authentication",
+  "status": "mapped",
+  "confidence": "medium",
+  "purpose": "Sign-in, sign-out, password reset.",
+  "primaryUserGoals": [
+    "log in",
+    "log out"
+  ],
+  "personas": [],
+  "entryPoints": [
+    "/login"
+  ],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [
+    "FLOW-auth-login"
+  ],
+  "dependencies": [],
+  "issues": [
+    "ISSUE-001-foo"
+  ],
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-01T12:00:00Z"
+}

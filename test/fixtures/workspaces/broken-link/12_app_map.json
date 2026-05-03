@@ -1,0 +1,14 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/app-map.schema.json",
+  "domains": [],
+  "routes": [],
+  "components": [],
+  "apis": [],
+  "cliCommands": [],
+  "jobs": [],
+  "integrations": [],
+  "entities": [],
+  "flows": [],
+  "tests": [],
+  "relationships": []
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/flow.schema.json",
+  "id": "FLOW-auth-login",
+  "name": "Login",
+  "domain": "domain-auth",
+  "persona": "end-user",
+  "priority": "medium",
+  "status": "tested",
+  "confidence": "medium",
+  "goal": "Authenticate an existing user with email + password.",
+  "preconditions": [
+    "user has account"
+  ],
+  "entryPoints": [
+    "/login"
+  ],
+  "expectedBehavior": [
+    "user submits credentials",
+    "session cookie issued"
+  ],
+  "alternatePaths": [],
+  "edgeCases": [],
+  "failurePaths": [],
+  "dataRequirements": [],
+  "dependencies": [],
+  "testScenarios": [],
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "issues": [
+    "ISSUE-001-foo"
+  ],
+  "retestNotes": [],
+  "lastUpdatedAt": "2026-05-01T12:00:00Z"
+}

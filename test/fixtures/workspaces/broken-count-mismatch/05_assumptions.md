@@ -1,0 +1,3 @@
+# 05 Assumptions
+
+(stub)

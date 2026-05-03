@@ -1,0 +1,13 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "id": "EVIDENCE-001",
+  "type": "screenshot",
+  "path": "evidence/EVIDENCE-001/screenshot.png",
+  "domain": "domain-auth",
+  "flow": "FLOW-auth-login",
+  "issue": "ISSUE-001-foo",
+  "capturedOn": "2026-05-01T12:00:00Z",
+  "environment": "local",
+  "description": "Screenshot of the login form after submit-empty.",
+  "redacted": false
+}
