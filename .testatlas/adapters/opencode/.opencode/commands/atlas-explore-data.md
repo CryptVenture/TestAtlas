@@ -1,0 +1,66 @@
+---
+description: Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows.
+---
+
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="c157e14250f01c1b" -->
+First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+
+## Purpose
+
+Map the target product's persistence layer per PRD §13.7: ORM schemas, entities, lifecycle state machines, seed fixtures, queue topics, cache key conventions, and object-storage buckets. Produce data entries inside `_testatlas/12_app_map.json` (validates against `app-map.schema.json`) plus a per-run evidence directory under `_testatlas/evidence/explore-data/<timestamp>/`. NEVER persists row contents; this command introspects schemas, counts, and lifecycle metadata only — never user data, never PII.
+
+## Required First Reads
+
+- `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
+- `_testatlas/12_app_map.json` — REQUIRED. If missing, halt with `Run /atlas:explore-codebase first.`
+- `.testatlas/default.config.json` — read `safeMode` and `allowProductionTesting`. The default `allowProductionTesting=false` forbids any connection to a production data store.
+- `.testatlas/schemas/app-map.schema.json` — output contract for the data entries this command writes.
+- ORM and schema definition files: `prisma/schema.prisma`, `db/schema.rb`, `models/`, `migrations/`, `alembic/`, `drizzle/schema.*`, `entities/` (TypeORM/MikroORM), Mongoose schemas, `sqlx`/`diesel` macros, GORM struct tags, `*.dbml`.
+- Seed and fixture files: `seeds/`, `db/seeds.rb`, `prisma/seed.*`, `fixtures/`, `factories/`.
+- Queue, cache, and storage references: BullMQ/Sidekiq/Celery/SQS topic constants, Redis prefix conventions, Kafka topic configs, S3/R2/GCS bucket constants, signed-URL helpers.
+
+## Required Actions
+
+1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
+2. Verify `shell` capability. If `shell` is unavailable, MUST NOT run schema-introspection commands (`prisma db pull`, `pg_dump --schema-only`, `mysqldump --no-data`, `sqlite3 .schema`, `rails db:schema:dump`) — fall back to file-only enumeration of model, migration, and seed files. Mark every finding `confidence: needs-validation` per `bootstrap.md` §4. Never invent tables, columns, or relationships from training-data priors.
+3. **Production-data avoidance — load-bearing.** This command introspects schemas only; it MUST NOT read row contents. If any tool invocation would require row access (e.g. `pg_dump --data-only`, `SELECT * FROM users`, `mongoexport` of collections), refuse it and halt. If `allowProductionTesting=false` (the default), refuse to connect to any database whose URL contains production indicators (host suffix `prod`, `production`, `live`; explicit `NODE_ENV=production`; absence of `_dev`/`_test`/`_local` in the database name). Prefer schema files on disk over any live connection.
+4. Enumerate persistence surfaces from `12_app_map.json` plus filesystem walk: ORM model files, migration directory contents (file names and ordering only — do not execute), schema definition files, seed/fixture files, queue topic definitions, cache key conventions and TTL constants, object-storage bucket names and access modes.
+5. Capture lifecycle states per entity: valid states (`status` enums, state-machine declarations like `aasm`/`xstate`, ActiveRecord `enum :status`, Prisma enum types), valid transitions (from state-machine declarations or explicit guard clauses), and terminal states. Cite source file and line range.
+6. Capture seed-fixture inventory: which scenarios bootstrap which records (e.g. `seed:demo`, `seed:test-fixtures`); cite seed file paths. Record only fixture identifiers and counts — never row payloads.
+7. Save raw evidence to `_testatlas/evidence/explore-data/<timestamp>/`: schema dumps (structure only), migration listings, seed paths, queue topic enumerations, cache prefix tables, bucket inventories.
+8. Update `_testatlas/12_app_map.json` data entries with discovered shape + lifecycle metadata + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
+9. Append a data-inventory section to `_testatlas/01_app_inventory.md` listing entities and lifecycle state machines.
+10. Close the lifecycle (next section).
+
+## Outputs
+
+- Data entries in `_testatlas/12_app_map.json` — schema-valid models / queues / caches / storage entries, each citing evidence paths.
+- `_testatlas/evidence/explore-data/<timestamp>/` — schema dumps (structure only), migration listings, seed paths, queue/cache/storage inventories.
+- Updated `_testatlas/01_app_inventory.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, counts of entities / queues / caches / storage objects discovered.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and updated `12_app_map.json` must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.models`, plus queue/cache/storage counts if the manifest tracks them.
+- `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
+
+## Stop Conditions
+
+- No persistence surface detected (no ORM models, no migrations, no schema files) → record an empty data inventory and close (NOT a halt; legitimate for static-site or pure-frontend targets).
+- Production database target detected with `allowProductionTesting=false` → halt; "Refusing to introspect production database; set allowProductionTesting=true (with operator approval) to override."
+- Any required step would read row contents (data, not schema) → halt; this command is schema-only by contract.
+- Any required step would mutate target source files or run a migration → halt; the workspace lives only under `_testatlas/`.
+- `app-map.schema.json` validation fails on the updated map → halt; do not commit a malformed map.
+
+## Completion Criteria
+
+- Every entity entry in `12_app_map.json` cites at least one evidence path under `_testatlas/evidence/explore-data/<timestamp>/` that exists on disk.
+- Lifecycle state machines per entity are documented OR explicitly noted as not-discovered with reasoning.
+- No row contents have been written anywhere in `_testatlas/`.
+- The five lifecycle files listed above are updated.
+- A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+<!-- TESTATLAS:GENERATED:END section="adapter-body" -->
