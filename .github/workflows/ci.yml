@@ -81,6 +81,24 @@ jobs:
       - name: Run node:test
         run: pnpm test
 
+  token-budget:
+    name: Token budget (bootstrap ≤3000)
+    runs-on: ubuntu-latest
+    # Per Phase 1 BOOT-04 + 01-RESEARCH.md §"Pattern 5": the gate is dependency-free
+    # (built-ins only, no pnpm install needed). Runs on a single OS — algorithm is
+    # deterministic and would yield identical results on Linux/macOS/Windows.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Verify bootstrap.md is under the 3000-word budget
+        run: node scripts/check-token-budget.js .testatlas/bootstrap.md 3000
+
   commit-signing:
     name: Commit signing check
     runs-on: ubuntu-latest
