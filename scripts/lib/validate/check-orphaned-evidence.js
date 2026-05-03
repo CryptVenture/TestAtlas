@@ -63,7 +63,10 @@ function collectEvidenceRefs(parsed) {
  */
 function refToEvidId(ref) {
   if (!ref || typeof ref !== 'string') return null;
-  const m = ref.match(/(EVID-[A-Za-z0-9-]+)/);
+  // Accept both the canonical PRD §32 form (EVIDENCE-<digits>...) and the
+  // legacy EVID- form. Matching is greedy on the longer prefix first so
+  // "EVIDENCE-001-foo" yields "EVIDENCE-001-foo", not "EVID".
+  const m = ref.match(/(EVIDENCE-[A-Za-z0-9-]+|EVID-[A-Za-z0-9-]+)/);
   return m ? m[1] : null;
 }
 
