@@ -81,6 +81,23 @@ jobs:
       - name: Run node:test
         run: pnpm test
 
+      - name: Validate suite-repo meta-workspace
+        # VAL-02 (suite-repo gate): self-validate the suite's own placeholder
+        # `_testatlas/`-shaped tree at .testatlas/test-workspace. Per-example
+        # validate-workspace gates ship Phase 8 (per .planning/REQUIREMENTS.md
+        # VAL-02 partial-acceptance suffix).
+        run: node scripts/validate-workspace.js --workspace .testatlas/test-workspace --report=validation-report.md
+
+      - name: Upload validation report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report-${{ matrix.os }}-node${{ matrix.node }}
+          path: |
+            validation-report.md
+            validation-report.md.json
+          if-no-files-found: ignore
+
   token-budget:
     name: Token budget (bootstrap ≤3000, commands ≤1500)
     runs-on: ubuntu-latest

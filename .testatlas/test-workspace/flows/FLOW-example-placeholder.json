@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/flow.schema.json",
+  "id": "FLOW-example-placeholder",
+  "name": "Example Flow",
+  "domain": "domain-example",
+  "persona": "end-user",
+  "priority": "low",
+  "status": "draft",
+  "confidence": "low",
+  "goal": "Demonstrate flow validation against the meta-workspace; no real behavior modeled.",
+  "preconditions": [],
+  "entryPoints": [],
+  "expectedBehavior": [
+    "placeholder step"
+  ],
+  "alternatePaths": [],
+  "edgeCases": [],
+  "failurePaths": [],
+  "dataRequirements": [],
+  "dependencies": [],
+  "testScenarios": [],
+  "evidence": [],
+  "issues": [],
+  "retestNotes": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00Z"
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-example",
+  "name": "example",
+  "displayName": "Example",
+  "status": "mapped",
+  "confidence": "medium",
+  "purpose": "Placeholder domain so the suite-repo meta-workspace exercises domain validation paths.",
+  "primaryUserGoals": [
+    "exist as a valid placeholder"
+  ],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [
+    "FLOW-example-placeholder"
+  ],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00Z"
+}
