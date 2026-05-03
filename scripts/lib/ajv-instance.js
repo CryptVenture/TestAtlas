@@ -34,6 +34,10 @@ export function getAjv() {
  * Map AJV's error[] to readable lines: `<sourceFile>: <path>: <message>`.
  * AJV already populates `error.message` with a plain-English string.
  *
+ * For `additionalProperties` errors, the offending property name lives in
+ * `error.params.additionalProperty` rather than the message — surface it so
+ * users can spot typos like `saffeMode` immediately.
+ *
  * @param {ReadonlyArray<import('ajv').ErrorObject>} errors
  * @param {string} [sourceFile='<config>']
  * @returns {string[]}
@@ -41,6 +45,10 @@ export function getAjv() {
 export function formatErrors(errors, sourceFile = '<config>') {
   return errors.map((e) => {
     const path = e.instancePath || '/';
-    return `${sourceFile}: ${path}: ${e.message}`;
+    let message = e.message ?? '';
+    if (e.keyword === 'additionalProperties' && e.params?.additionalProperty) {
+      message = `${message} (offending property: "${e.params.additionalProperty}")`;
+    }
+    return `${sourceFile}: ${path}: ${message}`;
   });
 }

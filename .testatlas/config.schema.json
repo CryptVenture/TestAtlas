@@ -105,7 +105,7 @@
       "oneOf": [
         { "type": "null" },
         { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$" },
-        { "type": "string", "pattern": "^\\d+\\.[x*](\\.[x*])?$" }
+        { "type": "string", "pattern": "^\\d+\\.(\\d+|[x*])(\\.[x*])?$" }
       ]
     },
     "disableUpdateCheck": { "type": "boolean" },
