@@ -9,6 +9,10 @@
     "node": ">=20.11.0"
   },
   "engineStrict": true,
+  "dependencies": {
+    "ajv": "^8.17.0",
+    "ajv-formats": "^3.0.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/<org>/testatlas.git"
