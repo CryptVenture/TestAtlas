@@ -1,0 +1,52 @@
+{
+  "name": "testatlas",
+  "version": "0.0.0",
+  "description": "Installable, agent-agnostic product testing and quality intelligence framework for AI coding agents.",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "engineStrict": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<org>/testatlas.git"
+  },
+  "homepage": "https://github.com/<org>/testatlas#readme",
+  "bugs": {
+    "url": "https://github.com/<org>/testatlas/issues"
+  },
+  "keywords": [
+    "testing",
+    "quality-assurance",
+    "ai-agents",
+    "agentic",
+    "claude-code",
+    "opencode",
+    "kilocode",
+    "cursor",
+    "aider",
+    "mcp",
+    "test-framework",
+    "exploration",
+    "evidence",
+    "qa"
+  ],
+  "scripts": {
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "node --test",
+    "changeset": "changeset",
+    "prepare": "simple-git-hooks"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@changesets/cli": "^2.27.0",
+    "simple-git-hooks": "^2.11.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx --no-install biome check --staged --no-errors-on-unmatched"
+  }
+}
