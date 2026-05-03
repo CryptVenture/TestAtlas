@@ -38,6 +38,7 @@ import { hashContent } from '../content-hash.js';
 import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderClaudeCode } from './render-claude-code.js';
+import { renderGeneric } from './render-generic.js';
 
 // Renderer dispatch table for layer-2 byte-compare. Plans 06-03/04 register
 // additional renderers here as they ship. An adapter without a registered
@@ -45,6 +46,7 @@ import { renderClaudeCode } from './render-claude-code.js';
 // runs, so source-drift is still caught).
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  generic: renderGeneric,
 });
 
 const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');

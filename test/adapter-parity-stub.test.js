@@ -60,21 +60,33 @@ async function makeTmpRepo() {
   return dir;
 }
 
-test('Test 1: live tree — coverage 30/210, every drift entry is `missing`', async () => {
+test('Test 1: live tree — only `missing` drift in transitional mode; coverage matches shipped adapters', async () => {
   const result = await enumerate({ repoRoot });
+  // 30 source commands × 7 declared adapters = 210 expected obligations.
   assert.equal(result.expected, 210, 'expected obligations = 30 commands × 7 adapters');
-  assert.equal(result.found, 30, 'only claude-code is populated at this wave');
-  assert.equal(result.drift.length, 180, `drift = expected - found (got ${result.drift.length})`);
+  // Drift count is exactly expected − found.
+  assert.equal(result.drift.length, result.expected - result.found, 'drift = expected − found');
+  // In transitional mode (Plans 06-02 → 06-04) every drift entry must be
+  // `missing` — non-missing kinds (no-marker / hash-mismatch / hand-edit) are
+  // never tolerated. As more adapters ship across Wave 2, `found` rises in
+  // multiples of 30; the per-kind invariant below holds throughout.
   const nonMissing = result.drift.filter((d) => d.kind !== 'missing');
   assert.equal(
     nonMissing.length,
     0,
-    `every drift entry must be 'missing' at this wave; got non-missing: ${JSON.stringify(nonMissing.slice(0, 3))}`,
+    `every drift entry must be 'missing' in transitional mode; got non-missing: ${JSON.stringify(nonMissing.slice(0, 3))}`,
   );
-  // Coverage ≈ 30/210 ≈ 0.142857...; assert with reasonable precision.
+  // `found` must be a non-negative multiple of 30 (each shipped adapter
+  // contributes 30 satisfied obligations).
+  assert.equal(result.found % 30, 0, `found must be a multiple of 30; got ${result.found}`);
   assert.ok(
-    Math.abs(result.coverage - 30 / 210) < 1e-9,
-    `coverage must equal 30/210; got ${result.coverage}`,
+    result.found >= 30,
+    `claude-code at minimum must be shipped; got found=${result.found}`,
+  );
+  // Coverage = found / expected with reasonable precision.
+  assert.ok(
+    Math.abs(result.coverage - result.found / result.expected) < 1e-9,
+    `coverage must equal found/expected; got ${result.coverage}`,
   );
 });
 

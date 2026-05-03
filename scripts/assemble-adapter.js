@@ -24,6 +24,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
+import { renderGeneric } from './lib/adapters/render-generic.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { listCommandFiles } from './lib/list-command-files.js';
@@ -37,6 +38,7 @@ const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.jso
 // and the all-adapters mode silently skips it.
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  generic: renderGeneric,
 });
 
 /**
