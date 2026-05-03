@@ -213,8 +213,11 @@ export async function walkWorkspace(wsDir) {
     }
 
     // evidence/<id>/<file>.*
-    if (top === 'evidence' && segs.length >= 3 && /^EVID-/.test(segs[1])) {
-      // Skip evidence-bucket dirs like evidence/screenshots/ (no EVID-* prefix).
+    // PRD §32 canonical pattern is `EVIDENCE-\d{3,}`. Older drafts used
+    // `EVID-`; we accept both prefixes for backward compat with any in-flight
+    // workspace fixtures, but the canonical form is `EVIDENCE-`.
+    if (top === 'evidence' && segs.length >= 3 && /^(EVIDENCE|EVID)-/.test(segs[1])) {
+      // Skip evidence-bucket dirs like evidence/screenshots/ (no EVIDENCE-* prefix).
       const id = segs[1];
       if (f.name === 'evidence.json') {
         evidenceFiles.push({
