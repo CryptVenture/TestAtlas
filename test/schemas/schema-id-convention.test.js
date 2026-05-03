@@ -15,8 +15,15 @@ const SCHEMA_DIR = path.join(repoRoot, '.testatlas/schemas');
 
 const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'));
 
-const ID_RE = /^https:\/\/testatlas\.dev\/schemas\/v1\/[a-z][a-z0-9-]*\.schema\.json$/;
+// v1 artifact schemas use the /v1/ namespace.
+const V1_ID_RE = /^https:\/\/testatlas\.dev\/schemas\/v1\/[a-z][a-z0-9-]*\.schema\.json$/;
+// Suite-config schemas (e.g., adapter-capabilities, Plan 06-01) live outside
+// the /v1/ artifact namespace because they describe suite configuration, not
+// workspace artifacts.
+const SUITE_ID_RE = /^https:\/\/testatlas\.dev\/schemas\/[a-z][a-z0-9-]*\.schema\.json$/;
 const DRAFT_2020_12 = 'https://json-schema.org/draft/2020-12/schema';
+
+const SUITE_CONFIG_SCHEMAS = new Set(['adapter-capabilities.schema.json']);
 
 test('TPL-02: every schema has $id, $schema (Draft 2020-12), title', async () => {
   const entries = await readdir(SCHEMA_DIR);
@@ -25,7 +32,12 @@ test('TPL-02: every schema has $id, $schema (Draft 2020-12), title', async () =>
   for (const file of files) {
     const schema = await readJson(path.join(SCHEMA_DIR, file));
     assert.ok(schema.$id, `${file}: missing $id`);
-    assert.match(schema.$id, ID_RE, `${file}: $id "${schema.$id}" does not match v1 convention`);
+    const expectedRe = SUITE_CONFIG_SCHEMAS.has(file) ? SUITE_ID_RE : V1_ID_RE;
+    assert.match(
+      schema.$id,
+      expectedRe,
+      `${file}: $id "${schema.$id}" does not match expected convention`,
+    );
     assert.equal(schema.$schema, DRAFT_2020_12, `${file}: $schema must be Draft 2020-12`);
     assert.ok(
       typeof schema.title === 'string' && schema.title.length > 0,

@@ -1,0 +1,69 @@
+{
+  "$schema": "../schemas/adapter-capabilities.schema.json",
+  "version": "1.0.0",
+  "adapters": [
+    {
+      "name": "claude-code",
+      "displayName": "Claude Code (canonical)",
+      "outputDir": ".testatlas/adapters/claude-code",
+      "outputPattern": ".claude/commands/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file"
+    },
+    {
+      "name": "generic",
+      "displayName": "Generic Prompt Adapter",
+      "outputDir": ".testatlas/adapters/generic",
+      "outputPattern": "prompts/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file"
+    },
+    {
+      "name": "opencode",
+      "displayName": "OpenCode",
+      "outputDir": ".testatlas/adapters/opencode",
+      "outputPattern": ".opencode/commands/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file"
+    },
+    {
+      "name": "kilocode",
+      "displayName": "KiloCode",
+      "outputDir": ".testatlas/adapters/kilocode",
+      "outputPattern": ".kilo/agents/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file"
+    },
+    {
+      "name": "cursor",
+      "displayName": "Cursor",
+      "outputDir": ".testatlas/adapters/cursor",
+      "outputPattern": ".cursor/rules/atlas-{command}.mdc",
+      "fileExtension": ".mdc",
+      "capabilities": ["shell", "web-fetch", "file-write"],
+      "renderStrategy": "per-command-file"
+    },
+    {
+      "name": "aider",
+      "displayName": "Aider",
+      "outputDir": ".testatlas/adapters/aider",
+      "outputPattern": "CONVENTIONS.md",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "file-write"],
+      "renderStrategy": "concatenated-conventions"
+    },
+    {
+      "name": "mcp",
+      "displayName": "MCP-capable Agent",
+      "outputDir": ".testatlas/adapters/mcp",
+      "outputPattern": "mcp-server-manifest.json",
+      "fileExtension": ".json",
+      "capabilities": ["shell", "web-fetch", "file-write"],
+      "renderStrategy": "mcp-server"
+    }
+  ]
+}
