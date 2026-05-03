@@ -1,0 +1,23 @@
+{
+  "id": "bad-flow",
+  "name": "Checkout",
+  "domain": "domain-billing",
+  "persona": "shopper",
+  "priority": "high",
+  "status": "mapped",
+  "confidence": "high",
+  "goal": "Customer completes purchase",
+  "preconditions": [],
+  "entryPoints": [],
+  "expectedBehavior": [],
+  "alternatePaths": [],
+  "edgeCases": [],
+  "failurePaths": [],
+  "dataRequirements": [],
+  "dependencies": [],
+  "testScenarios": [],
+  "evidence": [],
+  "issues": [],
+  "retestNotes": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

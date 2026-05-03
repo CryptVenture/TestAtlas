@@ -1,0 +1,17 @@
+{
+  "id": "TEST-billing-smoke-1",
+  "name": "Checkout smoke test",
+  "domain": "domain-billing",
+  "flow": "FLOW-billing-checkout",
+  "priority": "high",
+  "type": "smoke",
+  "status": "ready",
+  "userGoal": "Verify customer can complete a purchase end-to-end.",
+  "preconditions": ["seeded user", "test card"],
+  "testData": { "card": "4242424242424242" },
+  "steps": ["log in", "add item", "checkout"],
+  "expectedResults": ["order succeeds", "confirmation email"],
+  "evidence": [],
+  "issues": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

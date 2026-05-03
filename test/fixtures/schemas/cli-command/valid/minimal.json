@@ -1,0 +1,12 @@
+{
+  "id": "CLI-init-workspace",
+  "command": "init-workspace",
+  "description": "Initialize the _testatlas/ workspace skeleton.",
+  "safety": "safe",
+  "args": ["--workspace <path>"],
+  "flags": ["--force"],
+  "exitCodes": [0, 1, 2],
+  "helpOutput": "Usage: init-workspace [--workspace <path>] [--force]",
+  "evidence": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "domain-billing",
+  "name": "billing",
+  "displayName": "Billing",
+  "status": "mapped",
+  "confidence": "high",
+  "purpose": "Manages customer subscriptions, invoicing, and payment processing.",
+  "primaryUserGoals": ["Pay invoice", "Update payment method"],
+  "personas": ["shopper", "admin"],
+  "entryPoints": ["/billing"],
+  "routes": ["PAGE-billing"],
+  "apis": ["API-POST-billing-charge"],
+  "components": ["COMPONENT-billing-pay-button"],
+  "entities": ["Invoice", "Subscription"],
+  "flows": ["FLOW-billing-checkout"],
+  "dependencies": ["INTEGRATION-stripe"],
+  "issues": ["ISSUE-001-broken-link"],
+  "evidence": ["EVIDENCE-001-billing"],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

@@ -1,0 +1,23 @@
+{
+  "suite": "TestAtlas",
+  "workspaceVersion": "1.0.0",
+  "workspaceDir": "_testatlas",
+  "initializedAt": "2026-05-03T12:00:00Z",
+  "lastUpdatedAt": "2026-05-03T12:00:00Z",
+  "project": {
+    "name": "example-app",
+    "root": "/path/to/example-app",
+    "detectedStack": ["node", "react"],
+    "packageManagers": ["pnpm"],
+    "runtimes": ["node@22"]
+  },
+  "counts": {
+    "domains": 0,
+    "flows": 0,
+    "issues": 0,
+    "evidenceRecords": 0,
+    "testRuns": 0
+  },
+  "latestReport": null,
+  "status": "initialized"
+}

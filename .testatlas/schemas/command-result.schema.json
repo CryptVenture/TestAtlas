@@ -1,0 +1,31 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/command-result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Command Result",
+  "description": "Schema for history/command_history.jsonl entries and 10_command_log.md table rows (PRD §30). Required: command, invokedAt, completedAt, status, outputs, errors, artifactsCreated, artifactsUpdated, manifestUpdated — exactly 9 fields, matching Plan 02-02's command-log template.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "command",
+    "invokedAt",
+    "completedAt",
+    "status",
+    "outputs",
+    "errors",
+    "artifactsCreated",
+    "artifactsUpdated",
+    "manifestUpdated"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "command": { "type": "string", "minLength": 1 },
+    "invokedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "completedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "status": { "type": "string", "enum": ["success", "failed", "aborted"] },
+    "outputs": { "type": "array", "items": { "type": "string" } },
+    "errors": { "type": "array", "items": { "type": "string" } },
+    "artifactsCreated": { "type": "array", "items": { "type": "string" } },
+    "artifactsUpdated": { "type": "array", "items": { "type": "string" } },
+    "manifestUpdated": { "type": "boolean" }
+  }
+}

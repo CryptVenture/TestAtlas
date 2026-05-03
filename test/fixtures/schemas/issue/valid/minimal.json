@@ -1,0 +1,20 @@
+{
+  "id": "ISSUE-001-broken-link",
+  "slug": "broken-link",
+  "title": "Header logo link returns 404",
+  "status": "new",
+  "severity": "high",
+  "confidence": "confirmed",
+  "type": "functional",
+  "domain": "domain-billing",
+  "foundOn": "2026-05-03T12:00:00Z",
+  "summary": "The header logo link at /billing returns a 404 page.",
+  "expectedBehavior": "Clicking the header logo on /billing returns the user to the dashboard.",
+  "actualBehavior": "Clicking the header logo returns a 404 not-found page.",
+  "userImpact": "Users cannot navigate back to the dashboard from the billing page.",
+  "reproductionSteps": ["Visit /billing", "Click the header logo", "Observe 404"],
+  "frequency": "always",
+  "evidence": ["evidence/screenshots/foo.png"],
+  "acceptanceCriteria": ["Logo link routes to /dashboard"],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

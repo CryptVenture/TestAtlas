@@ -1,0 +1,14 @@
+{
+  "id": "RUN-2026-05-03T12-00-00Z",
+  "startedAt": "2026-05-03T12:00:00Z",
+  "endedAt": "2026-05-03T12:30:00Z",
+  "environment": "staging",
+  "commandsExecuted": ["smoke", "regression"],
+  "scenariosRun": ["TEST-billing-smoke-1"],
+  "passed": 1,
+  "failed": 0,
+  "blocked": 0,
+  "evidence": [],
+  "issuesCreated": [],
+  "flowConfidenceUpdates": []
+}

@@ -1,0 +1,18 @@
+{
+  "id": "REPORT-2026-05-03",
+  "generatedAt": "2026-05-03T13:00:00Z",
+  "runSummary": "All smoke tests pass; one critical issue open in billing.",
+  "environmentsCovered": ["staging"],
+  "domainsCovered": ["domain-billing"],
+  "flowsCovered": ["FLOW-billing-checkout"],
+  "testsExecuted": 1,
+  "evidenceCount": 0,
+  "keyFindings": ["Checkout double-click triggers 500"],
+  "highestSeverityIssues": ["ISSUE-002-broken-checkout"],
+  "blockers": [],
+  "gaps": ["No load testing"],
+  "assumptions": ["Stripe test mode acceptable"],
+  "recommendedNextActions": ["Fix idempotency on /checkout"],
+  "retestRecommendations": ["Re-test FLOW-billing-checkout after fix"],
+  "readinessAssessment": "Not ready: critical issue blocks release."
+}

@@ -1,0 +1,17 @@
+{
+  "domains": ["domain-billing"],
+  "routes": ["PAGE-billing"],
+  "components": ["COMPONENT-billing-pay-button"],
+  "apis": ["API-POST-billing-charge"],
+  "cliCommands": [],
+  "jobs": [],
+  "integrations": ["INTEGRATION-stripe"],
+  "entities": ["Invoice"],
+  "flows": ["FLOW-billing-checkout"],
+  "tests": ["TEST-billing-smoke-1"],
+  "relationships": [
+    { "from": "domain-billing", "to": "PAGE-billing", "type": "domain-route" },
+    { "from": "domain-billing", "to": "FLOW-billing-checkout", "type": "domain-flow" },
+    { "from": "FLOW-billing-checkout", "to": "TEST-billing-smoke-1", "type": "flow-test" }
+  ]
+}

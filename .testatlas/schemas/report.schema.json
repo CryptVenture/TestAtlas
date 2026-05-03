@@ -1,0 +1,54 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/report.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Report",
+  "description": "Schema for reports/REPORT-*.{md,json} (PRD §20).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "generatedAt",
+    "runSummary",
+    "environmentsCovered",
+    "domainsCovered",
+    "flowsCovered",
+    "testsExecuted",
+    "evidenceCount",
+    "keyFindings",
+    "highestSeverityIssues",
+    "blockers",
+    "gaps",
+    "assumptions",
+    "recommendedNextActions",
+    "retestRecommendations",
+    "readinessAssessment"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "minLength": 1 },
+    "generatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "runSummary": { "type": "string", "minLength": 1 },
+    "environmentsCovered": { "type": "array", "items": { "type": "string" } },
+    "domainsCovered": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" }
+    },
+    "flowsCovered": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" }
+    },
+    "testsExecuted": { "type": "integer", "minimum": 0 },
+    "evidenceCount": { "type": "integer", "minimum": 0 },
+    "keyFindings": { "type": "array", "items": { "type": "string" } },
+    "highestSeverityIssues": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+    },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "gaps": { "type": "array", "items": { "type": "string" } },
+    "assumptions": { "type": "array", "items": { "type": "string" } },
+    "recommendedNextActions": { "type": "array", "items": { "type": "string" } },
+    "retestRecommendations": { "type": "array", "items": { "type": "string" } },
+    "readinessAssessment": { "type": "string", "minLength": 1 }
+  }
+}

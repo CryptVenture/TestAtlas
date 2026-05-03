@@ -1,0 +1,36 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/cli-command.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas CLI Command",
+  "description": "Schema for cli/commands/CLI-<slug>.md frontmatter (PRD §11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "command",
+    "description",
+    "safety",
+    "args",
+    "flags",
+    "exitCodes",
+    "helpOutput",
+    "evidence",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/cliId" },
+    "command": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "safety": { "type": "string", "enum": ["safe", "destructive"] },
+    "args": { "type": "array", "items": { "type": "string" } },
+    "flags": { "type": "array", "items": { "type": "string" } },
+    "exitCodes": { "type": "array", "items": { "type": "integer" } },
+    "helpOutput": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

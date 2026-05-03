@@ -1,0 +1,23 @@
+{
+  "id": "FLOW-billing-checkout",
+  "name": "Checkout",
+  "domain": "domain-billing",
+  "persona": "shopper",
+  "priority": "high",
+  "status": "mapped",
+  "confidence": "high",
+  "goal": "Customer completes purchase",
+  "preconditions": ["User logged in", "Cart non-empty"],
+  "entryPoints": ["/cart"],
+  "expectedBehavior": ["Order created", "Email sent"],
+  "alternatePaths": [],
+  "edgeCases": [],
+  "failurePaths": [],
+  "dataRequirements": ["Test card 4242..."],
+  "dependencies": ["INTEGRATION-stripe"],
+  "testScenarios": ["TEST-billing-smoke-1"],
+  "evidence": [],
+  "issues": [],
+  "retestNotes": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

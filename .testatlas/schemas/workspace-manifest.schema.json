@@ -1,0 +1,56 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/workspace-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Workspace Manifest",
+  "description": "Schema for _testatlas/11_workspace_manifest.json (PRD §14.11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "suite",
+    "workspaceVersion",
+    "workspaceDir",
+    "initializedAt",
+    "lastUpdatedAt",
+    "project",
+    "counts",
+    "latestReport",
+    "status"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "suite": { "type": "string", "const": "TestAtlas" },
+    "workspaceVersion": { "type": "string", "minLength": 1 },
+    "workspaceDir": { "type": "string", "minLength": 1 },
+    "initializedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "project": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Project metadata: name, root, detectedStack, packageManagers, runtimes (PRD-loose object — keys vary by project)."
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domains", "flows", "issues", "evidenceRecords", "testRuns"],
+      "properties": {
+        "domains": { "type": "integer", "minimum": 0 },
+        "flows": { "type": "integer", "minimum": 0 },
+        "issues": { "type": "integer", "minimum": 0 },
+        "evidenceRecords": { "type": "integer", "minimum": 0 },
+        "testRuns": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "latestReport": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string" }
+      ]
+    },
+    "status": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/manifestStatus" },
+    "generatedSections": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Map of canonical-file → {sectionSlug → contentHash}; populated by Phase 2 atomic-write hash-detection (WORK-07)."
+    }
+  }
+}

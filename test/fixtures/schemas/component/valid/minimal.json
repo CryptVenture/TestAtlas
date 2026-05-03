@@ -1,0 +1,10 @@
+{
+  "id": "COMPONENT-billing-pay-button",
+  "name": "PayButton",
+  "domain": "domain-billing",
+  "usedOnPages": ["PAGE-billing"],
+  "states": ["default", "loading", "disabled", "error"],
+  "accessibilityNotes": "Button has aria-label='Pay invoice'.",
+  "evidence": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

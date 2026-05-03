@@ -1,0 +1,47 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/app-map.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Application Map",
+  "description": "Schema for _testatlas/12_app_map.json — graph of every artifact in the workspace + cross-artifact relationships (PRD §14.12, §21).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "domains",
+    "routes",
+    "components",
+    "apis",
+    "cliCommands",
+    "jobs",
+    "integrations",
+    "entities",
+    "flows",
+    "tests",
+    "relationships"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "domains": { "type": "array", "items": { "type": "string" } },
+    "routes": { "type": "array", "items": { "type": "string" } },
+    "components": { "type": "array", "items": { "type": "string" } },
+    "apis": { "type": "array", "items": { "type": "string" } },
+    "cliCommands": { "type": "array", "items": { "type": "string" } },
+    "jobs": { "type": "array", "items": { "type": "string" } },
+    "integrations": { "type": "array", "items": { "type": "string" } },
+    "entities": { "type": "array", "items": { "type": "string" } },
+    "flows": { "type": "array", "items": { "type": "string" } },
+    "tests": { "type": "array", "items": { "type": "string" } },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "type"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

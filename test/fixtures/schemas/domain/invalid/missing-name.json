@@ -1,0 +1,20 @@
+{
+  "id": "domain-billing",
+  "displayName": "Billing",
+  "status": "mapped",
+  "confidence": "high",
+  "purpose": "Manages customer subscriptions, invoicing, and payment processing.",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

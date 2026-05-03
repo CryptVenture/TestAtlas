@@ -1,0 +1,14 @@
+{
+  "id": "API-POST-billing-charge",
+  "method": "POST",
+  "path": "/api/billing/charge",
+  "domain": "domain-billing",
+  "auth": "bearer",
+  "inputContract": { "amount": "integer", "currency": "string" },
+  "responseContract": { "orderId": "string" },
+  "errors": ["400 invalid amount", "402 payment failed"],
+  "pagination": "n/a",
+  "rateLimit": "30/min",
+  "evidence": [],
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

@@ -1,0 +1,73 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Issue",
+  "description": "Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "status",
+    "severity",
+    "confidence",
+    "type",
+    "domain",
+    "foundOn",
+    "summary",
+    "expectedBehavior",
+    "actualBehavior",
+    "userImpact",
+    "reproductionSteps",
+    "frequency",
+    "evidence",
+    "acceptanceCriteria",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" },
+    "slug": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/kebabSlug" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueStatus" },
+    "severity": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+    "confidence": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/confidence" },
+    "type": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueType" },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "flow": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" }
+      ]
+    },
+    "environment": { "type": "string" },
+    "persona": { "type": "string" },
+    "foundOn": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "foundBy": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "expectedBehavior": { "type": "string", "minLength": 1 },
+    "actualBehavior": { "type": "string", "minLength": 1 },
+    "userImpact": { "type": "string" },
+    "reproductionSteps": { "type": "array", "items": { "type": "string" } },
+    "frequency": { "type": "string", "enum": ["always", "intermittent", "unknown"] },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "relatedFiles": { "type": "array", "items": { "type": "string" } },
+    "relatedCode": { "type": "array", "items": { "type": "string" } },
+    "suspectedRootCause": { "type": "string" },
+    "scope": { "type": "string" },
+    "suggestedFixDirection": { "type": "string" },
+    "acceptanceCriteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "retestNotes": { "type": "array", "items": { "type": "string" } },
+    "history": { "type": "array", "items": { "type": "object" } },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

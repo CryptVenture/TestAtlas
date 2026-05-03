@@ -1,0 +1,15 @@
+{
+  "id": "PAGE-billing",
+  "path": "/billing",
+  "domain": "domain-billing",
+  "methods": ["GET"],
+  "personas": ["shopper"],
+  "purpose": "Show outstanding invoices and payment methods.",
+  "entryPoints": ["dashboard nav"],
+  "actions": ["pay invoice", "update card"],
+  "states": ["empty", "loading", "loaded", "error"],
+  "evidence": [],
+  "issues": [],
+  "confidence": "high",
+  "lastUpdatedAt": "2026-05-03T12:00:00Z"
+}

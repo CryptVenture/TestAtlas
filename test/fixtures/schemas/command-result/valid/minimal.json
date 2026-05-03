@@ -1,0 +1,11 @@
+{
+  "command": "init-workspace",
+  "invokedAt": "2026-05-03T12:00:00Z",
+  "completedAt": "2026-05-03T12:00:05Z",
+  "status": "success",
+  "outputs": ["Created 47 directories", "Wrote 14 canonical files"],
+  "errors": [],
+  "artifactsCreated": ["_testatlas/00_overview.md", "_testatlas/11_workspace_manifest.json"],
+  "artifactsUpdated": [],
+  "manifestUpdated": true
+}
