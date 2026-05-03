@@ -1,0 +1,118 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/config.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "suiteName",
+    "workspaceDir",
+    "instructionDir",
+    "defaultEnvironment",
+    "safeMode",
+    "allowDestructiveActions",
+    "allowProductionTesting",
+    "evidence",
+    "explorers",
+    "qualityBars",
+    "adapters",
+    "pinnedVersion",
+    "disableUpdateCheck",
+    "updateCheckTtlHours"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "suiteName": { "type": "string", "const": "TestAtlas" },
+    "workspaceDir": { "type": "string", "minLength": 1 },
+    "instructionDir": { "type": "string", "minLength": 1 },
+    "defaultEnvironment": {
+      "type": "string",
+      "enum": ["local", "staging", "preview", "production"]
+    },
+    "safeMode": { "type": "boolean" },
+    "allowDestructiveActions": { "type": "boolean" },
+    "allowProductionTesting": { "type": "boolean" },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["screenshots", "videos", "network", "console", "logs", "api", "db"],
+      "properties": {
+        "screenshots": { "type": "boolean" },
+        "videos": { "type": "boolean" },
+        "network": { "type": "boolean" },
+        "console": { "type": "boolean" },
+        "logs": { "type": "boolean" },
+        "api": { "type": "boolean" },
+        "db": { "type": "boolean" }
+      }
+    },
+    "explorers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ui",
+        "cli",
+        "codebase",
+        "api",
+        "docs",
+        "runtime",
+        "data",
+        "integrations",
+        "accessibility",
+        "performance"
+      ],
+      "properties": {
+        "ui": { "type": "boolean" },
+        "cli": { "type": "boolean" },
+        "codebase": { "type": "boolean" },
+        "api": { "type": "boolean" },
+        "docs": { "type": "boolean" },
+        "runtime": { "type": "boolean" },
+        "data": { "type": "boolean" },
+        "integrations": { "type": "boolean" },
+        "accessibility": { "type": "boolean" },
+        "performance": { "type": "boolean" }
+      }
+    },
+    "qualityBars": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requireIssueEvidence",
+        "requireFlowConfidence",
+        "requireStatusUpdateAfterCommand",
+        "requireArtifactIndexUpdate"
+      ],
+      "properties": {
+        "requireIssueEvidence": { "type": "boolean" },
+        "requireFlowConfidence": { "type": "boolean" },
+        "requireStatusUpdateAfterCommand": { "type": "boolean" },
+        "requireArtifactIndexUpdate": { "type": "boolean" }
+      }
+    },
+    "adapters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claudeCode", "openCode", "kiloCode", "generic"],
+      "properties": {
+        "claudeCode": { "type": "boolean" },
+        "openCode": { "type": "boolean" },
+        "kiloCode": { "type": "boolean" },
+        "generic": { "type": "boolean" }
+      }
+    },
+    "pinnedVersion": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$" },
+        { "type": "string", "pattern": "^\\d+\\.[x*](\\.[x*])?$" }
+      ]
+    },
+    "disableUpdateCheck": { "type": "boolean" },
+    "updateCheckTtlHours": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 720
+    }
+  }
+}

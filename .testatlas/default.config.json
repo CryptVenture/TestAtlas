@@ -1,0 +1,46 @@
+{
+  "$schema": "./config.schema.json",
+  "suiteName": "TestAtlas",
+  "workspaceDir": "./_testatlas",
+  "instructionDir": "./.testatlas",
+  "defaultEnvironment": "local",
+  "safeMode": true,
+  "allowDestructiveActions": false,
+  "allowProductionTesting": false,
+  "evidence": {
+    "screenshots": true,
+    "videos": false,
+    "network": true,
+    "console": true,
+    "logs": true,
+    "api": true,
+    "db": false
+  },
+  "explorers": {
+    "ui": true,
+    "cli": true,
+    "codebase": true,
+    "api": true,
+    "docs": true,
+    "runtime": true,
+    "data": true,
+    "integrations": true,
+    "accessibility": true,
+    "performance": true
+  },
+  "qualityBars": {
+    "requireIssueEvidence": true,
+    "requireFlowConfidence": true,
+    "requireStatusUpdateAfterCommand": true,
+    "requireArtifactIndexUpdate": true
+  },
+  "adapters": {
+    "claudeCode": true,
+    "openCode": true,
+    "kiloCode": true,
+    "generic": true
+  },
+  "pinnedVersion": null,
+  "disableUpdateCheck": false,
+  "updateCheckTtlHours": 24
+}
