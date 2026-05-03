@@ -528,3 +528,96 @@ test('Round-trip: HEAL-01..04 against composite fixture leave 0 fixable findings
     assert.equal(remaining.length, 0, `after round-trip, no remaining ${code} findings`);
   }
 });
+
+// ─── Orchestrator integration: validate-workspace --auto-heal[/--apply] ──────
+
+test('orchestrator: --auto-heal without --apply: read-only; healed is recorded', async (t) => {
+  const fx = await makeValidationFixture('broken-count-mismatch');
+  t.after(fx.cleanup);
+
+  const manifestPath = path.join(fx.wsDir, '11_workspace_manifest.json');
+  const before = await stat(manifestPath);
+
+  const r = await validateWorkspace({ cwd: fx.cwd, autoHeal: true, apply: false });
+  assert.ok(r.healed, 'healed object present');
+  assert.ok(r.healed.applied.length >= 1, 'would-be heals listed');
+
+  // Manifest unchanged (read-only).
+  const after = await stat(manifestPath);
+  assert.equal(after.mtimeMs, before.mtimeMs);
+
+  // Markdown report includes Auto-heal section.
+  assert.match(r.reportMarkdown, /## Auto-heal/);
+  assert.match(r.reportMarkdown, /### Applied/);
+});
+
+test('orchestrator: --auto-heal --apply against broken-count-mismatch: writes + post-heal exit 0', async (t) => {
+  const fx = await makeValidationFixture('broken-count-mismatch');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd, autoHeal: true, apply: true });
+  assert.ok(
+    r.healed.applied.find((h) => h.healId === 'HEAL-01'),
+    'HEAL-01 applied',
+  );
+
+  // After --apply, post-heal exit code should be 0 because the orchestrator
+  // re-walks + re-runs CHECKS and the count-mismatch is now resolved.
+  assert.equal(r.exitCode, 0, 'post-heal exit 0 (count-mismatch resolved)');
+
+  // A fresh validate run (no --auto-heal) confirms persistence.
+  const r2 = await validateWorkspace({ cwd: fx.cwd });
+  assert.equal(r2.exitCode, 0);
+  const counts = r2.results
+    .flatMap((c) => c.findings)
+    .filter((f) => f.code === 'TESTATLAS_COUNT_MISMATCH');
+  assert.equal(counts.length, 0);
+});
+
+test('orchestrator: --auto-heal --apply --dry-run: zero writes; report shows would-be heals', async (t) => {
+  const fx = await makeValidationFixture('broken-count-mismatch');
+  t.after(fx.cleanup);
+
+  const manifestPath = path.join(fx.wsDir, '11_workspace_manifest.json');
+  const before = await stat(manifestPath);
+
+  const r = await validateWorkspace({
+    cwd: fx.cwd,
+    autoHeal: true,
+    apply: true,
+    dryRun: true,
+  });
+  assert.ok(r.healed.applied.find((h) => h.healId === 'HEAL-01'));
+
+  const after = await stat(manifestPath);
+  assert.equal(after.mtimeMs, before.mtimeMs, 'no write under dry-run');
+  assert.match(r.reportMarkdown, /## Auto-heal/);
+});
+
+test('orchestrator: report renders Auto-heal section with Applied + Skipped tables', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd, autoHeal: true, apply: true });
+  assert.match(r.reportMarkdown, /## Auto-heal/);
+  assert.match(r.reportMarkdown, /### Applied \(\d+\)/);
+  // JSON sidecar shape includes autoHeal.applied + autoHeal.skipped.
+  assert.ok(r.reportJson.autoHeal);
+  assert.ok(Array.isArray(r.reportJson.autoHeal.applied));
+  assert.ok(Array.isArray(r.reportJson.autoHeal.skipped));
+});
+
+test('orchestrator: --auto-heal --apply against broken-stale-hash-whitespace-only: round-trip', async (t) => {
+  const fx = await makeValidationFixture('broken-stale-hash-whitespace-only');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd, autoHeal: true, apply: true });
+  assert.ok(r.healed.applied.find((h) => h.healId === 'HEAL-04'));
+
+  // Re-run validate WITHOUT --auto-heal: 0 stale-hash findings.
+  const r2 = await validateWorkspace({ cwd: fx.cwd });
+  const stale = r2.results
+    .flatMap((c) => c.findings)
+    .filter((f) => f.code === 'TESTATLAS_STALE_GENERATED_HASH');
+  assert.equal(stale.length, 0);
+});

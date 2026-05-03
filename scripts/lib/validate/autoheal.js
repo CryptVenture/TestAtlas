@@ -632,7 +632,8 @@ export async function autoHealFindings(results, ctx, opts = {}) {
   const seenHeal02 = { done: false };
   const seenHeal03Paths = new Set();
 
-  const allFindings = (results ?? []).flatMap((r) => r.findings ?? []);
+  const resultsArr = Array.isArray(results) ? results : [];
+  const allFindings = resultsArr.flatMap((r) => r?.findings ?? []);
 
   for (const finding of allFindings) {
     if (!finding) continue;

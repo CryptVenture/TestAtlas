@@ -40,9 +40,14 @@ import path from 'node:path';
  *
  * @param {CheckResult[]} results
  * @param {ReporterCtx} ctx
+ * @param {{
+ *   healed?: {applied: object[], skipped: object[]},
+ *   postHealResults?: CheckResult[],
+ * }} [extras]
  * @returns {string}
  */
-export function renderMarkdownReport(results, ctx) {
+export function renderMarkdownReport(results, ctx, extras = {}) {
+  const { healed, postHealResults } = extras;
   const generatedAt = new Date().toISOString();
   const wsDirRel = ctx.wsDir;
 
@@ -95,24 +100,61 @@ export function renderMarkdownReport(results, ctx) {
     }
   }
 
-  // Auto-heal hint.
-  const autoHealFindings = results.flatMap((r) => r.findings.filter((f) => f.fixable === 'auto'));
+  // Auto-heal section. Two flavors:
+  //   1. `--auto-heal` was passed: render Applied + Skipped tables from the
+  //      `healed` argument; show post-heal status if a re-run happened.
+  //   2. No `--auto-heal`: fall back to the original "hint" listing the
+  //      auto-fixable codes the user could fix by passing the flag.
   lines.push('## Auto-heal');
   lines.push('');
-  if (autoHealFindings.length === 0) {
-    lines.push('No auto-fixable findings. Run with `--auto-heal` is a no-op.');
+  if (healed) {
+    const { applied = [], skipped = [] } = healed;
+    lines.push(`### Applied (${applied.length})`);
+    lines.push('');
+    if (applied.length > 0) {
+      lines.push('| HEAL | Path | Summary |');
+      lines.push('|------|------|---------|');
+      for (const a of applied) {
+        lines.push(`| ${a.healId} | \`${a.path}\` | ${a.summary} |`);
+      }
+    } else {
+      lines.push('_No heals applied._');
+    }
+    lines.push('');
+    lines.push(`### Skipped (${skipped.length})`);
+    lines.push('');
+    if (skipped.length > 0) {
+      lines.push('| Code | Path | Reason |');
+      lines.push('|------|------|--------|');
+      for (const s of skipped) {
+        lines.push(`| ${s.code} | \`${s.path}\` | ${s.reason} |`);
+      }
+    } else {
+      lines.push('_No findings skipped._');
+    }
+    lines.push('');
+    if (postHealResults) {
+      const postStatus = aggregateStatus(postHealResults);
+      const label = postStatus === 'fail' ? 'FAIL' : postStatus === 'warn' ? 'WARN' : 'PASS';
+      lines.push(`**Post-heal status:** ${label}`);
+      lines.push('');
+    }
   } else {
-    lines.push('Run with `--auto-heal` to fix:');
-    // Group by code for compact output.
-    const byCode = new Map();
-    for (const f of autoHealFindings) {
-      byCode.set(f.code, (byCode.get(f.code) ?? 0) + 1);
+    const autoHealFindings = results.flatMap((r) => r.findings.filter((f) => f.fixable === 'auto'));
+    if (autoHealFindings.length === 0) {
+      lines.push('No auto-fixable findings. Run with `--auto-heal` is a no-op.');
+    } else {
+      lines.push('Run with `--auto-heal` to fix:');
+      const byCode = new Map();
+      for (const f of autoHealFindings) {
+        byCode.set(f.code, (byCode.get(f.code) ?? 0) + 1);
+      }
+      for (const [code, n] of byCode) {
+        lines.push(`- ${code} (${n} case${n === 1 ? '' : 's'})`);
+      }
     }
-    for (const [code, n] of byCode) {
-      lines.push(`- ${code} (${n} case${n === 1 ? '' : 's'})`);
-    }
+    lines.push('');
   }
-  lines.push('');
 
   return lines.join('\n');
 }
@@ -122,9 +164,14 @@ export function renderMarkdownReport(results, ctx) {
  *
  * @param {CheckResult[]} results
  * @param {ReporterCtx} ctx
+ * @param {{
+ *   healed?: {applied: object[], skipped: object[]},
+ *   postHealResults?: CheckResult[],
+ * }} [extras]
  * @returns {object}
  */
-export function renderJsonReport(results, ctx) {
+export function renderJsonReport(results, ctx, extras = {}) {
+  const { healed, postHealResults } = extras;
   const generatedAt = new Date().toISOString();
   const summary = results.map((r) => ({
     check: r.id,
@@ -146,9 +193,11 @@ export function renderJsonReport(results, ctx) {
 
   const autoHeal = {
     applicable: findings.filter((f) => f.fixable === 'auto'),
+    applied: healed?.applied ?? [],
+    skipped: healed?.skipped ?? [],
   };
 
-  return {
+  const out = {
     generatedAt,
     workspace: path.resolve(ctx.wsDir),
     overallStatus: aggregateStatus(results),
@@ -156,6 +205,18 @@ export function renderJsonReport(results, ctx) {
     findings,
     autoHeal,
   };
+  if (postHealResults) {
+    out.postHealSummary = {
+      overallStatus: aggregateStatus(postHealResults),
+      summary: postHealResults.map((r) => ({
+        check: r.id,
+        prdRule: r.prdRule,
+        status: r.status,
+        findingCount: r.findings.length,
+      })),
+    };
+  }
+  return out;
 }
 
 /**

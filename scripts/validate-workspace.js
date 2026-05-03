@@ -164,19 +164,44 @@ export async function validateWorkspace(
   const allChecks = await _loadChecks();
   const enabled = only ? allChecks.filter((c) => only.includes(c.id)) : allChecks;
 
-  const results = [];
-  for (const mod of enabled) {
-    const result = await mod.check(ctx);
-    results.push(result);
+  async function runAllChecks(useCtx) {
+    const acc = [];
+    for (const mod of enabled) {
+      const r = await mod.check(useCtx);
+      acc.push(r);
+    }
+    return acc;
   }
+
+  let results = await runAllChecks(ctx);
 
   let healed;
+  let postHealResults;
   if (autoHeal) {
     healed = await _autoheal(results, ctx, { dryRun, apply });
+
+    // If --apply landed actual writes, the workspace state has changed.
+    // Re-walk + re-load manifest + re-run CHECKS so downstream consumers
+    // (reporter + exit code) see the post-heal state.
+    if (apply && !dryRun && healed.applied.length > 0) {
+      const newFiles = await walkWorkspace(wsDir);
+      let newManifest = null;
+      try {
+        const text = await readFile(manifestPath, 'utf8');
+        newManifest = JSON.parse(text);
+      } catch (_err) {
+        newManifest = null;
+      }
+      const ctx2 = { wsDir, ajv, files: newFiles, manifest: newManifest, config };
+      postHealResults = await runAllChecks(ctx2);
+      // The post-heal run is what the user cares about — promote it as the
+      // canonical `results` for reporter + exit code.
+      results = postHealResults;
+    }
   }
 
-  const reportMarkdown = renderMarkdownReport(results, ctx);
-  const reportJson = renderJsonReport(results, ctx);
+  const reportMarkdown = renderMarkdownReport(results, ctx, { healed, postHealResults });
+  const reportJson = renderJsonReport(results, ctx, { healed, postHealResults });
 
   // Optional report-to-disk.
   if (report) {
@@ -191,6 +216,7 @@ export async function validateWorkspace(
   const exitCode = aggregateExitCode(results);
   const out = { results, exitCode, reportMarkdown, reportJson };
   if (healed !== undefined) out.healed = healed;
+  if (postHealResults !== undefined) out.postHealResults = postHealResults;
   return out;
 }
 
