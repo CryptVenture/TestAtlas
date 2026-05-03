@@ -40,6 +40,25 @@ test('CI workflow triggers on push/PR to main, has cross-platform matrix, runs l
   assert.match(ci, /\btest\b/i, 'CI workflow must run a test step');
 });
 
+// ---- CMD-03: token-budget job extended for command files ----
+test('Token-budget job runs check-command-budgets.js after the bootstrap step', async () => {
+  const ci = await read('.github/workflows/ci.yml');
+  assert.match(
+    ci,
+    /node scripts\/check-command-budgets\.js/,
+    'token-budget job must invoke scripts/check-command-budgets.js',
+  );
+  // The new step must come AFTER the bootstrap.md step in the same job.
+  const bootstrapIdx = ci.indexOf('check-token-budget.js .testatlas/bootstrap.md');
+  const cmdBudgetIdx = ci.indexOf('check-command-budgets.js');
+  assert.ok(bootstrapIdx > 0, 'bootstrap step must exist');
+  assert.ok(cmdBudgetIdx > 0, 'command-budgets step must exist');
+  assert.ok(
+    cmdBudgetIdx > bootstrapIdx,
+    'command-budgets step must appear AFTER the bootstrap step',
+  );
+});
+
 // ---- GOV-07: release.yml ----
 test('Release workflow exists and references changesets/action', async () => {
   const release = await read('.github/workflows/release.yml');
