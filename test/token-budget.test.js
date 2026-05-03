@@ -2,12 +2,12 @@
 // Covers: word-count helper correctness; check-token-budget.js exit codes
 // and output; CI workflow integration; bootstrap.md ≤3000 words (when present).
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, writeFile, mkdtemp, access } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { spawnSync } from 'node:child_process';
+import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { countWords, firstNWords } from '../scripts/lib/word-count.js';
