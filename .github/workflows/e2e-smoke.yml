@@ -1,0 +1,78 @@
+# E2E Smoke Workflow — VAL-06
+#
+# PARTIAL POSTURE (Phase 5 ships scaffold; Phase 7 + 8 close):
+#   - Phase 5: ships this file with `if: false` skips on install + dogfood-loop steps
+#   - Phase 7 (install path): remove `if: false` from "Install TestAtlas suite" step
+#     once scripts/install.js ships
+#   - Phase 8 (examples): remove `if: false` from "Run minimum dogfood loop" step
+#     once examples/node-api/ ships and Phase 6 adapter ships the slash-command runtime
+#
+# The "Validate suite-repo placeholder workspace" step ALWAYS runs from Phase 5 onward.
+#
+# Skip-removal contract (these TODO markers are grep targets in Phase 7 + 8 plans):
+#   TODO Phase 7 — remove `if: false` from "Install TestAtlas suite" step
+#   TODO Phase 8 — remove `if: false` from "Run minimum dogfood loop" step
+
+name: E2E Smoke
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-smoke:
+    name: E2E Smoke (Linux / Node 22)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Install TestAtlas suite (Phase 7 ships)
+        # TODO Phase 7: remove this skip when scripts/install.js ships
+        if: false
+        run: node scripts/install.js examples/node-api
+
+      - name: Run minimum dogfood loop (Phase 8 ships examples)
+        # TODO Phase 8: remove this skip when examples/node-api/ ships and the
+        # Phase 6 adapter exposes the slash-command runtime. The dogfood
+        # sequence (per RESEARCH.md §"Open Question 3") is:
+        #   /atlas:init → /atlas:bootstrap → /atlas:validate-workspace
+        #   → /atlas:explore-codebase → /atlas:map-domains → /atlas:plan
+        #   → /atlas:test-flow → /atlas:log-issue → /atlas:report
+        #   → /atlas:validate-workspace
+        if: false
+        run: |
+          cd examples/node-api
+          echo "Phase 6 + 7 + 8 wire this dogfood loop"
+
+      - name: Validate suite-repo placeholder workspace
+        # Always-runs (no `if:` modifier). Self-validates the suite repo's own
+        # meta-workspace at .testatlas/test-workspace as a smoke signal that
+        # the validate-workspace runtime + the meta-workspace fixture are in
+        # sync from Phase 5 onward.
+        run: node scripts/validate-workspace.js --workspace .testatlas/test-workspace
