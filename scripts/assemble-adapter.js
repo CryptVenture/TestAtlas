@@ -25,6 +25,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
+import { renderKilocode } from './lib/adapters/render-kilocode.js';
 import { renderOpencode } from './lib/adapters/render-opencode.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
@@ -40,6 +41,7 @@ const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.jso
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
   generic: renderGeneric,
+  kilocode: renderKilocode,
   opencode: renderOpencode,
 });
 

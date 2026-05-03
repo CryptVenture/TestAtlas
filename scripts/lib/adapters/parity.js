@@ -39,6 +39,7 @@ import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderClaudeCode } from './render-claude-code.js';
 import { renderGeneric } from './render-generic.js';
+import { renderKilocode } from './render-kilocode.js';
 import { renderOpencode } from './render-opencode.js';
 
 // Renderer dispatch table for layer-2 byte-compare. Plans 06-03/04 register
@@ -48,6 +49,7 @@ import { renderOpencode } from './render-opencode.js';
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
   generic: renderGeneric,
+  kilocode: renderKilocode,
   opencode: renderOpencode,
 });
 

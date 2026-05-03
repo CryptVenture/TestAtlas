@@ -1,0 +1,79 @@
+---
+description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs.
+mode: primary
+permission:
+  edit:
+    "_testatlas/**": allow
+    ".testatlas/**": deny
+    "*": ask
+  bash: deny
+---
+
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="f98b1a9493715fd4" -->
+First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+
+## Purpose
+
+Inventory the target repository's authored documentation per PRD §13.5: `README.md`, `CHANGELOG.md`, `docs/` trees, PRDs, ADRs, RFCs, design docs, story files, specs. Normalize substantial requirements (acceptance criteria, user stories, capability lists) into `_testatlas/stories/<slug>.md` with backlinks to the source. Flag stale and conflicting docs against the verified repository truth in `12_app_map.json`. This command is read-only against the target — it never modifies authored docs.
+
+## Required First Reads
+
+- `.testatlas/bootstrap.md` — especially §4 (capability degradation), §8 (no-evidence-no-finding), §3 (verified repository truth wins over stale documentation).
+- `_testatlas/11_workspace_manifest.json` — initialization status; current counts.
+- `_testatlas/12_app_map.json` — code-side ground truth used to detect stale docs (referenced files / symbols / integrations).
+- Target docs locations: `README.md`, `CHANGELOG.md`, `docs/`, `prd/`, `specs/`, `adr/`, `decisions/`, `rfcs/`, `design/`, `stories/`, `.github/` markdown, plus root-level `*.md` files.
+
+## Required Actions
+
+1. **No evidence, no finding.** Per `bootstrap.md` §8, every doc-inventory entry, stale flag, and conflict report this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-docs/<timestamp>/`. Fabricated paths and invented document content fail `validate-workspace`.
+2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. No shell / browser / MCP fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
+3. Enumerate doc sources, in this order:
+   - `README.md` (root) and any nested READMEs
+   - `CHANGELOG.md`, `HISTORY.md`, release notes
+   - `docs/` tree (recursive)
+   - `prd/`, `specs/`, `adr/`, `decisions/`, `rfcs/`, `design/`, `stories/`
+   - `.github/` markdown (issue / PR templates, contributing, code of conduct, security)
+   - Root-level `*.md` files not already covered
+   - Inline JSDoc / docstrings — sample only (top-level module / package docstrings); do NOT enumerate every function comment.
+4. For each doc, capture: file path, last-modified timestamp (filesystem `mtime`), word count, and structural type (one of `README`, `CHANGELOG`, `PRD`, `ADR`, `RFC`, `story`, `spec`, `design`, `template`, `other`). Save the per-doc summary under `_testatlas/evidence/explore-docs/<timestamp>/index.json`.
+5. **Stale-doc heuristic.** Flag a doc as stale if any of the following hold; record the triggering signal in the flag:
+   - (a) The doc references file paths or symbols absent from `12_app_map.json` (e.g. mentions a service / module / route the codebase no longer ships).
+   - (b) The doc's last-modified timestamp is more than 90 days behind the most-recent code commit AND the doc claims current state (uses present tense for behavior, lists current versions, names current dependencies).
+   - (c) The doc documents an integration or dependency that is no longer in the package manifests recorded by `explore-codebase` or `explore-integrations`.
+   Record stale flags under `_testatlas/evidence/explore-docs/<timestamp>/stale.md` with one row per flagged doc citing source path, signal, and corroborating evidence (e.g. the manifest line that disagrees).
+6. **Normalize substantial requirements.** A doc is "substantial" when it contains acceptance criteria, user stories, explicit capability lists, or numbered requirements. For each, write `_testatlas/stories/<slug>.md` with a backlink to the source doc path, a short summary, and the verbatim requirement block (quoted, never paraphrased). Do NOT modify the source doc. Do NOT auto-merge stories that look similar — flag duplicates for the operator instead.
+7. **Flag conflicts.** Write `_testatlas/evidence/explore-docs/<timestamp>/conflicts.md` listing doc-vs-code or doc-vs-doc inconsistencies (e.g. README claims a CLI flag the binary no longer exposes; two ADRs choose opposing options; CHANGELOG entry contradicts a PRD acceptance criterion). Per bootstrap §3, verified repository truth wins; flag the doc, do not silently rewrite it.
+8. Append a Documentation section to `_testatlas/01_app_inventory.md` with counts by structural type, total stale flags, total conflict flags, and a pointer to the evidence directory.
+9. Close the lifecycle (next section).
+
+## Outputs
+
+- `_testatlas/stories/<slug>.md` — one normalized story per substantial requirement block, with a backlink to the source doc.
+- `_testatlas/evidence/explore-docs/<timestamp>/` — `index.json` (doc inventory), `stale.md`, `conflicts.md`.
+- Updated `_testatlas/01_app_inventory.md` — Documentation section.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record current command + completion state, evidence directory path, doc count, stale flag count, conflict count.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (new stories and evidence directory must appear).
+- `_testatlas/10_command_log.md` — append a row per `command-result.schema.json`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the docs and stories counts.
+- `_testatlas/history/run_log.md` — narrative entry: "Inventoried `<n>` docs; normalized `<n>` stories; flagged `<n>` stale and `<n>` conflicting."
+
+## Stop Conditions
+
+- No docs found anywhere in the target tree → record an empty doc inventory citing the absence and close (this is not a halt; many small repos legitimately ship without docs).
+- Target docs surface exceeds 100 MB cumulative or 10 000 files → halt and surface for operator review; sampling strategy is out of scope for v1.
+- Any required step would mutate target-repo docs or source → halt; this command is strictly read-only against the target.
+- Filesystem read access to the target tree is unexpectedly denied → halt; never fabricate doc content.
+
+## Completion Criteria
+
+- Every doc-inventory entry, stale flag, and conflict cites an evidence path that exists on disk.
+- Every normalized story under `_testatlas/stories/` carries a backlink to the source doc path.
+- Manifest counts for docs and stories reflect the on-disk state.
+- The five lifecycle files above are updated.
+- A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+<!-- TESTATLAS:GENERATED:END section="adapter-body" -->
