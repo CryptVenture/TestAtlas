@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write    # required for npm publish --provenance once enabled in Phase 7
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release (changesets)
+    runs-on: ubuntu-latest
+    # Skip on forks; only main repo can release.
+    if: github.repository_owner != ''
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Detect publish gate
+        id: gate
+        run: |
+          PRIVATE=$(node -p "require('./package.json').private === true")
+          echo "private=$PRIVATE" >> "$GITHUB_OUTPUT"
+          if [ "$PRIVATE" = "true" ]; then
+            echo "package.json private:true — publish step will be skipped (expected through Phase 6; Phase 7 flips this)."
+          else
+            echo "package.json private:false — publish step will run."
+          fi
+
+      - name: Create Release Pull Request or Publish
+        uses: changesets/action@v1
+        with:
+          # `version` opens / updates a Release PR consuming pending changesets.
+          version: pnpm changeset version
+          # `publish` runs npm publish; gated on package.json `private` flag.
+          # Until Phase 7 flips private:false, this is effectively a no-op
+          # because npm refuses to publish private packages.
+          publish: pnpm changeset publish
+          commit: "chore: release (changesets)"
+          title: "chore: release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # NPM_TOKEN is intentionally absent until Phase 7. The publish step
+          # will fail loudly if attempted before Phase 7 flips private:false,
+          # which is the desired behavior — fail fast, do not silently
+          # publish.
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # Provenance enabled per research/STACK.md and Phase 7 DIST-02.
+          NPM_CONFIG_PROVENANCE: "true"
