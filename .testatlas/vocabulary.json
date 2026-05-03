@@ -1,0 +1,172 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/vocabulary.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Shared Vocabularies",
+  "description": "Single source of truth for severity, confidence, status enums, and ID patterns referenced by every TestAtlas schema. PRD §28 + §32.",
+  "$defs": {
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low", "enhancement"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["confirmed", "strong-suspect", "needs-validation"]
+    },
+    "issueStatus": {
+      "type": "string",
+      "enum": [
+        "new",
+        "triaged",
+        "in_progress",
+        "blocked",
+        "fixed_pending_retest",
+        "retested",
+        "closed",
+        "wont_fix"
+      ]
+    },
+    "issueType": {
+      "type": "string",
+      "enum": [
+        "functional",
+        "regression",
+        "ux",
+        "copy",
+        "accessibility",
+        "performance",
+        "reliability",
+        "state",
+        "validation",
+        "integration",
+        "data",
+        "documentation",
+        "observability",
+        "testability",
+        "setup"
+      ]
+    },
+    "flowStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "mapped",
+        "ready_to_test",
+        "tested",
+        "blocked",
+        "fixed_pending_retest",
+        "retested"
+      ]
+    },
+    "domainStatus": {
+      "type": "string",
+      "enum": ["mapped", "partial", "needs_review", "tested", "blocked"]
+    },
+    "lowMedHighConfidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"]
+    },
+    "evidenceType": {
+      "type": "string",
+      "enum": [
+        "screenshot",
+        "video",
+        "log",
+        "trace",
+        "network",
+        "console",
+        "api",
+        "db",
+        "file",
+        "accessibility",
+        "performance"
+      ]
+    },
+    "testType": {
+      "type": "string",
+      "enum": [
+        "smoke",
+        "user-flow",
+        "exploratory",
+        "regression",
+        "negative",
+        "state",
+        "accessibility",
+        "performance",
+        "integration",
+        "setup"
+      ]
+    },
+    "testStatus": {
+      "type": "string",
+      "enum": ["draft", "ready", "executed", "blocked", "deprecated"]
+    },
+    "manifestStatus": {
+      "type": "string",
+      "enum": [
+        "initialized",
+        "exploring",
+        "planning",
+        "testing",
+        "blocked",
+        "reporting",
+        "ready_for_retest"
+      ]
+    },
+    "isoTimestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "kebabSlug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "issueId": {
+      "type": "string",
+      "pattern": "^ISSUE-\\d{3,}-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "evidenceId": {
+      "type": "string",
+      "pattern": "^EVIDENCE-\\d{3,}(-[a-z0-9]+(-[a-z0-9]+)*)?$"
+    },
+    "domainId": {
+      "type": "string",
+      "pattern": "^domain-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "flowId": {
+      "type": "string",
+      "pattern": "^FLOW-[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "testId": {
+      "type": "string",
+      "pattern": "^TEST-[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "pageId": {
+      "type": "string",
+      "pattern": "^PAGE-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "apiId": {
+      "type": "string",
+      "pattern": "^API-(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)-[a-z0-9-]+$"
+    },
+    "cliId": {
+      "type": "string",
+      "pattern": "^CLI-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "componentId": {
+      "type": "string",
+      "pattern": "^COMPONENT-[a-z0-9]+(-[a-z0-9]+)*-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^JOB-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "integrationId": {
+      "type": "string",
+      "pattern": "^INTEGRATION-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "personaId": {
+      "type": "string",
+      "pattern": "^PERSONA-[a-z0-9]+(-[a-z0-9]+)*$"
+    }
+  }
+}
