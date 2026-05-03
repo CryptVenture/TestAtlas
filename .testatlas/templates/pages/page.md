@@ -15,6 +15,10 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 
 (URL path or route pattern. Note dynamic segments and query params.)
 
+## Methods
+
+(HTTP methods this route accepts: GET, POST, PUT, PATCH, DELETE, etc. For client-side routes, list "GET" plus any form-submit verbs.)
+
 ## Domain
 
 (Which domain owns this page? Link to `domains/<slug>/`.)
