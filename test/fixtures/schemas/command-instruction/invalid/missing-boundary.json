@@ -1,0 +1,15 @@
+{
+  "command": "explore-codebase",
+  "version": "1.0.0",
+  "description": "Map the codebase.",
+  "capabilities": ["shell"],
+  "produces": ["app-map"],
+  "consumes": ["bootstrap"],
+  "lifecycle": [
+    "03_execution_status.md",
+    "09_artifact_index.md",
+    "10_command_log.md",
+    "11_workspace_manifest.json",
+    "history/run_log.md"
+  ]
+}

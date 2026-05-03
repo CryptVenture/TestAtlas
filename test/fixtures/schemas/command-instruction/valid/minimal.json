@@ -1,0 +1,17 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/command-instruction.schema.json",
+  "command": "explore-codebase",
+  "version": "1.0.0",
+  "description": "Map the codebase: routes, components, jobs, integrations.",
+  "capabilities": ["shell", "file-write"],
+  "produces": ["app-map", "domain"],
+  "consumes": ["bootstrap", "workspace-manifest"],
+  "lifecycle": [
+    "03_execution_status.md",
+    "09_artifact_index.md",
+    "10_command_log.md",
+    "11_workspace_manifest.json",
+    "history/run_log.md"
+  ],
+  "boundary": "Does NOT execute test runs; does NOT mutate target source files."
+}

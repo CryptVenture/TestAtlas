@@ -40,11 +40,12 @@ const CANONICAL_NAMES = [
   'report',
   'command-result',
   'sub-agent-handoff',
+  'command-instruction',
 ];
 
 const idFor = (name) => `https://testatlas.dev/schemas/v1/${name}.schema.json`;
 
-test('TPL-02: all 15 schemas present at canonical paths', async () => {
+test('TPL-02: all 16 schemas present at canonical paths', async () => {
   const entries = await readdir(SCHEMA_DIR);
   const schemaFiles = entries.filter((n) => n.endsWith('.schema.json')).sort();
   const expected = CANONICAL_NAMES.map((n) => `${n}.schema.json`).sort();
@@ -63,7 +64,7 @@ test('TPL-02: every schema has additionalProperties:false at top level', async (
   }
 });
 
-test('TPL-02: all 15 schemas compile via loadAllSchemas', async () => {
+test('TPL-02: all 16 schemas compile via loadAllSchemas', async () => {
   await loadAllSchemas({ cwd: repoRoot });
   const ajv = getAjv();
   for (const name of CANONICAL_NAMES) {

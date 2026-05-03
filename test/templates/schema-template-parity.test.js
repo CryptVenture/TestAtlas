@@ -106,6 +106,15 @@ const SCHEMA_TEMPLATE_MAPPING = [
     templatePath: '.testatlas/templates/sub_agents/HANDOFF.md',
     templateFormat: 'markdown',
   },
+  {
+    // 16th schema: validates the YAML frontmatter of every .testatlas/commands/*.md.
+    // Plans 03-02/03-03 author the live command files; until then the parity gate
+    // exercises its logic against the minimal-valid.md fixture, which carries all 8
+    // required frontmatter keys.
+    schemaId: 'https://testatlas.dev/schemas/v1/command-instruction.schema.json',
+    templatePath: 'test/fixtures/commands/minimal-valid.md',
+    templateFormat: 'markdown',
+  },
 ];
 
 // ----------------------------------------------------------------------------
