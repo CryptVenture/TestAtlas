@@ -14,6 +14,12 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.20.0)
+      commander:
+        specifier: ^14.0.3
+        version: 14.0.3
+      semver:
+        specifier: ^7.7.4
+        version: 7.7.4
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.0.0
@@ -212,6 +218,10 @@ packages:
 
   chardet@2.1.1:
     resolution: {integrity: sha512-PsezH1rqdV9VvyNhxxOW32/d75r01NY7TQCmOqomRo15ZSOKbpTFVsfjghxo6JloQUCGnH4k1LGu0R4yCLlWQQ==}
+
+  commander@14.0.3:
+    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
+    engines: {node: '>=20'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -732,6 +742,8 @@ snapshots:
       fill-range: 7.1.1
 
   chardet@2.1.1: {}
+
+  commander@14.0.3: {}
 
   cross-spawn@7.0.6:
     dependencies:

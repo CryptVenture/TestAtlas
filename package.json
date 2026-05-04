@@ -1,6 +1,6 @@
 {
   "name": "testatlas",
-  "version": "0.0.0",
+  "version": "0.1.0-pre",
   "description": "Installable, agent-agnostic product testing and quality intelligence framework for AI coding agents.",
   "type": "module",
   "license": "MIT",
@@ -9,9 +9,25 @@
     "node": ">=20.11.0"
   },
   "engineStrict": true,
+  "bin": {
+    "testatlas": "./bin/testatlas.js"
+  },
+  "files": [
+    "bin/",
+    "install.js",
+    "install.sh",
+    "scripts/",
+    ".testatlas/",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
     "ajv": "^8.17.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "commander": "^14.0.3",
+    "semver": "^7.7.4"
   },
   "repository": {
     "type": "git",
