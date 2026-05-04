@@ -185,7 +185,6 @@ describe('install.sh signature verification (TESTATLAS_VERIFY_SIGNATURE)', () =>
     // script does not mention cosign in its output. Exact behavior beyond
     // that is covered by Plan 07-02 install-sh tests.
     const cleanPath = pathWithoutCosign();
-    const tinyTarball = path.join(tmpdir(), 'testatlas-fake-default.tgz');
 
     const result = spawnSync('sh', [INSTALL_SH, '--help'], {
       env: { ...process.env, PATH: cleanPath },
