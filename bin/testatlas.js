@@ -11,6 +11,7 @@ import path from 'node:path';
 import { program } from 'commander';
 
 import { runInit } from '../scripts/lib/install-core.js';
+import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
 
 // Node 20.11+ exposes `import.meta.dirname` natively — no fileURLToPath shim.
@@ -47,9 +48,29 @@ program
 
 program
   .command('update')
-  .description('Self-update the suite (Plan 07-03 lands the implementation).')
-  .action(() => {
-    process.stdout.write('testatlas update: stub. Plan 07-03 lands the update implementation.\n');
+  .description('Self-update the suite (atomic stage → migrate → swap → backup).')
+  .option('--target <dir>', 'Target repo directory (default: cwd)')
+  .option('--force-reinstall', 'Re-extract latest even when current version matches')
+  .option('--dry-run', 'Print planned actions; do not write')
+  .option('--no-update-check', 'Skip GitHub Releases TTL check (Plan 07-04 wires this)')
+  .option(
+    '--latest-version <ver>',
+    'Override target version (Plan 07-04 wires automatic detection)',
+  )
+  .action(async (opts) => {
+    const target = path.resolve(opts.target ?? process.cwd());
+    const result = await runUpdate({
+      target,
+      currentVersion: pkg.version,
+      latestVersion: opts.latestVersion,
+      forceReinstall: Boolean(opts.forceReinstall),
+      dryRun: Boolean(opts.dryRun),
+      noUpdateCheck: opts.updateCheck === false,
+    });
+    process.exitCode =
+      result.status === 'updated' || result.status === 'up-to-date' || result.status === 'dry-run'
+        ? 0
+        : 1;
   });
 
 program

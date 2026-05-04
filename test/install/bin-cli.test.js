@@ -99,11 +99,22 @@ test('bin-cli: init --target <tmp> writes the suite tree + manifest, exits 0', a
   });
 });
 
-test('bin-cli: update subcommand prints stub message and exits 0', async () => {
+test('bin-cli: update --help lists --target/--force-reinstall/--dry-run/--no-update-check', async () => {
+  const r = await runNode(BIN, ['update', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /--target/);
+  assert.match(r.stdout, /--force-reinstall/);
+  assert.match(r.stdout, /--dry-run/);
+  assert.match(r.stdout, /--no-update-check/);
+});
+
+test('bin-cli: update against unchanged target reports up-to-date', async () => {
+  // No --latest-version → kernel infers latest=current → "already up to date".
+  // We don't pass --target so it falls back to cwd; that's fine since the
+  // up-to-date short-circuit returns BEFORE any disk mutation.
   const r = await runNode(BIN, ['update']);
   assert.equal(r.code, 0);
-  assert.match(r.stdout, /stub/i);
-  assert.match(r.stdout, /07-03/);
+  assert.match(r.stdout, /up to date/i);
 });
 
 test('bin-cli: uninstall --help lists --target/--purge/--force-untracked/--dry-run', async () => {
