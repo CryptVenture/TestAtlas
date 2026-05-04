@@ -6,27 +6,24 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
-- (none yet)
+- **Phase 9 — Agentic Workflow Completeness Audit + Sub-Agent Orchestration.** Closes the post-v1.0 agentic completeness work surfaced after GA across 5 plans (09-01 through 09-05).
+- `subagent-spawn` capability vocabulary entry (6th entry; locked) — declared in `vocabulary.json` `$defs/capability` and consumed by `command-instruction.schema.json` and `adapter-capabilities.schema.json` via `$ref`.
+- `bootstrap.md` Capability Degradation block + per-host invocation table covering all 18 adapters with their canonical 2026 sub-agent invocation pattern.
+- `## Sub-Agent Orchestration` blocks on the 4 umbrella commands (`/atlas:explore`, `/atlas:plan`, `/atlas:test-flow`, `/atlas:consolidate`) — parallel sub-agent spawning when host capability is available, sequential-fallback otherwise.
+- `## Sub-Agent Task Brief Contract` sections on the 11 sub-explorer commands so they work both as parallel children of an umbrella and as standalone slash invocations.
+- `## What's Next` tail navigation on all 30 command files + `README.md` + `docs/GETTING_STARTED.md` + `docs/INSTALL.md` + `docs/UPDATE.md`.
+- Cross-reference integrity test (`test/agentic/cross-reference-integrity.test.js`) gating the test suite — every `/atlas:NAME` mention, every relative `.md` link, every schema `$id` URL must resolve to a real file on disk.
+- E2E pipeline harness `scripts/e2e/run-node-api-graph.js` exercising the full command graph (init → explore → map-domains → plan → test-flow → report) in both `parallel-subagents` and `sequential-fallback` modes against `examples/node-api/`. Companion env-gated tests (`TESTATLAS_E2E=1`) at `test/agentic/e2e-pipeline.test.js`.
 
 ### Changed
 
-- (none yet)
-
-### Deprecated
-
-- (none yet)
+- 9 adapters now declare `subagent-spawn` in `.testatlas/adapters/adapter-capabilities.json` (claude-code, opencode, kilocode, codex, gemini-cli, github-copilot, cline, kiro, sourcegraph-amp). The other 9 (cursor, continue-dev, aider, generic, mcp, windsurf, roo-code, zed, amazon-q) remain documented as no-spawn (sequential-fallback only).
+- `.testatlas/templates/canonical/03_execution_status.md` "Next Highest-Value Steps" rewritten to use the canonical command graph (`/atlas:explore` → `/atlas:map-domains` → `/atlas:plan`) instead of the legacy never-implemented names (`/atlas:map-app`, `/atlas:propose-test-plan`).
+- Eight explorer/map-domains commands updated to reference the canonical `01_system_map.md` instead of the never-bootstrapped `01_app_inventory.md`.
 
 ### Removed
 
-- (none yet)
-
-### Fixed
-
-- (none yet)
-
-### Security
-
-- (none yet)
+- All "Phase X ships this", "(deferred to v2)", "(coming in Phase X)", and "Phase X not yet installed" framings from tracked `.md` content. Post-v1.0 framing is now consistent across `README.md`, the 12 `docs/*.md`, the 30 command files, and the 18 adapter trees.
 
 ## [1.0.0] - 2026-05-04
 
