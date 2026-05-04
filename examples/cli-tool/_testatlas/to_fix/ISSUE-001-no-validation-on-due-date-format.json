@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-no-validation-on-due-date-format",
+  "slug": "no-validation-on-due-date-format",
+  "title": "No validation on due date format",
+  "status": "new",
+  "severity": "low",
+  "confidence": "confirmed",
+  "type": "validation",
+  "domain": "domain-cli",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "todo add --due accepts arbitrary strings; nothing parses or validates the date.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

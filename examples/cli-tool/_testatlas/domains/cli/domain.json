@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-cli",
+  "name": "cli",
+  "displayName": "cli",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "Todo list CLI subcommands and flags",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

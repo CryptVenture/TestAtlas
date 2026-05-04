@@ -1,0 +1,16 @@
+{
+  "name": "@testatlas/example-cli-tool",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TestAtlas example: minimal commander 14 CLI used to demonstrate capability-aware adapter degradation (Aider-only).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "bin": {
+    "todo": "./bin/todo.js"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  }
+}

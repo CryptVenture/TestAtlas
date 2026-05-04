@@ -1,0 +1,82 @@
+{
+  "$schema": "../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "cli-tool",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-cli",
+      "command": "create-domain",
+      "args": { "name": "cli", "purpose": "Todo list CLI subcommands and flags" }
+    },
+    {
+      "id": "domain-storage",
+      "command": "create-domain",
+      "args": { "name": "storage", "purpose": "JSON-file persistence under ~/.config/todo" }
+    },
+    {
+      "id": "flow-add-todo",
+      "command": "create-flow",
+      "args": {
+        "name": "Add Todo",
+        "domain": "domain-cli",
+        "persona": "todo-author",
+        "goal": "Append a new open todo to the JSON store"
+      }
+    },
+    {
+      "id": "flow-list-todos",
+      "command": "create-flow",
+      "args": {
+        "name": "List Todos",
+        "domain": "domain-cli",
+        "persona": "todo-author",
+        "goal": "Render all todos with optional status filter"
+      }
+    },
+    {
+      "id": "flow-complete-todo",
+      "command": "create-flow",
+      "args": {
+        "name": "Complete Todo",
+        "domain": "domain-cli",
+        "persona": "todo-author",
+        "goal": "Flip a todo's status from open to done"
+      }
+    },
+    {
+      "id": "flow-config-load",
+      "command": "create-flow",
+      "args": {
+        "name": "Config Load",
+        "domain": "domain-storage",
+        "persona": "todo-author",
+        "goal": "Load .todorc.example.json defaults at startup"
+      }
+    },
+    {
+      "id": "evidence-add-due",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "Capture of `todo add --due not-a-date` succeeding without complaint"
+      }
+    },
+    {
+      "id": "issue-no-validation-on-due-date",
+      "command": "create-issue",
+      "args": {
+        "title": "No validation on due date format",
+        "domain": "domain-cli",
+        "severity": "low",
+        "confidence": "confirmed",
+        "type": "validation",
+        "summary": "todo add --due accepts arbitrary strings; nothing parses or validates the date.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}
