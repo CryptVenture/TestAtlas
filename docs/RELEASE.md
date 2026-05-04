@@ -55,6 +55,71 @@ The workflow already has `id-token: write` permission. After Trusted Publisher i
 
 For the very first publish (chicken-and-egg), generate a granular `NPM_TOKEN` (publish-only, package-scoped to `testatlas`), add it as a GitHub repo secret, run the publish, then configure Trusted Publishing for subsequent releases and revoke the token.
 
+## First publish — Bootstrap NPM_TOKEN (v1.0.0 only)
+
+v1.0.0 is the **first publish**. Trusted Publishing (OIDC) requires the npm package to exist before a trust relationship can be declared, so the very first publish needs a different bootstrap path. This section is the explicit one-shot procedure.
+
+1. **Verify the npm name is available.**
+
+   ```sh
+   npm view testatlas
+   # Expected: 404 not found. If it returns metadata for a different package,
+   # escalate before tagging.
+   ```
+
+2. **Generate a one-shot Granular Access Token.**
+
+   - Sign in at https://www.npmjs.com → Account → Access Tokens → "Generate New Token" → Granular.
+   - **Packages:** scope to `testatlas` only (not `*`).
+   - **Permissions:** Read and write (the "publish" capability).
+   - **Expiration:** 7 days. (Short window so a leak window is small.)
+   - Copy the token value (you cannot view it again).
+
+3. **Install as a repo secret.**
+
+   ```sh
+   gh secret set NPM_TOKEN
+   # Paste the token value when prompted.
+   ```
+
+4. **Tag and dispatch.**
+
+   ```sh
+   git tag -a v1.0.0 -m "TestAtlas v1.0.0 GA"
+   git push origin v1.0.0
+   gh workflow run release.yml --ref v1.0.0
+   gh run watch
+   ```
+
+   The `release.yml` pipeline runs `pnpm changeset publish`. The workflow has `id-token: write` and prefers OIDC; if Trusted Publishing isn't configured yet (it can't be, see step 1), npm CLI falls back to the `NPM_TOKEN` env var.
+
+5. **Verify the publish.**
+
+   ```sh
+   npm view testatlas version            # → 1.0.0
+   npm view testatlas dist.shasum
+   npm audit signatures                  # provenance + signature verify
+   ```
+
+6. **Configure Trusted Publishing (post-first-publish).**
+
+   - Visit https://www.npmjs.com/package/testatlas/access.
+   - Trusted Publishers → Add → GitHub Actions.
+   - Repository: `testatlas-dev/testatlas`.
+   - Workflow filename: `release.yml`.
+   - Save.
+
+7. **Revoke the bootstrap NPM_TOKEN.**
+
+   ```sh
+   # On npmjs.com → Account → Access Tokens → revoke the 7-day token.
+   gh secret delete NPM_TOKEN
+   ```
+
+8. **v1.0.1+ uses OIDC only.** No `NPM_TOKEN` required for any subsequent publish.
+
+The same chicken-and-egg note applies if the npm package is ever transferred to a new org — Trusted Publishing trust must be re-declared after transfer, and a one-shot token is the bridge.
+
 ## Dry-run validation
 
 Before merging a Release PR, validate the full pipeline:

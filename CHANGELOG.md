@@ -28,6 +28,48 @@ All notable changes to this project will be documented in this file. Format is b
 
 - (none yet)
 
+## [1.0.0] - 2026-05-04
+
+First production GA release. Closes Phase 8 (examples + auto-doc generators + GA polish) and consolidates everything from the 0.1.0-pre baseline through the v1 requirement set (98/98 Complete).
+
+### Added
+
+- **Bootstrap & Constitution** (Phase 1): `.testatlas/bootstrap.md` constitution under the 3000-word budget; capability-aware degradation rule; full config layer (`default.config.json` + `config.schema.json` + project override).
+- **Schemas & Templates** (Phase 2): 18 JSON Schemas (Draft 2020-12) + `vocabulary.json`; markdown templates for every workspace artifact; generated-section markers with defensive parser; atomic-write kernel.
+- **Workspace skeleton** (Phase 2): `_testatlas/` with 14 canonical documents and 23 top-level subdirectories; manifest counts; lifecycle file conventions.
+- **Commands** (Phase 3+4): 30 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers: ui, cli, api, codebase, runtime, data, docs, integrations, accessibility, performance, security), test (×10 types), issue lifecycle (log/triage/retest), reporting, lifecycle/handoff/cleanup.
+- **Explorers, tests, issues, reports** (Phase 4): 11 explorers + 10 test types + issue lifecycle + reporting. Domain-aware mapping; `confidence: needs-validation` discipline.
+- **Utility scripts** (Phase 5): 12 utility scripts with shared `scripts/lib/` (atomic-write, content-hash, slug, frontmatter parser, schema-loader, all-workspaces); `validate-workspace` covers the full PRD §33 condition set; `--auto-heal` repair mode.
+- **Adapters** (Phase 6): 7 agent adapters (Claude Code canonical, Generic, OpenCode, KiloCode, Cursor, Aider, MCP) generated via `assemble-adapter.js`; per-adapter capability matrix; adapter-parity CI gate.
+- **Distribution** (Phase 7): 3 install paths (`npx`, `install.sh`, `git clone`); atomic update with backup + rollback; migration framework (forward-only, idempotent, N→N+1 with long-jump composition); workspace lockfile (PID + age dual stale detection); `--verify-signature` opt-in cosign verification; cross-platform CI matrix (Linux/macOS/Windows × Node 20/22/24).
+- **Examples** (Phase 8): 5 example workspaces — `nextjs-saas` (EX-01), `node-api` (EX-02), `cli-tool` Aider-only (EX-03 + EX-07), `monorepo` (EX-04), `mobile-web-hybrid` (EX-05). `scripts/regenerate-example.js` deterministic-replay engine. `example-script.schema.json` (19th schema). CI matrix runs `regenerate-example --check` + `validate-workspace` per example on every PR (closes EX-06 + VAL-02). `--all-workspaces` flag for monorepo orchestration.
+- **Auto-generated docs** (Phase 8): `docs/COMMANDS.md` (auto-generated from `.testatlas/commands/*.md`, 30 sections, drift-detected in CI); `docs/SCHEMAS.md` (auto-generated from `.testatlas/schemas/*.schema.json`, 19 sections); `examples/README.md` gallery; `docs/MONOREPO.md` documenting the hybrid pattern; final GA README structure.
+- **Pre-flight checks** (Phase 8): `scripts/check-org-placeholder.js` greps for the literal `<org>` placeholder and exits non-zero if any are found in active code (excludes `node_modules`, `.git`, `.planning`, `dist`, `build`, `coverage`, `.next`, `.expo`, `.testatlas.bak.*`).
+
+### Changed
+
+- First production release. The previous `0.1.0` baseline (Phase 7 closure) is collapsed into this `1.0.0` entry — every artifact landed by Phases 1–7 is part of the v1.0.0 surface.
+- `package.json#version`: `0.1.0` → `1.0.0`. The repo also collapsed the prior `0.1.0-pre` and `0.1.0` markers; `1.0.0` is the first version that ships to npm.
+- `<org>` GitHub-org placeholder finalized to `testatlas-dev` across `package.json`, `install.sh`, `install.js`, `scripts/lib/constants.js`, `scripts/lib/update-check.js`, README, and the docs gallery.
+
+### Notes
+
+- **npm publish via Trusted Publisher (OIDC).** First publish (v1.0.0) uses a one-shot `NPM_TOKEN` (granular access token, package-scoped, 7-day expiry) because Trusted Publishing requires the npm package to exist before a trust relationship can be declared. After v1.0.0 lands, the maintainer configures Trusted Publishing at https://www.npmjs.com/package/testatlas/access and revokes the bootstrap token. v1.0.1+ uses OIDC only. See `docs/RELEASE.md` § "Trusted Publisher (one-time setup)" for the full chicken-and-egg path.
+- **GitHub Releases tarball includes cosign sigstore sidecar** (`.tgz.sigstore.json`) per UPDATE-07. `--verify-signature` opt-in flag triggers cosign attestation verification at install/update time.
+- **Examples are NOT shipped in the npm tarball.** `package.json#files` is a positive whitelist (`bin/`, `install.js`, `install.sh`, `scripts/`, `.testatlas/`, `package.json`, `README.md`, `LICENSE`, `CHANGELOG.md`); `examples/` lives in the GitHub repo only.
+
+### Schema migration
+
+- None. v1.0.0 is the baseline `schemaVersion: 1`. The first migration (`schemaVersion: 1 → 2`) arrives with a future minor or major release.
+
+### Security
+
+- npm publish via Trusted Publishing (OIDC); SLSA Build L3 provenance via `--provenance`.
+- GitHub Releases ship signed sigstore bundle as sidecar (`testatlas-1.0.0.tgz.sigstore.json`).
+- Two-tree invariant enforced: `update.js` writes only to `.testatlas/` (suite swap); never touches `_testatlas/` content except via explicit migration `up()` functions.
+- POSIX `install.sh` partial-pipe protection via `_main "$@"` sentinel pattern.
+- Default verification path is `npm audit signatures` (zero-install); `--verify-signature` opts into `cosign verify-blob-attestation` with `certificate-identity-regexp` pinned to the canonical release workflow on a tagged release.
+
 ## [0.1.0] - 2026-05-04
 
 First public-ready cut of TestAtlas. Phase 0–7 complete; Phase 8 (examples + GA publish) follows.
