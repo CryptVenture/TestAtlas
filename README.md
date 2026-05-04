@@ -9,10 +9,10 @@
 # TestAtlas
 
 <p align="center">
-[![npm version](https://img.shields.io/npm/v/@webventures/testatlas.svg)](https://www.npmjs.com/package/@webventures/testatlas)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/CryptVenture/TestAtlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
-[![Provenance](https://img.shields.io/badge/npm-provenance-success.svg)](https://docs.npmjs.com/generating-provenance-statements)
+  <a href="https://www.npmjs.com/package/@webventures/testatlas"><img src="https://img.shields.io/npm/v/@webventures/testatlas.svg" alt="npm version" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
+  <a href="https://github.com/CryptVenture/TestAtlas/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/CryptVenture/TestAtlas/ci.yml?branch=main&label=ci" alt="CI" /></a>
+  <a href="https://docs.npmjs.com/generating-provenance-statements"><img src="https://img.shields.io/badge/npm-provenance-success.svg" alt="Provenance" /></a>
 </p>
 
 ## What is this?
