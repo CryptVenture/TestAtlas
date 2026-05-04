@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification",
+  "slug": "todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification",
+  "title": "todo store JSON file may corrupt under concurrent writes — needs runtime verification",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "needs-validation",
+  "type": "reliability",
+  "domain": "domain-storage",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "Degradation reason: code-reading only — no shell/runtime/browser/MCP capability available to reproduce the concurrent-write race; an agent with shell capability should validate this hypothesis. Hypothesis: the store writes the entire JSON file on every mutation without locking, so two near-simultaneous `todo add` invocations could interleave reads/writes and silently lose entries. ADP-09 capability-degradation contract requires findings produced under degraded paths to carry confidence: needs-validation.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

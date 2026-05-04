@@ -15,7 +15,7 @@
   "counts": {
     "domains": 2,
     "flows": 4,
-    "issues": 1,
+    "issues": 2,
     "evidenceRecords": 1,
     "testRuns": 0
   },
@@ -66,7 +66,7 @@
     "09_artifact_index.md": {
       "domain-docs": "9f4371bbce271d3f",
       "flow-docs": "1f1b1292f0aff37b",
-      "issue-docs": "501d060a2ad844fb",
+      "issue-docs": "f0759c7f455a20fd",
       "evidence": "feb4a796c76dba77",
       "reports": "7df62e93006bdb54"
     },
@@ -77,10 +77,19 @@
       "entries": "4987cb15b41d8241"
     },
     "to_fix/by_status/new.md": {
-      "entries": "4987cb15b41d8241"
+      "entries": "e11daf1b7dba7312"
     },
     "to_fix/by_type/validation.md": {
       "entries": "4987cb15b41d8241"
+    },
+    "to_fix/by_domain/domain-storage.md": {
+      "entries": "74325a0a0ca30c8d"
+    },
+    "to_fix/by_severity/medium.md": {
+      "entries": "74325a0a0ca30c8d"
+    },
+    "to_fix/by_type/reliability.md": {
+      "entries": "74325a0a0ca30c8d"
     }
   }
 }

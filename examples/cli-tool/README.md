@@ -35,20 +35,38 @@ Regenerate from the deterministic fixture:
 node ../../scripts/regenerate-example.js examples/cli-tool
 ```
 
-## Aider-only adapter set (deferred to plan 08-04)
+## Aider-only adapter set (closes EX-07)
 
-This plan (08-01) ships only the bare CLI source. Plan **08-04** adds the
-Aider-specific adapter artifacts (`.aider.conf.yml` + `CONVENTIONS.md`)
-and the `confidence: needs-validation` issue that proves capability-aware
-degradation is active when only Aider is installed.
+This example installs **only** the Aider adapter:
+
+- `.aider.conf.yml` — Aider config that pulls `.testatlas/bootstrap.md` +
+  `CONVENTIONS.md` into every Aider session
+- `CONVENTIONS.md` — concatenated TestAtlas command set rendered for
+  Aider per Phase 6's `concatenated-conventions` strategy
+
+Aider's capability set is `["shell", "file-write"]` — **no browser, no
+MCP, no web-fetch**. Findings produced via degraded paths must be marked
+`confidence: needs-validation` per the ADP-09 capability-degradation
+contract (see `.planning/REQUIREMENTS.md`).
 
 The other six adapters (Claude Code, OpenCode, Cursor, KiloCode, MCP,
-generic) intentionally have NO trees in this example — that is the
-hallmark of the Aider-only setup.
+generic) intentionally have **no** trees in this example — that absence
+is the hallmark of the Aider-only setup, and Phase 8's CI matrix (plan
+08-04) asserts it on every PR.
 
 ## Seeded findings
 
-The current `_testatlas/to_fix/` ships ONE seeded issue today —
-`ISSUE-001-no-validation-on-due-date` (low, confirmed). Plan 08-04 adds a
-second issue with `confidence: needs-validation` to demonstrate the
-degraded-confidence rule.
+The `_testatlas/to_fix/` tree ships two seeded issues:
+
+- `ISSUE-001-no-validation-on-due-date-format` — `severity: low`,
+  `confidence: confirmed` (a verified bug in the CLI source)
+- `ISSUE-002-todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification`
+  — `severity: medium`, `confidence: needs-validation`. The summary
+  begins with `Degradation reason: ...` to document why this finding
+  carries the lower confidence (no runtime/shell capability available
+  to reproduce the hypothesised concurrent-write race). This is the
+  live demonstration of the ADP-09 contract — an Aider agent reading
+  the source code can hypothesise a race but cannot prove it without
+  shell or MCP capability, so the finding is filed as
+  `needs-validation` for a downstream agent with broader capability to
+  confirm or refute.

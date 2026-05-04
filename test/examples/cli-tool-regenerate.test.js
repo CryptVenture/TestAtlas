@@ -68,11 +68,12 @@ test('cli-tool: fixture validates against example-script.schema.json', async () 
   assert.equal(script.exampleName, 'cli-tool');
 });
 
-test('cli-tool: NO Aider/adapter trees yet — those land in plan 08-04', async () => {
-  await assert.rejects(() => stat(path.join(EXAMPLE, '.aider.conf.yml')), { code: 'ENOENT' });
-  await assert.rejects(() => stat(path.join(EXAMPLE, 'CONVENTIONS.md')), { code: 'ENOENT' });
-  // Other adapter directories also absent.
-  for (const adapter of ['.claude', '.opencode', '.cursor', '.kilo']) {
+test('cli-tool (08-04): Aider adapter present (.aider.conf.yml + CONVENTIONS.md), other adapter trees absent', async () => {
+  // Plan 08-04 closes EX-07: cli-tool ships the Aider adapter ONLY.
+  await stat(path.join(EXAMPLE, '.aider.conf.yml'));
+  await stat(path.join(EXAMPLE, 'CONVENTIONS.md'));
+  // Other adapter directories must remain absent.
+  for (const adapter of ['.claude', '.opencode', '.cursor', '.kilo', '.kilocode']) {
     await assert.rejects(() => stat(path.join(EXAMPLE, adapter)), { code: 'ENOENT' });
   }
 });

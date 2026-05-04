@@ -43,6 +43,7 @@ This document is the index of every artifact in the workspace. Generated section
 
 <!-- TESTATLAS:GENERATED:START section="issue-docs" -->
 - to_fix/ISSUE-001-no-validation-on-due-date-format.md
+- to_fix/ISSUE-002-todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification.md
 <!-- TESTATLAS:GENERATED:END section="issue-docs" -->
 
 ## Evidence
