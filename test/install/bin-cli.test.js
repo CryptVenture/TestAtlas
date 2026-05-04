@@ -263,6 +263,56 @@ test('bin-cli: init --target <tmp> emits step markers and [OK] tag', async (t) =
   });
 });
 
+// ---- Quick 260504-q4s — add-adapter subcommand tests ---------------------
+
+test('bin-cli: add-adapter --help shows description, options, and Examples block', async () => {
+  const r = await runNode(BIN, ['add-adapter', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /add-adapter/);
+  assert.match(r.stdout, /--target/);
+  assert.match(r.stdout, /--global/);
+  assert.match(r.stdout, /--dry-run/);
+  assert.match(r.stdout, /Examples:/);
+  const exampleLines = r.stdout.split('\n').filter((l) => /^\s*\$ testatlas/.test(l));
+  assert.ok(
+    exampleLines.length >= 2,
+    `expected ≥2 example lines under add-adapter --help, got ${exampleLines.length}`,
+  );
+});
+
+test('bin-cli: add-adapter without names exits non-zero (missing argument)', async () => {
+  const r = await runNode(BIN, ['add-adapter']);
+  assert.notEqual(r.code, 0);
+  // Commander v14's missing-argument error contains "missing required argument".
+  assert.match(`${r.stdout}\n${r.stderr}`, /missing required argument|argument 'names'/i);
+});
+
+test('bin-cli: add-adapter against missing manifest exits non-zero with actionable error', async (t) => {
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['add-adapter', 'cline', '--target', dir]);
+    assert.notEqual(r.code, 0);
+    assert.match(`${r.stdout}\n${r.stderr}`, /requires an existing TestAtlas install/i);
+  });
+});
+
+test('bin-cli: init then add-adapter — manifest tracks both adapters', async (t) => {
+  await withTmp(t, async (dir) => {
+    const init = await runNode(BIN, ['init', '--adapter', 'claude-code', '--target', dir]);
+    assert.equal(init.code, 0, `init stderr: ${init.stderr}`);
+    const add = await runNode(BIN, ['add-adapter', 'cline', '--target', dir]);
+    assert.equal(add.code, 0, `add stderr: ${add.stderr}`);
+    const manifest = JSON.parse(
+      await readFile(path.join(dir, '.testatlas', '.install-manifest.json'), 'utf8'),
+    );
+    assert.ok(manifest.adapters.includes('claude-code'));
+    assert.ok(manifest.adapters.includes('cline'));
+    // Re-run is idempotent (no-op + exit 0).
+    const reAdd = await runNode(BIN, ['add-adapter', 'cline', '--target', dir]);
+    assert.equal(reAdd.code, 0);
+    assert.match(reAdd.stdout, /already installed|nothing to do/i);
+  });
+});
+
 test('bin-cli: error path prints trimmed [ERR] Error: with ≤8 stderr lines', async (t) => {
   // Force a thrown error from runUninstall: missing manifest + no
   // --force-untracked → throws "Manifest missing or invalid…".

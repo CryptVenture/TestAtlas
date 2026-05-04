@@ -74,13 +74,26 @@ Useful flags:
 
 | Flag | Effect |
 |------|--------|
-| `--all-adapters` | Install every adapter (Claude Code + OpenCode + KiloCode + Cursor + Aider + MCP + Generic). |
+| `--adapter <name>` | Install only this adapter (repeatable; bypasses auto-detect). Pass once per adapter, e.g. `--adapter cline --adapter windsurf`. Unknown names error with the full valid-adapter list. |
+| `--all-adapters` | Install every adapter (all 18 declared in `adapter-capabilities.json`). |
 | `--target <dir>` | Install into `<dir>` instead of `cwd` (or `$HOME` with `--global`). |
 | `--global` | Install once per machine (`$HOME` / XDG paths) instead of per-project. See [Machine-wide install](#machine-wide-install----global). |
 | `--force` | Overwrite existing `.testatlas/` content (idempotency normally protects). |
 | `--dry-run` | Print the install plan without writing anything. |
 | `--no-update-check` | Skip the GitHub Releases version probe (UPDATE-03). |
 | `--verify-signature` | Require cosign signature verification on the source tarball (UPDATE-07). |
+
+## Adding adapters to an existing install
+
+Use `add-adapter` to incrementally add adapters to an existing TestAtlas install without overwriting the suite tree:
+
+```sh
+testatlas add-adapter cline                       # add a single adapter to cwd install
+testatlas add-adapter windsurf zed roo-code       # add multiple adapters at once
+testatlas add-adapter cline --global              # add adapter to the ~/.testatlas/ global install
+```
+
+The subcommand reads the existing `.testatlas/.install-manifest.json`, copies only the named adapter's command files, and atomically updates the manifest. Re-runs are idempotent (already-installed adapters are reported and skipped without disk mutation). Use `--dry-run` to preview file additions without writing.
 
 ## Path 2 — `curl … | sh` (POSIX installer)
 

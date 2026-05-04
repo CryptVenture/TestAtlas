@@ -11,6 +11,7 @@ import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { program } from 'commander';
+import { runAddAdapter } from '../scripts/lib/add-adapter-core.js';
 import { renderBanner } from '../scripts/lib/banner.js';
 import { palette, symbol } from '../scripts/lib/colors.js';
 import { runInit } from '../scripts/lib/install-core.js';
@@ -111,6 +112,52 @@ program
       global: isGlobal,
     });
     process.exitCode = result.status === 'dry-run' || result.filesWritten >= 0 ? 0 : 1;
+  });
+
+program
+  .command('add-adapter <names...>')
+  .description(
+    'Add one or more adapters to an existing TestAtlas install (does not ' +
+      'overwrite the suite tree).',
+  )
+  .option('--target <dir>', 'Target repo directory (default: cwd)')
+  .option('--global', 'Operate on the global ~/.testatlas/ install instead of cwd')
+  .option('--dry-run', 'Print planned file additions without writing')
+  .option('--force', 'Re-copy adapter files even if already present')
+  .option(
+    '--verify-signature',
+    'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ testatlas add-adapter cline                       # add a single adapter to cwd install',
+      '  $ testatlas add-adapter windsurf zed roo-code       # add multiple adapters',
+      '  $ testatlas add-adapter cline --global              # add adapter to global install',
+      '  $ testatlas add-adapter cline --dry-run             # preview without writing',
+      '',
+    ].join('\n'),
+  )
+  .action(async (names, opts) => {
+    if (opts.verifySignature) {
+      probeCosignOrExit();
+    }
+    const isGlobal = Boolean(opts.global);
+    const explicitTarget = opts.target ? path.resolve(opts.target) : null;
+    const target = explicitTarget ?? (isGlobal ? os.homedir() : process.cwd());
+    const result = await runAddAdapter({
+      target,
+      suiteRoot: SUITE_ROOT,
+      adapters: names,
+      dryRun: Boolean(opts.dryRun),
+      force: Boolean(opts.force),
+      verifySignature: Boolean(opts.verifySignature),
+      global: isGlobal,
+    });
+    process.exitCode =
+      result.status === 'added' || result.status === 'no-op' || result.status === 'dry-run' ? 0 : 1;
   });
 
 program
