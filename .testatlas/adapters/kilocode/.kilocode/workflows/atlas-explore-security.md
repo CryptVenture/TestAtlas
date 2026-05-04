@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="a5bca69cb34d44af" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="f41d26573a2123db" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -80,4 +80,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `findings.md` exists and lists each finding with severity, confidence, and at least one evidence path.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the security surface is catalogued:
+
+- **`/atlas:log-issue`** — file individual issues for high-severity findings
+- **`/atlas:plan`** — fold security findings into the test plan
+- **`/atlas:test-flow`** — exercise negative-path flows derived from these findings
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

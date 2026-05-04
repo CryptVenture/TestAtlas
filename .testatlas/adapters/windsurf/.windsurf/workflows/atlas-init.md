@@ -3,7 +3,7 @@ description: Bootstrap the _testatlas/ workspace tree in a target repository —
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="93cf58fb52559f1d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="2c07ff358adece3f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -54,4 +54,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - All 14 canonical files exist on disk.
 - A subsequent `validate-workspace` run reports zero errors.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the workspace is bootstrapped:
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest are clean before any exploration
+- **`/atlas:explore`** — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available)
+- **`/atlas:bootstrap`** — re-load the constitution if you suspect context drift
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

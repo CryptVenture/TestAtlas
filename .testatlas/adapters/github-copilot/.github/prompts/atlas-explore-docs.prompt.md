@@ -3,7 +3,7 @@ mode: agent
 description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="7fba76895ef1fce1" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="93d03137dfdbdf33" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -81,4 +81,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest counts for docs and stories reflect the on-disk state.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that documented behaviour is normalized into stories:
+
+- **`/atlas:explore-codebase`** — reconcile documented stories against actual handlers
+- **`/atlas:map-domains`** — group stories into testable domains
+- **`/atlas:plan`** — turn stories + conflicts into a test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -3,7 +3,7 @@ description: Workspace housekeeping confined to _testatlas/ — orphan removal, 
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="893a838a03a5dfa4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="2f5c9a216ec81814" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -66,4 +66,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` and `_testatlas/11_workspace_manifest.json` reflect on-disk reality.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the workspace is tidy:
+
+- **`/atlas:update`** — pull the latest suite version on a clean tree
+- **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

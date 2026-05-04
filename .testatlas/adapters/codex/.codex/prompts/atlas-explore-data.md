@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-data. Invoke as /prompts:atlas-explore-data. Description: Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="1d54b8759d4da078" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="b10b91de8f40f52f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -72,4 +72,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - No row contents have been written anywhere in `_testatlas/`.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the data surface is mapped:
+
+- **`/atlas:explore-api`** — match entity lifecycles to their HTTP entry points
+- **`/atlas:test-flow`** — execute scenarios that exercise the entity transitions
+- **`/atlas:plan`** — turn the entity inventory into a test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

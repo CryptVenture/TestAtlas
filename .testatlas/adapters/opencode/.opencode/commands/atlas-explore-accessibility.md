@@ -2,7 +2,7 @@
 description: Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="791f74d2e5d7a028" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="9b39eff6a62b36dd" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -84,4 +84,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `findings.md` exists and lists each finding with severity, confidence, and at least one evidence path.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that accessibility findings are recorded:
+
+- **`/atlas:test-accessibility`** — execute targeted a11y scenarios against the worst offenders
+- **`/atlas:plan`** — fold a11y findings into the test plan
+- **`/atlas:log-issue`** — file individual issues for high-severity findings
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

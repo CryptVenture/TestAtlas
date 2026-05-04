@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="680e03f036adbc36" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,4 +79,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered for the issues that completed retest.
+
+## What's Next
+
+Now that the retest pass has run:
+
+- **`/atlas:triage`** — re-classify any reopened regressions back into the queue
+- **`/atlas:report`** — fold retest outcomes into the next aggregate report
+- **`/atlas:log-issue`** — file new issues if retest surfaced fresh symptoms
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

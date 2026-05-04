@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="3ea95b468ae46a77" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="9209dd5db115da22" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -31,7 +31,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 - **objective:** Map the target product's implementation surface — languages, frameworks, monorepo layout, apps/services/workers, routes, handlers, jobs, integrations, models, dependencies — into `12_app_map.json`.
 - **scope:** All source directories tracked by version control (default: `git ls-files` set); excludes `node_modules/`, `vendor/`, `dist/`, `build/`, `_testatlas/` workspace, and any directories listed in `.gitignore`.
 - **files-to-read:** Package manifests (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, `pom.xml`, `build.gradle`, `composer.json`); framework route files; the target's `README.md`; existing `12_app_map.json` if present.
-- **output-format:** `12_app_map.json` validating against `app-map.schema.json`, plus an `01_app_inventory.md` stub. Every entry cites at least one evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`.
+- **output-format:** `12_app_map.json` validating against `app-map.schema.json`, plus an `01_system_map.md` stub. Every entry cites at least one evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`.
 - **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
 - **exit-criteria:** All scoped surface area enumerated; every entry cites on-disk evidence; `app-map.schema.json` validation passes; coverage gaps explicitly listed.
 
@@ -41,13 +41,13 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 2. Detect language(s), frameworks, build tools, test runners, linters, monorepo layout (workspaces / apps / packages / services). If `shell` is available, run `git ls-files`, parse package manifests, and run framework introspection commands (e.g. `next routes`, `rails routes`, `php artisan route:list`) where the toolchain ships them. **If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read package files manually instead — never invent routes, handlers, or integrations from training-data priors.**
 3. Enumerate apps / services / workers: frontends (web, mobile, desktop), HTTP APIs, RPC services, background workers, schedulers, queue consumers, cron jobs, edge functions, lambdas. Record entry-point file paths and runtime metadata for each.
 4. Enumerate routes: HTTP routes (REST, GraphQL endpoints, server actions), RPC handlers, WebSocket / SSE handlers, page routes, server-side rendered routes, static routes. Capture method, path, source-file path, and handler symbol.
-5. Enumerate handlers and the modules they call into. Record handler-to-module edges so coverage and ownership reasoning can use them later.
+5. Enumerate handlers and the modules they call into. Record handler-to-module edges so coverage and ownership reasoning can use them later. Persist these edges in the `relationships` array of `12_app_map.json` (`{from, to, type}` objects per `app-map.schema.json`).
 6. Enumerate jobs / cron / queues / consumers: scheduler definitions, queue topics, consumer groups, retry policies as written in code.
 7. Enumerate external integrations: auth, payments, email, SMS, analytics, telemetry, object storage, search, feature flags, webhooks, outbound APIs. Distinguish sandbox vs production endpoints whenever the codebase makes the distinction (env names, base URLs, key prefixes); never guess.
 8. Enumerate data-flow surfaces: databases, caches, ORM models, schema definitions, migration files, seed scripts, fixtures. Capture model names, table names, and the file path that defines them.
 9. Save raw evidence under `_testatlas/evidence/explore-codebase/<timestamp>/`: file listings, parsed manifest dumps, route enumerations, framework-introspection output, dependency graphs. Each evidence file gets a stable name so claims can cite it.
 10. Render `_testatlas/12_app_map.json` per `app-map.schema.json` — every app, route, handler, job, integration, model, and dependency entry MUST reference at least one evidence path created in step 9.
-11. Append a domain-inventory stub to `_testatlas/01_app_inventory.md` (or the analogous canonical file) listing the apps and a first-pass clustering hint for `map-domains` to consume.
+11. Append a domain-inventory stub to `_testatlas/01_system_map.md` (under the `## Apps and Packages and Services` section or analogous) listing the apps and a first-pass clustering hint for `map-domains` to consume.
 12. Validate the resulting `12_app_map.json` against `app-map.schema.json`. If validation fails, halt and surface the AJV errors verbatim — do not commit a partial map.
 13. Close the lifecycle (next section).
 
@@ -55,7 +55,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 - `_testatlas/12_app_map.json` — schema-valid app map with apps, routes, handlers, jobs, integrations, models, dependencies, each citing evidence paths.
 - `_testatlas/evidence/explore-codebase/<timestamp>/` — raw evidence directory: file listings, manifest dumps, route enumerations, framework-introspection output, dependency listings.
-- Updated `_testatlas/01_app_inventory.md` — domain-inventory stub for `map-domains` to consume.
+- Updated `_testatlas/01_system_map.md` — domain-inventory stub for `map-domains` to consume.
 - Updated runtime-detection metadata recorded in `_testatlas/00_overview.md` (language, framework, package manager).
 
 ## Lifecycle
@@ -80,8 +80,16 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - `_testatlas/12_app_map.json` exists and validates against `app-map.schema.json`.
 - Every app, route, handler, job, integration, and model entry cites at least one evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/` that exists on disk.
-- `_testatlas/01_app_inventory.md` lists at least one app (or unambiguous justification for zero).
+- `_testatlas/01_system_map.md` lists at least one app (or unambiguous justification for zero).
 - Manifest `counts.apps`, `counts.routes`, `counts.integrations`, `counts.models` are updated to match the on-disk map.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the app map is built:
+
+- **`/atlas:explore-ui`** — observe runtime UI states for the routes you just inventoried
+- **`/atlas:explore-api`** — exercise the HTTP surface and capture endpoint evidence
+- **`/atlas:plan`** — turn the inventory into a test plan if exploration is sufficient
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,6 +1,6 @@
 description = "Invoke the suite self-update flow — checks GitHub Releases per UPDATE-01, delegates to Phase 7 update.js for atomic apply with backup, never auto-applies without operator confirmation."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="cd0d70b2fc3df716" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="b53bbcfc58bab7e8" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -64,5 +64,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The five lifecycle files listed above are updated.
 - `_testatlas/history/update-<ts>.md` records the attempt outcome.
 - Zero stop conditions triggered without surfacing.
+
+## What's Next
+
+Now that the suite is on the latest version:
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
+- **`/atlas:bootstrap`** — reload the constitution if §-numbering or rules changed
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 """

@@ -4,7 +4,7 @@ description: Deduplicate, normalize, group, and flag-as-blocker the issues under
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="395bc00feef74efd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="3d0d3a517c28e732" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -74,4 +74,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the triage pass has run:
+
+- **`/atlas:retest`** — rerun fixed-pending-retest issues to confirm or regress
+- **`/atlas:consolidate`** — merge duplicate groups into canonical issues
+- **`/atlas:report`** — fold blockers + severity tallies into the next report
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

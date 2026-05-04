@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-plan. Invoke as /prompts:atlas-plan. Description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b76321e690adc4a5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="57a39781223f8b12" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,4 +87,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every scenario carries an explicit `confidence` per `bootstrap.md` §11.
 - Manifest `counts.scenarios` and `counts.charters` match on-disk counts.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the test plan exists:
+
+- **`/atlas:test-flow`** — execute scenarios end-to-end with evidence capture
+- **`/atlas:test-domain`** — execute one full domain at a time when scope is large
+- **`/atlas:log-issue`** — file blocking issues surfaced during planning
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

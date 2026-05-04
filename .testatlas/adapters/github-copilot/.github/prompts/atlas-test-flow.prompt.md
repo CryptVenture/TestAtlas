@@ -3,7 +3,7 @@ mode: agent
 description: Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="098bf8b183ec4fa6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="da7ab99efb300b19" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -26,8 +26,8 @@ Execute one or more test scenarios from `_testatlas/tests/matrix.json` against t
 3. Verify safety flags. If `allowDestructiveActions=false`, refuse scenarios marked destructive (data deletion, irreversible mutations, payment captures). If `allowProductionTesting=false`, refuse scenarios whose target environment resolves to production (production hostnames, live API keys); inspect resolved URLs / env names rather than scenario-author claims.
 4. For each scenario, execute the steps in order. Capture evidence at every user-visible state required by the scenario plus the canonical PRD §13 set: empty, loading, error, success, permission. Persist evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/` BEFORE making any pass/fail claim. Evidence file names should be stable and self-describing (`step-03-success.png`, `network-har.json`, `console.log.txt`).
 5. For each scenario result, record: scenario id, name, type, status (`passed` / `failed` / `skipped` / `blocked`), state-coverage observed (which of the 5 PRD §13 states were exercised), evidence paths (absolute under `_testatlas/evidence/runs/<run-id>/`), observed assertions vs expected, deltas (what differed from the scenario's expected behaviour), and a per-result `confidence` per `bootstrap.md` §8.
-6. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/runs/RUN-<timestamp>.json` (validates against `test-run.schema.json`). Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
-7. For each failure, do NOT auto-log issues — the operator (or `/atlas:log-issue`) decides which become tracked issues. `test-flow` MAY append an advisory list at `_testatlas/runs/RUN-<timestamp>.suggestions.md` of issue candidates with the relevant evidence paths preselected so `log-issue` can adopt them quickly.
+6. Write `_testatlas/tests/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/tests/runs/RUN-<timestamp>.json` (validates against `test-run.schema.json`). Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
+7. For each failure, do NOT auto-log issues — the operator (or `/atlas:log-issue`) decides which become tracked issues. `test-flow` MAY append an advisory list at `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` of issue candidates with the relevant evidence paths preselected so `log-issue` can adopt them quickly.
 8. Update flow confidence per scenario outcomes — flows whose scenarios passed climb in confidence; flows with failures or skips drop and are marked for re-test in the next plan cycle.
 9. Validate the produced RUN JSON against `test-run.schema.json` before closing. If validation fails, halt — do not commit a malformed run record.
 10. Close the lifecycle (next section).
@@ -45,7 +45,7 @@ For each independent flow in the requested flow set:
     - **scope:** "The actions, assertions, and PRD §13 states defined in the flow file."
     - **files-to-read:** "`_testatlas/flows/<flow-name>/flow.{md,json}`; `_testatlas/tests/matrix.json` entries for the flow; any referenced fixtures or seed data; `.testatlas/schemas/test-run.schema.json` and `evidence.schema.json`."
     - **output-format:** "`RUN-<timestamp>.md` + `RUN-<timestamp>.json` per `test-run.schema.json`, with per-state evidence paths under `_testatlas/evidence/runs/<run-id>/<flow-name>/`."
-    - **may-write:** sub-agent MAY write evidence files under `_testatlas/evidence/runs/<run-id>/<flow-name>/` and the per-flow run record under `_testatlas/runs/`. Sub-agent MUST NOT write to `_testatlas/to_fix/` directly — the umbrella aggregates issue candidates from the run records into the optional `RUN-<timestamp>.suggestions.md` file.
+    - **may-write:** sub-agent MAY write evidence files under `_testatlas/evidence/runs/<run-id>/<flow-name>/` and the per-flow run record under `_testatlas/tests/runs/`. Sub-agent MUST NOT write to `_testatlas/to_fix/` directly — the umbrella aggregates issue candidates from the run records into the optional `RUN-<timestamp>.suggestions.md` file.
     - **exit-criteria:** "Run record persisted; pass/fail recorded; evidence redacted per the redaction-pipeline; schema validation passes."
 Run all sub-agents in parallel. Wait for all to complete.
 Merge structured results into the aggregate run summary.
@@ -62,9 +62,9 @@ Mark the run record `executionMode: 'sequential-fallback'`.
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — schema-valid run record with per-scenario results, state coverage, evidence paths.
+- `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — schema-valid run record with per-scenario results, state coverage, evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/` — captured screenshots, logs, network traces, console output, server traces for every executed scenario.
-- Optional `_testatlas/runs/RUN-<timestamp>.suggestions.md` — advisory issue candidates for `/atlas:log-issue`.
+- Optional `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` — advisory issue candidates for `/atlas:log-issue`.
 - Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched by this run.
 
 ## Lifecycle
@@ -88,10 +88,18 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Completion Criteria
 
-- At least one `_testatlas/runs/RUN-<timestamp>.{md,json}` pair exists, or there is an unambiguous justification for zero (e.g. all scenarios legitimately skipped) recorded in the run summary.
+- At least one `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` pair exists, or there is an unambiguous justification for zero (e.g. all scenarios legitimately skipped) recorded in the run summary.
 - Every recorded result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
 - The RUN JSON validates against `test-run.schema.json`.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - Flow confidence is updated for every flow touched.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the flow run is complete:
+
+- **`/atlas:log-issue`** — file individual issues for failing scenarios
+- **`/atlas:retest`** — rerun failing scenarios after fixes land
+- **`/atlas:report`** — fold the run into the next aggregate report
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,6 +1,6 @@
 description = "Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces; capture contracts, auth, errors, pagination; safely probe sandbox endpoints."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="2ff50d3e019509bb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="ca6dbcea4a64e233" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -83,5 +83,13 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.api-endpoints` (or analogous) reflects the on-disk map.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the API surface is mapped:
+
+- **`/atlas:explore-integrations`** — trace outbound dependencies the API depends on
+- **`/atlas:test-flow`** — execute API scenarios end-to-end with response evidence
+- **`/atlas:plan`** — turn the endpoint inventory into a test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 """

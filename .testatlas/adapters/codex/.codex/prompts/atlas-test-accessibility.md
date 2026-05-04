@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-accessibility. Invoke as /prompts:atlas-test-accessibility. Description: Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="1ec07e38b614fba2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="31e2d9295444c08d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,4 +77,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The RUN JSON validates against `test-run.schema.json`.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that accessibility scenarios have run:
+
+- **`/atlas:log-issue`** — file individual issues for failing assertions
+- **`/atlas:triage`** — assess severity and ownership across the a11y queue
+- **`/atlas:retest`** — re-run failing scenarios after a fix lands
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -3,7 +3,7 @@ mode: agent
 description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="eb5d6c6bed7b6488" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="b83891cf91ea86ab" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -68,4 +68,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest counts re-derived and recorded; `lastUpdatedAt` bumped.
 - The five lifecycle files listed above are updated.
 - No stop condition triggered.
+
+## What's Next
+
+Now that the workspace is validated:
+
+- **`/atlas:explore`** — proceed with discovery if validation passed clean
+- **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
+- **`/atlas:update`** — refresh the suite if the report flagged a stale version
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

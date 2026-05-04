@@ -9,7 +9,7 @@ permission:
   bash: deny
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="ab2a50a157b8e467" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="3e9f59cc349923c0" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -98,4 +98,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 The agent emits a one-sentence confirmation that all 24 PRD §9 sections of `.testatlas/bootstrap.md` were re-read and either no precedence conflicts surfaced or the conflicts that did surface are listed verbatim. The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the constitution is reloaded:
+
+- **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
+- **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

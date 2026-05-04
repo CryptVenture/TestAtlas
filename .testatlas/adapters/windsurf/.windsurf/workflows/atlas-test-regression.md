@@ -3,7 +3,7 @@ description: Re-run previously-failed scenarios from prior RUN-<timestamp>.json 
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="125ed572a201409c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="bdae51dbd2cdc788" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -74,4 +74,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/reports/regressions.md` is updated inside its generated-section markers; human content outside the markers is preserved.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the regression run is complete:
+
+- **`/atlas:log-issue`** — file fresh issues for any newly-regressed scenarios
+- **`/atlas:retest`** — rerun ambiguous scenarios under cleaner conditions
+- **`/atlas:report`** — fold the regression delta into the next aggregate report
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

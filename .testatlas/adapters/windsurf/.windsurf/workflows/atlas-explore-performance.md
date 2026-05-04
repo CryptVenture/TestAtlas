@@ -3,7 +3,7 @@ description: Detect user-visible slowness, blocking interactions, retries, and r
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="a50e2d75c199b64d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="910a2b6c57d28137" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -35,9 +35,8 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-performance/<timestamp>/` that exists on disk. Fabricated paths fail `validate-workspace`.
 2. Verify capabilities and degrade per `bootstrap.md` §4:
-   - **If `MCP` is unavailable, MUST NOT produce runtime performance findings — fall back to source-code reading via `app-map` (`12_app_map.json`) and the source files it references (look for known anti-patterns: N+1 queries, unbatched fetches, blocking sync IO, oversized bundles, missing memoization, unawaited promises in render). Mark every finding `confidence: needs-validation`. Add `tool_unavailable: MCP` to each artifact per `bootstrap.md` §4. Never invent trace timings, LCP/INP/CLS scores, throttling profiles, or network waterfalls from training-data priors.**
-   - **If `browser` is unavailable, MUST NOT navigate, capture traces, or sample network — fall back to source-code reading per the same rules; mark findings `confidence: needs-validation`; add `tool_unavailable: browser` per `bootstrap.md` §4. Never simulate rendered timing or visible jank from training-data priors.**
-   - **If `shell` is unavailable, MUST NOT start the local dev server — fall back to a deployed sandbox URL when present in `_testatlas/00_overview.md` and mark findings `confidence: needs-validation` per `bootstrap.md` §4. If neither shell nor a sandbox URL is available, halt via stop condition.**
+   - **If `MCP` or `browser` is unavailable, MUST NOT produce runtime performance findings — fall back to source-code reading via `app-map` (`12_app_map.json`) and the source files it references (look for known anti-patterns: N+1 queries, unbatched fetches, blocking sync IO, oversized bundles, missing memoization, unawaited promises in render). Mark every finding `confidence: needs-validation` and add `tool_unavailable: <MCP|browser>` per `bootstrap.md` §4. Never invent trace timings, LCP/INP/CLS scores, throttling profiles, or network waterfalls from training-data priors.**
+   - **If `shell` is unavailable, MUST NOT start the local dev server — fall back to a deployed sandbox URL recorded in `_testatlas/00_overview.md` and mark findings `confidence: needs-validation`. If neither shell nor a sandbox URL is available, halt via stop condition.**
 3. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — never run perf traces against production. Inspect resolved URLs, not author-claimed environments.
 4. (If `shell` is available) Start the local dev server per `_testatlas/00_overview.md` runtime metadata. Wait for the documented health-check (HTTP 200 on `/health` or equivalent). Persist the startup log under `_testatlas/evidence/explore-performance/<timestamp>/dev-server.log`.
 5. Connect to Chrome DevTools MCP and confirm the performance toolset (verbatim names):
@@ -93,4 +92,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `findings.md` exists and lists each finding with severity, threshold rationale, confidence, and at least one evidence path.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the performance baseline is captured:
+
+- **`/atlas:test-performance`** — execute targeted perf scenarios against the worst offenders
+- **`/atlas:plan`** — fold perf findings into the test plan
+- **`/atlas:log-issue`** — file individual issues for high-severity budget violations
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="446eede96de1e674" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="98681c1f2c100f6a" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,4 +87,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - Flow confidence is updated for every flow touched.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the domain run is complete:
+
+- **`/atlas:log-issue`** — file individual issues for failing scenarios
+- **`/atlas:retest`** — rerun failing scenarios after fixes land
+- **`/atlas:report`** — fold the run into the next aggregate report
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -4,7 +4,7 @@ description: Map auth, payments, email, analytics, storage, webhooks, and featur
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="5115846ac62ee6bb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="bebfed28911713d3" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,4 +82,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Zero real side effects (charges, emails, SMS, OAuth grants, outbound webhooks) have been triggered by this command.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that integrations are catalogued:
+
+- **`/atlas:explore-api`** — confirm integration boundaries match the API surface
+- **`/atlas:explore-security`** — audit credentials, secrets, and trust boundaries
+- **`/atlas:test-flow`** — exercise sandbox flows that traverse each integration
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

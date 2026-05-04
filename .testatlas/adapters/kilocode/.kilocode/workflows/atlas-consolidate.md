@@ -9,7 +9,7 @@ permission:
   bash: deny
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="bcadeefcdf12c242" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="a9e45003ca280f96" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -109,4 +109,9 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+- **`/atlas:report`** — fold the consolidated set into the next REPORT
+- **`/atlas:handoff`** — package the workspace for another operator
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,6 +1,6 @@
 description = "Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="79c891b023e75a39" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="5c01ea7a06fd2ba3" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,5 +82,13 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every destructive command has `safety: destructive` and `executed: false` recorded.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the CLI surface is mapped:
+
+- **`/atlas:explore-codebase`** — cross-reference CLI commands with their handler source
+- **`/atlas:test-flow`** — execute safe CLI flows end-to-end with evidence capture
+- **`/atlas:plan`** — turn the cli-command inventory into a test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 """

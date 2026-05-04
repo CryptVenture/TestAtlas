@@ -3,7 +3,7 @@ mode: agent
 description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="daf9188841a98e22" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="a42bf59c8b2c207e" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -88,4 +88,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest runtime counts reflect the on-disk evidence.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the runtime surface is mapped:
+
+- **`/atlas:explore-performance`** — measure baseline performance against the running services
+- **`/atlas:test-flow`** — exercise scenarios against the documented runtime topology
+- **`/atlas:plan`** — fold runtime constraints into the test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

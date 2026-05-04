@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-performance. Paste .testatlas/bootstrap.md first; description: Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="cf4b3ec87c0027d0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="5d7fae6fdde46df3" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,4 +76,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The RUN JSON validates against `test-run.schema.json` and includes the throttle profile applied.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that performance scenarios have run:
+
+- **`/atlas:log-issue`** — file individual issues for budget violations
+- **`/atlas:triage`** — assess severity and ownership across the perf queue
+- **`/atlas:retest`** — re-run failing scenarios after a fix lands
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

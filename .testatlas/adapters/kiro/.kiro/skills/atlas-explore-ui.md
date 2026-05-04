@@ -4,7 +4,7 @@ description: Map routes, components, forms, modals, all PRD §13.1 UI states (em
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="e06076be0b7053cd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="3153ff7a967734c1" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -36,7 +36,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
 
-2. Verify capabilities. `MCP` and `browser` are the runtime observation surfaces. **If `MCP` is unavailable, MUST NOT produce runtime UI findings — fall back to code reading via `app-map` (`12_app_map.json`) and the source files it references. Mark every finding `confidence: needs-validation`. Add `tool_unavailable: MCP` to each artifact per `bootstrap.md` §4. Never invent screenshots, network captures, console output, traces, or accessibility scores from training-data priors. If `browser` is unavailable, MUST NOT produce runtime UI findings — fall back to code reading via the same app-map sources, mark findings `confidence: needs-validation`, and add `tool_unavailable: browser` to each artifact per `bootstrap.md` §4.** When BOTH `MCP` and `browser` are unavailable, halt via the stop condition below — this command requires at least one runtime observation surface or it is operating purely on code, in which case `explore-codebase` already covers the contract.
+2. Verify capabilities. `MCP` and `browser` are the runtime observation surfaces. **If either `MCP` or `browser` is unavailable, MUST NOT produce runtime UI findings — fall back to code reading via `app-map` (`12_app_map.json`) and the source files it references. Mark every finding `confidence: needs-validation` and add `tool_unavailable: <MCP|browser>` per `bootstrap.md` §4. Never invent screenshots, network captures, console output, traces, or accessibility scores from training-data priors.** When BOTH `MCP` and `browser` are unavailable, halt via the stop condition below — `explore-codebase` already covers code-only mapping.
 
 3. Verify safety flags. If `allowProductionTesting=false`, refuse to navigate to any host whose resolved URL maps to production (production hostnames, live API keys, real payment processors). Inspect resolved URLs rather than scenario-author claims. If `allowDestructiveActions=false`, refuse to exercise any UI control whose label or handler indicates an irreversible mutation (delete confirmation, payment capture, account closure).
 
@@ -97,4 +97,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest counts updated to match disk.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the UI surface is mapped:
+
+- **`/atlas:explore-accessibility`** — audit the mapped routes for WCAG conformance
+- **`/atlas:test-flow`** — execute end-to-end scenarios against the mapped routes
+- **`/atlas:plan`** — turn the route+component map into a test plan
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

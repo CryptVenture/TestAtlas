@@ -3,7 +3,7 @@ mode: agent
 description: Umbrella explorer router — classify which sub-explorers (ui/cli/api/docs/runtime/data/integrations/accessibility/performance/security) apply to the target product and emit a recommendation document.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9121340fff83c38c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="95d551f1978dd4cc" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,4 +82,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
 - No evidence files, no schema artifacts, no findings emitted.
+
+## What's Next
+
+Now that the explore-plan is routed:
+
+- **`/atlas:map-domains`** — group explorer findings into testable domains
+- **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
+- **`/atlas:test-flow`** — start executing flows immediately if scope is already clear
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -2,7 +2,7 @@
 description: Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/log-issue.md" hash="af5df08122043fe7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/log-issue.md" hash="2d0782a914df7c53" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -67,4 +67,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.issues` was incremented by exactly one.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the issue is filed:
+
+- **`/atlas:triage`** — assess severity, owner, and fix priority across the issue queue
+- **`/atlas:retest`** — re-run the failing scenario after a candidate fix is in place
+- **`/atlas:report`** — fold the issue into the next aggregate report
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

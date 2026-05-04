@@ -4,7 +4,7 @@ description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="9d21cfac2c26ddef" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="ca7612288c6e8b78" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,7 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §8 (no-evidence-no-finding) and §11 (claim-confidence).
-- `_testatlas/runs/RUN-*.json` — every run since the last report (used for run/coverage aggregation).
+- `_testatlas/tests/runs/RUN-*.json` — every run since the last report (used for run/coverage aggregation).
 - `_testatlas/to_fix/*.json` — every issue, indexed by severity / status / type / confidence.
 - `_testatlas/12_app_map.json` and `_testatlas/domains/*/domain.json` — coverage denominators (apps / routes / domains / flows).
 - The previous `_testatlas/reports/REPORT-*.md` if any — for the trend-vs-prior section (last section).
@@ -58,7 +58,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- No runs exist (`_testatlas/runs/` empty) → halt; "Run /atlas:test-flow first." A report with zero runs has no aggregation surface.
+- No runs exist (`_testatlas/tests/runs/` empty) → halt; "Run /atlas:test-flow first." A report with zero runs has no aggregation surface.
 - More than 100 runs unread since the last report → halt; require operator to confirm a full re-aggregation pass (likely indicates skipped report cycles).
 - Any cited evidence file does not exist on disk → halt; do not commit a report referencing fabricated paths.
 - Any cited issue id is missing from `_testatlas/to_fix/` → halt; manifest is stale and `validate-workspace` must run first.
@@ -75,4 +75,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/13_quality_scorecard.md` is refreshed; per-area views are refreshed.
 - Manifest `counts.reports` is incremented by exactly one.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the report is generated:
+
+- **`/atlas:consolidate`** — merge with prior reports for trend analysis
+- **`/atlas:handoff`** — package the workspace for another agent or engineer
+- **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
