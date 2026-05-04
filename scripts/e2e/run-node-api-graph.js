@@ -51,12 +51,17 @@ const MODES = {
 };
 
 function parseArgs(argv) {
-  const args = { mode: null, output: null };
+  const args = { mode: null, output: null, keepTmp: false };
   for (const arg of argv.slice(2)) {
     if (arg.startsWith('--mode=')) args.mode = arg.slice('--mode='.length);
     else if (arg.startsWith('--output=')) args.output = arg.slice('--output='.length);
+    else if (arg === '--keep-tmp') args.keepTmp = true;
     else if (arg === '--help' || arg === '-h') args.help = true;
   }
+  // The test harness sets TESTATLAS_E2E=1; default to keeping tmp in that
+  // mode so test assertions can stat the report artifact post-run. CLI
+  // invocations (no env flag) clean up by default.
+  if (process.env.TESTATLAS_E2E === '1') args.keepTmp = true;
   return args;
 }
 
@@ -89,6 +94,7 @@ function printHelp() {
  *   mode: 'parallel' | 'sequential',
  *   outputPath?: string,
  *   tmpRoot?: string,
+ *   keepTmp?: boolean,
  * }} opts
  * @returns {Promise<{
  *   ok: true,
@@ -108,6 +114,7 @@ export async function runGraph(opts) {
 
   const tmpRoot = opts.tmpRoot ?? tmpdir();
   const tmp = await mkdtemp(path.join(tmpRoot, 'testatlas-e2e-'));
+  const keepTmp = opts.keepTmp === true;
   let preserveOnFailure = true;
   try {
     // (1) Copy example tree (without the checked-in _testatlas/) into the tmp dir.
@@ -218,8 +225,9 @@ export async function runGraph(opts) {
         );
       }
 
-      // (10) Success. Don't preserve tmp.
-      preserveOnFailure = false;
+      // (10) Success. Don't preserve tmp UNLESS keepTmp was set
+      //      (used by the test harness so it can stat the report artifact).
+      preserveOnFailure = keepTmp;
 
       const status = {
         ok: true,
@@ -281,7 +289,7 @@ if (isMain) {
     printHelp();
     process.exit(2);
   }
-  runGraph({ mode: args.mode })
+  runGraph({ mode: args.mode, keepTmp: args.keepTmp })
     .then(async (status) => {
       const json = JSON.stringify(status, null, 2);
       if (args.output) {
