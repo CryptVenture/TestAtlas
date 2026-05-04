@@ -38,6 +38,7 @@ import { hashContent } from '../content-hash.js';
 import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderAider } from './render-aider.js';
+import { renderAmazonQ } from './render-amazon-q.js';
 import { renderClaudeCode } from './render-claude-code.js';
 import { renderCline } from './render-cline.js';
 import { renderCodex } from './render-codex.js';
@@ -50,8 +51,10 @@ import { renderKilocode } from './render-kilocode.js';
 import { renderKiro } from './render-kiro.js';
 import { renderMcpToString } from './render-mcp.js';
 import { renderOpencode } from './render-opencode.js';
+import { renderRooCode } from './render-roo-code.js';
 import { renderSourcegraphAmp } from './render-sourcegraph-amp.js';
 import { renderWindsurf } from './render-windsurf.js';
+import { renderZed } from './render-zed.js';
 
 // Renderer dispatch table for layer-2 byte-compare. Each adapter must register
 // here when it ships. An adapter without a registered renderer skips the
@@ -78,7 +81,10 @@ const RENDERERS = Object.freeze({
 // outcome onto all 30 command obligations. Plan 06-04 ships aider + mcp.
 const MULTI_CLASSIFIERS = Object.freeze({
   aider: classifyAider,
+  'amazon-q': classifyAmazonQ,
   mcp: classifyMcp,
+  'roo-code': classifyRooCode,
+  zed: classifyZed,
 });
 
 const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
@@ -333,6 +339,73 @@ async function classifyMcp({ repoRoot, adapter, sources }) {
   if (fresh !== derivedText) return 'hand-edit';
 
   return null;
+}
+
+/**
+ * Shared classifier for the three concatenated-conventions adapters
+ * (roo-code, zed, amazon-q). They all produce a single output file with the
+ * same envelope shape: source="commands/_aggregate" + aggregate hash. The
+ * caller passes the renderer-specific function and output filename.
+ *
+ * @param {{
+ *   repoRoot: string,
+ *   adapter: AdapterEntry,
+ *   sources: { sourcePath: string, sourceText: string, commandBaseName: string }[],
+ *   render: (args: { sources: { sourcePath: string, sourceText: string }[], adapterCaps: string[] }) => { rules: string },
+ * }} args
+ * @returns {Promise<DriftEntry['kind'] | null>}
+ */
+async function classifyConcatenatedRules({ repoRoot, adapter, sources, render }) {
+  const expectedPath = path.join(repoRoot, adapter.outputDir, adapter.outputPattern);
+  let derivedText;
+  try {
+    derivedText = await readFile(expectedPath, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return 'missing';
+    throw err;
+  }
+
+  const marker = parseAdapterMarker(derivedText);
+  if (!marker || marker.source !== 'commands/_aggregate') return 'no-marker';
+
+  const perSource = sources.map((s) => hashContent(s.sourceText));
+  const aggregateHash = hashContent(perSource.join(''));
+  if (marker.hash !== aggregateHash) return 'hash-mismatch';
+
+  const fresh = render({
+    sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
+    adapterCaps: adapter.capabilities,
+  });
+  if (fresh.rules !== derivedText) return 'hand-edit';
+
+  return null;
+}
+
+/**
+ * Classify the SHARED Roo Code obligation (single .roo/rules/atlas.md).
+ * @param {{ repoRoot: string, adapter: AdapterEntry, sources: { sourcePath: string, sourceText: string, commandBaseName: string }[] }} args
+ * @returns {Promise<DriftEntry['kind'] | null>}
+ */
+async function classifyRooCode(args) {
+  return classifyConcatenatedRules({ ...args, render: renderRooCode });
+}
+
+/**
+ * Classify the SHARED Zed obligation (single `.rules` file at outputDir root).
+ * @param {{ repoRoot: string, adapter: AdapterEntry, sources: { sourcePath: string, sourceText: string, commandBaseName: string }[] }} args
+ * @returns {Promise<DriftEntry['kind'] | null>}
+ */
+async function classifyZed(args) {
+  return classifyConcatenatedRules({ ...args, render: renderZed });
+}
+
+/**
+ * Classify the SHARED Amazon Q obligation (single .amazonq/rules/atlas.md).
+ * @param {{ repoRoot: string, adapter: AdapterEntry, sources: { sourcePath: string, sourceText: string, commandBaseName: string }[] }} args
+ * @returns {Promise<DriftEntry['kind'] | null>}
+ */
+async function classifyAmazonQ(args) {
+  return classifyConcatenatedRules({ ...args, render: renderAmazonQ });
 }
 
 /**

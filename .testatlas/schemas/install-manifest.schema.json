@@ -54,7 +54,10 @@
           "kiro",
           "continue-dev",
           "github-copilot",
-          "sourcegraph-amp"
+          "sourcegraph-amp",
+          "roo-code",
+          "zed",
+          "amazon-q"
         ]
       },
       "uniqueItems": true

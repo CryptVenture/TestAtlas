@@ -24,6 +24,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderAider } from './lib/adapters/render-aider.js';
+import { renderAmazonQ } from './lib/adapters/render-amazon-q.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
 import { renderCline } from './lib/adapters/render-cline.js';
 import { renderCodex } from './lib/adapters/render-codex.js';
@@ -36,8 +37,10 @@ import { renderKilocode } from './lib/adapters/render-kilocode.js';
 import { renderKiro } from './lib/adapters/render-kiro.js';
 import { renderMcpToString } from './lib/adapters/render-mcp.js';
 import { renderOpencode } from './lib/adapters/render-opencode.js';
+import { renderRooCode } from './lib/adapters/render-roo-code.js';
 import { renderSourcegraphAmp } from './lib/adapters/render-sourcegraph-amp.js';
 import { renderWindsurf } from './lib/adapters/render-windsurf.js';
+import { renderZed } from './lib/adapters/render-zed.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { listCommandFiles } from './lib/list-command-files.js';
@@ -74,7 +77,10 @@ const RENDERERS = Object.freeze({
 // fixed set of output files independent of the per-source iteration.
 const MULTI_RENDERERS = Object.freeze({
   aider: aiderMultiRenderer,
+  'amazon-q': amazonQMultiRenderer,
   mcp: mcpMultiRenderer,
+  'roo-code': rooCodeMultiRenderer,
+  zed: zedMultiRenderer,
 });
 
 /**
@@ -173,6 +179,72 @@ function mcpMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
     {
       outPath: path.join(workspace, adapter.outputDir, 'mcp-server-manifest.json'),
       content,
+    },
+  ];
+}
+
+/**
+ * Roo Code multi-source renderer adapter. Returns the single concatenated
+ * `.roo/rules/atlas.md` output for the workspace.
+ *
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps: string[],
+ *   workspace: string,
+ *   adapter: AdapterEntry,
+ * }} args
+ * @returns {Array<{ outPath: string, content: string }>}
+ */
+function rooCodeMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  const { rules } = renderRooCode({ sources, adapterCaps });
+  return [
+    {
+      outPath: path.join(workspace, adapter.outputDir, adapter.outputPattern),
+      content: rules,
+    },
+  ];
+}
+
+/**
+ * Zed multi-source renderer adapter. Returns the single `.rules` file at the
+ * adapter's outputDir root (no subdir; pattern is just `.rules`).
+ *
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps: string[],
+ *   workspace: string,
+ *   adapter: AdapterEntry,
+ * }} args
+ * @returns {Array<{ outPath: string, content: string }>}
+ */
+function zedMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  const { rules } = renderZed({ sources, adapterCaps });
+  return [
+    {
+      outPath: path.join(workspace, adapter.outputDir, adapter.outputPattern),
+      content: rules,
+    },
+  ];
+}
+
+/**
+ * Amazon Q multi-source renderer adapter. Returns the single concatenated
+ * `.amazonq/rules/atlas.md` output for the workspace.
+ *
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps: string[],
+ *   workspace: string,
+ *   adapter: AdapterEntry,
+ * }} args
+ * @returns {Array<{ outPath: string, content: string }>}
+ */
+function amazonQMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  const { rules } = renderAmazonQ({ sources, adapterCaps });
+  return [
+    {
+      outPath: path.join(workspace, adapter.outputDir, adapter.outputPattern),
+      content: rules,
     },
   ];
 }

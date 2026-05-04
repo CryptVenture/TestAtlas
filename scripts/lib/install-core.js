@@ -82,6 +82,9 @@ const ALL_ADAPTERS = Object.freeze([
   'continue-dev',
   'github-copilot',
   'sourcegraph-amp',
+  'roo-code',
+  'zed',
+  'amazon-q',
 ]);
 
 const SUITE_DIR = '.testatlas';

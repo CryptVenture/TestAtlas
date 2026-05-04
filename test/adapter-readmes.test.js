@@ -49,6 +49,9 @@ const ADAPTERS = [
   'continue-dev',
   'github-copilot',
   'sourcegraph-amp',
+  'roo-code',
+  'zed',
+  'amazon-q',
 ];
 
 // Per-adapter "Limitations equivalent" alternatives. A plain `## Limitations`

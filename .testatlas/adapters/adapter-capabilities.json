@@ -160,6 +160,38 @@
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Amp walks AGENTS.md from cwd up to $HOME; per-command files in `~/.agents/commands/` are the practical global path."
+    },
+    {
+      "name": "roo-code",
+      "displayName": "Roo Code",
+      "outputDir": ".testatlas/adapters/roo-code",
+      "outputPattern": ".roo/rules/atlas.md",
+      "globalOutputPattern": ".roo/rules/atlas.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "concatenated-conventions",
+      "globalNotes": "Roo concatenates all `.roo/rules/*.md` into the system prompt alphabetically. The single `atlas.md` file lists all 30 atlas commands in collapsed form (one short H2 each, ≤7 lines body)."
+    },
+    {
+      "name": "zed",
+      "displayName": "Zed",
+      "outputDir": ".testatlas/adapters/zed",
+      "outputPattern": ".rules",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "MCP", "file-write"],
+      "renderStrategy": "concatenated-conventions",
+      "globalNotes": "Zed has no file-installable global rules path; --global skips. For machine-wide rules, use Zed's UI Rules Library."
+    },
+    {
+      "name": "amazon-q",
+      "displayName": "Amazon Q Developer",
+      "outputDir": ".testatlas/adapters/amazon-q",
+      "outputPattern": ".amazonq/rules/atlas.md",
+      "globalOutputPattern": ".aws/amazonq/prompts/atlas.md",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "MCP", "file-write"],
+      "renderStrategy": "concatenated-conventions",
+      "globalNotes": "Amazon Q project rules live at `.amazonq/rules/`; user prompt library at `~/.aws/amazonq/prompts/`. Q auto-applies rules; not slash-invokable."
     }
   ]
 }

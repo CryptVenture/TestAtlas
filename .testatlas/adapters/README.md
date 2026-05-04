@@ -24,6 +24,9 @@ the *output* of that pipeline.
 | **Continue.dev** (`continue-dev`) | shell, web-fetch, MCP, file-write | `per-command-file` | `.continue/prompts/atlas-{command}.prompt.md` | [`continue-dev/README.md`](./continue-dev/README.md) |
 | **GitHub Copilot** (`github-copilot`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.github/prompts/atlas-{command}.prompt.md` | [`github-copilot/README.md`](./github-copilot/README.md) |
 | **Sourcegraph Amp** (`sourcegraph-amp`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.agents/commands/atlas-{command}.md` | [`sourcegraph-amp/README.md`](./sourcegraph-amp/README.md) |
+| **Roo Code** (`roo-code`) | browser, shell, web-fetch, MCP, file-write | `concatenated-conventions` | `.roo/rules/atlas.md` | [`roo-code/README.md`](./roo-code/README.md) |
+| **Zed** (`zed`) | shell, MCP, file-write | `concatenated-conventions` | `.rules` | [`zed/README.md`](./zed/README.md) |
+| **Amazon Q Developer** (`amazon-q`) | shell, MCP, file-write | `concatenated-conventions` | `.amazonq/rules/atlas.md` | [`amazon-q/README.md`](./amazon-q/README.md) |
 
 The canonical capability declarations live in
 [`adapter-capabilities.json`](./adapter-capabilities.json) and are validated by
@@ -46,7 +49,7 @@ from.
 ## Parity gate
 
 The strict-mode parity check enumerates every command × adapter obligation
-(30 commands × 15 adapters = 450 today; the count grows as new adapters land)
+(30 commands × 18 adapters = 540 today; the count grows as new adapters land)
 and asserts coverage is 1.0 with zero drift entries:
 
 ```sh

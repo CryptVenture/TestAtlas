@@ -37,6 +37,9 @@ Where files land:
 | Continue.dev | `<repo>/.continue/prompts/atlas-*.prompt.md` | `~/.continue/prompts/atlas-*.prompt.md` |
 | GitHub Copilot | `<repo>/.github/prompts/atlas-*.prompt.md` | _(no global path; settings-only)_ |
 | Sourcegraph Amp | `<repo>/.agents/commands/atlas-*.md` | `~/.agents/commands/atlas-*.md` |
+| Roo Code | `<repo>/.roo/rules/atlas.md` | `~/.roo/rules/atlas.md` |
+| Zed | `<repo>/.rules` | _(no global path; UI-managed)_ |
+| Amazon Q Developer | `<repo>/.amazonq/rules/atlas.md` | `~/.aws/amazonq/prompts/atlas.md` |
 | Aider | `<repo>/CONVENTIONS.md` | `~/.config/aider/CONVENTIONS.md` |
 | MCP | `<repo>/mcp-server-manifest.json` | `~/.config/testatlas/mcp-server-manifest.json` |
 | Generic prompts | `<repo>/prompts/atlas-*.md` | `~/.config/testatlas/prompts/atlas-*.md` |

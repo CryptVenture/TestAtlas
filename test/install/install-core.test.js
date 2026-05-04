@@ -155,6 +155,9 @@ test('install-core: allAdapters → manifest lists every shipped adapter', async
       'continue-dev',
       'github-copilot',
       'sourcegraph-amp',
+      'roo-code',
+      'zed',
+      'amazon-q',
     ];
     assert.equal(result.adapters.length, expected.length);
     for (const name of expected) {
