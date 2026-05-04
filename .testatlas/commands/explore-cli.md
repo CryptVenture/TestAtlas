@@ -49,6 +49,17 @@ Map every command-line entry point the target product exposes — `package.json`
 - `.testatlas/schemas/cli-command.schema.json` — the output contract every cli-command entry must satisfy.
 - Target repo manifests: `package.json` (`scripts`, `bin`), `Makefile`, `Justfile`, `pyproject.toml`, `Cargo.toml`, `composer.json`, `Rakefile`, `mix.exs`, plus any `bin/` directory entries.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the CLI surface — argument parsers, subcommands, flags, exit codes, help text, destructive-command flags — of the target product.
+- **scope:** Every entry in `package.json#scripts` and `package.json#bin`, every `Makefile`/`Justfile`/`Rakefile` target, every `pyproject.toml`/`Cargo.toml`/`composer.json`/`mix.exs` script, plus loose binaries under `bin/`. Excludes test runners and lint scripts unless the operator opts in.
+- **files-to-read:** `.testatlas/schemas/cli-command.schema.json`; `_testatlas/12_app_map.json`; `.testatlas/default.config.json` (`allowDestructiveActions`); the manifest files listed above.
+- **output-format:** `cli-command` entries appended to `12_app_map.json` (validating against `cli-command.schema.json`), each with help-text capture, exit-code mapping, and a destructive-command flag where applicable. Evidence under `_testatlas/evidence/explore-cli/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** All non-test scripts enumerated; help text captured for each; destructive commands tagged `unsafe-without-flag` per `bootstrap.md` §12; schema validation passes.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every cli-command entry this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-cli/<timestamp>/`. Fabricated paths fail `validate-workspace`.

@@ -51,6 +51,17 @@ Map the target product's user-facing UI surface using Chrome DevTools MCP as the
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - The target repository's UI source files referenced by `12_app_map.json` (page components, route handlers, form definitions). These are the fallback observation surface when runtime tools are unavailable.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the UI surface (routes, components, forms, modals, all PRD §13.1 states — empty/loading/error/success/permission, responsive breakpoints, ARIA basics) of the target product.
+- **scope:** Every route in `12_app_map.json` whose handler resolves to a user-facing UI surface; excludes API-only routes, headless services, and CLI binaries.
+- **files-to-read:** `_testatlas/12_app_map.json`; `.testatlas/schemas/app-map.schema.json`, `route.schema.json`, `component.schema.json`, `evidence.schema.json`; `.testatlas/default.config.json` (safety flags); UI source files referenced by app-map (page components, route handlers, form definitions).
+- **output-format:** Updated route + component entries in `12_app_map.json`; raw evidence (DOM snapshots, screenshots, console + network captures, responsive breakpoint screenshots) under `_testatlas/evidence/explore-ui/<timestamp>/<route-slug>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every route + component entry cites on-disk evidence; PRD §13.1 states observed (or skip rationale recorded); ≥3 responsive breakpoints captured per user-facing route; schema validation passes.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
@@ -62,14 +73,14 @@ Map the target product's user-facing UI surface using Chrome DevTools MCP as the
 4. Connect to the Chrome DevTools MCP server. The canonical toolset (verbatim names per the Chrome DevTools MCP `tool-reference.md`):
    - `navigate_page(url)` — open the route under test.
    - `wait_for(condition)` — block on selector / text / network-idle before capture.
-   - `take_snapshot()` — DOM structure (text-form, primary observation surface for accessibility tree + ARIA introspection).
-   - `take_screenshot(format, fullPage)` — visual evidence; saved under `_testatlas/evidence/explore-ui/<ts>/<route-slug>/`.
-   - `click(selector)`, `fill(selector, value)`, `fill_form(...)` — exercise interactive states (forms, modals, menus).
+   - `take_snapshot()` — DOM structure (primary observation surface for accessibility tree + ARIA).
+   - `take_screenshot(format, fullPage)` — visual evidence under `_testatlas/evidence/explore-ui/<ts>/<route-slug>/`.
+   - `click(selector)`, `fill(selector, value)`, `fill_form(...)` — exercise interactive states.
    - `evaluate_script(js)` — read computed styles, focus state, ARIA roles / labels, contrast hints.
-   - `list_console_messages()` — capture JS errors and warnings; emit as `console: [...]` evidence.
-   - `list_network_requests()` — capture XHR / fetch / WebSocket traffic; emit as `network: [...]` evidence.
-   - `lighthouse_audit(...)` — optional: capture an accessibility / performance score for the route (deep audits live in `explore-accessibility` and `explore-performance`).
-   - `resize_page({width, height})` — exercise responsive breakpoints (mobile / tablet / desktop).
+   - `list_console_messages()` — capture JS errors and warnings.
+   - `list_network_requests()` — capture XHR / fetch / WebSocket traffic.
+   - `lighthouse_audit(...)` — optional baseline a11y / perf score (deep audits live in `explore-accessibility` and `explore-performance`).
+   - `resize_page({width, height})` — exercise responsive breakpoints.
 
 5. For each route in `_testatlas/12_app_map.json` whose handler resolves to a user-facing UI surface, navigate via `navigate_page`, wait via `wait_for`, snapshot the DOM via `take_snapshot`, take a screenshot via `take_screenshot`, and capture both `list_console_messages` and `list_network_requests`. Persist every artifact under `_testatlas/evidence/explore-ui/<timestamp>/<route-slug>/` BEFORE adding a route or component entry that cites it.
 

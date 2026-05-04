@@ -47,6 +47,17 @@ Map the target product's implementation across languages, frameworks, monorepo l
 - The target repository's package manifests (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, `pom.xml`, `build.gradle`, `composer.json`, etc.).
 - The target repository's `README.md` if present — for high-level context only; verify every claim against actual code.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the target product's implementation surface — languages, frameworks, monorepo layout, apps/services/workers, routes, handlers, jobs, integrations, models, dependencies — into `12_app_map.json`.
+- **scope:** All source directories tracked by version control (default: `git ls-files` set); excludes `node_modules/`, `vendor/`, `dist/`, `build/`, `_testatlas/` workspace, and any directories listed in `.gitignore`.
+- **files-to-read:** Package manifests (`package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, `pom.xml`, `build.gradle`, `composer.json`); framework route files; the target's `README.md`; existing `12_app_map.json` if present.
+- **output-format:** `12_app_map.json` validating against `app-map.schema.json`, plus an `01_app_inventory.md` stub. Every entry cites at least one evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** All scoped surface area enumerated; every entry cites on-disk evidence; `app-map.schema.json` validation passes; coverage gaps explicitly listed.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.

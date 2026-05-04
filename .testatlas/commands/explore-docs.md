@@ -46,6 +46,17 @@ Inventory the target repository's authored documentation per PRD §13.5: `README
 - `_testatlas/12_app_map.json` — code-side ground truth used to detect stale docs (referenced files / symbols / integrations).
 - Target docs locations: `README.md`, `CHANGELOG.md`, `docs/`, `prd/`, `specs/`, `adr/`, `decisions/`, `rfcs/`, `design/`, `stories/`, `.github/` markdown, plus root-level `*.md` files.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Inventory the target's documentation surface — what features are documented, where, and where docs have drifted from code-side ground truth.
+- **scope:** All tracked markdown under the docs locations listed above plus root-level `*.md` files; excludes generated artifacts (e.g., API reference auto-built from OpenAPI), per-PR templates, and `_testatlas/` workspace docs.
+- **files-to-read:** Every doc file in scope; `_testatlas/12_app_map.json` (the code-side ground truth used to detect drift); referenced source files / symbols / integrations cited by the docs.
+- **output-format:** Markdown doc-inventory section + drift report listing stale references with `doc-path → claimed-fact → code-side-truth` triples. Evidence under `_testatlas/evidence/explore-docs/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every doc file in scope inventoried; every claim with a code-side counterpart cross-checked; drift entries cite both the doc path and the code-side evidence.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every doc-inventory entry, stale flag, and conflict report this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-docs/<timestamp>/`. Fabricated paths and invented document content fail `validate-workspace`.

@@ -49,6 +49,17 @@ Map every machine-callable interface the target product exposes per PRD §13.4: 
 - `.testatlas/schemas/api-endpoint.schema.json` — output contract every entry must satisfy.
 - Target schema files when present: `openapi.{yaml,json}`, `swagger.{yaml,json}`, `schema.graphql`, `*.proto`, `*.tsp`, `*.smithy`, framework route files.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the HTTP / RPC / GraphQL API surface — endpoints, request/response shapes, auth model, status-code map, error contracts — of the target product.
+- **scope:** Every API endpoint reachable from the app: REST routes, GraphQL resolvers, RPC handlers (gRPC, tRPC, JSON-RPC), WebSocket / SSE handlers, server actions. Excludes internal-only IPC unless documented as part of the API surface.
+- **files-to-read:** `.testatlas/schemas/api-endpoint.schema.json`; `_testatlas/12_app_map.json`; `.testatlas/default.config.json` (`allowDestructiveActions`, `allowProductionTesting`); target schema files (`openapi.*`, `schema.graphql`, `*.proto`, `*.tsp`, `*.smithy`); framework route files.
+- **output-format:** `api-endpoint` entries in `12_app_map.json` validating against `api-endpoint.schema.json`; per-endpoint evidence (probe responses, schema dumps) under `_testatlas/evidence/explore-api/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every endpoint enumerated with method/path/handler/auth-model/status-codes; production hosts skipped when `allowProductionTesting=false`; destructive endpoints tagged; schema validation passes.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every api-endpoint entry this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-api/<timestamp>/`. Fabricated endpoints, response shapes, or status-code maps fail `validate-workspace`.
