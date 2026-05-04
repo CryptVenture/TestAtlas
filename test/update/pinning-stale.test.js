@@ -85,7 +85,7 @@ async function setupTarget(opts = {}) {
 function captureStderr() {
   const lines = [];
   const orig = process.stderr.write.bind(process.stderr);
-  process.stderr.write = (chunk, ...rest) => {
+  process.stderr.write = (chunk, ..._rest) => {
     lines.push(typeof chunk === 'string' ? chunk : chunk.toString());
     return true;
   };

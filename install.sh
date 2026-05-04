@@ -70,6 +70,39 @@ _verify_checksum() {
     fi
 }
 
+# Plan 07-04 (UPDATE-07). Opt-in cosign attestation verify. Gated on the
+# TESTATLAS_VERIFY_SIGNATURE=1 env var (the npx CLI's --verify-signature flag
+# bridges to this). Default install path skips entirely (checksum-only).
+#
+# Without cosign on PATH AND env=1: actionable error pointing to the install
+# guide, exit 1. The full docs/SIGNING.md lives in Plan 07-05.
+_verify_signature_if_enabled() {
+    tarball="$1"
+    if [ "${TESTATLAS_VERIFY_SIGNATURE:-0}" != "1" ]; then
+        return 0
+    fi
+    if ! command -v cosign >/dev/null 2>&1; then
+        _err "cosign not found on PATH but --verify-signature requested."
+        _err "Install cosign: https://docs.sigstore.dev/cosign/installation/"
+        exit 1
+    fi
+    bundle="${tarball}.sigstore.json"
+    if [ ! -f "$bundle" ]; then
+        _log "Downloading cosign bundle from ${TARBALL_URL}.sigstore.json"
+        if ! _download "${TARBALL_URL}.sigstore.json" "$bundle"; then
+            _err "Could not download cosign attestation bundle from ${TARBALL_URL}.sigstore.json"
+            exit 1
+        fi
+    fi
+    _log "Verifying cosign attestation"
+    cosign verify-blob-attestation \
+        --bundle "$bundle" \
+        --new-bundle-format \
+        --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+        --certificate-identity-regexp="^https://github.com/<org>/testatlas/.github/workflows/release.yml.*" \
+        "$tarball"
+}
+
 _main() {
     _log "Installing TestAtlas v${VERSION}"
     _require_node
@@ -94,6 +127,8 @@ _main() {
     fi
 
     _verify_checksum "$TARBALL" "$TARBALL_SHA256"
+
+    _verify_signature_if_enabled "$TARBALL"
 
     _log "Extracting and running install"
     (cd "$TMP" && tar -xzf testatlas.tgz)

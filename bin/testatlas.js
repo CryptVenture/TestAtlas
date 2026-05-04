@@ -6,6 +6,7 @@
 // (`scripts/lib/install-core.js`); `update` and `uninstall` are stubs that
 // Plans 07-03 and 07-02 replace with real implementations.
 
+import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { program } from 'commander';
@@ -13,6 +14,21 @@ import { program } from 'commander';
 import { runInit } from '../scripts/lib/install-core.js';
 import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
+
+// Plan 07-04 (UPDATE-07). When --verify-signature is passed, probe for cosign
+// on PATH; abort with an actionable error if missing. The actual cosign
+// invocation is owned by install.sh (curl-pipe path) and tarball.js (npx
+// path); this top-level probe is a fast-fail to avoid downloading anything
+// when the verifier isn't available.
+function probeCosignOrExit() {
+  const probe = spawnSync('cosign', ['version'], { stdio: 'ignore' });
+  if (probe.status === 0) return;
+  process.stderr.write(
+    '[testatlas] cosign not found on PATH. Install: ' +
+      'https://docs.sigstore.dev/cosign/installation/\n',
+  );
+  process.exit(1);
+}
 
 // Node 20.11+ exposes `import.meta.dirname` natively — no fileURLToPath shim.
 const PKG_PATH = path.join(import.meta.dirname, '..', 'package.json');
@@ -33,7 +49,14 @@ program
   .option('--no-update-check', 'Skip the GitHub Releases version check')
   .option('--target <dir>', 'Target repo directory (default: cwd)')
   .option('--dry-run', 'Print planned actions without writing')
+  .option(
+    '--verify-signature',
+    'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
   .action(async (opts) => {
+    if (opts.verifySignature) {
+      probeCosignOrExit();
+    }
     const target = path.resolve(opts.target ?? process.cwd());
     const result = await runInit({
       target,
@@ -42,6 +65,7 @@ program
       force: Boolean(opts.force),
       noUpdateCheck: opts.updateCheck === false,
       dryRun: Boolean(opts.dryRun),
+      verifySignature: Boolean(opts.verifySignature),
     });
     process.exitCode = result.status === 'dry-run' || result.filesWritten >= 0 ? 0 : 1;
   });
@@ -52,12 +76,19 @@ program
   .option('--target <dir>', 'Target repo directory (default: cwd)')
   .option('--force-reinstall', 'Re-extract latest even when current version matches')
   .option('--dry-run', 'Print planned actions; do not write')
-  .option('--no-update-check', 'Skip GitHub Releases TTL check (Plan 07-04 wires this)')
+  .option('--no-update-check', 'Skip GitHub Releases TTL check')
   .option(
     '--latest-version <ver>',
-    'Override target version (Plan 07-04 wires automatic detection)',
+    'Override the target version (skips the GH Releases auto-check)',
+  )
+  .option(
+    '--verify-signature',
+    'Verify the release tarball cosign attestation (requires cosign on PATH)',
   )
   .action(async (opts) => {
+    if (opts.verifySignature) {
+      probeCosignOrExit();
+    }
     const target = path.resolve(opts.target ?? process.cwd());
     const result = await runUpdate({
       target,
@@ -66,9 +97,13 @@ program
       forceReinstall: Boolean(opts.forceReinstall),
       dryRun: Boolean(opts.dryRun),
       noUpdateCheck: opts.updateCheck === false,
+      verifySignature: Boolean(opts.verifySignature),
     });
     process.exitCode =
-      result.status === 'updated' || result.status === 'up-to-date' || result.status === 'dry-run'
+      result.status === 'updated' ||
+      result.status === 'up-to-date' ||
+      result.status === 'dry-run' ||
+      result.status === 'pinned-skip'
         ? 0
         : 1;
   });
