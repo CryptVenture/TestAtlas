@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-api",
+  "name": "api",
+  "displayName": "api",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "Internal Route Handlers",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-dashboard-layout-does-not-handle-expired-sessions",
+  "slug": "dashboard-layout-does-not-handle-expired-sessions",
+  "title": "Dashboard layout does not handle expired sessions",
+  "status": "new",
+  "severity": "high",
+  "confidence": "confirmed",
+  "type": "validation",
+  "domain": "domain-dashboard",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "The (dashboard) layout only checks for cookie presence; an expired or revoked session value still passes the guard.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-002"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

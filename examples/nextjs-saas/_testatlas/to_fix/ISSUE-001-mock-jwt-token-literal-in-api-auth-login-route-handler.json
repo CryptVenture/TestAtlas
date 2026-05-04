@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-mock-jwt-token-literal-in-api-auth-login-route-handler",
+  "slug": "mock-jwt-token-literal-in-api-auth-login-route-handler",
+  "title": "Mock JWT token literal in api auth login route handler",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "documentation",
+  "domain": "domain-auth",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "POST /api/auth/login returns the string literal mock-jwt-token; nothing is signed and the value is not derived from input.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

@@ -1,0 +1,154 @@
+{
+  "$schema": "../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "nextjs-saas",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-auth",
+      "command": "create-domain",
+      "args": { "name": "auth", "purpose": "Authentication and session management" }
+    },
+    {
+      "id": "domain-dashboard",
+      "command": "create-domain",
+      "args": { "name": "dashboard", "purpose": "Authenticated user dashboard" }
+    },
+    {
+      "id": "domain-marketing",
+      "command": "create-domain",
+      "args": { "name": "marketing", "purpose": "Public marketing pages" }
+    },
+    {
+      "id": "domain-api",
+      "command": "create-domain",
+      "args": { "name": "api", "purpose": "Internal Route Handlers" }
+    },
+    {
+      "id": "flow-login",
+      "command": "create-flow",
+      "args": {
+        "name": "Login With Credentials",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Submit email and password to /api/auth/login and land on /dashboard"
+      }
+    },
+    {
+      "id": "flow-signup",
+      "command": "create-flow",
+      "args": {
+        "name": "Signup New Account",
+        "domain": "domain-auth",
+        "persona": "new-user",
+        "goal": "Create a new account via /api/auth/signup and receive a session cookie"
+      }
+    },
+    {
+      "id": "flow-logout",
+      "command": "create-flow",
+      "args": {
+        "name": "Logout",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Clear the session cookie and return to the marketing landing page"
+      }
+    },
+    {
+      "id": "flow-dashboard-navigation",
+      "command": "create-flow",
+      "args": {
+        "name": "Dashboard Navigation",
+        "domain": "domain-dashboard",
+        "persona": "returning-user",
+        "goal": "Move between the dashboard home and settings as an authenticated user"
+      }
+    },
+    {
+      "id": "flow-view-landing-page",
+      "command": "create-flow",
+      "args": {
+        "name": "View Landing Page",
+        "domain": "domain-marketing",
+        "persona": "anonymous-visitor",
+        "goal": "Render the marketing home page and follow the sign-in or sign-up CTA"
+      }
+    },
+    {
+      "id": "flow-health-check",
+      "command": "create-flow",
+      "args": {
+        "name": "Health Check",
+        "domain": "domain-api",
+        "persona": "ops-engineer",
+        "goal": "Confirm the application process is responsive via GET /api/health"
+      }
+    },
+    {
+      "id": "evidence-mock-token-literal",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of app/api/auth/login/route.js returning the literal token mock-jwt-token"
+      }
+    },
+    {
+      "id": "evidence-no-expiry-check",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of app/(dashboard)/layout.js that only checks cookie presence, not expiry"
+      }
+    },
+    {
+      "id": "evidence-no-password-strength",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of app/api/auth/signup/route.js accepting any non-empty password"
+      }
+    },
+    {
+      "id": "issue-mock-jwt-literal",
+      "command": "create-issue",
+      "args": {
+        "title": "Mock JWT token literal in api auth login route handler",
+        "domain": "domain-auth",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "documentation",
+        "summary": "POST /api/auth/login returns the string literal mock-jwt-token; nothing is signed and the value is not derived from input.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    {
+      "id": "issue-dashboard-no-expiry",
+      "command": "create-issue",
+      "args": {
+        "title": "Dashboard layout does not handle expired sessions",
+        "domain": "domain-dashboard",
+        "severity": "high",
+        "confidence": "confirmed",
+        "type": "validation",
+        "summary": "The (dashboard) layout only checks for cookie presence; an expired or revoked session value still passes the guard.",
+        "evidence": "EVIDENCE-002"
+      }
+    },
+    {
+      "id": "issue-signup-no-strength",
+      "command": "create-issue",
+      "args": {
+        "title": "Signup form lacks password strength validation",
+        "domain": "domain-auth",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "validation",
+        "summary": "POST /api/auth/signup accepts any non-empty password; no length or complexity checks are applied.",
+        "evidence": "EVIDENCE-003"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}
