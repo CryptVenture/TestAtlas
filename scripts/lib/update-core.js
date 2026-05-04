@@ -32,13 +32,16 @@
 import { rename as fsRename, mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import semver from 'semver';
+import { loadConfig } from './load-config.js';
 import { acquireLock, releaseLock } from './lockfile.js';
 import { applyMigrations } from './migrate.js';
+import { evaluatePin, shouldWarn } from './pinning.js';
 import {
   downloadTarball as tarballDownload,
   extractTarball as tarballExtract,
   verifyChecksum as tarballVerify,
 } from './tarball.js';
+import { checkForUpdate } from './update-check.js';
 
 /**
  * Test seam — set via `update-core._testHooks.renameImpl = ...` in tests to
@@ -69,12 +72,31 @@ const DEFAULT_LOGGER = (msg) => process.stdout.write(`${msg}\n`);
 
 /**
  * @typedef {Object} RunUpdateResult
- * @property {'updated'|'up-to-date'|'dry-run'} status
+ * @property {'updated'|'up-to-date'|'dry-run'|'pinned-skip'} status
  * @property {string} [previousVersion]
  * @property {string} [newVersion]
  * @property {string} [backupDir]            Path of the kept backup dir (post-swap).
  * @property {number} [migrationsApplied]
+ * @property {object} [pin]                  Pin evaluation result, if any.
  */
+
+/**
+ * Best-effort config load. Returns an empty object when config files don't
+ * exist or fail validation — runUpdate must not refuse to run on a
+ * degraded config (the user is *trying to update* the suite that owns the
+ * config schema; refusing here is a chicken-and-egg). Caller passes through
+ * config-driven options as overrideable defaults.
+ *
+ * @param {string} target
+ * @returns {Promise<object>}
+ */
+async function loadConfigSilent(target) {
+  try {
+    return await loadConfig({ cwd: target });
+  } catch {
+    return {};
+  }
+}
 
 /**
  * Generate a sortable timestamp suffix safe for filesystem path components.
@@ -167,13 +189,59 @@ export async function runUpdate(opts) {
     throw new TypeError('runUpdate: `currentVersion` is required');
   }
 
-  // Up-to-date short-circuit (skipped under --force-reinstall).
-  if (!forceReinstall && !shouldUpdate(currentVersion, latestVersion)) {
-    log(`Already up to date (current ${currentVersion}, latest ${latestVersion ?? 'unknown'}).`);
-    return { status: 'up-to-date', previousVersion: currentVersion };
+  // Plan 07-04: read config (best-effort) for disableUpdateCheck, pinning,
+  // ttlHours. If `latestVersion` was not explicitly passed, consult
+  // checkForUpdate (TTL cache + GH Releases) when not disabled.
+  const config = await loadConfigSilent(target);
+  const disableUpdateCheck = Boolean(opts.noUpdateCheck) || Boolean(config.disableUpdateCheck);
+  const ttlHours = typeof config.updateCheckTtlHours === 'number' ? config.updateCheckTtlHours : 24;
+  const pinnedVersion = config.pinnedVersion ?? null;
+  const pinnedSince = config.pinnedSince ?? null;
+  const thresholdDays =
+    typeof config.pinAlertThresholdDays === 'number' ? config.pinAlertThresholdDays : 90;
+
+  let resolvedLatest = latestVersion;
+  let pin = null;
+
+  if (!resolvedLatest && !disableUpdateCheck) {
+    const checkResult = await checkForUpdate({
+      target,
+      currentVersion,
+      ttlHours,
+      disabled: false,
+    });
+    if (checkResult.latestVersion) {
+      resolvedLatest = checkResult.latestVersion;
+    }
   }
 
-  const newVersion = latestVersion ?? currentVersion;
+  // Pin evaluation + stale-pin warning (UPDATE-04).
+  if (pinnedVersion && resolvedLatest) {
+    pin = evaluatePin({
+      latestVersion: resolvedLatest,
+      pinnedVersion,
+      pinnedSince,
+      thresholdDays,
+    });
+    if (shouldWarn(pin)) {
+      process.stderr.write(`[testatlas] ${pin.message}\n`);
+    }
+    if (!forceReinstall && pin && pin.satisfied !== true) {
+      // Pinned out of range (suppressed or stale): skip the update.
+      log(
+        `Pinned to ${pinnedVersion}; latest ${resolvedLatest} is out of range — skipping update.`,
+      );
+      return { status: 'pinned-skip', previousVersion: currentVersion, pin };
+    }
+  }
+
+  // Up-to-date short-circuit (skipped under --force-reinstall).
+  if (!forceReinstall && !shouldUpdate(currentVersion, resolvedLatest)) {
+    log(`Already up to date (current ${currentVersion}, latest ${resolvedLatest ?? 'unknown'}).`);
+    return { status: 'up-to-date', previousVersion: currentVersion, pin };
+  }
+
+  const newVersion = resolvedLatest ?? currentVersion;
   const ts = nowSlug();
   const stageDir = path.join(target, `${STAGING_PREFIX}${ts}`);
   const backupDir = path.join(target, `${BACKUP_PREFIX}${ts}`);
