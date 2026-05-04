@@ -11,7 +11,7 @@ import { test } from 'node:test';
 
 import { loadAndValidateScript } from '../../scripts/lib/regenerate-core.js';
 import { loadAllSchemas } from '../../scripts/lib/schema-loader.js';
-import { REPO_ROOT, runRegenerate } from './_helpers.js';
+import { REPO_ROOT, runRegenerate, snapshotTree } from './_helpers.js';
 
 const EXAMPLE = path.join(REPO_ROOT, 'examples', 'cli-tool');
 const WS = path.join(EXAMPLE, '_testatlas');
@@ -38,10 +38,14 @@ test('cli-tool: regenerate --check exits 0 (no drift)', async () => {
   assert.equal(r.code, 0, `expected 0; stdout:${r.stdout}\nstderr:${r.stderr}`);
 });
 
-test('cli-tool: regenerate is idempotent — write then --check both exit 0', async () => {
-  const r1 = await runRegenerate(EXAMPLE);
+test('cli-tool: regenerate is idempotent — write then --check both exit 0', async (t) => {
+  // Snapshot to tmpdir to avoid racing with the *-validate.test.js companion
+  // that reads from the same checked-in path concurrently.
+  const { snapshot, cleanup } = await snapshotTree(EXAMPLE);
+  t.after(cleanup);
+  const r1 = await runRegenerate(snapshot);
   assert.equal(r1.code, 0);
-  const r2 = await runRegenerate(EXAMPLE, { check: true });
+  const r2 = await runRegenerate(snapshot, { check: true });
   assert.equal(r2.code, 0, `idempotent --check after write; stderr:${r2.stderr}`);
 });
 

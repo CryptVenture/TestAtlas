@@ -9,7 +9,7 @@ import { test } from 'node:test';
 
 import { loadAndValidateScript } from '../../scripts/lib/regenerate-core.js';
 import { loadAllSchemas } from '../../scripts/lib/schema-loader.js';
-import { REPO_ROOT, runRegenerate } from './_helpers.js';
+import { REPO_ROOT, runRegenerate, snapshotTree } from './_helpers.js';
 
 const EXAMPLE = path.join(REPO_ROOT, 'examples', 'nextjs-saas');
 
@@ -28,10 +28,17 @@ test('nextjs-saas: regenerate --check exits 0 (no drift)', async () => {
   assert.equal(r.code, 0, `expected 0; stdout:${r.stdout}\nstderr:${r.stderr}`);
 });
 
-test('nextjs-saas: regenerate (no --check) is idempotent — second --check exits 0', async () => {
-  const r1 = await runRegenerate(EXAMPLE);
+test('nextjs-saas: regenerate (no --check) is idempotent — second --check exits 0', async (t) => {
+  // Regenerate against a tmpdir snapshot of the example, NOT the checked-in
+  // path. node:test runs files concurrently by default; mutating the
+  // checked-in `_testatlas/` races with the *-validate.test.js companion that
+  // reads from the same path (race manifested as macOS-only failures while
+  // Linux happened to win the timing). Snapshot pattern decouples the tests.
+  const { snapshot, cleanup } = await snapshotTree(EXAMPLE);
+  t.after(cleanup);
+  const r1 = await runRegenerate(snapshot);
   assert.equal(r1.code, 0);
-  const r2 = await runRegenerate(EXAMPLE, { check: true });
+  const r2 = await runRegenerate(snapshot, { check: true });
   assert.equal(r2.code, 0, `idempotent --check after write; stderr:${r2.stderr}`);
 });
 
