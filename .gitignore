@@ -4,6 +4,7 @@ node_modules/
 
 # Build output (none expected — no build step — but defensive)
 dist/
+!test/dist/
 build/
 coverage/
 

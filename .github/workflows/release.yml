@@ -1,14 +1,32 @@
 name: Release
 
+# Triggers:
+#   - release:published — fires after a GitHub Release is published from a tag.
+#     Used for the real publish (Phase 8 GA onward).
+#   - workflow_dispatch — manual UI/CLI trigger. Default `dry-run: true`
+#     runs `pnpm changeset publish --dry-run` and `npm pack --dry-run` only.
+#     Phase 7 ships this workflow validated in dry-run; first real publish is
+#     Phase 8 GA.
+
 on:
-  push:
-    branches:
-      - main
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Run pnpm changeset publish --dry-run + npm pack --dry-run only (no publish, no commit, no GitHub Release)"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
 
 permissions:
-  contents: write
-  pull-requests: write
-  id-token: write    # required for npm publish --provenance once enabled in Phase 7
+  contents: write       # needed for sed-and-commit + GitHub Release create
+  pull-requests: write  # needed for changesets/action Release PR
+  id-token: write       # needed for npm Trusted Publishing (OIDC) + provenance
 
 concurrency:
   group: release-${{ github.ref }}
@@ -16,15 +34,23 @@ concurrency:
 
 jobs:
   release:
-    name: Release (changesets)
+    name: Release (npm Trusted Publishing + GH Release)
     runs-on: ubuntu-latest
-    # Skip on forks; only main repo can release.
+    # Skip on forks; only the canonical owner publishes.
     if: github.repository_owner != ''
+    env:
+      # Belt-and-suspenders: provenance attestation auto-generated under OIDC,
+      # explicit flag still recognized by npm CLI <11.5.1 fallback paths.
+      NPM_CONFIG_PROVENANCE: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Use a token that can push back to main (sed install.sh after
+          # publish). Default GITHUB_TOKEN works because permissions.contents
+          # is `write` above.
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -47,28 +73,130 @@ jobs:
           PRIVATE=$(node -p "require('./package.json').private === true")
           echo "private=$PRIVATE" >> "$GITHUB_OUTPUT"
           if [ "$PRIVATE" = "true" ]; then
-            echo "package.json private:true — publish step will be skipped (expected through Phase 6; Phase 7 flips this)."
+            echo "package.json private:true — publish step will be skipped."
           else
             echo "package.json private:false — publish step will run."
           fi
 
+      # ---------------------------------------------------------------------
+      # DRY RUN PATH — workflow_dispatch with dry-run=true (default).
+      # Runs the publish pipeline in dry-run mode only; never publishes,
+      # never commits, never creates a GitHub Release.
+      # ---------------------------------------------------------------------
+      - name: Dry-run — pnpm changeset publish --dry-run
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
+        run: |
+          echo "::group::changeset publish --dry-run"
+          pnpm changeset publish --dry-run || true
+          echo "::endgroup::"
+
+      - name: Dry-run — npm pack --dry-run
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
+        run: |
+          echo "::group::npm pack --dry-run"
+          npm pack --dry-run --json
+          echo "::endgroup::"
+
+      - name: Dry-run — exit early
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
+        run: |
+          echo "Dry-run complete. No publish, no commit, no GitHub Release created."
+          exit 0
+
+      # ---------------------------------------------------------------------
+      # REAL PUBLISH PATH — release:published event OR workflow_dispatch with
+      # dry-run=false. Uses changesets/action which:
+      #   - opens/updates a Release PR if pending changesets exist
+      #   - publishes via `pnpm changeset publish` if Release PR was merged
+      # npm Trusted Publishing (OIDC) is used; NPM_TOKEN is a fallback only.
+      # ---------------------------------------------------------------------
       - name: Create Release Pull Request or Publish
+        if: github.event.inputs.dry-run != 'true'
+        id: changesets
         uses: changesets/action@v1
         with:
-          # `version` opens / updates a Release PR consuming pending changesets.
           version: pnpm changeset version
-          # `publish` runs npm publish; gated on package.json `private` flag.
-          # Until Phase 7 flips private:false, this is effectively a no-op
-          # because npm refuses to publish private packages.
           publish: pnpm changeset publish
           commit: "chore: release (changesets)"
           title: "chore: release"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NPM_TOKEN is intentionally absent until Phase 7. The publish step
-          # will fail loudly if attempted before Phase 7 flips private:false,
-          # which is the desired behavior — fail fast, do not silently
-          # publish.
+          # NPM_TOKEN is the legacy auth path. With Trusted Publishing
+          # configured on npmjs.com (linked to this repo + this workflow),
+          # the npm CLI obtains a short-lived OIDC token via id-token: write
+          # and NPM_TOKEN is unused. Kept here as a fallback for repos that
+          # have not yet configured the trusted publisher.
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # Provenance enabled per research/STACK.md and Phase 7 DIST-02.
-          NPM_CONFIG_PROVENANCE: "true"
+
+      # ---------------------------------------------------------------------
+      # POST-PUBLISH: only if changesets actually published.
+      # Sync install.sh VERSION + TARBALL_SHA256 to the just-published
+      # version, commit back to main, then create a GitHub Release with the
+      # tarball + sigstore sidecar + sha256 attached.
+      # ---------------------------------------------------------------------
+      - name: Sync install.sh to published version
+        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # Prefer dist.shasum (SHA-1) for npm, but compute SHA-256 of the
+          # tarball downloaded from the registry — that's what install.sh
+          # verifies.
+          TARBALL_URL="https://registry.npmjs.org/testatlas/-/testatlas-${VERSION}.tgz"
+          curl -fsSL "$TARBALL_URL" -o "testatlas-${VERSION}.tgz"
+          SHA=$(sha256sum "testatlas-${VERSION}.tgz" | cut -d' ' -f1)
+          sed -i.bak "s/^VERSION=.*$/VERSION=\"${VERSION}\"/" install.sh
+          sed -i.bak "s/^TARBALL_SHA256=.*$/TARBALL_SHA256=\"${SHA}\"/" install.sh
+          rm install.sh.bak
+          git config user.name "testatlas-bot"
+          git config user.email "bot@testatlas.dev"
+          git add install.sh
+          git commit -m "chore(release): sync install.sh to v${VERSION}" || echo "no install.sh changes"
+          git push origin HEAD:main
+
+      - name: Compute SHA-256 sidecar
+        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ ! -f "testatlas-${VERSION}.tgz" ]; then
+            curl -fsSL "https://registry.npmjs.org/testatlas/-/testatlas-${VERSION}.tgz" \
+              -o "testatlas-${VERSION}.tgz"
+          fi
+          sha256sum "testatlas-${VERSION}.tgz" > "testatlas-${VERSION}.tgz.sha256"
+
+      - name: Fetch sigstore bundle from npm provenance store
+        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        continue-on-error: true
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # npm registry exposes provenance attestations for packages published
+          # under Trusted Publishing; the sigstore bundle is fetched via
+          # `npm view ...` or the `attestations.url` pointer.
+          ATT_URL=$(npm view "testatlas@${VERSION}" --json | node -e "
+            let j=''; process.stdin.on('data',c=>j+=c).on('end',()=>{
+              const o=JSON.parse(j);
+              const a=o.dist && o.dist.attestations;
+              process.stdout.write(a && a.url ? a.url : '');
+            });
+          ")
+          if [ -n "$ATT_URL" ]; then
+            curl -fsSL "$ATT_URL" -o "testatlas-${VERSION}.tgz.sigstore.json"
+          else
+            echo "No attestations.url returned by npm; sidecar absent (cosign verification will gate)."
+          fi
+
+      - name: Create GitHub Release with assets
+        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
+          name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: false
+          files: |
+            testatlas-*.tgz
+            testatlas-*.tgz.sha256
+            testatlas-*.tgz.sigstore.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

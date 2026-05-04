@@ -1,10 +1,13 @@
 {
   "name": "testatlas",
-  "version": "0.1.0-pre",
+  "version": "0.1.0",
   "description": "Installable, agent-agnostic product testing and quality intelligence framework for AI coding agents.",
   "type": "module",
   "license": "MIT",
-  "private": true,
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": ">=20.11.0"
   },

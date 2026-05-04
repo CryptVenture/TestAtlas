@@ -42,7 +42,8 @@ test('install-core: empty target → installs suite + writes manifest + creates 
 
     // Manifest exists and validates.
     const manifest = await loadAndValidateManifest(target, { cwd: REPO_ROOT });
-    assert.equal(manifest.suiteVersion, '0.1.0-pre');
+    const pkg = JSON.parse(await readFile(path.join(REPO_ROOT, 'package.json'), 'utf8'));
+    assert.equal(manifest.suiteVersion, pkg.version);
     assert.equal(manifest.schemaVersion, 1);
     assert.equal(manifest.target, target);
     assert.deepStrictEqual(manifest.adapters, ['generic']);

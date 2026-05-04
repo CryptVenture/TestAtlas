@@ -4,7 +4,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, rm, stat } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -51,12 +51,15 @@ async function withTmp(t, run) {
   return await run(dir);
 }
 
-test('bin-cli: --version prints package.json version (0.1.0-pre)', async () => {
+test('bin-cli: --version prints package.json version', async () => {
   const r = await runNode(BIN, ['--version']);
   assert.equal(r.code, 0, `stderr: ${r.stderr}`);
   assert.match(r.stdout.trim(), /^\d+\.\d+\.\d+(-[\w.-]+)?$/);
-  // Currently 0.1.0-pre per Plan 07-01.
-  assert.equal(r.stdout.trim(), '0.1.0-pre');
+  // Read the canonical version from package.json so the test tracks
+  // future bumps (Plan 07-05 flipped 0.1.0-pre → 0.1.0; Phase 8 will
+  // bump again).
+  const pkg = JSON.parse(await readFile(path.join(REPO_ROOT, 'package.json'), 'utf8'));
+  assert.equal(r.stdout.trim(), pkg.version);
 });
 
 test('bin-cli: --help lists subcommands init/update/uninstall', async () => {
