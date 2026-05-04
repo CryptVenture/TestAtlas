@@ -77,11 +77,7 @@ test('release.yml: contains a Sync install.sh step (post-publish sed)', async ()
 
 test('release.yml: contains a softprops/action-gh-release step (GH Release create)', async () => {
   const buf = await readFile(RELEASE_YML, 'utf8');
-  assert.match(
-    buf,
-    /softprops\/action-gh-release/,
-    'missing softprops/action-gh-release usage',
-  );
+  assert.match(buf, /softprops\/action-gh-release/, 'missing softprops/action-gh-release usage');
 });
 
 test('release.yml: GitHub Release attaches tarball + sha256 + sigstore.json', async () => {

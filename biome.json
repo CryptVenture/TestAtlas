@@ -20,7 +20,7 @@
       "!**/.testatlas.backup-*",
       "!test/fixtures/workspaces",
       "!**/coverage",
-      "!**/dist",
+      "!dist",
       "!**/build",
       "!**/*.min.js"
     ]

@@ -41,6 +41,27 @@ Maintainers sign commits via GPG or SSH (`git config commit.gpgsign true`). Cont
 
 Run `pnpm changeset` to record a changeset describing your change. Changesets drive `CHANGELOG.md` and version bumps.
 
+## Schema or Command-Contract Changes
+
+If your PR changes a JSON schema, the workspace tree shape, or a public command contract, follow this checklist:
+
+- [ ] Bump the relevant `*.schema.json` `$id` (e.g., `…/v1.schema.json` → `…/v2.schema.json`).
+- [ ] Add a migration file at `.testatlas/migrations/v<N>-to-v<N+1>.js` exporting an idempotent async `up({ workspaceDir, suiteDir })` function.
+- [ ] Add a CHANGELOG entry under "Changed" with the prefix `Schema migration: v<N>→v<N+1> …`.
+- [ ] Add or update fixtures so the long-jump CI test (`v1 → current`) passes.
+- [ ] Update DIST-03 traceability if changing the public command contract.
+- [ ] Document the breaking-change type in your changeset (`major` if no migration; `minor` with migration).
+
+The migration framework's contract — forward-only, idempotent, N→N+1 — is non-negotiable. If you can't write an idempotent `up()`, the change isn't ready.
+
+## LTS Strategy
+
+We support the current major and the previous major (security backports only on previous; new features only on current). See [docs/LTS.md](docs/LTS.md) for the full policy. When proposing a change:
+
+- Bug fixes and security patches that apply to the previous major: cherry-pick after merging on `main`. Open a separate PR titled `[backport <previous-major>] …`.
+- New features land on `main` only.
+- Major-breaking changes wait for the next planned major release.
+
 ## Reporting Issues
 
 For security issues, follow the private disclosure flow described in [SECURITY.md](SECURITY.md). For all other reports, use GitHub Issues.
