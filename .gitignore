@@ -35,6 +35,11 @@ _testatlas/
 # compares against in CI).
 !examples/*/_testatlas/
 !examples/*/_testatlas/**
+# Plan 08-03: examples/monorepo ships per-app workspaces too — whitelist
+# `examples/monorepo/apps/<app>/_testatlas/` and `examples/monorepo/packages/<pkg>/_testatlas/`
+# (any nested `_testatlas/` under examples/<name>/).
+!examples/*/**/_testatlas/
+!examples/*/**/_testatlas/**
 
 # Env (suite uses none, but defensive)
 .env

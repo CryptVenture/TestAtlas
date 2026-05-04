@@ -1,0 +1,15 @@
+{
+  "name": "monorepo-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TestAtlas monorepo example: pnpm workspace with web (Vite + React) + api (Express) + shared. Demonstrates the hybrid per-app `_testatlas/` orchestration pattern.",
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "type": "module",
+  "scripts": {
+    "validate": "node ../../scripts/validate-workspace.js --all-workspaces .",
+    "regenerate-all": "node ../../scripts/regenerate-example.js . && node ../../scripts/regenerate-example.js apps/web && node ../../scripts/regenerate-example.js apps/api"
+  }
+}

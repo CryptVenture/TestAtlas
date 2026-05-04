@@ -1,0 +1,16 @@
+{
+  "name": "@repo/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@repo/shared": "workspace:*",
+    "express": "^5.0.0"
+  }
+}
