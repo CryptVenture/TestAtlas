@@ -17,6 +17,7 @@ import { palette, symbol } from '../scripts/lib/colors.js';
 import { runInit } from '../scripts/lib/install-core.js';
 import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
+import { validateWorkspace } from '../scripts/validate-workspace.js';
 
 // Plan 07-04 (UPDATE-07). When --verify-signature is passed, probe for cosign
 // on PATH; abort with an actionable error if missing. The actual cosign
@@ -242,6 +243,61 @@ program
       forceUntracked: Boolean(opts.forceUntracked),
       dryRun: Boolean(opts.dryRun),
     });
+  });
+
+program
+  .command('validate')
+  .description(
+    'Validate a TestAtlas workspace against PRD §33 checks (canonical files, ' +
+      'schemas, broken links, orphaned evidence, etc.). Exits 1 on any failing ' +
+      'check.',
+  )
+  .option('--target <dir>', 'Target repo directory (default: cwd)')
+  .option('--auto-heal', 'Apply safe auto-heals (HEAL-01..04) to fixable findings')
+  .option('--apply', 'With --auto-heal, persist changes to disk (else preview only)')
+  .option('--json', 'Emit the JSON report to stdout instead of the markdown report')
+  .option('--output <file>', 'Write the markdown report to <file> + JSON to <file>.json')
+  .option('--only <ids>', 'Comma-separated list of check ids to run (e.g. schemas,broken-links)')
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ testatlas validate                          # validate cwd workspace',
+      '  $ testatlas validate --target ./my-app        # validate a sibling repo',
+      '  $ testatlas validate --json                   # machine-readable JSON to stdout',
+      '  $ testatlas validate --auto-heal --apply      # repair safely-fixable findings in place',
+      '  $ testatlas validate --output report.md       # write markdown + JSON report files',
+      '',
+    ].join('\n'),
+  )
+  .action(async (opts) => {
+    const target = path.resolve(opts.target ?? process.cwd());
+    const only =
+      typeof opts.only === 'string'
+        ? opts.only
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : undefined;
+    const result = await validateWorkspace({
+      cwd: target,
+      autoHeal: Boolean(opts.autoHeal),
+      apply: Boolean(opts.apply),
+      only,
+      report: opts.output,
+    });
+    if (result.message) {
+      process.stdout.write(`${result.message}\n`);
+      process.exitCode = result.exitCode;
+      return;
+    }
+    if (opts.json) {
+      process.stdout.write(`${JSON.stringify(result.reportJson, null, 2)}\n`);
+    } else {
+      process.stdout.write(result.reportMarkdown ?? '');
+    }
+    process.exitCode = result.exitCode;
   });
 
 try {

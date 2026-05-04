@@ -313,6 +313,38 @@ test('bin-cli: init then add-adapter — manifest tracks both adapters', async (
   });
 });
 
+// ---- Quick 260504-r3q — validate subcommand tests ------------------------
+
+test('bin-cli: --help lists validate subcommand (Quick 260504-r3q)', async () => {
+  const r = await runNode(BIN, ['--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /\bvalidate\b/);
+});
+
+test('bin-cli: validate --help shows banner + Examples + all six flags (Quick 260504-r3q)', async () => {
+  const r = await runNode(BIN, ['validate', '--help']);
+  assert.equal(r.code, 0, `stderr: ${r.stderr}`);
+  // Banner is rendered (matches the same `Agent-agnostic` line as other
+  // help blocks).
+  assert.match(r.stdout, /Agent-agnostic AI product testing/);
+  // All six options listed.
+  assert.match(r.stdout, /--target <dir>/);
+  assert.match(r.stdout, /--auto-heal/);
+  assert.match(r.stdout, /--apply/);
+  assert.match(r.stdout, /--json/);
+  assert.match(r.stdout, /--output <file>/);
+  assert.match(r.stdout, /--only <ids>/);
+  // Examples block exists with at least one canonical example invocation.
+  assert.match(r.stdout, /Examples:/);
+  assert.match(r.stdout, /\$ testatlas validate --target \.\/my-app/);
+  // ≥2 example lines (matches the convention enforced for init/update/uninstall).
+  const exampleLines = r.stdout.split('\n').filter((l) => /^\s*\$ testatlas validate/.test(l));
+  assert.ok(
+    exampleLines.length >= 2,
+    `expected ≥2 example lines under validate --help, got ${exampleLines.length}`,
+  );
+});
+
 test('bin-cli: error path prints trimmed [ERR] Error: with ≤8 stderr lines', async (t) => {
   // Force a thrown error from runUninstall: missing manifest + no
   // --force-untracked → throws "Manifest missing or invalid…".
