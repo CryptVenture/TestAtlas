@@ -25,16 +25,19 @@
 //   - hand-edit     — marker hash matches source but the body bytes differ
 //                     from a fresh in-memory render
 //
-// Transitional vs strict mode (66-02-PLAN.md success criteria):
-//   - Transitional (Plans 06-02 → 06-04): only `missing` drift is tolerated
-//     (covers the not-yet-shipped adapters). Any other drift kind fails.
-//   - Strict (Plan 06-05): every adapter is shipped; missing drift becomes a
-//     failure too.
+// Strict mode active as of Plan 06-05. Coverage 1.0 + zero drift required.
+//   - Transitional (Plans 06-02 → 06-04, retired): only `missing` drift was
+//     tolerated to cover not-yet-shipped adapters. Non-missing kinds always
+//     failed.
+//   - Strict (Plan 06-05 onward — this is the live mode): every one of the 7
+//     adapters is shipped; the parity gate now requires
+//     `coverage === 1.0` AND `drift.length === 0` against the live tree.
 //
-// The matrix is 30 commands × 7 adapters = 210 expected obligations. At this
-// wave only claude-code is populated (30 found); the other 6 adapters (generic,
-// opencode, kilocode, cursor, aider, mcp) report `missing` for every command
-// (180 missing). Coverage = 30/210 ≈ 0.143.
+// The matrix is 30 commands × 7 adapters = 210 expected obligations. All 7
+// adapters (claude-code, generic, opencode, kilocode, cursor, aider, mcp) are
+// populated in the live tree, so `found` MUST equal 210 and `coverage` MUST
+// equal 1.0. Tests 2–6 below operate on tmp-tree mutations and exercise drift
+// detection independently of the strict happy-path assertion.
 
 import { strict as assert } from 'node:assert';
 import { cp, mkdtemp, readFile, rm, unlink, writeFile } from 'node:fs/promises';
@@ -60,33 +63,27 @@ async function makeTmpRepo() {
   return dir;
 }
 
-test('Test 1: live tree — only `missing` drift in transitional mode; coverage matches shipped adapters', async () => {
+test('Test 1: live tree — strict mode: coverage === 1.0 AND drift.length === 0', async () => {
+  // Strict mode active as of Plan 06-05. All 7 adapters must be populated;
+  // every one of the 30 commands × 7 adapters = 210 obligations must be
+  // satisfied; drift of any kind (missing / no-marker / hash-mismatch /
+  // hand-edit) fails the gate.
   const result = await enumerate({ repoRoot });
-  // 30 source commands × 7 declared adapters = 210 expected obligations.
-  assert.equal(result.expected, 210, 'expected obligations = 30 commands × 7 adapters');
-  // Drift count is exactly expected − found.
-  assert.equal(result.drift.length, result.expected - result.found, 'drift = expected − found');
-  // In transitional mode (Plans 06-02 → 06-04) every drift entry must be
-  // `missing` — non-missing kinds (no-marker / hash-mismatch / hand-edit) are
-  // never tolerated. As more adapters ship across Wave 2, `found` rises in
-  // multiples of 30; the per-kind invariant below holds throughout.
-  const nonMissing = result.drift.filter((d) => d.kind !== 'missing');
-  assert.equal(
-    nonMissing.length,
+  assert.strictEqual(result.expected, 210, 'expected obligations = 30 commands × 7 adapters');
+  assert.strictEqual(
+    result.found,
+    210,
+    `strict mode: every obligation must be satisfied; got found=${result.found}`,
+  );
+  assert.strictEqual(
+    result.coverage,
+    1.0,
+    `strict mode: coverage must equal 1.0; got ${result.coverage}`,
+  );
+  assert.strictEqual(
+    result.drift.length,
     0,
-    `every drift entry must be 'missing' in transitional mode; got non-missing: ${JSON.stringify(nonMissing.slice(0, 3))}`,
-  );
-  // `found` must be a non-negative multiple of 30 (each shipped adapter
-  // contributes 30 satisfied obligations).
-  assert.equal(result.found % 30, 0, `found must be a multiple of 30; got ${result.found}`);
-  assert.ok(
-    result.found >= 30,
-    `claude-code at minimum must be shipped; got found=${result.found}`,
-  );
-  // Coverage = found / expected with reasonable precision.
-  assert.ok(
-    Math.abs(result.coverage - result.found / result.expected) < 1e-9,
-    `coverage must equal found/expected; got ${result.coverage}`,
+    `strict mode: drift must be empty; got ${JSON.stringify(result.drift.slice(0, 3))}`,
   );
 });
 

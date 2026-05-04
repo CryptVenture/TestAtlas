@@ -88,6 +88,12 @@ jobs:
         # VAL-02 partial-acceptance suffix).
         run: node scripts/validate-workspace.js --workspace .testatlas/test-workspace --report=validation-report.md
 
+      - name: Adapter parity gate (strict)
+        # VAL-05 (live runtime, Plan 06-05): every command × adapter obligation
+        # must be satisfied with no drift of any kind. Transitional mode was
+        # retired when all 7 adapters shipped in Phase 6 (Plans 06-01..04).
+        run: node scripts/check-adapter-parity.js --strict
+
       - name: Upload validation report on failure
         if: failure()
         uses: actions/upload-artifact@v4
