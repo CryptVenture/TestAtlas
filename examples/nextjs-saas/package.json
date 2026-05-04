@@ -1,0 +1,20 @@
+{
+  "name": "@testatlas/example-nextjs-saas",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TestAtlas example: minimal Next.js 15 App Router + React 19 SaaS shell used to demonstrate full-stack web exploration (marketing + auth + dashboard + API routes).",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^15.5.15",
+    "react": "^19.1.6",
+    "react-dom": "^19.1.6"
+  }
+}
