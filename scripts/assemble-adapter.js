@@ -28,6 +28,7 @@ import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
 import { renderCursor } from './lib/adapters/render-cursor.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
 import { renderKilocode } from './lib/adapters/render-kilocode.js';
+import { renderMcpToString } from './lib/adapters/render-mcp.js';
 import { renderOpencode } from './lib/adapters/render-opencode.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
@@ -57,6 +58,7 @@ const RENDERERS = Object.freeze({
 // fixed set of output files independent of the per-source iteration.
 const MULTI_RENDERERS = Object.freeze({
   aider: aiderMultiRenderer,
+  mcp: mcpMultiRenderer,
 });
 
 /**
@@ -132,6 +134,30 @@ function aiderMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
   return [
     { outPath: path.join(workspace, adapter.outputDir, 'CONVENTIONS.md'), content: conventions },
     { outPath: path.join(workspace, adapter.outputDir, '.aider.conf.yml'), content: conf },
+  ];
+}
+
+/**
+ * MCP multi-source renderer adapter. Returns the manifest output for the
+ * workspace. The runnable server (`scripts/mcp-server.js`) is committed
+ * separately and reads sources at request time — no per-command derived
+ * files exist for MCP.
+ *
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps: string[],
+ *   workspace: string,
+ *   adapter: AdapterEntry,
+ * }} args
+ * @returns {Array<{ outPath: string, content: string }>}
+ */
+function mcpMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  const content = renderMcpToString({ sources, adapterCaps });
+  return [
+    {
+      outPath: path.join(workspace, adapter.outputDir, 'mcp-server-manifest.json'),
+      content,
+    },
   ];
 }
 

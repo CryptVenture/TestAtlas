@@ -42,6 +42,7 @@ import { renderClaudeCode } from './render-claude-code.js';
 import { renderCursor } from './render-cursor.js';
 import { renderGeneric } from './render-generic.js';
 import { renderKilocode } from './render-kilocode.js';
+import { renderMcpToString } from './render-mcp.js';
 import { renderOpencode } from './render-opencode.js';
 
 // Renderer dispatch table for layer-2 byte-compare. Plans 06-03/04 register
@@ -61,7 +62,7 @@ const RENDERERS = Object.freeze({
 // outcome onto all 30 command obligations. Plan 06-04 ships aider + mcp.
 const MULTI_CLASSIFIERS = Object.freeze({
   aider: classifyAider,
-  // mcp registered alongside the mcp renderer in Task 3.
+  mcp: classifyMcp,
 });
 
 const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
@@ -261,6 +262,59 @@ async function classifyAider({ repoRoot, adapter, sources }) {
     adapterCaps: adapter.capabilities,
   });
   if (fresh.conventions !== derivedText) return 'hand-edit';
+
+  return null;
+}
+
+/**
+ * Classify the SHARED MCP obligation. The MCP adapter ships a single
+ * declarative manifest (`mcp-server-manifest.json`) that enumerates all 30
+ * commands as MCP prompts. The manifest is pure JSON — no adapter-marker
+ * envelope (JSON forbids comments). Drift kinds:
+ *   - missing   : manifest does not exist on disk
+ *   - no-marker : manifest exists but lacks `prompts[]` array (or wrong shape)
+ *                 — surfaced as no-marker for taxonomy uniformity, since the
+ *                 manifest IS the marker for this strategy
+ *   - hash-mismatch : reserved (no in-band hash on JSON manifests; if the
+ *                     test suite ever needs source-drift detection here, the
+ *                     manifest's `prompts.length` and per-prompt name set
+ *                     act as the integrity check — currently rolled into the
+ *                     hand-edit byte-compare below)
+ *   - hand-edit : on-disk JSON differs from a fresh render (caught by the
+ *                 byte-compare against renderMcpToString)
+ *
+ * @param {{
+ *   repoRoot: string,
+ *   adapter: AdapterEntry,
+ *   sources: { sourcePath: string, sourceText: string, commandBaseName: string }[],
+ * }} args
+ * @returns {Promise<DriftEntry['kind'] | null>}
+ */
+async function classifyMcp({ repoRoot, adapter, sources }) {
+  const expectedPath = path.join(repoRoot, adapter.outputDir, 'mcp-server-manifest.json');
+  let derivedText;
+  try {
+    derivedText = await readFile(expectedPath, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return 'missing';
+    throw err;
+  }
+
+  // Structural sanity: must parse, must declare prompts[].
+  let parsed;
+  try {
+    parsed = JSON.parse(derivedText);
+  } catch {
+    return 'no-marker';
+  }
+  if (!parsed || !Array.isArray(parsed.prompts)) return 'no-marker';
+
+  // Layer-2: byte-compare against a fresh render.
+  const fresh = renderMcpToString({
+    sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
+    adapterCaps: adapter.capabilities,
+  });
+  if (fresh !== derivedText) return 'hand-edit';
 
   return null;
 }
