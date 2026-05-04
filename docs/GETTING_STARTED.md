@@ -14,7 +14,7 @@ The pipeline is linear: **Setup → Discovery → Organize → Plan → Test →
 > 2. `/atlas:validate-workspace` — confirm the workspace is schema-valid
 > 3. `/atlas:explore` — get a routing recommendation (umbrella, does not invoke sub-explorers)
 > 4. `/atlas:explore-codebase` — required prerequisite; produces the app map
-> 5. *(optional)* additional `/atlas:explore-*` sub-explorers the umbrella recommended
+> 5. *(optional)* additional sub-explorers the umbrella recommended (e.g. `/atlas:explore-ui`, `/atlas:explore-api`)
 > 6. `/atlas:map-domains` — distill the app map into per-domain artifacts
 > 7. `/atlas:plan` — generate strategy, master plan, matrix, and charters
 > 8. `/atlas:test-flow` — execute scenarios and capture evidence

@@ -1,6 +1,6 @@
 # Coverage
 
-> Tracks coverage for this domain. Updated by `/atlas:run-quality-scorecard` and by individual test runs.
+> Tracks coverage for this domain. Updated by `/atlas:report` and by individual test runs.
 
 ## Coverage Score
 

@@ -1,6 +1,6 @@
 ## Quality Scorecard
 
-> Snippet stitched into `13_quality_scorecard.md`. Each sub-heading is wrapped in a generated marker pair so `/atlas:run-quality-scorecard` can refresh the values.
+> Snippet stitched into `13_quality_scorecard.md`. Each sub-heading is wrapped in a generated marker pair so `/atlas:report` can refresh the values.
 
 ### Coverage
 
