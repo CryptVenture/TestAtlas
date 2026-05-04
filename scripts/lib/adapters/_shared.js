@@ -31,16 +31,20 @@ const ADAPTER_START_RE =
 
 /**
  * Compute the relative source path used inside the marker (e.g.
- * `commands/init.md`) by stripping everything before the first `.testatlas/`
- * segment of an absolute path.
+ * `commands/init.md`) by stripping everything before the first `.testatlas`
+ * segment of an absolute path. Cross-platform: normalizes both `/` and `\`
+ * separators to POSIX `/` so the marker is byte-stable on Windows runners
+ * (see Pitfall 3 in 06-RESEARCH.md). Without this, marker `source` attributes
+ * leak Windows tmp-dir absolute paths and idempotency tests fail on Windows.
  *
  * @param {string} sourcePath
  * @returns {string}
  */
 function toRelSource(sourcePath) {
-  const idx = sourcePath.lastIndexOf('.testatlas/');
-  if (idx === -1) return sourcePath;
-  return sourcePath.slice(idx + '.testatlas/'.length);
+  const posix = sourcePath.replace(/\\/g, '/');
+  const idx = posix.lastIndexOf('.testatlas/');
+  if (idx === -1) return posix;
+  return posix.slice(idx + '.testatlas/'.length);
 }
 
 /**

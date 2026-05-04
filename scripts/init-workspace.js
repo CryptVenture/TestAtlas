@@ -24,6 +24,7 @@
 
 import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now } from './lib/determinism.js';
@@ -330,7 +331,11 @@ function stripLeadingDot(p) {
 
 // ─────────────────────────────── CLI wrapper ───────────────────────────────
 
-const __thisFile = new URL(import.meta.url).pathname;
+// Cross-platform CLI guard: `new URL(...).pathname` returns "/D:/..." on
+// Windows, which `path.resolve` mangles into "D:\D:\..." — making this branch
+// silently skip when invoked as a child process. `fileURLToPath` is the
+// portable conversion.
+const __thisFile = fileURLToPath(import.meta.url);
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
   await runCli(process.argv.slice(2));
 }

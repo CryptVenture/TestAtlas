@@ -31,6 +31,7 @@
 // manifest is intentionally deferred to Plan 06-05 (which extends the
 // validation suite) — over-engineering for v1.
 
+import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
 
 /**
@@ -40,8 +41,8 @@ import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
  * @returns {string}
  */
 function commandBaseName(sourcePath) {
-  const idx = sourcePath.lastIndexOf('/');
-  const file = idx === -1 ? sourcePath : sourcePath.slice(idx + 1);
+  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
+  const file = path.basename(sourcePath);
   return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 

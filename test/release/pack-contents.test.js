@@ -16,23 +16,32 @@ import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 
+const NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
 function runNpmPack() {
-  return spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+  // On Windows, `npm` is `npm.cmd` — spawnSync('npm') returns null status.
+  return spawnSync(NPM_BIN, ['pack', '--dry-run', '--json', '--ignore-scripts'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
     timeout: 60_000,
+    shell: process.platform === 'win32',
   });
 }
 
+// npm 10/11 emits diagnostic prefix lines like `[INFO] Successfully packed`
+// to stdout BEFORE the JSON payload, even with `--ignore-scripts`. Scan line
+// by line until the first line that is exactly `[` or `{`, then JSON.parse
+// from that offset. This skips log prefixes like `[INFO] ...` which start
+// with `[` but are not valid JSON.
 function parseNpmPackJson(stdout) {
-  const trimmed = stdout.trimStart();
-  const idx = Math.min(
-    ...['[', '{']
-      .map((c) => trimmed.indexOf(c))
-      .filter((i) => i !== -1)
-      .concat([trimmed.length]),
-  );
-  return JSON.parse(trimmed.slice(idx));
+  const lines = stdout.split(/\r?\n/);
+  let offset = 0;
+  for (const line of lines) {
+    const t = line.trim();
+    if (t === '[' || t === '{') break;
+    offset += line.length + 1; // +1 for the consumed newline
+  }
+  return JSON.parse(stdout.slice(offset));
 }
 
 test('npm pack: examples/ is NOT in the tarball', () => {

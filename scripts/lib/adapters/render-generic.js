@@ -24,6 +24,7 @@
 //     BEFORE pasting any individual prompt; the HTML comment reinforces it
 //     in-band as a soft reminder.
 
+import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
 import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
 
@@ -52,8 +53,8 @@ function stripExistingPreamble(body) {
  * @returns {string}
  */
 function commandBaseName(sourcePath) {
-  const idx = sourcePath.lastIndexOf('/');
-  const file = idx === -1 ? sourcePath : sourcePath.slice(idx + 1);
+  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
+  const file = path.basename(sourcePath);
   return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 

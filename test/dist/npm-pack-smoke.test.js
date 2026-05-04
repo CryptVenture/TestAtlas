@@ -19,30 +19,38 @@ import { test } from 'node:test';
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const PKG_JSON_PATH = path.join(REPO_ROOT, 'package.json');
 
+const NPM_BIN = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+
 function runNpmPack() {
   // --ignore-scripts: skip `prepare` (simple-git-hooks installer) which
   // pollutes stdout with `[INFO] ...` lines and prevents JSON parsing.
-  const r = spawnSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+  // On Windows, `npm` is `npm.cmd` — spawnSync('npm') returns null status.
+  const r = spawnSync(NPM_BIN, ['pack', '--dry-run', '--json', '--ignore-scripts'], {
     cwd: REPO_ROOT,
     encoding: 'utf8',
     timeout: 60_000,
+    shell: process.platform === 'win32',
   });
   return r;
 }
 
-// Some npm versions still emit a `> testatlas@... prepare` banner even with
-// --ignore-scripts when `prepare` is empty-but-defined. We strip non-JSON
-// lines defensively before parsing.
+// npm 10/11 emits diagnostic prefix lines like `[INFO] Successfully packed`
+// to stdout BEFORE the JSON payload, even with `--ignore-scripts`. The JSON
+// payload is always a single array `[ {...} ]` whose opening `[` sits on its
+// own line (or is immediately followed by `\n` / whitespace). We scan stdout
+// line by line until we hit the first line whose content is exactly `[` or
+// `{`, then JSON.parse from that offset to the end. This skips log prefixes
+// like `[INFO] ...` which start with `[` but are not valid JSON.
 function parseNpmPackJson(stdout) {
-  const trimmed = stdout.trimStart();
-  // Find first '[' or '{' that begins the JSON payload.
-  const idx = Math.min(
-    ...['[', '{']
-      .map((c) => trimmed.indexOf(c))
-      .filter((i) => i !== -1)
-      .concat([trimmed.length]),
-  );
-  return JSON.parse(trimmed.slice(idx));
+  const lines = stdout.split(/\r?\n/);
+  let offset = 0;
+  for (const line of lines) {
+    const t = line.trim();
+    if (t === '[' || t === '{') break;
+    offset += line.length + 1; // +1 for the consumed newline
+  }
+  const slice = stdout.slice(offset);
+  return JSON.parse(slice);
 }
 
 test('npm pack --dry-run --json: exits 0', () => {

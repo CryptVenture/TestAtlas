@@ -49,6 +49,7 @@
 // prompt-cache budget. The error message names the offending command + the
 // observed line count so the fix is obvious.
 
+import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
 import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
@@ -72,8 +73,8 @@ const LIFECYCLE_LINE =
  * @returns {string}
  */
 function commandBaseName(sourcePath) {
-  const idx = sourcePath.lastIndexOf('/');
-  const file = idx === -1 ? sourcePath : sourcePath.slice(idx + 1);
+  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
+  const file = path.basename(sourcePath);
   return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 
