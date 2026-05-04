@@ -113,6 +113,20 @@
       "type": "integer",
       "minimum": 1,
       "maximum": 720
+    },
+    "pinnedSince": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string", "format": "date-time" }
+      ],
+      "default": null,
+      "description": "ISO timestamp when pinnedVersion was first set; auto-populated by update.js when --pin is used"
+    },
+    "pinAlertThresholdDays": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 90,
+      "description": "Days after which an out-of-range pinnedVersion emits a stale-pin warning"
     }
   }
 }

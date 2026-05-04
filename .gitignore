@@ -24,6 +24,9 @@ yarn-error.log*
 
 # TestAtlas runtime state (workspaces and update backups should never be in the suite repo itself)
 .testatlas.backup-*/
+.testatlas.staging-*/
+.testatlas/.update-cache.json
+.testatlas/.install-manifest.json
 _testatlas/
 
 # Env (suite uses none, but defensive)

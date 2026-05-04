@@ -42,5 +42,7 @@
   },
   "pinnedVersion": null,
   "disableUpdateCheck": false,
-  "updateCheckTtlHours": 24
+  "updateCheckTtlHours": 24,
+  "pinnedSince": null,
+  "pinAlertThresholdDays": 90
 }
