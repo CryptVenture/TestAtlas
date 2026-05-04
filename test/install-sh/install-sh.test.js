@@ -65,12 +65,27 @@ test('install.sh: Node absent → exits 1 with "Node.js not found"', {
 }, async () => {
   const tmp = await makeTmp('testatlas-installsh-no-node-');
   try {
+    // Build a sandbox bin dir that has /bin + /usr/bin tools (printf, command,
+    // mktemp, rm) but explicitly hides `node` so `command -v node` fails.
+    const sandboxBin = path.join(tmp, 'bin');
+    await mkdir(sandboxBin, { recursive: true });
+    // Symlink core utilities we need; do NOT link node.
+    for (const tool of ['sh', 'printf', 'mktemp', 'rm', 'tar']) {
+      const found = spawnSync('sh', ['-c', `command -v ${tool} || true`], {
+        encoding: 'utf8',
+      }).stdout.trim();
+      if (found) {
+        await writeFile(path.join(sandboxBin, tool), '', { mode: 0o755 }).catch(() => {});
+        // We can't easily symlink without bringing in node:fs, but writeFile
+        // creates an empty stub which is wrong; use spawnSync('ln') instead.
+        spawnSync('ln', ['-sf', found, path.join(sandboxBin, tool)]);
+      }
+    }
     const r = spawnSync('sh', [INSTALL_SH], {
       cwd: tmp,
       env: {
-        // Empty PATH (so `command -v node` fails). We still allow /bin and /usr/bin
-        // so `sh` itself can find `printf`, but explicitly remove any node bin dirs.
-        PATH: '/nonexistent-no-tools-here',
+        // Sandbox PATH containing core utilities but NOT node.
+        PATH: sandboxBin,
         HOME: tmp,
       },
       encoding: 'utf8',
@@ -166,29 +181,35 @@ test('install.sh: TESTATLAS_SKIP_CHECKSUM=1 short-circuits checksum-tools requir
   }
 });
 
-test('install.sh: partial-pipe truncation exits non-zero without invoking _main', {
+test('install.sh: partial-pipe truncation does not invoke _main work', {
   skip: isWindows,
 }, async () => {
-  // Read first 500 bytes of install.sh and feed via stdin to /bin/sh.
-  const full = await readFile(INSTALL_SH);
-  const partial = full.subarray(0, 500);
+  // Truncate install.sh just BEFORE the final `_main "$@"` invocation line.
+  // Even when sh successfully parses every preceding byte (function
+  // definitions, set -eu, var assignments), no logic runs because the
+  // sentinel is the only top-level call site. This is the partial-pipe
+  // protection guarantee.
+  const full = await readFile(INSTALL_SH, 'utf8');
+  const sentinelIdx = full.lastIndexOf('_main "$@"');
+  assert.ok(sentinelIdx > 0, 'expected `_main "$@"` in install.sh');
+  const truncated = full.slice(0, sentinelIdx); // everything except the call
   const r = spawnSync('sh', [], {
-    input: partial,
+    input: truncated,
     encoding: 'utf8',
     timeout: 10_000,
   });
-  // Truncated script must NOT exit 0 (would mean it ran successfully without
-  // the sentinel); we require non-zero.
-  assert.notEqual(
-    r.status,
-    0,
-    `truncated install.sh unexpectedly exited 0\nstdout=${r.stdout}\nstderr=${r.stderr}`,
-  );
-  // It must NOT have done anything that requires _main (no "Installing TestAtlas" log).
+  // Function defs and var assignments don't fail; exit code may be 0. The
+  // load-bearing assertion is that NO functional work happened — no log lines
+  // emitted by _log/_err/_main, no Node-related side-effects.
   const combined = `${r.stdout}\n${r.stderr}`;
   assert.doesNotMatch(
     combined,
     /Installing TestAtlas/,
-    `partial pipe should not have reached _main; got:\n${combined}`,
+    `partial pipe must not invoke _main; got:\n${combined}`,
+  );
+  assert.doesNotMatch(
+    combined,
+    /Node\.js not found/,
+    `partial pipe must not even reach _require_node; got:\n${combined}`,
   );
 });

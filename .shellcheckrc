@@ -1,0 +1,22 @@
+# .shellcheckrc — shared shellcheck configuration for TestAtlas
+#
+# Plan 07-02 (INSTALL-02). Defaults are strict; selectively disabled codes
+# below have rationales documented per-line. Document long-form in
+# CONTRIBUTING.md (TODO Plan 07-05).
+enable=all
+
+# SC2244: Prefer explicit -n to check non-empty variable. We use [ -n "$X" ]
+# explicitly where it matters; this disable is reserved for cases that read
+# more naturally as bare-string tests (none yet, kept for forward-compat).
+# SC1090: Can't follow non-constant source. We don't `source` anything inside
+# install.sh, but adapter authors may extend later — disabled defensively.
+# SC2250 (style): Prefer ${var} braces even when not required. POSIX `$var`
+# inside double-quotes is unambiguous; the unbraced form is the dominant
+# nvm/install.sh style. Bare-style preference, not correctness.
+# SC2310 (info): Function invoked under `!` disables `set -e`. We use `if !
+# _download` deliberately for the npm→GitHub-Releases fallback; the inner
+# return code is handled explicitly.
+# SC2312 (info): Consider invoking command separately to avoid masking return
+# value. Inline `$(node -v)` in error logs is human-readable; the failure
+# path doesn't depend on its return code.
+disable=SC2244,SC1090,SC2250,SC2310,SC2312
