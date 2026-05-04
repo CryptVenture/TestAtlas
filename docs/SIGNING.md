@@ -20,10 +20,10 @@ We do **not** protect against:
 
 ## Default verification (zero-install)
 
-Every published version of `testatlas` ships with npm provenance:
+Every published version of `@webventures/testatlas` ships with npm provenance:
 
 ```sh
-npm install testatlas
+npm install @webventures/testatlas
 npm audit signatures
 ```
 
@@ -60,7 +60,7 @@ Cosign is ~80 MB (Go binary). It is NOT a runtime dependency for TestAtlas — o
 ### 2. Pass `--verify-signature` to install/update
 
 ```sh
-npx testatlas init --verify-signature
+npx @webventures/testatlas init --verify-signature
 node update.js --verify-signature
 ```
 

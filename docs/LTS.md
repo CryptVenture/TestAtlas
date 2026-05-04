@@ -104,7 +104,7 @@ If a release ships with a critical bug, the fix is `v1.2.4`, not a re-issue of `
 To check what version you're on and what's available:
 
 ```sh
-npx testatlas update --dry-run
+npx @webventures/testatlas update --dry-run
 ```
 
 This prints the installed version, the latest available, and what migrations would run. No changes are made.

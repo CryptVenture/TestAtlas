@@ -6,10 +6,14 @@
   <strong>Turn any AI coding agent into a persistent product-quality intelligence layer.</strong>
 </p>
 
-[![npm version](https://img.shields.io/npm/v/testatlas.svg)](https://www.npmjs.com/package/testatlas)
+# TestAtlas
+
+<p align="center">
+[![npm version](https://img.shields.io/npm/v/@webventures/testatlas.svg)](https://www.npmjs.com/package/@webventures/testatlas)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/CryptVenture/TestAtlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
 [![Provenance](https://img.shields.io/badge/npm-provenance-success.svg)](https://docs.npmjs.com/generating-provenance-statements)
+</p>
 
 ## What is this?
 
@@ -21,7 +25,7 @@ TestAtlas is an installable, agent-agnostic product testing and quality intellig
 
 ```sh
 cd /path/to/your/project
-npx testatlas init
+npx @webventures/testatlas init
 ```
 
 Then in your AI agent of choice:
@@ -38,7 +42,7 @@ Three install paths are supported. Pick the one that matches your environment:
 
 | Path | Use when |
 |------|----------|
-| **Path 1**: [`npx testatlas init`](docs/INSTALL.md#path-1--npx-testatlas-init-recommended) | You have npm. (Most users.) |
+| **Path 1**: [`npx @webventures/testatlas init`](docs/INSTALL.md#path-1--npx-webventurestestatlas-init-recommended) | You have npm. (Most users.) |
 | **Path 2**: [`curl -fsSL .../install.sh \| sh`](docs/INSTALL.md#path-2--curl--sh-posix-installer) | Shell-first env, no Node tooling. POSIX `sh`, Alpine/BusyBox tested. |
 | **Path 3**: [`git clone && node install.js <target>`](docs/INSTALL.md#path-3--git-clone--node-installjs-offline) | Airgap, security review, contributor. |
 

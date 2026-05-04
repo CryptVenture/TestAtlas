@@ -10,17 +10,17 @@ TestAtlas ships three install paths so any environment can adopt it: the canonic
 
 | Environment | Recommended path |
 |-------------|-------------------|
-| Modern Node devs (Claude Code, Cursor, etc.) | [`npx testatlas init`](#path-1--npx-testatlas-init-recommended) |
+| Modern Node devs (Claude Code, Cursor, etc.) | [`npx @webventures/testatlas init`](#path-1--npx-webventurestestatlas-init-recommended) |
 | Shell-first / Node bootstrap unclear | [`curl ... \| sh`](#path-2--curl--sh-posix-installer) |
 | Offline / airgap / security-conscious | [`git clone`](#path-3--git-clone--node-installjs-offline) |
-| Want `/atlas:*` available in **every** project, with **any** agent | [`npx testatlas init --global`](#machine-wide-install----global) |
+| Want `/atlas:*` available in **every** project, with **any** agent | [`npx @webventures/testatlas init --global`](#machine-wide-install----global) |
 
 ## Machine-wide install (`--global`)
 
 By default `testatlas init` installs into the current project (per-repo `.testatlas/` + adapter command files under that repo's `.claude/commands/`, `.cursor/rules/`, etc.). Pass `--global` to install once per machine instead — every coding agent in every project gets `/atlas:*` slash commands without a per-repo install step.
 
 ```sh
-npx testatlas init --global --all-adapters
+npx @webventures/testatlas init --global --all-adapters
 # or via the POSIX installer:
 curl -fsSL https://raw.githubusercontent.com/CryptVenture/TestAtlas/main/install.sh | sh -s -- --global
 ```
@@ -55,16 +55,16 @@ Notes:
 - A few tools don't auto-discover from `$HOME` (Aider, MCP). The installer prints a one-line post-install hint per affected adapter telling you the exact config line to add.
 - The install manifest at `~/.testatlas/.install-manifest.json` records `"mode": "global"`, so `testatlas uninstall --target ~` reverses precisely.
 
-## Path 1 — `npx testatlas init` (recommended)
+## Path 1 — `npx @webventures/testatlas init` (recommended)
 
 ```sh
 cd /path/to/your/project
-npx testatlas init
+npx @webventures/testatlas init
 ```
 
 What this does:
 
-1. Resolves the latest published `testatlas` package from npm.
+1. Resolves the latest published `@webventures/testatlas` package from npm.
 2. Auto-detects the installed agent platform by probing for signal files (`.claude/`, `.cursor/`, `.aider.conf.yml`, `kilocode/`, `.opencode/`, MCP config), then installs only the relevant adapter(s).
 3. Copies the suite tree into `./.testatlas/` and initializes `./_testatlas/` workspace skeleton.
 4. Writes `./.testatlas/.install-manifest.json` (every installed file + content hash) — this drives precise uninstall.
@@ -169,7 +169,7 @@ Default behavior is to NEVER silently clobber files you've changed. The install 
 
 ### Permission denied during `npx`
 
-If npm's prefix is set to a system path, `npx testatlas init` may fail. Either run with elevated privileges, or set a user-local prefix:
+If npm's prefix is set to a system path, `npx @webventures/testatlas init` may fail. Either run with elevated privileges, or set a user-local prefix:
 
 ```sh
 npm config set prefix ~/.local

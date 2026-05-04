@@ -142,7 +142,7 @@ export async function initWorkspace(
   if (!suiteOk) {
     const e = new Error(
       `TestAtlas suite tree not found at ${path.join(cwd, '.testatlas')}/. ` +
-        'Run `npx testatlas init` first.',
+        'Run `npx @webventures/testatlas init` first.',
     );
     e.code = 'TESTATLAS_SUITE_MISSING';
     throw e;

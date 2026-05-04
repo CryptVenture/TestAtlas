@@ -9,7 +9,7 @@ node uninstall.js              # uses cwd as target
 node uninstall.js --target /path/to/project
 ```
 
-(or via the bin: `npx testatlas uninstall`)
+(or via the bin: `npx @webventures/testatlas uninstall`)
 
 By default this:
 
@@ -90,7 +90,7 @@ The manifest stores POSIX paths even on Windows. Uninstall reads each entry and 
 You can't undo `--purge`. For non-purge uninstall, just re-run install:
 
 ```sh
-npx testatlas init
+npx @webventures/testatlas init
 ```
 
 The new install creates a fresh `_testatlas/` skeleton — but if you preserved your workspace state via the default uninstall flow, all of your domain/flow/evidence/issue files are still there and reattach automatically.
@@ -102,7 +102,7 @@ The new install creates a fresh `_testatlas/` skeleton — but if you preserved 
 ```sh
 node uninstall.js --purge
 rm -rf .testatlas .testatlas.backup-*
-npx testatlas init
+npx @webventures/testatlas init
 ```
 
 ### "I uninstalled then realized I wanted my workspace"
@@ -124,6 +124,6 @@ node uninstall.js          # workspace preserved
 mv _testatlas /tmp/atlas-state
 
 # New repo
-npx testatlas init
+npx @webventures/testatlas init
 mv /tmp/atlas-state/* _testatlas/
 ```

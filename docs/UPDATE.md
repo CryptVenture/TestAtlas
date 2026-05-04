@@ -27,7 +27,7 @@ node update.js               # uses cwd as target
 node update.js --target /path/to/project
 ```
 
-(or via the bin: `npx testatlas update`)
+(or via the bin: `npx @webventures/testatlas update`)
 
 Flags:
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // bin/testatlas.js
 //
-// Plan 07-01 Task 2. Commander v14 CLI binary entry point — `npx testatlas
+// Plan 07-01 Task 2. Commander v14 CLI binary entry point — `npx @webventures/testatlas
 // <init|update|uninstall>`. The `init` subcommand wraps the install kernel
 // (`scripts/lib/install-core.js`); `update` and `uninstall` are stubs that
 // Plans 07-03 and 07-02 replace with real implementations.

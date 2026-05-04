@@ -36,7 +36,7 @@ for (const rel of DOCS) {
 test('README.md: contains all 3 install paths', async () => {
   const buf = await readFile(path.join(REPO_ROOT, 'README.md'), 'utf8');
   assert.match(buf, /## Installation/, 'missing ## Installation');
-  assert.match(buf, /npx testatlas init/, 'missing npx path');
+  assert.match(buf, /npx @webventures\/testatlas init/, 'missing npx path');
   assert.match(buf, /install\.sh/, 'missing install.sh path');
   assert.match(buf, /git clone/, 'missing git clone path');
 });
