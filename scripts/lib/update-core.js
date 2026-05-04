@@ -32,6 +32,7 @@
 import { rename as fsRename, mkdir, readdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import semver from 'semver';
+import { info, success, warning } from './colors.js';
 import { loadConfig } from './load-config.js';
 import { acquireLock, releaseLock } from './lockfile.js';
 import { applyMigrations } from './migrate.js';
@@ -56,7 +57,7 @@ export const _testHooks = {};
 const STAGING_PREFIX = '.testatlas.staging-';
 const BACKUP_PREFIX = '.testatlas.backup-';
 
-const DEFAULT_LOGGER = (msg) => process.stdout.write(`${msg}\n`);
+const DEFAULT_LOGGER = (msg) => info(msg);
 
 /**
  * @typedef {Object} RunUpdateOptions
@@ -224,20 +225,22 @@ export async function runUpdate(opts) {
       thresholdDays,
     });
     if (shouldWarn(pin)) {
-      process.stderr.write(`[testatlas] ${pin.message}\n`);
+      warning(pin.message, process.stderr);
     }
     if (!forceReinstall && pin && pin.satisfied !== true) {
       // Pinned out of range (suppressed or stale): skip the update.
-      log(
-        `Pinned to ${pinnedVersion}; latest ${resolvedLatest} is out of range — skipping update.`,
-      );
+      const msg = `Pinned to ${pinnedVersion}; latest ${resolvedLatest} is out of range — skipping update.`;
+      if (opts.logger) log(msg);
+      else warning(msg);
       return { status: 'pinned-skip', previousVersion: currentVersion, pin };
     }
   }
 
   // Up-to-date short-circuit (skipped under --force-reinstall).
   if (!forceReinstall && !shouldUpdate(currentVersion, resolvedLatest)) {
-    log(`Already up to date (current ${currentVersion}, latest ${resolvedLatest ?? 'unknown'}).`);
+    const msg = `Already up to date (current ${currentVersion}, latest ${resolvedLatest ?? 'unknown'}).`;
+    if (opts.logger) log(msg);
+    else success(msg);
     return { status: 'up-to-date', previousVersion: currentVersion, pin };
   }
 
@@ -248,9 +251,15 @@ export async function runUpdate(opts) {
   const tmpTarball = path.join(target, `${STAGING_PREFIX}${ts}.tgz`);
 
   if (dryRun) {
-    log(`[dry-run] Would update ${target} from ${currentVersion} → ${newVersion}`);
-    log(`[dry-run] Stage dir: ${stageDir}`);
-    log(`[dry-run] Backup dir: ${backupDir}`);
+    if (opts.logger) {
+      log(`[dry-run] Would update ${target} from ${currentVersion} → ${newVersion}`);
+      log(`[dry-run] Stage dir: ${stageDir}`);
+      log(`[dry-run] Backup dir: ${backupDir}`);
+    } else {
+      info(`[dry-run] Would update ${target} from ${currentVersion} → ${newVersion}`);
+      info(`[dry-run] Stage dir: ${stageDir}`);
+      info(`[dry-run] Backup dir: ${backupDir}`);
+    }
     return { status: 'dry-run', previousVersion: currentVersion, newVersion };
   }
 
@@ -340,11 +349,12 @@ export async function runUpdate(opts) {
     // 7. Prune old backups (keep last 3).
     const pruneResult = await pruneBackups(target, 3);
 
-    log(
+    const summary =
       `Updated ${currentVersion} → ${newVersion}. ` +
-        `Backup: ${path.basename(backupDir)} ` +
-        `(pruned ${pruneResult.removed.length} older backup${pruneResult.removed.length === 1 ? '' : 's'}).`,
-    );
+      `Backup: ${path.basename(backupDir)} ` +
+      `(pruned ${pruneResult.removed.length} older backup${pruneResult.removed.length === 1 ? '' : 's'}).`;
+    if (opts.logger) log(summary);
+    else success(summary);
 
     return {
       status: 'updated',

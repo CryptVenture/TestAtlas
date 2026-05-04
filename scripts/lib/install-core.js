@@ -29,6 +29,7 @@ import { cp, lstat, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises'
 import os from 'node:os';
 import path from 'node:path';
 import { detectAdapters } from './adapter-detect.js';
+import { info, step, success, warning } from './colors.js';
 import { INSTALL_MANIFEST_PATH } from './constants.js';
 import { hashContent } from './content-hash.js';
 import { buildManifest, loadAndValidateManifest, writeManifest } from './manifest.js';
@@ -409,7 +410,10 @@ export async function runInit(opts) {
   const isGlobal = Boolean(opts.global);
   const target = path.resolve(opts.target ?? (isGlobal ? os.homedir() : process.cwd()));
   const suiteRoot = path.resolve(opts.suiteRoot);
-  const log = opts.logger ?? ((msg) => process.stdout.write(`${msg}\n`));
+  // Default logger routes through colors.info() so all status output picks up
+  // the cyan `ℹ` prefix (and ASCII fallback under NO_UNICODE/NO_COLOR).
+  // Callers that capture output (tests, programmatic embeds) supply their own.
+  const log = opts.logger ?? ((msg) => info(msg));
 
   // Two-tree invariant — install context never touches workspace state directly.
   // We only mutate <target>/.testatlas/, never <target>/_testatlas/.
@@ -433,11 +437,15 @@ export async function runInit(opts) {
   const targetSuiteDir = path.join(target, SUITE_DIR);
   const haveExisting = await pathExists(targetSuiteDir);
 
+  // Step 1/4 — resolution + adapter detection. Emitted before the
+  // idempotency check so re-runs still print the leading marker.
+  if (!opts.logger) step(1, 4, 'Resolving target & adapters');
+
   // Idempotency check — reads existing manifest, recomputes hashes.
   if (haveExisting && !opts.force) {
     const already = await checkAlreadyInstalled(target, suiteRoot);
     if (already) {
-      log('TestAtlas already installed (no changes).');
+      success('TestAtlas already installed (no changes).');
       return already;
     }
     // No clean idempotency match — if a manifest exists at all, refuse without --force.
@@ -462,9 +470,9 @@ export async function runInit(opts) {
 
   // Dry-run short-circuit.
   if (opts.dryRun) {
-    log(`[dry-run] Would install TestAtlas at ${target}${isGlobal ? ' (global)' : ''}`);
-    log(`[dry-run] Adapters: ${detected.join(', ')}`);
-    log(`[dry-run] Force: ${Boolean(opts.force)}`);
+    info(`[dry-run] Would install TestAtlas at ${target}${isGlobal ? ' (global)' : ''}`);
+    info(`[dry-run] Adapters: ${detected.join(', ')}`);
+    info(`[dry-run] Force: ${Boolean(opts.force)}`);
     return {
       status: 'dry-run',
       filesWritten: 0,
@@ -478,13 +486,16 @@ export async function runInit(opts) {
     await rm(targetSuiteDir, { recursive: true, force: true });
   }
 
-  // Copy the suite tree (filtered). In both local and global modes the suite
-  // tree lands at <target>/.testatlas/ so the bootstrap.md preamble can be
-  // resolved consistently.
+  // Step 2/4 — copy the suite tree (filtered). In both local and global modes
+  // the suite tree lands at <target>/.testatlas/ so the bootstrap.md preamble
+  // can be resolved consistently.
+  if (!opts.logger) step(2, 4, 'Copying suite tree');
   const suiteEntries = await copySuiteTree(suiteRoot, target, adapterSet);
 
-  // Copy per-adapter command files. In global mode the adapter renderer
-  // honors `globalOutputPattern` and skips adapters that don't declare one.
+  // Step 3/4 — copy per-adapter command files. In global mode the adapter
+  // renderer honors `globalOutputPattern` and skips adapters that don't
+  // declare one.
+  if (!opts.logger) step(3, 4, 'Installing adapters');
   const caps = await loadAdapterCapabilities(suiteRoot);
   const {
     entries: cmdEntries,
@@ -493,8 +504,8 @@ export async function runInit(opts) {
   } = await copyAdapterCommandFiles(suiteRoot, target, detected, caps, { global: isGlobal });
 
   if (isGlobal && skippedAdapters.length > 0) {
-    log(
-      `Note: skipping ${skippedAdapters.length} adapter(s) in --global mode (no globalOutputPattern declared): ${skippedAdapters.join(', ')}`,
+    warning(
+      `Skipping ${skippedAdapters.length} adapter(s) in --global mode (no globalOutputPattern declared): ${skippedAdapters.join(', ')}`,
     );
   }
 
@@ -508,8 +519,10 @@ export async function runInit(opts) {
 
   const suiteVersion = await readSuiteVersion(suiteRoot);
 
-  // Manifest tracks the actually-installed adapter set so uninstall reverses
-  // exactly. In global mode that's `detected − skippedAdapters`.
+  // Step 4/4 — write manifest. Manifest tracks the actually-installed adapter
+  // set so uninstall reverses exactly. In global mode that's
+  // `detected − skippedAdapters`.
+  if (!opts.logger) step(4, 4, 'Writing manifest');
   const installedAdapters = detected.filter((n) => !skippedAdapters.includes(n));
 
   await writeManifest(
@@ -538,10 +551,21 @@ export async function runInit(opts) {
     ...(isGlobal ? { global: true } : {}),
     ...(globalNotes.length ? { globalNotes } : {}),
   };
-  log(
-    `TestAtlas ${result.status}${isGlobal ? ' (global)' : ''}: ${result.filesWritten} files across ${result.adapters.length} adapter(s) (${result.adapters.join(', ')}).`,
-  );
-  for (const n of globalNotes) log(n);
+  // Final outcome line as a green ✓ success when running through the default
+  // logger. Programmatic callers passing their own `logger` get the legacy
+  // raw string (no color, no symbol) for back-compat.
+  const summary = `TestAtlas ${result.status}${isGlobal ? ' (global)' : ''}: ${result.filesWritten} files across ${result.adapters.length} adapter(s) (${result.adapters.join(', ')}).`;
+  if (opts.logger) {
+    log(summary);
+    for (const n of globalNotes) log(n);
+  } else {
+    success(summary);
+    for (const n of globalNotes) info(n);
+    // Next-steps tip — surfaces the workspace-bootstrap entry-point so the
+    // user knows what to do next without hunting through the README.
+    info('Next: run /atlas:init inside your AI coding agent to bootstrap the workspace.');
+    info('Docs: https://github.com/CryptVenture/TestAtlas');
+  }
   return result;
 }
 

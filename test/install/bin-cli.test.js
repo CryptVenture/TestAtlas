@@ -15,6 +15,14 @@ const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const BIN = path.join(REPO_ROOT, 'bin', 'testatlas.js');
 const INSTALL_JS = path.join(REPO_ROOT, 'install.js');
 
+// ANSI-CSI regex (built via String.fromCharCode to satisfy Biome's
+// noControlCharactersInRegex rule).
+const ANSI_RE = new RegExp(`${String.fromCharCode(0x1b)}\\[`, 'u');
+
+// Default env layered onto every spawn — keeps captured output deterministic
+// (no color escapes, ASCII-bracket symbols) so assertions are stable.
+const DETERMINISTIC_ENV = { NO_COLOR: '1', NO_UNICODE: '1' };
+
 /**
  * Run a node CLI script, capturing stdout, stderr, and exit code.
  * @param {string[]} args
@@ -23,7 +31,7 @@ function runNode(scriptPath, args, opts = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [scriptPath, ...args], {
       cwd: opts.cwd ?? REPO_ROOT,
-      env: { ...process.env, ...opts.env },
+      env: { ...process.env, ...DETERMINISTIC_ENV, ...opts.env },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     const out = [];
@@ -68,6 +76,19 @@ test('bin-cli: --help lists subcommands init/update/uninstall', async () => {
   assert.match(r.stdout, /\binit\b/);
   assert.match(r.stdout, /\bupdate\b/);
   assert.match(r.stdout, /\buninstall\b/);
+  // Banner is rendered before the help block (Quick 260504-pjh).
+  assert.match(r.stdout, /Agent-agnostic AI product testing/);
+});
+
+test('bin-cli: --help renders the ASCII banner above the subcommand list', async () => {
+  // Force NO_UNICODE so banner falls back to `#` art (deterministic).
+  const r = await runNode(BIN, ['--help'], { env: { NO_UNICODE: '1' } });
+  assert.equal(r.code, 0);
+  // ASCII art starts with at least one `#`-block letter row.
+  assert.match(r.stdout, /########/);
+  assert.match(r.stdout, /Agent-agnostic AI product testing/);
+  // GitHub URL appears in the version line.
+  assert.match(r.stdout, /github\.com\/CryptVenture\/TestAtlas/);
 });
 
 test('bin-cli: init --help shows the locked option set', async () => {
@@ -156,5 +177,74 @@ test('install.js: --dry-run produces no writes', async (t) => {
       () => stat(path.join(dir, '.testatlas')),
       (err) => err.code === 'ENOENT',
     );
+  });
+});
+
+// ---- Quick 260504-pjh — polish CLI tests ----------------------------------
+
+test('bin-cli: init --help shows Examples block with ≥2 example invocations', async () => {
+  const r = await runNode(BIN, ['init', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /Examples:/);
+  const exampleLines = r.stdout.split('\n').filter((l) => /^\s*\$ testatlas/.test(l));
+  assert.ok(
+    exampleLines.length >= 2,
+    `expected ≥2 example lines under init --help, got ${exampleLines.length}`,
+  );
+});
+
+test('bin-cli: update --help includes Examples block with ≥2 example invocations', async () => {
+  const r = await runNode(BIN, ['update', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /Examples:/);
+  const exampleLines = r.stdout.split('\n').filter((l) => /^\s*\$ testatlas/.test(l));
+  assert.ok(
+    exampleLines.length >= 2,
+    `expected ≥2 example lines under update --help, got ${exampleLines.length}`,
+  );
+});
+
+test('bin-cli: uninstall --help includes Examples block with ≥2 example invocations', async () => {
+  const r = await runNode(BIN, ['uninstall', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /Examples:/);
+  const exampleLines = r.stdout.split('\n').filter((l) => /^\s*\$ testatlas/.test(l));
+  assert.ok(
+    exampleLines.length >= 2,
+    `expected ≥2 example lines under uninstall --help, got ${exampleLines.length}`,
+  );
+});
+
+test('bin-cli: NO_COLOR=1 --version emits zero ANSI escape sequences', async () => {
+  const r = await runNode(BIN, ['--version'], { env: { NO_COLOR: '1' } });
+  assert.equal(r.code, 0);
+  assert.doesNotMatch(r.stdout, ANSI_RE, `stdout: ${JSON.stringify(r.stdout)}`);
+});
+
+test('bin-cli: init --target <tmp> emits step markers and [OK] tag', async (t) => {
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['init', '--target', dir]);
+    assert.equal(r.code, 0, `stderr: ${r.stderr}`);
+    // Step markers from install-core.js step(...).
+    assert.match(r.stdout, /\[1\/4\]/);
+    assert.match(r.stdout, /\[4\/4\]/);
+    // [OK] tag appears under NO_UNICODE=1 (forced by DETERMINISTIC_ENV).
+    assert.match(r.stdout, /\[OK\]/);
+    // Next-steps tip is surfaced.
+    assert.match(r.stdout, /\/atlas:init/);
+  });
+});
+
+test('bin-cli: error path prints trimmed [ERR] Error: with ≤8 stderr lines', async (t) => {
+  // Force a thrown error from runUninstall: missing manifest + no
+  // --force-untracked → throws "Manifest missing or invalid…".
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['uninstall', '--target', dir]);
+    assert.notEqual(r.code, 0);
+    // Top-level catch stamps the message with the error symbol.
+    assert.match(r.stderr, /\[ERR\] Error:/);
+    // Stack should be trimmed — we cap at 3 'at' frames + 1 message line.
+    const lineCount = r.stderr.trim().split('\n').length;
+    assert.ok(lineCount <= 8, `expected ≤8 stderr lines, got ${lineCount}: ${r.stderr}`);
   });
 });

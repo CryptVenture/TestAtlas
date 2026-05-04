@@ -26,6 +26,7 @@ import { readdir, rm, rmdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { Command } from 'commander';
 
+import { info, success, warning } from './lib/colors.js';
 import { INSTALL_MANIFEST_PATH } from './lib/constants.js';
 import { loadAndValidateManifest } from './lib/manifest.js';
 
@@ -47,7 +48,7 @@ import { loadAndValidateManifest } from './lib/manifest.js';
  */
 
 const DEFAULT_LOGGER = (msg) => {
-  process.stdout.write(`${msg}\n`);
+  info(msg);
 };
 
 async function exists(p) {
@@ -107,7 +108,13 @@ export async function runUninstall(opts = {}) {
       throw new Error(msg);
     }
     // forceUntracked: fall through to fallback path
-    log(`[testatlas:warn] manifest absent — fallback to .testatlas/ rm (${err.code ?? 'unknown'})`);
+    if (opts.logger) {
+      log(
+        `[testatlas:warn] manifest absent — fallback to .testatlas/ rm (${err.code ?? 'unknown'})`,
+      );
+    } else {
+      warning(`Manifest absent — fallback to .testatlas/ rm (${err.code ?? 'unknown'})`);
+    }
   }
 
   let filesRemoved = 0;
@@ -117,14 +124,16 @@ export async function runUninstall(opts = {}) {
     for (const entry of manifest.files) {
       const osPath = path.join(target, ...entry.path.split('/'));
       if (dryRun) {
-        log(`[dry-run] rm ${osPath}`);
+        if (opts.logger) log(`[dry-run] rm ${osPath}`);
+        else info(`[dry-run] rm ${osPath}`);
       } else {
         try {
           await rm(osPath, { force: true });
           filesRemoved++;
         } catch (err) {
           // Logged but non-fatal; uninstall is best-effort once started.
-          log(`[testatlas:warn] failed to remove ${osPath}: ${err.message}`);
+          if (opts.logger) log(`[testatlas:warn] failed to remove ${osPath}: ${err.message}`);
+          else warning(`Failed to remove ${osPath}: ${err.message}`);
         }
       }
       parentDirs.add(path.dirname(osPath));
@@ -145,7 +154,8 @@ export async function runUninstall(opts = {}) {
     // forceUntracked + missing manifest: nuke .testatlas/ blindly.
     const ttDir = path.join(target, '.testatlas');
     if (dryRun) {
-      log(`[dry-run] rm -r ${ttDir}`);
+      if (opts.logger) log(`[dry-run] rm -r ${ttDir}`);
+      else info(`[dry-run] rm -r ${ttDir}`);
     } else if (await exists(ttDir)) {
       await rm(ttDir, { recursive: true, force: true });
     }
@@ -155,7 +165,8 @@ export async function runUninstall(opts = {}) {
   if (purge) {
     const wsDir = path.join(target, '_testatlas');
     if (dryRun) {
-      log(`[dry-run] rm -r ${wsDir}`);
+      if (opts.logger) log(`[dry-run] rm -r ${wsDir}`);
+      else info(`[dry-run] rm -r ${wsDir}`);
     } else if (await exists(wsDir)) {
       // NB: this is the ONE uninstall callsite that bypasses the two-tree
       // invariant. Documented in the file header comment.
@@ -168,14 +179,17 @@ export async function runUninstall(opts = {}) {
   }
 
   if (dryRun) {
-    log('Dry-run complete (no changes written).');
+    const dryMsg = 'Dry-run complete (no changes written).';
+    if (opts.logger) log(dryMsg);
+    else success(dryMsg);
     return { status: 'dry-run', filesRemoved };
   }
 
-  log(
+  const summary =
     `Uninstall complete: removed ${filesRemoved} files; ` +
-      `${purge ? '_testatlas/ purged' : '_testatlas/ preserved'}.`,
-  );
+    `${purge ? '_testatlas/ purged' : '_testatlas/ preserved'}.`;
+  if (opts.logger) log(summary);
+  else success(summary);
 
   /** @type {RunUninstallResult} */
   const result = { status: 'uninstalled', filesRemoved };

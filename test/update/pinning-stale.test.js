@@ -176,7 +176,9 @@ describe('runUpdate — pinning integration', () => {
       });
       assert.equal(result.status, 'pinned-skip');
       const stderrText = cap.lines.join('');
-      assert.match(stderrText, /\[testatlas\]/);
+      // Quick 260504-pjh: stderr warning is now routed through colors.warning().
+      // The line prefix is the warn symbol (`⚠` or `[!]` under NO_UNICODE).
+      assert.match(stderrText, /(⚠|\[!\])/);
       assert.match(stderrText, /Pinned to 1\.x for \d+ days/);
     } finally {
       globalThis.fetch = origFetch;

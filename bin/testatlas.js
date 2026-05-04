@@ -11,7 +11,8 @@ import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { program } from 'commander';
-
+import { renderBanner } from '../scripts/lib/banner.js';
+import { palette, symbol } from '../scripts/lib/colors.js';
 import { runInit } from '../scripts/lib/install-core.js';
 import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
@@ -40,11 +41,17 @@ const pkg = JSON.parse(await readFile(PKG_PATH, 'utf8'));
 program
   .name('testatlas')
   .description('Agent-agnostic AI product testing & quality intelligence framework')
-  .version(pkg.version);
+  .version(pkg.version)
+  .addHelpText('beforeAll', () => renderBanner({ version: pkg.version }))
+  .showHelpAfterError();
 
 program
   .command('init')
-  .description('Install the TestAtlas suite into the current repo (or --target dir).')
+  .description(
+    'Install the TestAtlas suite into the current repo (or --target dir). After ' +
+      'install, run `/atlas:init` inside your AI coding agent to bootstrap the ' +
+      '_testatlas/ workspace.',
+  )
   .option('--all-adapters', 'Install all 7 adapters regardless of detection')
   .option('--force', 'Overwrite existing .testatlas/ (preserves _testatlas/)')
   .option('--no-update-check', 'Skip the GitHub Releases version check')
@@ -60,6 +67,19 @@ program
   .option(
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ testatlas init                                # install into cwd, auto-detect adapters',
+      '  $ testatlas init --target ./my-app              # install into a sibling repo',
+      '  $ testatlas init --all-adapters --force         # reinstall with every adapter',
+      '  $ testatlas init --global                       # install command files into ~/.claude/, ~/.cursor/, etc.',
+      '  $ testatlas init --dry-run                      # preview without writing',
+      '',
+    ].join('\n'),
   )
   .action(async (opts) => {
     if (opts.verifySignature) {
@@ -87,7 +107,10 @@ program
 
 program
   .command('update')
-  .description('Self-update the suite (atomic stage → migrate → swap → backup).')
+  .description(
+    'Self-update the suite to the latest GitHub release (atomic stage → ' +
+      'migrate → swap → backup; rolls back on failure).',
+  )
   .option('--target <dir>', 'Target repo directory (default: cwd)')
   .option('--force-reinstall', 'Re-extract latest even when current version matches')
   .option('--dry-run', 'Print planned actions; do not write')
@@ -99,6 +122,18 @@ program
   .option(
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ testatlas update                              # check GitHub Releases, update if newer',
+      '  $ testatlas update --dry-run                    # preview the version transition',
+      '  $ testatlas update --force-reinstall            # re-extract latest even if up to date',
+      '  $ testatlas update --latest-version 1.2.3       # pin the target version explicitly',
+      '',
+    ].join('\n'),
   )
   .action(async (opts) => {
     if (opts.verifySignature) {
@@ -125,11 +160,26 @@ program
 
 program
   .command('uninstall')
-  .description('Remove the TestAtlas suite from the current repo.')
+  .description(
+    'Remove the TestAtlas suite from the current repo. By default ' +
+      '_testatlas/ workspace state is preserved; use --purge to delete it too.',
+  )
   .option('--target <dir>', 'Target repo (default: cwd)')
   .option('--purge', 'Also remove _testatlas/ workspace state (DESTRUCTIVE)')
   .option('--force-untracked', 'Allow uninstall when manifest is missing/corrupt')
   .option('--dry-run', 'Print planned removals; do not delete')
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ testatlas uninstall                           # remove suite; keep _testatlas/',
+      '  $ testatlas uninstall --purge                   # also delete _testatlas/ workspace state',
+      '  $ testatlas uninstall --dry-run                 # preview removals',
+      '  $ testatlas uninstall --force-untracked         # nuke .testatlas/ even without manifest',
+      '',
+    ].join('\n'),
+  )
   .action(async (opts) => {
     await runUninstall({
       target: opts.target,
@@ -139,4 +189,23 @@ program
     });
   });
 
-await program.parseAsync(process.argv);
+try {
+  await program.parseAsync(process.argv);
+} catch (err) {
+  // Trimmed-stack error path (Quick 260504-pjh). Honors NO_COLOR/NO_UNICODE
+  // via the colors.js helpers. Stack is limited to 3 'at' frames so the
+  // user sees the failure without a full Node-internals dump.
+  const sym = symbol('err');
+  const head = palette.err(`${sym} Error:`);
+  const message = err?.message ?? String(err);
+  process.stderr.write(`${head} ${message}\n`);
+  const stack = String(err?.stack ?? '');
+  const frames = stack
+    .split('\n')
+    .filter((l) => l.trim().startsWith('at '))
+    .slice(0, 3);
+  if (frames.length > 0) {
+    process.stderr.write(`${frames.join('\n')}\n`);
+  }
+  process.exit(1);
+}

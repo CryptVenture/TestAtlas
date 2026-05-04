@@ -15,6 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { program } from 'commander';
 
+import { palette, symbol } from './scripts/lib/colors.js';
 import { runInit } from './scripts/lib/install-core.js';
 
 // Suite root is the directory this file lives in.
@@ -32,6 +33,18 @@ program
     'Install adapter command files into user-home (~/.claude/, ~/.cursor/, etc.) ' +
       'so every coding agent in every project picks up /atlas:* commands.',
   )
+  .addHelpText(
+    'after',
+    [
+      '',
+      'Examples:',
+      '  $ node install.js .                             # install into current dir',
+      '  $ node install.js /path/to/my-app               # install into a sibling repo',
+      '  $ node install.js --all-adapters --force .      # reinstall with every adapter',
+      '  $ node install.js --global                      # install command files into ~/.claude/, ~/.cursor/, etc.',
+      '',
+    ].join('\n'),
+  )
   .action(async (targetArg, opts) => {
     const isGlobal = Boolean(opts.global);
     // Argument default falls back to cwd; in --global mode, prefer $HOME if
@@ -48,4 +61,21 @@ program
     });
   });
 
-await program.parseAsync(process.argv);
+try {
+  await program.parseAsync(process.argv);
+} catch (err) {
+  // Mirror bin/testatlas.js trimmed-stack error path (Quick 260504-pjh).
+  const sym = symbol('err');
+  const head = palette.err(`${sym} Error:`);
+  const message = err?.message ?? String(err);
+  process.stderr.write(`${head} ${message}\n`);
+  const stack = String(err?.stack ?? '');
+  const frames = stack
+    .split('\n')
+    .filter((l) => l.trim().startsWith('at '))
+    .slice(0, 3);
+  if (frames.length > 0) {
+    process.stderr.write(`${frames.join('\n')}\n`);
+  }
+  process.exit(1);
+}
