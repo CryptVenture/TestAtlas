@@ -36,10 +36,9 @@
       "type": "array",
       "uniqueItems": true,
       "items": {
-        "type": "string",
-        "enum": ["browser", "shell", "web-fetch", "MCP", "file-write"]
+        "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/capability"
       },
-      "description": "Adapter capabilities this command USES (declare full set; not minimal)."
+      "description": "Adapter capabilities this command USES (declare full set; not minimal). The locked capability vocabulary lives in vocabulary.json#/$defs/capability — Plan 09-02 (6 entries: browser, shell, web-fetch, MCP, file-write, subagent-spawn)."
     },
     "produces": {
       "type": "array",

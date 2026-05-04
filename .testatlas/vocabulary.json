@@ -4,6 +4,11 @@
   "title": "TestAtlas Shared Vocabularies",
   "description": "Single source of truth for severity, confidence, status enums, and ID patterns referenced by every TestAtlas schema. PRD §28 + §32.",
   "$defs": {
+    "capability": {
+      "type": "string",
+      "enum": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
+      "description": "Locked capability vocabulary. Hosts declare which capabilities they support; commands declare which they require; bootstrap.md documents per-host invocation. Plan 09-02 extended this to 6 entries by adding subagent-spawn."
+    },
     "severity": {
       "type": "string",
       "enum": ["critical", "high", "medium", "low", "enhancement"]

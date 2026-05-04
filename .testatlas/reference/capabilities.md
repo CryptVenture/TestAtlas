@@ -4,7 +4,7 @@
 
 TestAtlas adapters declare per-adapter capabilities (Phase 6 ships `adapter-capabilities.json`). Until that file is shipped, treat the conservative default as: only the capabilities you have already successfully used in this session are available. Do not assume — confirm.
 
-## The five capabilities
+## The six capabilities
 
 ### browser
 
@@ -36,6 +36,12 @@ The agent can write files inside the workspace (`_testatlas/`) and the suite (`.
 
 **Used by:** every persistence step; without this, no findings can be recorded and no test runs can be journaled.
 
+### subagent-spawn
+
+The agent host supports parallel sub-agent invocation driven from a markdown command file (e.g. Claude Code's Task/Agent tool, OpenCode/Kilocode/Cline subagent files, Codex/Gemini `@agent-name` syntax, Copilot CLI `/fleet`, Kiro skills, Sourcegraph Amp subagent declarations). When this capability is unavailable, umbrella commands MUST fall back to sequential execution and mark output records `executionMode: 'sequential-fallback'` per `bootstrap.md` § Capability Degradation. See the per-host invocation table in `bootstrap.md` for the canonical 18-adapter matrix.
+
+**Used by:** umbrella orchestration commands (e.g. `/atlas:explore`, `/atlas:plan`, `/atlas:test-flow`) when fan-out across multiple child commands is preferable to sequential execution.
+
 ## Capability-aware degradation rule (mirrored from bootstrap §4)
 
 Before any action requiring a capability, confirm it is available. If unavailable:
@@ -49,14 +55,15 @@ The `tool_unavailable` field is part of every finding-bearing schema in Phase 2.
 
 ## Per-capability action matrix
 
-| Capability   | Confirms via                              | Fallback when unavailable                          |
-|--------------|-------------------------------------------|----------------------------------------------------|
-| `browser`    | Successful navigation + screenshot capture | Code-read the route handler / static template      |
-| `shell`      | Successful `node --version` (or equivalent) | Read package scripts and document expected behavior |
-| `web-fetch`  | Successful GET to a known-public endpoint  | Document expected request/response from API docs   |
-| `MCP`        | Successful tool list from the MCP server   | Fall back to `browser` or `shell` capability       |
-| `file-write` | Successful write + read-back to a temp file | HALT; without `file-write` no findings persist     |
+| Capability        | Confirms via                                          | Fallback when unavailable                          |
+|-------------------|-------------------------------------------------------|----------------------------------------------------|
+| `browser`         | Successful navigation + screenshot capture            | Code-read the route handler / static template      |
+| `shell`           | Successful `node --version` (or equivalent)           | Read package scripts and document expected behavior |
+| `web-fetch`       | Successful GET to a known-public endpoint             | Document expected request/response from API docs   |
+| `MCP`             | Successful tool list from the MCP server              | Fall back to `browser` or `shell` capability       |
+| `file-write`      | Successful write + read-back to a temp file           | HALT; without `file-write` no findings persist     |
+| `subagent-spawn`  | Host-specific spawn primitive returns a child handle  | Sequential execution with `executionMode: 'sequential-fallback'` |
 
 ## Schema reference
 
-The five values are enumerated in every adapter capability declaration. Do not introduce new capability values without a PRD revision.
+The six values are enumerated in `vocabulary.json` at `$defs/capability` and referenced from every adapter capability declaration via `$ref`. Do not introduce new capability values without a PRD revision.

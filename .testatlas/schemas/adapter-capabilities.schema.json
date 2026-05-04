@@ -27,8 +27,9 @@
         "capabilities": {
           "type": "array",
           "uniqueItems": true,
+          "description": "Adapter capabilities — references the locked vocabulary at vocabulary.json#/$defs/capability (resolved via the absolute $id below). Plan 09-02 extended this to 6 entries (added subagent-spawn).",
           "items": {
-            "enum": ["browser", "shell", "web-fetch", "MCP", "file-write"]
+            "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/capability"
           }
         },
         "renderStrategy": {

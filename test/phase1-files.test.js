@@ -121,10 +121,13 @@ test('BOOT-04: confidence.md enumerates all three confidence values', async () =
 });
 
 // ---- BOOT-04 + BOOT-05 forward-compat: capabilities vocab completeness ----
-test('BOOT-04: capabilities.md enumerates all five capabilities + tool_unavailable token', async () => {
+test('BOOT-04: capabilities.md enumerates all six capabilities + tool_unavailable token', async () => {
   const content = await read('.testatlas/reference/capabilities.md');
-  for (const cap of ['browser', 'shell', 'web-fetch', 'MCP', 'file-write']) {
-    // case-sensitive for MCP/web-fetch/file-write to enforce the canonical spelling
+  // Plan 09-02 (locked) extends the capability vocabulary to 6 entries by
+  // adding "subagent-spawn". The reference doc need only mention each entry;
+  // forward-compat assertion is `includes`, not strict-equality.
+  for (const cap of ['browser', 'shell', 'web-fetch', 'MCP', 'file-write', 'subagent-spawn']) {
+    // case-sensitive for MCP/web-fetch/file-write/subagent-spawn to enforce the canonical spelling
     assert.ok(
       content.includes(cap),
       `capabilities.md must include the canonical capability name "${cap}"`,

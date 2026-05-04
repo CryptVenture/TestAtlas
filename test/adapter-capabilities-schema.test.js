@@ -46,7 +46,17 @@ const EXPECTED_ADAPTERS = new Set([
   'zed',
   'amazon-q',
 ]);
-const CAPABILITY_VOCAB = new Set(['browser', 'shell', 'web-fetch', 'MCP', 'file-write']);
+// Plan 09-02 (locked) extends the capability vocabulary from 5 to 6 entries
+// by adding "subagent-spawn". The Set is the canonical vocab guard for the
+// schema-validity loop below.
+const CAPABILITY_VOCAB = new Set([
+  'browser',
+  'shell',
+  'web-fetch',
+  'MCP',
+  'file-write',
+  'subagent-spawn',
+]);
 const RENDER_STRATEGIES = new Set(['per-command-file', 'concatenated-conventions', 'mcp-server']);
 
 test('Test 1: AJV compiles adapter-capabilities.schema.json (Draft 2020-12)', async () => {
@@ -58,7 +68,9 @@ test('Test 1: AJV compiles adapter-capabilities.schema.json (Draft 2020-12)', as
     '$schema must be Draft 2020-12',
   );
   // Compile via a fresh AJV (avoid singleton collisions).
-  const ajv = getAjv();
+  // Plan 09-02: schema $refs vocabulary.json#/$defs/capability — must load
+  // vocabulary first (loadAllSchemas registers it) for the $ref to resolve.
+  const ajv = await loadAllSchemas({ cwd: repoRoot });
   // Ensure not already loaded (use addSchema; if already there, getSchema will hit it).
   if (!ajv.getSchema(schema.$id)) {
     ajv.addSchema(schema);
@@ -117,9 +129,9 @@ test('Test 5: adapter capability sets per spec', async () => {
   const data = JSON.parse(await readFile(CAPS_PATH, 'utf8'));
   const byName = Object.fromEntries(data.adapters.map((a) => [a.name, a]));
 
-  // claude-code: all 5 capabilities (canonical)
+  // claude-code: all 6 capabilities (canonical) — Plan 09-02 added subagent-spawn
   const cc = byName['claude-code'].capabilities;
-  assert.equal(cc.length, 5, 'claude-code declares all 5 capabilities');
+  assert.equal(cc.length, 6, 'claude-code declares all 6 capabilities (incl. subagent-spawn)');
   for (const cap of CAPABILITY_VOCAB) assert.ok(cc.includes(cap), `claude-code missing ${cap}`);
 
   // aider: [shell, file-write] only
