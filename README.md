@@ -6,8 +6,6 @@
   <strong>Turn any AI coding agent into a persistent product-quality intelligence layer.</strong>
 </p>
 
-# TestAtlas
-
 <p align="center">
   <a href="https://www.npmjs.com/package/@webventures/testatlas"><img src="https://img.shields.io/npm/v/@webventures/testatlas.svg" alt="npm version" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
