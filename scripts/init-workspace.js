@@ -26,6 +26,7 @@ import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers } from './lib/markers.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
@@ -151,7 +152,13 @@ export async function initWorkspace(
   const rawWsDir = workspaceDir ?? config.workspaceDir;
   // Normalize leading "./" for the manifest's stored value (path.resolve
   // handles cwd-relativity for the on-disk location regardless).
-  const manifestWsDir = stripLeadingDot(rawWsDir);
+  // For the manifest's stored `workspaceDir` (and as a key prefix in
+  // `generatedSections`), strip leading "./" and — when an absolute path was
+  // passed via --workspace — collapse to just the basename so the manifest
+  // stays reproducible across machines + tempdirs.
+  const manifestWsDir = path.isAbsolute(rawWsDir)
+    ? path.basename(rawWsDir)
+    : stripLeadingDot(rawWsDir);
   const wsDir = path.resolve(cwd, rawWsDir);
   const manifestPath = path.join(wsDir, MANIFEST_FILE);
 
@@ -177,7 +184,7 @@ export async function initWorkspace(
   }
 
   const templatesDir = path.join(cwd, '.testatlas', 'templates', 'canonical');
-  const nowIso = new Date().toISOString();
+  const nowIso = now();
   const projectName = path.basename(cwd);
   const created = [];
   /** @type {Record<string, Record<string, string>>} */
@@ -202,7 +209,14 @@ export async function initWorkspace(
       // Capture section hashes for the manifest.
       const { sections, errors } = parseMarkers(rendered);
       if (errors.length === 0 && sections.size > 0) {
-        const fileKey = path.posix.join(manifestWsDir, file);
+        // Key the generatedSections map by filename only when manifestWsDir is
+        // absolute (e.g. when invoked with `--workspace <absolute>`). This
+        // keeps the manifest reproducible across machines + tempdirs while
+        // preserving the historical relative-path key when manifestWsDir is
+        // relative (Phase 2 fixtures).
+        const fileKey = path.isAbsolute(manifestWsDir)
+          ? file
+          : path.posix.join(manifestWsDir, file);
         generatedSections[fileKey] = {};
         for (const [slug, section] of sections) {
           generatedSections[fileKey][slug] = section.hash;

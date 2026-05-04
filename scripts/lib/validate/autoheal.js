@@ -42,6 +42,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from '../atomic-write.js';
 import { hashContent } from '../content-hash.js';
+import { now } from '../determinism.js';
 import { parseMarkers, renderSection } from '../markers.js';
 
 /**
@@ -115,7 +116,7 @@ async function applyHeal01(ctx, _finding, { apply, dryRun }) {
     const updated = {
       ...manifest,
       counts: { ...(manifest?.counts ?? {}), ...actual },
-      lastUpdatedAt: new Date().toISOString(),
+      lastUpdatedAt: now(),
     };
     const text = `${JSON.stringify(updated, null, 2)}\n`;
     await atomicWrite(path.join(wsDir, '11_workspace_manifest.json'), text);
@@ -185,7 +186,7 @@ async function applyHeal04(ctx, finding, { apply, dryRun }) {
     if (!updated.generatedSections) updated.generatedSections = {};
     if (!updated.generatedSections[filename]) updated.generatedSections[filename] = {};
     updated.generatedSections[filename][sectionSlug] = newHash;
-    updated.lastUpdatedAt = new Date().toISOString();
+    updated.lastUpdatedAt = now();
     const text = `${JSON.stringify(updated, null, 2)}\n`;
     await atomicWrite(path.join(wsDir, '11_workspace_manifest.json'), text);
     ctx.manifest = updated;
@@ -356,7 +357,7 @@ async function applyHeal02(ctx, _finding, { apply, dryRun }) {
     const m = JSON.parse(JSON.stringify(ctx.manifest ?? {}));
     if (!m.generatedSections) m.generatedSections = {};
     m.generatedSections[filename] = { ...(m.generatedSections[filename] ?? {}), ...newHashes };
-    m.lastUpdatedAt = new Date().toISOString();
+    m.lastUpdatedAt = now();
     await atomicWrite(
       path.join(wsDir, '11_workspace_manifest.json'),
       `${JSON.stringify(m, null, 2)}\n`,
@@ -566,7 +567,7 @@ async function applyHeal03(ctx, finding, { apply, dryRun }) {
     if (!m.generatedSections) m.generatedSections = {};
     if (!m.generatedSections[relPath]) m.generatedSections[relPath] = {};
     m.generatedSections[relPath][entriesHashKey] = newHash;
-    m.lastUpdatedAt = new Date().toISOString();
+    m.lastUpdatedAt = now();
     await atomicWrite(
       path.join(wsDir, '11_workspace_manifest.json'),
       `${JSON.stringify(m, null, 2)}\n`,

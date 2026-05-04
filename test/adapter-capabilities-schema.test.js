@@ -116,17 +116,18 @@ test('Test 5: adapter capability sets per spec', async () => {
   assert.deepEqual(mcp, ['file-write', 'shell', 'web-fetch']);
 });
 
-test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07-01)', async () => {
+test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07-01, 19th from Plan 08-01)', async () => {
   const entries = await readdir(SCHEMAS_DIR, { withFileTypes: true });
   const schemaFiles = entries
     .filter((e) => e.isFile() && e.name.endsWith('.schema.json'))
     .map((e) => e.name);
-  // Plan 06-01 added the 17th schema (adapter-capabilities). Plan 07-01 adds the
-  // 18th (install-manifest). Future schema additions bump this count.
+  // Plan 06-01 added the 17th schema (adapter-capabilities). Plan 07-01 added the
+  // 18th (install-manifest). Plan 08-01 adds the 19th (example-script).
+  // Future schema additions bump this count.
   assert.equal(
     schemaFiles.length,
-    18,
-    `expected 18 schemas after Plan 07-01; got ${schemaFiles.length}`,
+    19,
+    `expected 19 schemas after Plan 08-01; got ${schemaFiles.length}`,
   );
   // And loadAllSchemas registers the adapter-capabilities schema without error.
   const ajv = await loadAllSchemas({ cwd: repoRoot });
