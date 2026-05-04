@@ -7,10 +7,10 @@
 // Behavioral check: a fresh visitor reading these files at the repo root
 // can answer the success-criteria questions for the phase.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -75,11 +75,7 @@ test('SECURITY.md provides a private reporting channel, SLA, and links to threat
     /\backnowledge\b/i.test(security);
   assert.ok(hasSLA, 'SECURITY.md must include response/SLA timing language');
   // Link to threat model.
-  assert.match(
-    security,
-    /docs\/THREAT_MODEL\.md/,
-    'SECURITY.md must link to docs/THREAT_MODEL.md',
-  );
+  assert.match(security, /docs\/THREAT_MODEL\.md/, 'SECURITY.md must link to docs/THREAT_MODEL.md');
 });
 
 // ---- GOV-04: ADAPTER-OWNERS ----

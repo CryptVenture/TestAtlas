@@ -20,19 +20,15 @@ const root = argv[2] || cwd();
 const files = await listCommandFiles({ cwd: root });
 
 if (files.length === 0) {
-  console.log(
-    `OK: no command files under .testatlas/commands/ (Phase 3 still in progress).`,
-  );
+  console.log(`OK: no command files under .testatlas/commands/ (Phase 3 still in progress).`);
   exit(0);
 }
 
 let failed = 0;
 for (const file of files) {
-  const result = spawnSync(
-    'node',
-    [TOKEN_BUDGET_SCRIPT, file, String(MAX_WORDS)],
-    { stdio: 'inherit' },
-  );
+  const result = spawnSync('node', [TOKEN_BUDGET_SCRIPT, file, String(MAX_WORDS)], {
+    stdio: 'inherit',
+  });
   if (result.status !== 0) failed++;
 }
 

@@ -58,9 +58,7 @@ const EXPECTED_ROSTER = [
 
 test('CMD-01: dogfood loop ships exactly 30 command files', async () => {
   const files = await listCommandFiles();
-  const basenames = files
-    .map((f) => path.basename(f))
-    .filter((name) => name !== 'README.md');
+  const basenames = files.map((f) => path.basename(f)).filter((name) => name !== 'README.md');
   assert.equal(
     basenames.length,
     EXPECTED_ROSTER.length,
@@ -87,9 +85,6 @@ test('CMD-01: dogfood loop file roster matches CONTEXT.md exactly', async () => 
 test('CMD-01: every expected command file is readable', async () => {
   for (const name of EXPECTED_ROSTER) {
     const full = path.join('.testatlas', 'commands', name);
-    await assert.doesNotReject(
-      access(full),
-      `${full} must be readable`,
-    );
+    await assert.doesNotReject(access(full), `${full} must be readable`);
   }
 });

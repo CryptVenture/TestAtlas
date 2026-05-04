@@ -8,15 +8,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-
-import {
-  extractFrontmatter,
-  parseFrontmatter,
-} from '../../scripts/lib/parse-frontmatter.js';
-import {
-  LIFECYCLE_FILES,
-  listCommandFiles,
-} from '../../scripts/lib/list-command-files.js';
+import { LIFECYCLE_FILES, listCommandFiles } from '../../scripts/lib/list-command-files.js';
+import { extractFrontmatter, parseFrontmatter } from '../../scripts/lib/parse-frontmatter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');

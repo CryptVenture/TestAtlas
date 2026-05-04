@@ -8,10 +8,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
-import {
-  LIFECYCLE_FILES,
-  listCommandFiles,
-} from '../../scripts/lib/list-command-files.js';
+import { LIFECYCLE_FILES, listCommandFiles } from '../../scripts/lib/list-command-files.js';
 
 test('CMD-05: every command mentions all 5 lifecycle files verbatim', async () => {
   const files = await listCommandFiles();

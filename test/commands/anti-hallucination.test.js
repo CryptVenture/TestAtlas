@@ -15,7 +15,8 @@ import { test } from 'node:test';
 
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 
-const FINDING_PRODUCERS = /^(consolidate|explore-accessibility|explore-api|explore-cli|explore-codebase|explore-data|explore-docs|explore-integrations|explore-performance|explore-runtime|explore-security|explore-ui|log-issue|map-domains|report|retest|test-accessibility|test-domain|test-flow|test-performance|test-regression|triage)\.md$/;
+const FINDING_PRODUCERS =
+  /^(consolidate|explore-accessibility|explore-api|explore-cli|explore-codebase|explore-data|explore-docs|explore-integrations|explore-performance|explore-runtime|explore-security|explore-ui|log-issue|map-domains|report|retest|test-accessibility|test-domain|test-flow|test-performance|test-regression|triage)\.md$/;
 const ANTI_HALLUC = 'No evidence, no finding.';
 
 test('PITFALL-15: finding-producing commands restate the no-evidence rule', async () => {

@@ -20,10 +20,10 @@
  *  - .testatlas/templates/_gitignore exists with required ignore lines.
  */
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, readdir, stat } from 'node:fs/promises';
-import { join, dirname } from 'node:path';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -115,13 +115,7 @@ const REQUIRED_SECTIONS = {
     'Owner',
     'Status',
   ],
-  '05_assumptions.md': [
-    'Assumption',
-    'Source',
-    'Confidence',
-    'Validation Path',
-    'Status',
-  ],
+  '05_assumptions.md': ['Assumption', 'Source', 'Confidence', 'Validation Path', 'Status'],
   '06_risks_and_gaps.md': [
     'Untested Domains',
     'Missing Data or Accounts',
@@ -233,10 +227,7 @@ test('TPL-01: all 14 canonical templates present', async () => {
 test('TPL-01: every canonical template is non-empty (>100 bytes)', async () => {
   for (const f of CANONICAL_FILES) {
     const s = await stat(join(CANONICAL_DIR, f));
-    assert.ok(
-      s.size > 100,
-      `Canonical template too small: ${f} (${s.size} bytes)`,
-    );
+    assert.ok(s.size > 100, `Canonical template too small: ${f} (${s.size} bytes)`);
   }
 });
 
@@ -254,10 +245,7 @@ test('WORK-02: each canonical .md template contains every PRD §14 required sect
 });
 
 test('WORK-02: 11_workspace_manifest.json template parses as JSON and has required keys', async () => {
-  const content = await readFile(
-    join(CANONICAL_DIR, '11_workspace_manifest.json'),
-    'utf8',
-  );
+  const content = await readFile(join(CANONICAL_DIR, '11_workspace_manifest.json'), 'utf8');
   const parsed = JSON.parse(content);
   const requiredKeys = [
     '$schema',
@@ -273,26 +261,17 @@ test('WORK-02: 11_workspace_manifest.json template parses as JSON and has requir
     'generatedSections',
   ];
   for (const k of requiredKeys) {
-    assert.ok(
-      Object.hasOwn(parsed, k),
-      `workspace-manifest template missing key: ${k}`,
-    );
+    assert.ok(Object.hasOwn(parsed, k), `workspace-manifest template missing key: ${k}`);
   }
   assert.equal(parsed.suite, 'TestAtlas');
   assert.equal(typeof parsed.counts, 'object');
   for (const c of ['domains', 'flows', 'issues', 'evidenceRecords', 'testRuns']) {
-    assert.ok(
-      Object.hasOwn(parsed.counts, c),
-      `workspace-manifest counts missing: ${c}`,
-    );
+    assert.ok(Object.hasOwn(parsed.counts, c), `workspace-manifest counts missing: ${c}`);
   }
 });
 
 test('WORK-02: 12_app_map.json template parses and has empty arrays for required app-map fields', async () => {
-  const content = await readFile(
-    join(CANONICAL_DIR, '12_app_map.json'),
-    'utf8',
-  );
+  const content = await readFile(join(CANONICAL_DIR, '12_app_map.json'), 'utf8');
   const parsed = JSON.parse(content);
   const requiredArrays = [
     'domains',
@@ -308,15 +287,8 @@ test('WORK-02: 12_app_map.json template parses and has empty arrays for required
     'relationships',
   ];
   for (const k of requiredArrays) {
-    assert.ok(
-      Array.isArray(parsed[k]),
-      `app-map template field "${k}" is not an array`,
-    );
-    assert.equal(
-      parsed[k].length,
-      0,
-      `app-map template field "${k}" should be empty initially`,
-    );
+    assert.ok(Array.isArray(parsed[k]), `app-map template field "${k}" is not an array`);
+    assert.equal(parsed[k].length, 0, `app-map template field "${k}" should be empty initially`);
   }
 });
 
@@ -363,10 +335,7 @@ test('WORK-02: marker-bearing templates have well-formed START/END pairs', async
 });
 
 test('WORK-02: 10_command_log.md ships with all 9 required column headers (parity with command-result.schema.json)', async () => {
-  const content = await readFile(
-    join(CANONICAL_DIR, '10_command_log.md'),
-    'utf8',
-  );
+  const content = await readFile(join(CANONICAL_DIR, '10_command_log.md'), 'utf8');
   // Find the first markdown table header row (line starting with `|` and
   // containing more than one pipe-delimited cell).
   const lines = content.split(/\r?\n/);
@@ -398,19 +367,13 @@ test('WORK-02: 10_command_log.md ships with all 9 required column headers (parit
 });
 
 test('TPL-01: _gitignore template exists with required ignore lines', async () => {
-  const content = await readFile(
-    join(TEMPLATES_DIR, '_gitignore'),
-    'utf8',
-  );
+  const content = await readFile(join(TEMPLATES_DIR, '_gitignore'), 'utf8');
   for (const required of [
     'evidence/screenshots/',
     'evidence/videos/',
     'evidence/traces/',
     'evidence/logs/',
   ]) {
-    assert.ok(
-      content.includes(required),
-      `_gitignore missing ignore line: ${required}`,
-    );
+    assert.ok(content.includes(required), `_gitignore missing ignore line: ${required}`);
   }
 });

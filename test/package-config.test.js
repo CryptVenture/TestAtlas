@@ -2,10 +2,10 @@
 // Covers gaps: gov-07-package-engines, gov-07-package-scripts,
 // gov-07-package-devdeps, gov-07-biome-config, gov-07-changeset-config.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -73,11 +73,7 @@ test('package.json devDependencies include @biomejs/biome, @changesets/cli, simp
 test('biome.json is valid JSON and references the Biome schema', async () => {
   const biome = await readJson('biome.json');
   assert.ok(biome.$schema, 'biome.json must have a $schema field');
-  assert.match(
-    biome.$schema,
-    /biomejs/i,
-    'biome.json $schema must reference biome (biomejs.dev)',
-  );
+  assert.match(biome.$schema, /biomejs/i, 'biome.json $schema must reference biome (biomejs.dev)');
 });
 
 // ---- GOV-07: .changeset/config.json ----

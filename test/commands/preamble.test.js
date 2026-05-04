@@ -10,10 +10,7 @@ import { test } from 'node:test';
 
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 
-const PREAMBLE_OPENERS = [
-  'Before doing anything else:',
-  'If there is a conflict:',
-];
+const PREAMBLE_OPENERS = ['Before doing anything else:', 'If there is a conflict:'];
 
 test('CMD-02: every command embeds the §38 verbatim preamble openers', async () => {
   const files = await listCommandFiles();

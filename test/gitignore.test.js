@@ -1,10 +1,10 @@
 // Tests for Phase 0 .gitignore.
 // Covers gap: gov-07-gitignore.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -28,9 +28,5 @@ test('.gitignore ignores node_modules, _testatlas/, .testatlas.backup-*, and .pl
   );
 
   // .planning/ — OBD planning artifacts.
-  assert.match(
-    gitignore,
-    /(?:^|\n)\.planning\/?/m,
-    '.gitignore must ignore .planning/',
-  );
+  assert.match(gitignore, /(?:^|\n)\.planning\/?/m, '.gitignore must ignore .planning/');
 });

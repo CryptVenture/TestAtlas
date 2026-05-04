@@ -7,11 +7,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
-
+import { formatErrors } from '../../scripts/lib/ajv-instance.js';
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 import { parseFrontmatter } from '../../scripts/lib/parse-frontmatter.js';
 import { loadAllSchemas } from '../../scripts/lib/schema-loader.js';
-import { formatErrors } from '../../scripts/lib/ajv-instance.js';
 
 const SCHEMA_ID = 'https://testatlas.dev/schemas/v1/command-instruction.schema.json';
 
@@ -33,9 +32,7 @@ test('CMD-04: every command frontmatter validates against command-instruction sc
       continue;
     }
     if (!validate(fm)) {
-      failures.push(
-        `${path.basename(file)}: ${formatErrors(validate.errors).join('; ')}`,
-      );
+      failures.push(`${path.basename(file)}: ${formatErrors(validate.errors).join('; ')}`);
     }
   }
   assert.deepEqual(failures, []);
