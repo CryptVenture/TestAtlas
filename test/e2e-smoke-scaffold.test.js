@@ -119,24 +119,29 @@ test('e2e-smoke.yml install step is `if: false`-skipped iff Phase 7 has not ship
   }
 });
 
-test('e2e-smoke.yml dogfood-loop step is `if: false`-skipped iff Phase 8 has not shipped', async () => {
+test('e2e-smoke.yml dogfood-loop step is `if: false`-skipped iff Phase 8 plan 08-04 has not shipped the CI matrix', async () => {
   const yamlText = await readFile(e2ePath, 'utf8');
-  const examplesShipped = await exists(examplesNodeApiPath);
+  // Plan 08-04 replaces the legacy "Run minimum dogfood loop" step with the
+  // regenerate+validate matrix. Until then the step stays `if: false`-skipped
+  // even though examples now exist (plan 08-01 ships them; CI wiring is 08-04).
+  // Detect plan 08-04 having shipped by looking for the regenerate-example
+  // command in the workflow.
+  const ciMatrixShipped = /scripts\/regenerate-example\.js/.test(yamlText);
   const block = sliceStepBody(yamlText, 'Run minimum dogfood loop');
   assert.ok(block.length > 0, 'dogfood-loop step must exist');
   assert.match(block, /run:/, 'dogfood-loop step must define a `run:` directive');
 
-  if (!examplesShipped) {
+  if (!ciMatrixShipped) {
     assert.match(
       block,
       /if:\s*false/,
-      'Phase 5: dogfood-loop step must be `if: false`-skipped (examples/node-api/ does not yet exist)',
+      'dogfood-loop step must remain `if: false`-skipped until plan 08-04 wires the regenerate+validate matrix',
     );
   } else {
     assert.doesNotMatch(
       block,
       /^\s*if:\s*false/m,
-      "Phase 8: examples/node-api/ exists, so dogfood-loop step's `if: false` MUST be removed",
+      "Plan 08-04 shipped the CI matrix; dogfood-loop step's `if: false` MUST be removed",
     );
   }
 });

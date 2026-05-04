@@ -63,7 +63,8 @@
     "test": "node --test",
     "shellcheck": "shellcheck install.sh",
     "changeset": "changeset",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks",
+    "regenerate-example": "node scripts/regenerate-example.js"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
