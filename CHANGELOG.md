@@ -44,13 +44,13 @@ First production GA release. Closes Phase 8 (examples + auto-doc generators + GA
 - **Distribution** (Phase 7): 3 install paths (`npx`, `install.sh`, `git clone`); atomic update with backup + rollback; migration framework (forward-only, idempotent, N→N+1 with long-jump composition); workspace lockfile (PID + age dual stale detection); `--verify-signature` opt-in cosign verification; cross-platform CI matrix (Linux/macOS/Windows × Node 20/22/24).
 - **Examples** (Phase 8): 5 example workspaces — `nextjs-saas` (EX-01), `node-api` (EX-02), `cli-tool` Aider-only (EX-03 + EX-07), `monorepo` (EX-04), `mobile-web-hybrid` (EX-05). `scripts/regenerate-example.js` deterministic-replay engine. `example-script.schema.json` (19th schema). CI matrix runs `regenerate-example --check` + `validate-workspace` per example on every PR (closes EX-06 + VAL-02). `--all-workspaces` flag for monorepo orchestration.
 - **Auto-generated docs** (Phase 8): `docs/COMMANDS.md` (auto-generated from `.testatlas/commands/*.md`, 30 sections, drift-detected in CI); `docs/SCHEMAS.md` (auto-generated from `.testatlas/schemas/*.schema.json`, 19 sections); `examples/README.md` gallery; `docs/MONOREPO.md` documenting the hybrid pattern; final GA README structure.
-- **Pre-flight checks** (Phase 8): `scripts/check-org-placeholder.js` greps for the literal `<org>` placeholder and exits non-zero if any are found in active code (excludes `node_modules`, `.git`, `.planning`, `dist`, `build`, `coverage`, `.next`, `.expo`, `.testatlas.bak.*`).
+- **Pre-flight checks** (Phase 8): `scripts/check-org-placeholder.js` greps for the literal angle-bracketed `org` placeholder string and exits non-zero if any are found in active code (excludes `node_modules`, `.git`, `.planning`, `dist`, `build`, `coverage`, `.next`, `.expo`, `.testatlas.bak.*`).
 
 ### Changed
 
 - First production release. The previous `0.1.0` baseline (Phase 7 closure) is collapsed into this `1.0.0` entry — every artifact landed by Phases 1–7 is part of the v1.0.0 surface.
 - `package.json#version`: `0.1.0` → `1.0.0`. The repo also collapsed the prior `0.1.0-pre` and `0.1.0` markers; `1.0.0` is the first version that ships to npm.
-- `<org>` GitHub-org placeholder finalized to `testatlas-dev` across `package.json`, `install.sh`, `install.js`, `scripts/lib/constants.js`, `scripts/lib/update-check.js`, README, and the docs gallery.
+- The angle-bracketed GitHub-org placeholder (the pre-GA stand-in) finalized to `testatlas-dev` across `package.json`, `install.sh`, `install.js`, `scripts/lib/constants.js`, `scripts/lib/update-check.js`, README, and the docs gallery.
 
 ### Notes
 
