@@ -37,6 +37,7 @@ import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
+import { renderAider } from './render-aider.js';
 import { renderClaudeCode } from './render-claude-code.js';
 import { renderCursor } from './render-cursor.js';
 import { renderGeneric } from './render-generic.js';
@@ -53,6 +54,14 @@ const RENDERERS = Object.freeze({
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,
+});
+
+// Multi-source dispatch (concatenated-conventions, mcp-server). Each entry
+// classifies the SHARED expected path ONCE per adapter and projects the
+// outcome onto all 30 command obligations. Plan 06-04 ships aider + mcp.
+const MULTI_CLASSIFIERS = Object.freeze({
+  aider: classifyAider,
+  // mcp registered alongside the mcp renderer in Task 3.
 });
 
 const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
@@ -212,6 +221,51 @@ async function classifyOne(ctx) {
 }
 
 /**
+ * Classify the SHARED Aider obligation. Aider produces a single
+ * CONVENTIONS.md whose envelope wraps all 30 source-derived sections; the
+ * marker carries the AGGREGATE hash (= hashContent over the concatenation of
+ * all per-source hashes). Drift kinds are projected uniformly onto all 30
+ * command obligations:
+ *   - missing       : CONVENTIONS.md does not exist on disk
+ *   - no-marker     : CONVENTIONS.md exists but has no envelope
+ *   - hash-mismatch : marker.hash !== aggregate hash recomputed from sources
+ *   - hand-edit     : marker hash matches but a fresh render produces different bytes
+ *
+ * @param {{
+ *   repoRoot: string,
+ *   adapter: AdapterEntry,
+ *   sources: { sourcePath: string, sourceText: string, commandBaseName: string }[],
+ * }} args
+ * @returns {Promise<DriftEntry['kind'] | null>} the shared kind to project, or null when satisfied
+ */
+async function classifyAider({ repoRoot, adapter, sources }) {
+  const expectedPath = path.join(repoRoot, adapter.outputDir, 'CONVENTIONS.md');
+  let derivedText;
+  try {
+    derivedText = await readFile(expectedPath, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return 'missing';
+    throw err;
+  }
+
+  const marker = parseAdapterMarker(derivedText);
+  if (!marker || marker.source !== 'commands/_aggregate') return 'no-marker';
+
+  const perSource = sources.map((s) => hashContent(s.sourceText));
+  const aggregateHash = hashContent(perSource.join(''));
+  if (marker.hash !== aggregateHash) return 'hash-mismatch';
+
+  // Layer-2: re-render and byte-compare.
+  const fresh = renderAider({
+    sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
+    adapterCaps: adapter.capabilities,
+  });
+  if (fresh.conventions !== derivedText) return 'hand-edit';
+
+  return null;
+}
+
+/**
  * Enumerate the (command × adapter) parity matrix against the live tree at
  * `repoRoot` and report drift.
  *
@@ -238,6 +292,29 @@ export async function enumerate({ repoRoot = process.cwd() } = {}) {
   let expected = 0;
 
   for (const adapter of adapters) {
+    const multi = MULTI_CLASSIFIERS[adapter.name];
+    if (multi) {
+      // Multi-source: classify the shared obligation ONCE, then project the
+      // outcome onto all 30 command obligations. The expectedPath we surface
+      // for each drift entry is the single shared output file (CONVENTIONS.md
+      // for aider, manifest for mcp), so users see exactly one path even
+      // though we report one drift entry per command for invariant uniformity.
+      const sharedKind = await multi({ repoRoot, adapter, sources: sourceTexts });
+      const sharedExpected = path.join(repoRoot, adapter.outputDir, adapter.outputPattern);
+      for (const src of sourceTexts) {
+        expected += 1;
+        if (sharedKind) {
+          drift.push({
+            kind: sharedKind,
+            adapter: adapter.name,
+            command: src.commandBaseName,
+            expectedPath: sharedExpected,
+            sourcePath: src.sourcePath,
+          });
+        }
+      }
+      continue;
+    }
     for (const src of sourceTexts) {
       expected += 1;
       const entry = await classifyOne({

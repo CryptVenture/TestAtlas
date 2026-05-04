@@ -23,6 +23,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { renderAider } from './lib/adapters/render-aider.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
 import { renderCursor } from './lib/adapters/render-cursor.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
@@ -36,15 +37,26 @@ import { loadAllSchemas } from './lib/schema-loader.js';
 const ADAPTER_CAPS_PATH = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
 const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.json';
 
-// Renderer dispatch table. Plans 06-03 / 06-04 add entries here. If an
-// adapter has no entry, --adapter <name> fails fast with a clear message
-// and the all-adapters mode silently skips it.
+// Per-command-file renderer dispatch. Each entry takes
+// `{ sourceText, sourcePath, adapterCaps }` and returns the rendered string
+// for ONE derived file. Aider (concatenated-conventions) and MCP (mcp-server
+// strategy) bypass this table and use the multi-source dispatch below.
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
   cursor: renderCursor,
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,
+});
+
+// Multi-source renderer dispatch. Each entry takes
+// `{ sources, adapterCaps }` (where `sources` is the full ordered list of
+// `{ sourceText, sourcePath }` pairs) and returns an array of derived
+// `{ outPath, content }` outputs to write under the workspace root. Used by
+// the concatenated-conventions and mcp-server strategies which produce a
+// fixed set of output files independent of the per-source iteration.
+const MULTI_RENDERERS = Object.freeze({
+  aider: aiderMultiRenderer,
 });
 
 /**
@@ -101,6 +113,76 @@ function computeOutputPath(workspace, adapter, commandBaseName) {
   // per-command write loop and are handled by their own renderer).
   const rel = pattern.replace('{command}', commandBaseName);
   return path.join(workspace, adapter.outputDir, rel);
+}
+
+/**
+ * Aider multi-source renderer adapter. Returns the two outputs (CONVENTIONS.md
+ * + .aider.conf.yml) for the workspace.
+ *
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps: string[],
+ *   workspace: string,
+ *   adapter: AdapterEntry,
+ * }} args
+ * @returns {Array<{ outPath: string, content: string }>}
+ */
+function aiderMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  const { conventions, conf } = renderAider({ sources, adapterCaps });
+  return [
+    { outPath: path.join(workspace, adapter.outputDir, 'CONVENTIONS.md'), content: conventions },
+    { outPath: path.join(workspace, adapter.outputDir, '.aider.conf.yml'), content: conf },
+  ];
+}
+
+/**
+ * Execute a multi-source adapter (aider, mcp). The renderer is given the full
+ * list of sources at once and returns a fixed set of output files; the runner
+ * handles drift detection + atomic writes in the same shape as runOneAdapter.
+ *
+ * @param {{
+ *   adapter: AdapterEntry,
+ *   workspace: string,
+ *   check: boolean,
+ *   multiRender: (args: {
+ *     sources: { sourceText: string, sourcePath: string }[],
+ *     adapterCaps: string[],
+ *     workspace: string,
+ *     adapter: AdapterEntry,
+ *   }) => Array<{ outPath: string, content: string }>,
+ * }} opts
+ * @returns {Promise<{ written: string[], unchanged: string[], drift: string[] }>}
+ */
+async function runMultiSourceAdapter({ adapter, workspace, check, multiRender }) {
+  const sourcePaths = await listCommandFiles({ cwd: workspace });
+  const sources = await Promise.all(
+    sourcePaths.map(async (sp) => ({ sourcePath: sp, sourceText: await readFile(sp, 'utf8') })),
+  );
+  const outputs = multiRender({ sources, adapterCaps: adapter.capabilities, workspace, adapter });
+
+  const written = [];
+  const unchanged = [];
+  const drift = [];
+  for (const { outPath, content } of outputs) {
+    let existing = null;
+    try {
+      existing = await readFile(outPath, 'utf8');
+    } catch (err) {
+      if (err.code !== 'ENOENT') throw err;
+    }
+    if (existing === content) {
+      unchanged.push(outPath);
+      continue;
+    }
+    if (check) {
+      drift.push(outPath);
+      continue;
+    }
+    await mkdir(path.dirname(outPath), { recursive: true });
+    await atomicWrite(outPath, content);
+    written.push(outPath);
+  }
+  return { written, unchanged, drift };
 }
 
 /**
@@ -177,28 +259,37 @@ export async function assembleAdapter(opts = {}) {
         `assemble-adapter: unknown adapter "${opts.adapter}". Known adapters: ${adapters.map((a) => a.name).join(', ')}`,
       );
     }
-    if (!RENDERERS[found.name]) {
-      const known = Object.keys(RENDERERS).join(', ');
+    if (!RENDERERS[found.name] && !MULTI_RENDERERS[found.name]) {
+      const known = [...Object.keys(RENDERERS), ...Object.keys(MULTI_RENDERERS)].join(', ');
       throw new Error(
         `assemble-adapter: renderer not yet implemented for "${found.name}"; expected one of: ${known}`,
       );
     }
     targets = [found];
   } else {
-    targets = adapters.filter((a) => RENDERERS[a.name]);
+    targets = adapters.filter((a) => RENDERERS[a.name] || MULTI_RENDERERS[a.name]);
   }
 
   const results = [];
   let exitCode = 0;
 
   for (const adapter of targets) {
-    const render = RENDERERS[adapter.name];
-    const r = await runOneAdapter({
-      adapter,
-      workspace,
-      check: !!opts.check,
-      render,
-    });
+    let r;
+    if (MULTI_RENDERERS[adapter.name]) {
+      r = await runMultiSourceAdapter({
+        adapter,
+        workspace,
+        check: !!opts.check,
+        multiRender: MULTI_RENDERERS[adapter.name],
+      });
+    } else {
+      r = await runOneAdapter({
+        adapter,
+        workspace,
+        check: !!opts.check,
+        render: RENDERERS[adapter.name],
+      });
+    }
     results.push({ name: adapter.name, ...r });
     if (opts.check && r.drift.length > 0) exitCode = 1;
   }

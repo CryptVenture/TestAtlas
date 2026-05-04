@@ -1,0 +1,4 @@
+# TestAtlas Aider integration — merge this into your .aider.conf.yml.
+read:
+  - .testatlas/bootstrap.md
+  - CONVENTIONS.md
