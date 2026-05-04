@@ -33,6 +33,7 @@ import { colorEnabled, isUnicode, palette } from './colors.js';
 //
 // We're not chasing perfection — just professional polish.
 const BANNER_UNICODE_LINES = [
+  '                                                                           ',
   ' ████████ ███████ ███████ ████████  █████  ████████ ██       █████  ███████',
   '    ██    ██      ██         ██    ██   ██    ██    ██      ██   ██ ██     ',
   '    ██    █████   ███████    ██    ███████    ██    ██      ███████ ███████',
@@ -42,6 +43,7 @@ const BANNER_UNICODE_LINES = [
 
 // ASCII fallback — same 5-row block letters drawn with `#`.
 const BANNER_ASCII_LINES = [
+  '                                                                           ',
   ' ######## ####### ####### ########  #####  ######## ##       #####  #######',
   '    ##    ##      ##         ##    ##   ##    ##    ##      ##   ## ##     ',
   '    ##    #####   #######    ##    #######    ##    ##      ####### #######',
