@@ -1,0 +1,117 @@
+{
+  "$schema": "../../../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "monorepo-web",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-web-routing",
+      "command": "create-domain",
+      "args": {
+        "name": "web-routing",
+        "purpose": "Top-level routes and navigation in the Vite + React web app"
+      }
+    },
+    {
+      "id": "domain-web-components",
+      "command": "create-domain",
+      "args": {
+        "name": "web-components",
+        "purpose": "React components rendered by the web app (forms, lists, error UI)"
+      }
+    },
+    {
+      "id": "domain-web-state",
+      "command": "create-domain",
+      "args": {
+        "name": "web-state",
+        "purpose": "Local component state for items list and form input"
+      }
+    },
+    {
+      "id": "flow-landing-page-load",
+      "command": "create-flow",
+      "args": {
+        "name": "Landing Page Load",
+        "domain": "domain-web-routing",
+        "persona": "first-visit",
+        "goal": "Visit / and see the Repo Web heading and an empty items list"
+      }
+    },
+    {
+      "id": "flow-submit-item-form",
+      "command": "create-flow",
+      "args": {
+        "name": "Submit Item Form",
+        "domain": "domain-web-components",
+        "persona": "item-author",
+        "goal": "Type a non-empty title, click Add Item, see the item appended to the list"
+      }
+    },
+    {
+      "id": "flow-validation-error-display",
+      "command": "create-flow",
+      "args": {
+        "name": "Validation Error Display",
+        "domain": "domain-web-components",
+        "persona": "item-author",
+        "goal": "Submit an empty title; see the inline error message rendered"
+      }
+    },
+    {
+      "id": "flow-network-error-handling",
+      "command": "create-flow",
+      "args": {
+        "name": "Network Error Handling",
+        "domain": "domain-web-state",
+        "persona": "item-author",
+        "goal": "Submit while offline; expect a graceful error rather than an unhandled rejection"
+      }
+    },
+    {
+      "id": "evidence-form-no-loading-state",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "screenshot",
+        "description": "Screen recording showing the submit button stays clickable during async work"
+      }
+    },
+    {
+      "id": "evidence-toast-not-aria-live",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "DOM snapshot of the error toast missing role=status / aria-live attributes"
+      }
+    },
+    {
+      "id": "issue-form-no-loading-state",
+      "command": "create-issue",
+      "args": {
+        "title": "Submit form lacks loading state",
+        "domain": "domain-web-components",
+        "severity": "low",
+        "confidence": "confirmed",
+        "type": "ux",
+        "summary": "The submit button is not disabled while a request is in flight; users can double-submit and create duplicates.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    {
+      "id": "issue-toast-not-aria-live",
+      "command": "create-issue",
+      "args": {
+        "title": "Error toast not announced by screen readers",
+        "domain": "domain-web-components",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "accessibility",
+        "summary": "The error toast is rendered without role=status or aria-live, so assistive tech misses validation failures.",
+        "evidence": "EVIDENCE-002"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}

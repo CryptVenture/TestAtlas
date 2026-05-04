@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-submit-form-lacks-loading-state",
+  "slug": "submit-form-lacks-loading-state",
+  "title": "Submit form lacks loading state",
+  "status": "new",
+  "severity": "low",
+  "confidence": "confirmed",
+  "type": "ux",
+  "domain": "domain-web-components",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "The submit button is not disabled while a request is in flight; users can double-submit and create duplicates.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

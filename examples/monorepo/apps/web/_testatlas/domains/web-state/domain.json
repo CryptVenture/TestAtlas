@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-web-state",
+  "name": "web-state",
+  "displayName": "web-state",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "Local component state for items list and form input",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

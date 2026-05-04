@@ -1,0 +1,117 @@
+{
+  "$schema": "../../../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "monorepo-api",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-items-api",
+      "command": "create-domain",
+      "args": {
+        "name": "items-api",
+        "purpose": "/api/items GET and POST handlers backed by the in-memory store"
+      }
+    },
+    {
+      "id": "domain-health",
+      "command": "create-domain",
+      "args": {
+        "name": "health",
+        "purpose": "/api/health liveness probe"
+      }
+    },
+    {
+      "id": "domain-validation",
+      "command": "create-domain",
+      "args": {
+        "name": "validation",
+        "purpose": "Request-body validation on POST /api/items via @repo/shared.validateItem"
+      }
+    },
+    {
+      "id": "flow-create-item",
+      "command": "create-flow",
+      "args": {
+        "name": "Create Item",
+        "domain": "domain-items-api",
+        "persona": "api-client",
+        "goal": "POST /api/items with a valid body, expect 201 and the normalized item back"
+      }
+    },
+    {
+      "id": "flow-list-items",
+      "command": "create-flow",
+      "args": {
+        "name": "List Items",
+        "domain": "domain-items-api",
+        "persona": "api-client",
+        "goal": "GET /api/items, expect 200 with an items array (possibly empty)"
+      }
+    },
+    {
+      "id": "flow-validate-item",
+      "command": "create-flow",
+      "args": {
+        "name": "Validate Item",
+        "domain": "domain-validation",
+        "persona": "api-client",
+        "goal": "POST /api/items with a missing title, expect 400 and an error object"
+      }
+    },
+    {
+      "id": "flow-health-check",
+      "command": "create-flow",
+      "args": {
+        "name": "Health Check",
+        "domain": "domain-health",
+        "persona": "ops-engineer",
+        "goal": "GET /api/health, expect 200 with status: ok"
+      }
+    },
+    {
+      "id": "evidence-post-no-rate-limit",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "ab -n 5000 -c 50 trace showing POST /api/items accepts every request"
+      }
+    },
+    {
+      "id": "evidence-list-no-pagination",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "GET /api/items response showing the entire array with no offset/limit support"
+      }
+    },
+    {
+      "id": "issue-post-no-rate-limit",
+      "command": "create-issue",
+      "args": {
+        "title": "POST api items has no rate limit",
+        "domain": "domain-items-api",
+        "severity": "high",
+        "confidence": "confirmed",
+        "type": "reliability",
+        "summary": "POST /api/items accepts unlimited requests; a single client can exhaust memory by appending to the in-memory items array.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    {
+      "id": "issue-list-no-pagination",
+      "command": "create-issue",
+      "args": {
+        "title": "GET api items lacks pagination",
+        "domain": "domain-items-api",
+        "severity": "enhancement",
+        "confidence": "confirmed",
+        "type": "performance",
+        "summary": "GET /api/items returns the entire array regardless of size; large stores will produce slow responses and bloated payloads.",
+        "evidence": "EVIDENCE-002"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}

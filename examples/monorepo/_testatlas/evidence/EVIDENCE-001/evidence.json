@@ -1,0 +1,13 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "id": "EVIDENCE-001",
+  "type": "log",
+  "path": "evidence/EVIDENCE-001/capture.bin",
+  "domain": null,
+  "flow": null,
+  "issue": null,
+  "capturedOn": "2026-05-03T00:00:00.000Z",
+  "environment": "local",
+  "description": "pnpm list output showing @repo/shared resolved twice with different file: refs after a partial workspace install",
+  "redacted": false
+}

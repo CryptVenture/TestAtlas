@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-shared-package-version-drift-risk-across-apps",
+  "slug": "shared-package-version-drift-risk-across-apps",
+  "title": "Shared package version drift risk across apps",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "reliability",
+  "domain": "domain-shared-package",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "If a developer pins @repo/shared in one app's package.json instead of using workspace:*, the apps can ship divergent validator behavior. apps/web/_testatlas and apps/api/_testatlas would each pass their own checks while the e2e flow silently breaks.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

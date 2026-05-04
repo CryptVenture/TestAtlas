@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-error-toast-not-announced-by-screen-readers",
+  "slug": "error-toast-not-announced-by-screen-readers",
+  "title": "Error toast not announced by screen readers",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "accessibility",
+  "domain": "domain-web-components",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "The error toast is rendered without role=status or aria-live, so assistive tech misses validation failures.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-002"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

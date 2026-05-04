@@ -1,0 +1,13 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "id": "EVIDENCE-001",
+  "type": "screenshot",
+  "path": "evidence/EVIDENCE-001/capture.bin",
+  "domain": null,
+  "flow": null,
+  "issue": null,
+  "capturedOn": "2026-05-03T00:00:00.000Z",
+  "environment": "local",
+  "description": "Screen recording showing the submit button stays clickable during async work",
+  "redacted": false
+}

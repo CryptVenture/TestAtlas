@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-get-api-items-lacks-pagination",
+  "slug": "get-api-items-lacks-pagination",
+  "title": "GET api items lacks pagination",
+  "status": "new",
+  "severity": "enhancement",
+  "confidence": "confirmed",
+  "type": "performance",
+  "domain": "domain-items-api",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "GET /api/items returns the entire array regardless of size; large stores will produce slow responses and bloated payloads.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-002"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

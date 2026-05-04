@@ -1,0 +1,76 @@
+{
+  "$schema": "../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "monorepo-root",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-shared-package",
+      "command": "create-domain",
+      "args": {
+        "name": "shared-package",
+        "purpose": "@repo/shared validators consumed by both apps; cross-cut domain owned by the monorepo root, not by any single app."
+      }
+    },
+    {
+      "id": "domain-monorepo-architecture",
+      "command": "create-domain",
+      "args": {
+        "name": "monorepo-architecture",
+        "purpose": "pnpm workspace topology, package boundaries, and dependency graph"
+      }
+    },
+    {
+      "id": "domain-e2e-flows",
+      "command": "create-domain",
+      "args": {
+        "name": "e2e-flows",
+        "purpose": "Cross-app flows that traverse web and api together (per Invariant 2)"
+      }
+    },
+    {
+      "id": "flow-e2e-create-item-end-to-end",
+      "command": "create-flow",
+      "args": {
+        "name": "E2E Create Item End To End",
+        "domain": "domain-e2e-flows",
+        "persona": "monorepo-tester",
+        "goal": "Submit an item via apps/web/_testatlas/flows/FLOW-web-routing-submit-item-form.md, watch it POST to apps/api/_testatlas/flows/FLOW-items-api-create-item.md, and confirm validateItem from @repo/shared accepts the same shape on both ends."
+      }
+    },
+    {
+      "id": "flow-package-version-sync-check",
+      "command": "create-flow",
+      "args": {
+        "name": "Package Version Sync Check",
+        "domain": "domain-monorepo-architecture",
+        "persona": "release-engineer",
+        "goal": "Verify @repo/shared workspace:* protocol resolves to a single version across apps/web and apps/api after pnpm install"
+      }
+    },
+    {
+      "id": "evidence-shared-version-mismatch",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "pnpm list output showing @repo/shared resolved twice with different file: refs after a partial workspace install"
+      }
+    },
+    {
+      "id": "issue-shared-package-version-drift-risk",
+      "command": "create-issue",
+      "args": {
+        "title": "Shared package version drift risk across apps",
+        "domain": "domain-shared-package",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "reliability",
+        "summary": "If a developer pins @repo/shared in one app's package.json instead of using workspace:*, the apps can ship divergent validator behavior. apps/web/_testatlas and apps/api/_testatlas would each pass their own checks while the e2e flow silently breaks.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}

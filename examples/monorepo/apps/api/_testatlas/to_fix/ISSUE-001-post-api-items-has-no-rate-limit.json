@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-post-api-items-has-no-rate-limit",
+  "slug": "post-api-items-has-no-rate-limit",
+  "title": "POST api items has no rate limit",
+  "status": "new",
+  "severity": "high",
+  "confidence": "confirmed",
+  "type": "reliability",
+  "domain": "domain-items-api",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "POST /api/items accepts unlimited requests; a single client can exhaust memory by appending to the in-memory items array.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}
