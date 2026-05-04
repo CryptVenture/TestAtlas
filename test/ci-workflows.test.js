@@ -126,31 +126,32 @@ test('CI workflow still runs schema-template-parity test (VAL-04 — wired Phase
   assert.match(parityTest, /templates/, 'parity test must reference the templates directory');
 });
 
-// ---- VAL-06 (Phase 5 scaffold): e2e-smoke.yml exists with skip contract ----
-test('e2e-smoke.yml exists with documented Phase 7 + Phase 8 skip-removal contract', async () => {
+// ---- VAL-06 (Phase 8 plan 08-04 closure): e2e-smoke.yml ships matrix + jobs ----
+test('e2e-smoke.yml defines the Phase 8 closure jobs (validate-examples matrix + monorepo-validate + suite-repo-validate)', async () => {
   const e2e = await read('.github/workflows/e2e-smoke.yml');
   assert.ok(e2e.length > 0, '.github/workflows/e2e-smoke.yml should not be empty');
 
-  // Top-of-file header must document the skip-removal contract for Phases 7 + 8.
-  assert.match(e2e, /Phase 7/, 'e2e-smoke.yml header must reference Phase 7 (install path)');
+  // Top-of-file header must document the Phase 8 closure (08-04).
   assert.match(e2e, /Phase 8/, 'e2e-smoke.yml header must reference Phase 8 (examples)');
-  assert.match(
-    e2e,
-    /TODO/,
-    'e2e-smoke.yml must include TODO markers naming the skip-removal contract',
+  assert.match(e2e, /08-04/, 'e2e-smoke.yml header must reference closure plan 08-04');
+
+  // The three closure jobs must exist.
+  assert.match(e2e, /^\s{2}validate-examples:/m, 'must define validate-examples (matrix) job');
+  assert.match(e2e, /^\s{2}monorepo-validate:/m, 'must define monorepo-validate job');
+  assert.match(e2e, /^\s{2}suite-repo-validate:/m, 'must define suite-repo-validate job');
+
+  // No leftover `if: false` placeholder lines.
+  assert.equal(
+    /^\s*if:\s*false\s*$/m.test(e2e),
+    false,
+    'Phase 8 closure must remove all `if: false` placeholder skips',
   );
 
-  // The install + dogfood steps must be `if: false`-skipped (Phase 5 state).
-  const installIfFalse = /Install TestAtlas suite[\s\S]{0,400}if:\s*false/;
-  const dogfoodIfFalse = /Run minimum dogfood loop[\s\S]{0,400}if:\s*false/;
-  assert.match(e2e, installIfFalse, 'install step must currently be `if: false`-skipped');
-  assert.match(e2e, dogfoodIfFalse, 'dogfood-loop step must currently be `if: false`-skipped');
-
-  // The validate-workspace step must always-run (no `if:` modifier on it).
+  // The validate-workspace step against the meta-workspace must be preserved.
   assert.match(
     e2e,
-    /Validate suite-repo placeholder workspace/,
-    'e2e-smoke.yml must include a "Validate suite-repo placeholder workspace" step',
+    /node scripts\/validate-workspace\.js --workspace \.testatlas\/test-workspace/,
+    'suite-repo meta-workspace validate command must be preserved',
   );
 });
 

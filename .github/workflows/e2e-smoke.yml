@@ -1,17 +1,22 @@
-# E2E Smoke Workflow — VAL-06
+# E2E Smoke Workflow — VAL-06 + VAL-02 (closes Phase 8 plan 08-04)
 #
-# PARTIAL POSTURE (Phase 5 ships scaffold; Phase 7 + 8 close):
-#   - Phase 5: ships this file with `if: false` skips on install + dogfood-loop steps
-#   - Phase 7 (install path): remove `if: false` from "Install TestAtlas suite" step
-#     once scripts/install.js ships
-#   - Phase 8 (examples): remove `if: false` from "Run minimum dogfood loop" step
-#     once examples/node-api/ ships and Phase 6 adapter ships the slash-command runtime
+# Phase 5 shipped this file as a scaffold with `if: false` skips on the
+# install + dogfood-loop steps and an always-runs `validate-workspace`
+# step against the suite repo's own meta-workspace.
 #
-# The "Validate suite-repo placeholder workspace" step ALWAYS runs from Phase 5 onward.
+# Phase 8 plan 08-04 (this revision) closes the contract:
+#   - Removes both `if: false` skips entirely.
+#   - Replaces the dogfood-loop placeholder with a real regenerate +
+#     validate matrix across all 4 single-workspace examples
+#     (nextjs-saas, node-api, cli-tool, mobile-web-hybrid) plus a
+#     dedicated `monorepo-validate` job that uses `--all-workspaces`
+#     against `examples/monorepo`.
+#   - The suite-repo meta-workspace validate step still runs as a
+#     dedicated job — orthogonal to the example matrix and unaffected
+#     by per-example failures.
 #
-# Skip-removal contract (these TODO markers are grep targets in Phase 7 + 8 plans):
-#   TODO Phase 7 — remove `if: false` from "Install TestAtlas suite" step
-#   TODO Phase 8 — remove `if: false` from "Run minimum dogfood loop" step
+# Closes EX-06 (CI matrix) + EX-07 (Aider-only proof asserted via
+# cli-tool example) + flips VAL-02 to plain Complete.
 
 name: E2E Smoke
 
@@ -31,8 +36,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  e2e-smoke:
-    name: E2E Smoke (Linux / Node 22)
+  # ─── Per-example matrix ──────────────────────────────────────────────────
+  # Closes EX-06: every PR runs regenerate-example.js --check (drift
+  # detection) plus validate-workspace.js for each single-workspace example.
+  # fail-fast: false so one example's failure doesn't mask another's.
+  validate-examples:
+    name: Validate example (${{ matrix.example }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - nextjs-saas
+          - node-api
+          - cli-tool
+          - mobile-web-hybrid
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Regenerate example (drift check)
+        run: node scripts/regenerate-example.js examples/${{ matrix.example }} --check
+
+      - name: Validate example workspace
+        run: node scripts/validate-workspace.js --workspace examples/${{ matrix.example }}/_testatlas
+
+  # ─── Monorepo job (uses --all-workspaces) ───────────────────────────────
+  # Plan 08-03 shipped --all-workspaces orchestration. This job exercises
+  # the multi-workspace path: regenerate-check the monorepo root + each
+  # app workspace, then validate the entire orchard with --all-workspaces.
+  monorepo-validate:
+    name: Validate monorepo (--all-workspaces)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -52,27 +100,42 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile=false
 
-      - name: Install TestAtlas suite (Phase 7 ships)
-        # TODO Phase 7: remove this skip when scripts/install.js ships
-        if: false
-        run: node scripts/install.js examples/node-api
+      - name: Regenerate monorepo root (drift check)
+        run: node scripts/regenerate-example.js examples/monorepo --check
 
-      - name: Run minimum dogfood loop (Phase 8 ships examples)
-        # TODO Phase 8: remove this skip when examples/node-api/ ships and the
-        # Phase 6 adapter exposes the slash-command runtime. The dogfood
-        # sequence (per RESEARCH.md §"Open Question 3") is:
-        #   /atlas:init → /atlas:bootstrap → /atlas:validate-workspace
-        #   → /atlas:explore-codebase → /atlas:map-domains → /atlas:plan
-        #   → /atlas:test-flow → /atlas:log-issue → /atlas:report
-        #   → /atlas:validate-workspace
-        if: false
-        run: |
-          cd examples/node-api
-          echo "Phase 6 + 7 + 8 wire this dogfood loop"
+      - name: Regenerate monorepo apps/web (drift check)
+        run: node scripts/regenerate-example.js examples/monorepo/apps/web --check
+
+      - name: Regenerate monorepo apps/api (drift check)
+        run: node scripts/regenerate-example.js examples/monorepo/apps/api --check
+
+      - name: Validate monorepo workspaces (--all-workspaces)
+        run: node scripts/validate-workspace.js --all-workspaces examples/monorepo
+
+  # ─── Suite-repo meta-workspace validate (always runs) ───────────────────
+  # Phase 5 contract — self-validates the suite's own meta-workspace at
+  # .testatlas/test-workspace as a smoke signal that the validate-workspace
+  # runtime + the meta-workspace fixture remain in sync.
+  suite-repo-validate:
+    name: Validate suite-repo meta-workspace
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
 
       - name: Validate suite-repo placeholder workspace
-        # Always-runs (no `if:` modifier). Self-validates the suite repo's own
-        # meta-workspace at .testatlas/test-workspace as a smoke signal that
-        # the validate-workspace runtime + the meta-workspace fixture are in
-        # sync from Phase 5 onward.
         run: node scripts/validate-workspace.js --workspace .testatlas/test-workspace
