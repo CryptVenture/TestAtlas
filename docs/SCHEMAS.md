@@ -144,7 +144,7 @@ Schema for flows/FLOW-<domain>-<slug>.{md,json} (PRD §16).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/install-manifest.schema.json`
 
-**Top-level properties:** `manifestVersion`, `suiteVersion`, `schemaVersion`, `installedAt`, `target`, `adapters`, `files`
+**Top-level properties:** `manifestVersion`, `suiteVersion`, `schemaVersion`, `installedAt`, `target`, `mode`, `adapters`, `files`
 
 [Source](../.testatlas/schemas/install-manifest.schema.json)
 

@@ -19,4 +19,6 @@ enable=all
 # SC2312 (info): Consider invoking command separately to avoid masking return
 # value. Inline `$(node -v)` in error logs is human-readable; the failure
 # path doesn't depend on its return code.
-disable=SC2244,SC1090,SC2250,SC2310,SC2312
+# SC2249 (info): Consider adding a default *) case. Our --global flag detect
+# is a single-pattern match; absence of a default branch is the contract.
+disable=SC2244,SC1090,SC2250,SC2310,SC2312,SC2249

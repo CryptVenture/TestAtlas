@@ -35,7 +35,16 @@
           "enum": ["per-command-file", "concatenated-conventions", "mcp-server"]
         },
         "outputPattern": { "type": "string", "minLength": 1 },
-        "fileExtension": { "type": "string", "pattern": "^\\.[a-z0-9]+$" }
+        "globalOutputPattern": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional. Path of the rendered command file(s) when installed with --global, relative to the user home dir. If absent, the adapter is skipped in --global mode."
+        },
+        "fileExtension": { "type": "string", "pattern": "^\\.[a-z0-9]+$" },
+        "globalNotes": {
+          "type": "string",
+          "description": "Optional human-readable note shown post-install when --global is used. Use to document any per-tool config the user must add (e.g. tool doesn't auto-discover from $HOME)."
+        }
       }
     }
   }

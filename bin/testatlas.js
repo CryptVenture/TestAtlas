@@ -8,6 +8,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { program } from 'commander';
 
@@ -50,6 +51,13 @@ program
   .option('--target <dir>', 'Target repo directory (default: cwd)')
   .option('--dry-run', 'Print planned actions without writing')
   .option(
+    '--global',
+    'Install adapter command files into user-home (~/.claude/, ~/.cursor/, ' +
+      '~/.config/opencode/, etc.) so every coding agent in every project gets ' +
+      '/atlas:* commands. Skips _testatlas/ workspace seed (workspace state is ' +
+      'always project-local).',
+  )
+  .option(
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
   )
@@ -57,7 +65,13 @@ program
     if (opts.verifySignature) {
       probeCosignOrExit();
     }
-    const target = path.resolve(opts.target ?? process.cwd());
+    // In --global mode, default the target to os.homedir() unless the caller
+    // overrides with --target. install-core.js does the same defaulting if
+    // target is undefined; we resolve here so the manifest captures an
+    // absolute path.
+    const isGlobal = Boolean(opts.global);
+    const explicitTarget = opts.target ? path.resolve(opts.target) : null;
+    const target = explicitTarget ?? (isGlobal ? os.homedir() : process.cwd());
     const result = await runInit({
       target,
       suiteRoot: SUITE_ROOT,
@@ -66,6 +80,7 @@ program
       noUpdateCheck: opts.updateCheck === false,
       dryRun: Boolean(opts.dryRun),
       verifySignature: Boolean(opts.verifySignature),
+      global: isGlobal,
     });
     process.exitCode = result.status === 'dry-run' || result.filesWritten >= 0 ? 0 : 1;
   });

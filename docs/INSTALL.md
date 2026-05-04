@@ -9,6 +9,36 @@ TestAtlas ships three install paths so any environment can adopt it: the canonic
 | Modern Node devs (Claude Code, Cursor, etc.) | [`npx testatlas init`](#path-1--npx-testatlas-init-recommended) |
 | Shell-first / Node bootstrap unclear | [`curl ... \| sh`](#path-2--curl--sh-posix-installer) |
 | Offline / airgap / security-conscious | [`git clone`](#path-3--git-clone--node-installjs-offline) |
+| Want `/atlas:*` available in **every** project, with **any** agent | [`npx testatlas init --global`](#machine-wide-install----global) |
+
+## Machine-wide install (`--global`)
+
+By default `testatlas init` installs into the current project (per-repo `.testatlas/` + adapter command files under that repo's `.claude/commands/`, `.cursor/rules/`, etc.). Pass `--global` to install once per machine instead — every coding agent in every project gets `/atlas:*` slash commands without a per-repo install step.
+
+```sh
+npx testatlas init --global --all-adapters
+# or via the POSIX installer:
+curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/main/install.sh | sh -s -- --global
+```
+
+Where files land:
+
+| Tool | Project-local | `--global` |
+|------|----------------|------------|
+| Claude Code | `<repo>/.claude/commands/atlas-*.md` | `~/.claude/commands/atlas-*.md` |
+| Cursor | `<repo>/.cursor/rules/atlas-*.mdc` | `~/.cursor/rules/atlas-*.mdc` |
+| OpenCode | `<repo>/.opencode/commands/atlas-*.md` | `~/.config/opencode/command/atlas-*.md` |
+| KiloCode | `<repo>/.kilo/agents/atlas-*.md` | `~/.kilo/agents/atlas-*.md` |
+| Aider | `<repo>/CONVENTIONS.md` | `~/.config/aider/CONVENTIONS.md` |
+| MCP | `<repo>/mcp-server-manifest.json` | `~/.config/testatlas/mcp-server-manifest.json` |
+| Generic prompts | `<repo>/prompts/atlas-*.md` | `~/.config/testatlas/prompts/atlas-*.md` |
+
+Notes:
+
+- The suite tree (bootstrap, schemas, templates) is installed at `~/.testatlas/` so the bootstrap-first preamble in every command resolves consistently.
+- `_testatlas/` workspace state is **never** seeded under `$HOME`. Workspace state is project-local by design — run `testatlas init` (no `--global`) inside any project to get a workspace there.
+- A few tools don't auto-discover from `$HOME` (Aider, MCP). The installer prints a one-line post-install hint per affected adapter telling you the exact config line to add.
+- The install manifest at `~/.testatlas/.install-manifest.json` records `"mode": "global"`, so `testatlas uninstall --target ~` reverses precisely.
 
 ## Path 1 — `npx testatlas init` (recommended)
 
@@ -30,7 +60,8 @@ Useful flags:
 | Flag | Effect |
 |------|--------|
 | `--all-adapters` | Install every adapter (Claude Code + OpenCode + KiloCode + Cursor + Aider + MCP + Generic). |
-| `--target <dir>` | Install into `<dir>` instead of `cwd`. |
+| `--target <dir>` | Install into `<dir>` instead of `cwd` (or `$HOME` with `--global`). |
+| `--global` | Install once per machine (`$HOME` / XDG paths) instead of per-project. See [Machine-wide install](#machine-wide-install----global). |
 | `--force` | Overwrite existing `.testatlas/` content (idempotency normally protects). |
 | `--dry-run` | Print the install plan without writing anything. |
 | `--no-update-check` | Skip the GitHub Releases version probe (UPDATE-03). |

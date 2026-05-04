@@ -7,6 +7,7 @@
       "displayName": "Claude Code (canonical)",
       "outputDir": ".testatlas/adapters/claude-code",
       "outputPattern": ".claude/commands/atlas-{command}.md",
+      "globalOutputPattern": ".claude/commands/atlas-{command}.md",
       "fileExtension": ".md",
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file"
@@ -16,15 +17,18 @@
       "displayName": "Generic Prompt Adapter",
       "outputDir": ".testatlas/adapters/generic",
       "outputPattern": "prompts/atlas-{command}.md",
+      "globalOutputPattern": ".config/testatlas/prompts/atlas-{command}.md",
       "fileExtension": ".md",
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
-      "renderStrategy": "per-command-file"
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Generic prompts live under ~/.config/testatlas/prompts/. Paste any one into your agent of choice."
     },
     {
       "name": "opencode",
       "displayName": "OpenCode",
       "outputDir": ".testatlas/adapters/opencode",
       "outputPattern": ".opencode/commands/atlas-{command}.md",
+      "globalOutputPattern": ".config/opencode/command/atlas-{command}.md",
       "fileExtension": ".md",
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file"
@@ -34,6 +38,7 @@
       "displayName": "KiloCode",
       "outputDir": ".testatlas/adapters/kilocode",
       "outputPattern": ".kilo/agents/atlas-{command}.md",
+      "globalOutputPattern": ".kilo/agents/atlas-{command}.md",
       "fileExtension": ".md",
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file"
@@ -43,6 +48,7 @@
       "displayName": "Cursor",
       "outputDir": ".testatlas/adapters/cursor",
       "outputPattern": ".cursor/rules/atlas-{command}.mdc",
+      "globalOutputPattern": ".cursor/rules/atlas-{command}.mdc",
       "fileExtension": ".mdc",
       "capabilities": ["shell", "web-fetch", "file-write"],
       "renderStrategy": "per-command-file"
@@ -52,18 +58,22 @@
       "displayName": "Aider",
       "outputDir": ".testatlas/adapters/aider",
       "outputPattern": "CONVENTIONS.md",
+      "globalOutputPattern": ".config/aider/CONVENTIONS.md",
       "fileExtension": ".md",
       "capabilities": ["shell", "file-write"],
-      "renderStrategy": "concatenated-conventions"
+      "renderStrategy": "concatenated-conventions",
+      "globalNotes": "Aider doesn't auto-discover global conventions. Add `aider --read ~/.config/aider/CONVENTIONS.md` to your shell alias or `~/.aider.conf.yml`."
     },
     {
       "name": "mcp",
       "displayName": "MCP-capable Agent",
       "outputDir": ".testatlas/adapters/mcp",
       "outputPattern": "mcp-server-manifest.json",
+      "globalOutputPattern": ".config/testatlas/mcp-server-manifest.json",
       "fileExtension": ".json",
       "capabilities": ["shell", "web-fetch", "file-write"],
-      "renderStrategy": "mcp-server"
+      "renderStrategy": "mcp-server",
+      "globalNotes": "MCP clients are configured per-app (Claude Desktop, Cursor MCP, etc.). Point them at `node ~/.config/testatlas/scripts/mcp-server.js` after `--global` install."
     }
   ]
 }

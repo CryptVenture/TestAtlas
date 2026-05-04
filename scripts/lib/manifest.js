@@ -109,6 +109,9 @@ export async function buildManifest(target, payload, opts = {}) {
     target,
     adapters: payload.adapters,
     files,
+    // Optional: passed through verbatim when set to 'global' so uninstall +
+    // diagnostics can distinguish home-install from project-install.
+    ...(payload.mode ? { mode: payload.mode } : {}),
   };
 
   const validate = await getValidator(cwd);

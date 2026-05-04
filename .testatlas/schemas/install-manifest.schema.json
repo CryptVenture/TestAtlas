@@ -30,6 +30,11 @@
       "type": "string",
       "description": "Absolute target path captured at install time (informational only; uninstall always uses cwd)."
     },
+    "mode": {
+      "type": "string",
+      "enum": ["global"],
+      "description": "Optional. Set to 'global' when this manifest tracks a `--global` install (target == os.homedir() and adapter command files live under user-home). Project-local installs omit the field entirely (default-local for backwards compat)."
+    },
     "adapters": {
       "type": "array",
       "items": {

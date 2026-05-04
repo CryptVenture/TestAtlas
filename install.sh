@@ -104,7 +104,13 @@ _verify_signature_if_enabled() {
 }
 
 _main() {
-    _log "Installing TestAtlas v${VERSION}"
+    # Forward all extra args to `node install.js` verbatim; detect --global
+    # so we can default the positional target to $HOME instead of $PWD.
+    INSTALL_FLAGS="$*"
+    GLOBAL_MODE=0
+    case " $INSTALL_FLAGS " in *" --global "*) GLOBAL_MODE=1 ;; esac
+
+    _log "Installing TestAtlas v${VERSION}${GLOBAL_MODE:+ (global mode)}"
     _require_node
 
     TMP=$(mktemp -d 2>/dev/null || mktemp -d -t testatlas)
@@ -159,9 +165,22 @@ _main() {
     _log "Resolving runtime dependencies"
     (cd "${TMP}/package" && npm install --omit=dev --no-audit --no-fund --silent)
 
-    node "${TMP}/package/install.js" "${TARGET:-$PWD}"
+    # In global mode, `install.js` defaults to $HOME when no positional target
+    # is supplied. Project-local mode keeps the historical `${TARGET:-$PWD}`
+    # default so existing CI smokes don't regress.
+    if [ "$GLOBAL_MODE" = "1" ]; then
+        # shellcheck disable=SC2086
+        node "${TMP}/package/install.js" $INSTALL_FLAGS
+    else
+        # shellcheck disable=SC2086
+        node "${TMP}/package/install.js" "${TARGET:-$PWD}" $INSTALL_FLAGS
+    fi
 
-    _log "Done. Run your agent's bootstrap (e.g. /atlas:bootstrap) to start."
+    if [ "$GLOBAL_MODE" = "1" ]; then
+        _log "Done (global). Adapter command files are now in your user home."
+    else
+        _log "Done. Run your agent's bootstrap (e.g. /atlas:bootstrap) to start."
+    fi
 }
 
 # CRITICAL: this MUST be the LAST line of the file. Partial-pipe protection:

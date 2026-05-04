@@ -249,3 +249,102 @@ test('install-core: refuses overwrite when .testatlas/ exists without manifest a
     );
   });
 });
+
+// ──────────────────────────────────────────────────────────────────────────
+// --global mode (machine-wide install of adapter command files into $HOME)
+// ──────────────────────────────────────────────────────────────────────────
+
+test('install-core: --global writes adapter command files into user-home paths', async (t) => {
+  await withTmp(t, async (fakeHome) => {
+    const result = await runInit({
+      target: fakeHome,
+      suiteRoot: REPO_ROOT,
+      allAdapters: true,
+      global: true,
+      logger: QUIET,
+    });
+    assert.equal(result.status, 'installed');
+    assert.equal(result.global, true);
+    // Suite tree still lands at $HOME/.testatlas/ so bootstrap.md is resolvable.
+    await stat(path.join(fakeHome, '.testatlas', 'bootstrap.md'));
+    // Per-adapter command files at home-relative globalOutputPattern dirs:
+    await stat(path.join(fakeHome, '.claude', 'commands', 'atlas-init.md'));
+    await stat(path.join(fakeHome, '.cursor', 'rules', 'atlas-init.mdc'));
+    await stat(path.join(fakeHome, '.config', 'opencode', 'command', 'atlas-init.md'));
+    await stat(path.join(fakeHome, '.config', 'aider', 'CONVENTIONS.md'));
+    // _testatlas/ workspace must NOT exist — workspace state is project-local.
+    await assert.rejects(
+      () => stat(path.join(fakeHome, '_testatlas')),
+      (err) => err.code === 'ENOENT',
+    );
+  });
+});
+
+test('install-core: --global manifest carries mode:"global"', async (t) => {
+  await withTmp(t, async (fakeHome) => {
+    await runInit({
+      target: fakeHome,
+      suiteRoot: REPO_ROOT,
+      allAdapters: true,
+      global: true,
+      logger: QUIET,
+    });
+    const manifest = await loadAndValidateManifest(fakeHome, { cwd: REPO_ROOT });
+    assert.equal(manifest.mode, 'global');
+  });
+});
+
+test('install-core: project-local install omits mode field', async (t) => {
+  await withTmp(t, async (target) => {
+    await runInit({
+      target,
+      suiteRoot: REPO_ROOT,
+      allAdapters: true,
+      logger: QUIET,
+    });
+    const manifest = await loadAndValidateManifest(target, { cwd: REPO_ROOT });
+    assert.equal(manifest.mode, undefined);
+  });
+});
+
+test('install-core: --global --dry-run does not write to home', async (t) => {
+  await withTmp(t, async (fakeHome) => {
+    const result = await runInit({
+      target: fakeHome,
+      suiteRoot: REPO_ROOT,
+      allAdapters: true,
+      global: true,
+      dryRun: true,
+      logger: QUIET,
+    });
+    assert.equal(result.status, 'dry-run');
+    assert.equal(result.global, true);
+    await assert.rejects(
+      () => stat(path.join(fakeHome, '.testatlas')),
+      (err) => err.code === 'ENOENT',
+    );
+    await assert.rejects(
+      () => stat(path.join(fakeHome, '.claude')),
+      (err) => err.code === 'ENOENT',
+    );
+  });
+});
+
+test('install-core: --global surfaces post-install notes for tools needing manual config', async (t) => {
+  await withTmp(t, async (fakeHome) => {
+    const result = await runInit({
+      target: fakeHome,
+      suiteRoot: REPO_ROOT,
+      allAdapters: true,
+      global: true,
+      logger: QUIET,
+    });
+    assert.ok(Array.isArray(result.globalNotes));
+    // Aider + MCP + generic each declare globalNotes in
+    // .testatlas/adapters/adapter-capabilities.json.
+    assert.ok(
+      result.globalNotes.some((n) => n.startsWith('[aider]')),
+      `expected aider note; got ${JSON.stringify(result.globalNotes)}`,
+    );
+  });
+});

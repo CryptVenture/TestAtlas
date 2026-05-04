@@ -26,6 +26,7 @@
 //   9. Return { status, filesWritten, adapters }.
 
 import { cp, lstat, mkdir, readdir, readFile, rm, stat } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { detectAdapters } from './adapter-detect.js';
 import { INSTALL_MANIFEST_PATH } from './constants.js';
@@ -35,7 +36,8 @@ import { assertNotUpdate } from './workspace-guard.js';
 
 /**
  * @typedef {Object} RunInitOptions
- * @property {string} target            Absolute path of the install target repo.
+ * @property {string} target            Absolute path of the install target repo
+ *                                      (or os.homedir() when --global).
  * @property {string} suiteRoot         Absolute path of the suite package root
  *                                      (the dir containing `.testatlas/`).
  * @property {boolean} [allAdapters]    Install every adapter regardless of detection.
@@ -43,6 +45,13 @@ import { assertNotUpdate } from './workspace-guard.js';
  * @property {boolean} [noUpdateCheck]  Skip GitHub Releases version probe.
  * @property {boolean} [dryRun]         Print plan, do not write.
  * @property {boolean} [initWorkspace]  Auto-run init-workspace if _testatlas/ absent (default true).
+ * @property {boolean} [global]         Install adapter command files into
+ *                                      user-home (~/.claude/, ~/.cursor/, etc.)
+ *                                      instead of project-local. The suite tree
+ *                                      is installed into ~/.testatlas/. The
+ *                                      `_testatlas/` workspace is NEVER created
+ *                                      in global mode (workspace state is
+ *                                      always project-local).
  * @property {(msg: string) => void} [logger]
  */
 
@@ -51,6 +60,10 @@ import { assertNotUpdate } from './workspace-guard.js';
  * @property {'installed'|'already-installed'|'forced'|'dry-run'} status
  * @property {number} filesWritten
  * @property {string[]} adapters
+ * @property {boolean} [global]
+ * @property {string[]} [globalNotes]   Per-adapter post-install hints surfaced
+ *                                      to the caller (rendered to stdout in
+ *                                      CLI use; useful for downstream tooling).
  */
 
 const ALL_ADAPTERS = Object.freeze([
@@ -253,39 +266,81 @@ async function copySuiteTree(suiteRoot, target, matchedAdapters) {
  * @param {string[]} adapters
  * @param {object} caps adapter-capabilities.json parsed
  */
-async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps) {
+async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps, opts = {}) {
   /** @type {{absPath: string, source: string, type: 'command'}[]} */
   const entries = [];
+  /** @type {string[]} */
+  const skipped = [];
+  /** @type {string[]} */
+  const notes = [];
   const byName = Object.fromEntries((caps.adapters ?? []).map((a) => [a.name, a]));
 
   for (const name of adapters) {
     const cap = byName[name];
     if (!cap) continue; // unknown adapter (shouldn't happen given enum)
-    const stageDir = path.join(suiteRoot, SUITE_DIR, 'adapters', name, 'stage');
-    if (!(await pathExists(stageDir))) {
-      // Phase 6 hasn't shipped stage-files for this adapter yet — safe no-op.
+
+    if (opts.global && !cap.globalOutputPattern) {
+      // Adapter declares no global pattern — skip cleanly so the manifest
+      // doesn't track a partial install.
+      skipped.push(name);
       continue;
     }
-    // outputPattern looks like ".claude/commands/atlas-{command}.md".
-    // We honor the directory portion verbatim, and copy files preserving
-    // names. For most adapters the source basename already matches the
-    // output basename pattern (Phase 6 generates them that way).
-    const outputDirRel = path.dirname(cap.outputPattern);
-    const dstBase = path.join(target, outputDirRel);
-    await mkdir(dstBase, { recursive: true });
-    for await (const absSrc of walkFiles(stageDir)) {
-      const rel = path.relative(stageDir, absSrc);
-      const dst = path.join(dstBase, rel);
-      await mkdir(path.dirname(dst), { recursive: true });
-      await cp(absSrc, dst, { force: true });
+
+    // Phase 6 generators write rendered files at
+    //   .testatlas/adapters/<name>/<dirname(outputPattern)>/...
+    // (e.g. claude-code → .testatlas/adapters/claude-code/.claude/commands/).
+    // Concatenated-conventions and mcp-server adapters write a single file at
+    //   .testatlas/adapters/<name>/<basename(outputPattern)>.
+    // Either way, the source root is `<adapter-dir>` minus README.md and the
+    // "source" subdir mirrors the local outputPattern exactly. To install,
+    // we walk that source subtree and replace its prefix with the active
+    // pattern's prefix (local OR global).
+    const adapterDir = path.join(suiteRoot, SUITE_DIR, 'adapters', name);
+    const localPattern = cap.outputPattern;
+    const activePattern = opts.global ? cap.globalOutputPattern : localPattern;
+    const localPrefix = path.dirname(localPattern); // e.g. ".claude/commands"
+    const activePrefix = path.dirname(activePattern); // e.g. ".claude/commands" or ".config/..."
+
+    // Identify the source subtree. For per-command-file adapters this is the
+    // localPrefix dir (a directory). For concatenated-conventions/mcp-server
+    // adapters the pattern is a bare filename (e.g. "CONVENTIONS.md") and the
+    // source is the adapter-dir itself; we copy only the matching basename
+    // file (avoiding README.md and adapter-specific config side-files).
+    const isFilePattern = localPrefix === '.' || localPrefix === '';
+    if (isFilePattern) {
+      const srcFile = path.join(adapterDir, path.basename(localPattern));
+      if (!(await pathExists(srcFile))) continue;
+      const dstFile = path.join(target, activePattern);
+      await mkdir(path.dirname(dstFile), { recursive: true });
+      await cp(srcFile, dstFile, { force: true });
       entries.push({
-        absPath: dst,
-        source: path.relative(suiteRoot, absSrc),
+        absPath: dstFile,
+        source: path.relative(suiteRoot, srcFile),
         type: 'command',
       });
+    } else {
+      const srcDir = path.join(adapterDir, localPrefix);
+      if (!(await pathExists(srcDir))) continue;
+      const dstBase = path.join(target, activePrefix);
+      await mkdir(dstBase, { recursive: true });
+      for await (const absSrc of walkFiles(srcDir)) {
+        const rel = path.relative(srcDir, absSrc);
+        const dst = path.join(dstBase, rel);
+        await mkdir(path.dirname(dst), { recursive: true });
+        await cp(absSrc, dst, { force: true });
+        entries.push({
+          absPath: dst,
+          source: path.relative(suiteRoot, absSrc),
+          type: 'command',
+        });
+      }
+    }
+
+    if (opts.global && cap.globalNotes) {
+      notes.push(`[${name}] ${cap.globalNotes}`);
     }
   }
-  return entries;
+  return { entries, skipped, notes };
 }
 
 /**
@@ -335,7 +390,13 @@ async function readSuiteVersion(suiteRoot) {
  * @returns {Promise<RunInitResult>}
  */
 export async function runInit(opts) {
-  const target = path.resolve(opts.target);
+  // In global mode the install target defaults to os.homedir() unless the
+  // caller passed an explicit `target`. Project-local mode is unchanged —
+  // target is the cwd (or whatever the caller resolved). This keeps the
+  // function signature stable; bin/testatlas.js + install.js pass `target`
+  // explicitly when --global is set.
+  const isGlobal = Boolean(opts.global);
+  const target = path.resolve(opts.target ?? (isGlobal ? os.homedir() : process.cwd()));
   const suiteRoot = path.resolve(opts.suiteRoot);
   const log = opts.logger ?? ((msg) => process.stdout.write(`${msg}\n`));
 
@@ -390,10 +451,15 @@ export async function runInit(opts) {
 
   // Dry-run short-circuit.
   if (opts.dryRun) {
-    log(`[dry-run] Would install TestAtlas at ${target}`);
+    log(`[dry-run] Would install TestAtlas at ${target}${isGlobal ? ' (global)' : ''}`);
     log(`[dry-run] Adapters: ${detected.join(', ')}`);
     log(`[dry-run] Force: ${Boolean(opts.force)}`);
-    return { status: 'dry-run', filesWritten: 0, adapters: detected };
+    return {
+      status: 'dry-run',
+      filesWritten: 0,
+      adapters: detected,
+      ...(isGlobal ? { global: true } : {}),
+    };
   }
 
   // Force-clean existing .testatlas/ if requested.
@@ -401,12 +467,25 @@ export async function runInit(opts) {
     await rm(targetSuiteDir, { recursive: true, force: true });
   }
 
-  // Copy the suite tree (filtered).
+  // Copy the suite tree (filtered). In both local and global modes the suite
+  // tree lands at <target>/.testatlas/ so the bootstrap.md preamble can be
+  // resolved consistently.
   const suiteEntries = await copySuiteTree(suiteRoot, target, adapterSet);
 
-  // Copy per-adapter command files.
+  // Copy per-adapter command files. In global mode the adapter renderer
+  // honors `globalOutputPattern` and skips adapters that don't declare one.
   const caps = await loadAdapterCapabilities(suiteRoot);
-  const cmdEntries = await copyAdapterCommandFiles(suiteRoot, target, detected, caps);
+  const {
+    entries: cmdEntries,
+    skipped: skippedAdapters,
+    notes: globalNotes,
+  } = await copyAdapterCommandFiles(suiteRoot, target, detected, caps, { global: isGlobal });
+
+  if (isGlobal && skippedAdapters.length > 0) {
+    log(
+      `Note: skipping ${skippedAdapters.length} adapter(s) in --global mode (no globalOutputPattern declared): ${skippedAdapters.join(', ')}`,
+    );
+  }
 
   // Build the file manifest. Filter out the soon-to-be-overwritten manifest
   // path itself if it slipped into suiteEntries (it shouldn't, since the
@@ -418,30 +497,40 @@ export async function runInit(opts) {
 
   const suiteVersion = await readSuiteVersion(suiteRoot);
 
+  // Manifest tracks the actually-installed adapter set so uninstall reverses
+  // exactly. In global mode that's `detected − skippedAdapters`.
+  const installedAdapters = detected.filter((n) => !skippedAdapters.includes(n));
+
   await writeManifest(
     target,
     {
       suiteVersion,
       schemaVersion: 1,
-      adapters: detected,
+      adapters: installedAdapters,
       files: allEntries,
+      ...(isGlobal ? { mode: 'global' } : {}),
     },
     { cwd: suiteRoot },
   );
 
-  // Optional workspace init.
-  if (opts.initWorkspace !== false) {
+  // Optional workspace init — project-local only. In global mode `_testatlas/`
+  // is meaningless (workspace state is per-project), so we never seed one
+  // under the user's home dir.
+  if (!isGlobal && opts.initWorkspace !== false) {
     await maybeInitWorkspace(target, log);
   }
 
   const result = {
     status: opts.force && haveExisting ? 'forced' : 'installed',
     filesWritten: allEntries.length,
-    adapters: detected,
+    adapters: installedAdapters,
+    ...(isGlobal ? { global: true } : {}),
+    ...(globalNotes.length ? { globalNotes } : {}),
   };
   log(
-    `TestAtlas ${result.status}: ${result.filesWritten} files across ${result.adapters.length} adapter(s) (${result.adapters.join(', ')}).`,
+    `TestAtlas ${result.status}${isGlobal ? ' (global)' : ''}: ${result.filesWritten} files across ${result.adapters.length} adapter(s) (${result.adapters.join(', ')}).`,
   );
+  for (const n of globalNotes) log(n);
   return result;
 }
 
