@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../media/TestAtlas-HorizontalLogo1.png" alt="TestAtlas" width="420" />
+</p>
+
 # Installing TestAtlas
 
 TestAtlas ships three install paths so any environment can adopt it: the canonical npm path, a POSIX shell installer for Node-light environments, and an offline `git clone` path. All three converge on the same install kernel (`scripts/lib/install-core.js`) and produce the same `.testatlas/` suite tree, `_testatlas/` workspace skeleton, and `.testatlas/.install-manifest.json` ledger inside the target repo.

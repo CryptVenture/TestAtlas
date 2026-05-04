@@ -1,6 +1,10 @@
-# TestAtlas
+<p align="center">
+  <img src="media/TestAtlas-HorizontalLogo1.png" alt="TestAtlas" width="600" />
+</p>
 
-> Turn any AI coding agent into a persistent product-quality intelligence layer.
+<p align="center">
+  <strong>Turn any AI coding agent into a persistent product-quality intelligence layer.</strong>
+</p>
 
 [![npm version](https://img.shields.io/npm/v/testatlas.svg)](https://www.npmjs.com/package/testatlas)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
