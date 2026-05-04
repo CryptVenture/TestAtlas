@@ -346,7 +346,10 @@ async function runAllWorkspaces(root, sharedOpts) {
 
   const results = [];
   for (const ws of workspaces) {
-    const rel = path.relative(absRoot, ws) || ws;
+    // Normalize to POSIX `/` for output. `path.relative` on Windows returns
+    // `apps\api\_testatlas` which displays poorly and breaks tests that
+    // assert on forward-slash paths.
+    const rel = (path.relative(absRoot, ws) || ws).split(path.sep).join('/');
     let ok = false;
     let detail = '';
     try {

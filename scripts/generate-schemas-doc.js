@@ -99,7 +99,11 @@ async function buildDoc() {
 export async function main(argv = process.argv.slice(2)) {
   const out = await buildDoc();
   if (argv.includes('--stdout')) {
-    process.stdout.write(out);
+    // Await stdout drain before returning. `process.stdout.write(blob)`
+    // followed immediately by `process.exit()` can drop bytes when stdout
+    // is a pipe (spawn from a parent test runner) because the kernel pipe
+    // buffer hasn't flushed yet — observed as truncated macOS CI output.
+    await new Promise((resolve) => process.stdout.write(out, () => resolve()));
     return 0;
   }
   if (argv.includes('--check')) {

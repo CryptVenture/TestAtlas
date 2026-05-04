@@ -9,6 +9,7 @@ import { strict as assert } from 'node:assert';
 import { readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { parseMarkers } from '../scripts/lib/markers.js';
 import { autoHealFindings } from '../scripts/lib/validate/autoheal.js';
@@ -499,9 +500,12 @@ test('Round-trip: HEAL-01..04 against composite fixture leave 0 fixable findings
 
   // Inject a whitespace-only stale hash by re-using the broken-stale-hash-whitespace-only
   // fixture's 03_execution_status.md verbatim (its hash already disagrees with manifest).
+  // `import.meta.url.replace('file://', '')` mishandles Windows file URLs:
+  // `file:///D:/...` → `/D:/...` which path.dirname/path.join then mangle
+  // into `D:\D:\...`. `fileURLToPath` is the portable conversion.
   const wsOnly = await readFile(
     path.join(
-      path.dirname(import.meta.url.replace('file://', '')),
+      path.dirname(fileURLToPath(import.meta.url)),
       'fixtures',
       'workspaces',
       'broken-stale-hash-whitespace-only',

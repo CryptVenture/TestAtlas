@@ -35,6 +35,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
+import { fileURLToPath } from 'node:url';
 import { BOOTSTRAP_PREAMBLE } from './lib/adapters/_shared.js';
 import { listCommandFiles } from './lib/list-command-files.js';
 import { extractFrontmatter, parseFrontmatter } from './lib/parse-frontmatter.js';
@@ -57,7 +58,9 @@ function resolveWorkspaceRoot() {
     return path.resolve(envOverride);
   }
   // Walk up from the script's directory.
-  let dir = import.meta.dirname ?? path.dirname(new URL(import.meta.url).pathname);
+  // `new URL(...).pathname` is Windows-broken (`/D:/...` → mangled by
+  // path.resolve). `fileURLToPath` is the portable fallback for Node < 20.11.
+  let dir = import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
   for (let i = 0; i < 10; i++) {
     if (existsSync(path.join(dir, '.testatlas', 'commands'))) {
       return dir;

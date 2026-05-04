@@ -21,6 +21,12 @@ const REPO_ROOT = path.resolve(import.meta.dirname, '../..');
 const BIN = path.join(REPO_ROOT, 'bin/testatlas.js');
 const INSTALL_SH = path.join(REPO_ROOT, 'install.sh');
 
+// These tests rely on POSIX semantics: a `cosign` shell-script shim with
+// `#!/bin/sh` shebang + chmod +x; `sh install.sh` invocations; `:`-separated
+// PATH; `/usr/bin`/`/bin` standard locations. Windows runners can't execute
+// any of this — skip the whole file. Linux/macOS exercise the same code paths.
+const skipOnWindows = { skip: process.platform === 'win32' };
+
 /**
  * Build a PATH that includes the node binary's directory but not cosign.
  * We discover node's location from process.execPath, then prepend its dir to
@@ -50,7 +56,7 @@ async function makeCosignShim(dir, exitCode = 0) {
   return shim;
 }
 
-describe('--verify-signature flag (bin/testatlas.js)', () => {
+describe('--verify-signature flag (bin/testatlas.js)', skipOnWindows, () => {
   let tmp;
 
   beforeEach(async () => {
@@ -147,7 +153,7 @@ describe('--verify-signature flag (bin/testatlas.js)', () => {
   });
 });
 
-describe('install.sh signature verification (TESTATLAS_VERIFY_SIGNATURE)', () => {
+describe('install.sh signature verification (TESTATLAS_VERIFY_SIGNATURE)', skipOnWindows, () => {
   it('exits 1 with cosign-not-found error when env=1 AND cosign absent', () => {
     const cleanPath = pathWithoutCosign();
     if (cosignOnPath(cleanPath)) return; // skip if system has cosign
