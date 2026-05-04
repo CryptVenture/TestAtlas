@@ -110,3 +110,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest counts for docs and stories reflect the on-disk state.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that documented behaviour is normalized into stories:
+
+- **`/atlas:explore-codebase`** — reconcile documented stories against actual handlers
+- **`/atlas:map-domains`** — group stories into testable domains
+- **`/atlas:plan`** — turn stories + conflicts into a test plan

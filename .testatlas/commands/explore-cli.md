@@ -115,3 +115,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every destructive command has `safety: destructive` and `executed: false` recorded.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the CLI surface is mapped:
+
+- **`/atlas:explore-codebase`** — cross-reference CLI commands with their handler source
+- **`/atlas:test-flow`** — execute safe CLI flows end-to-end with evidence capture
+- **`/atlas:plan`** — turn the cli-command inventory into a test plan

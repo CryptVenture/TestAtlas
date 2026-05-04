@@ -103,3 +103,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `findings.md` exists and lists each finding with severity, confidence, and at least one evidence path.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the security surface is catalogued:
+
+- **`/atlas:log-issue`** — file individual issues for high-severity findings
+- **`/atlas:plan`** — fold security findings into the test plan
+- **`/atlas:test-flow`** — exercise negative-path flows derived from these findings

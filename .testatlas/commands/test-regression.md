@@ -105,3 +105,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/reports/regressions.md` is updated inside its generated-section markers; human content outside the markers is preserved.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the regression run is complete:
+
+- **`/atlas:log-issue`** — file fresh issues for any newly-regressed scenarios
+- **`/atlas:retest`** — rerun ambiguous scenarios under cleaner conditions
+- **`/atlas:report`** — fold the regression delta into the next aggregate report

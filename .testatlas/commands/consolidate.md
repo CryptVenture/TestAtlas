@@ -134,3 +134,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+- **`/atlas:report`** — fold the consolidated set into the next REPORT
+- **`/atlas:handoff`** — package the workspace for another operator

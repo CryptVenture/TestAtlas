@@ -112,3 +112,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - Flow confidence is updated for every flow touched.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the domain run is complete:
+
+- **`/atlas:log-issue`** — file individual issues for failing scenarios
+- **`/atlas:retest`** — rerun failing scenarios after fixes land
+- **`/atlas:report`** — fold the run into the next aggregate report

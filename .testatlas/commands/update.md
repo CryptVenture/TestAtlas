@@ -94,3 +94,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The five lifecycle files listed above are updated.
 - `_testatlas/history/update-<ts>.md` records the attempt outcome.
 - Zero stop conditions triggered without surfacing.
+
+## What's Next
+
+Now that the suite is on the latest version:
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
+- **`/atlas:bootstrap`** — reload the constitution if §-numbering or rules changed

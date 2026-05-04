@@ -120,3 +120,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every scenario carries an explicit `confidence` per `bootstrap.md` §11.
 - Manifest `counts.scenarios` and `counts.charters` match on-disk counts.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the test plan exists:
+
+- **`/atlas:test-flow`** — execute scenarios end-to-end with evidence capture
+- **`/atlas:test-domain`** — execute one full domain at a time when scope is large
+- **`/atlas:log-issue`** — file blocking issues surfaced during planning

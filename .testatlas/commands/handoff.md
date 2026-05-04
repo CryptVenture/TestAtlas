@@ -104,3 +104,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The handoff index records the new entry.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the handoff is recorded:
+
+- **`/atlas:cleanup`** — archive resolved evidence so the next operator inherits a lean tree
+- **`/atlas:update`** — refresh the suite version before the next operator picks up

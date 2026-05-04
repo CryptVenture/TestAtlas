@@ -110,3 +110,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
 - No evidence files, no schema artifacts, no findings emitted.
+
+## What's Next
+
+Now that the explore-plan is routed:
+
+- **`/atlas:map-domains`** — group explorer findings into testable domains
+- **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
+- **`/atlas:test-flow`** — start executing flows immediately if scope is already clear

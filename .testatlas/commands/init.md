@@ -82,3 +82,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - All 14 canonical files exist on disk.
 - A subsequent `validate-workspace` run reports zero errors.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the workspace is bootstrapped:
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest are clean before any exploration
+- **`/atlas:explore`** — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available)
+- **`/atlas:bootstrap`** — re-load the constitution if you suspect context drift

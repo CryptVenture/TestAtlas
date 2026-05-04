@@ -97,3 +97,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.issues` was incremented by exactly one.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the issue is filed:
+
+- **`/atlas:triage`** — assess severity, owner, and fix priority across the issue queue
+- **`/atlas:retest`** — re-run the failing scenario after a candidate fix is in place
+- **`/atlas:report`** — fold the issue into the next aggregate report

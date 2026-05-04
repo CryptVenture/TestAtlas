@@ -109,3 +109,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The RUN JSON validates against `test-run.schema.json` and includes the throttle profile applied.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that performance scenarios have run:
+
+- **`/atlas:log-issue`** — file individual issues for budget violations
+- **`/atlas:triage`** — assess severity and ownership across the perf queue
+- **`/atlas:retest`** — re-run failing scenarios after a fix lands

@@ -94,3 +94,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest counts re-derived and recorded; `lastUpdatedAt` bumped.
 - The five lifecycle files listed above are updated.
 - No stop condition triggered.
+
+## What's Next
+
+Now that the workspace is validated:
+
+- **`/atlas:explore`** — proceed with discovery if validation passed clean
+- **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
+- **`/atlas:update`** — refresh the suite if the report flagged a stale version

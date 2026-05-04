@@ -104,3 +104,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - No row contents have been written anywhere in `_testatlas/`.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the data surface is mapped:
+
+- **`/atlas:explore-api`** — match entity lifecycles to their HTTP entry points
+- **`/atlas:test-flow`** — execute scenarios that exercise the entity transitions
+- **`/atlas:plan`** — turn the entity inventory into a test plan

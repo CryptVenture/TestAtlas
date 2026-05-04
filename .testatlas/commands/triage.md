@@ -103,3 +103,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the triage pass has run:
+
+- **`/atlas:retest`** — rerun fixed-pending-retest issues to confirm or regress
+- **`/atlas:consolidate`** — merge duplicate groups into canonical issues
+- **`/atlas:report`** — fold blockers + severity tallies into the next report

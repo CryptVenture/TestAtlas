@@ -88,3 +88,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every domain JSON validates against `domain.schema.json`.
 - Manifest `counts.domains` matches the on-disk domain count.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the domains are distilled:
+
+- **`/atlas:plan`** — turn the domain set into a test plan with risk-prioritised charters
+- **`/atlas:explore`** — return to discovery if any domain is missing app-map coverage

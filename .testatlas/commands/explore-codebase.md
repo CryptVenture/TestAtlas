@@ -107,3 +107,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.apps`, `counts.routes`, `counts.integrations`, `counts.models` are updated to match the on-disk map.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the app map is built:
+
+- **`/atlas:explore-ui`** — observe runtime UI states for the routes you just inventoried
+- **`/atlas:explore-api`** — exercise the HTTP surface and capture endpoint evidence
+- **`/atlas:plan`** — turn the inventory into a test plan if exploration is sufficient

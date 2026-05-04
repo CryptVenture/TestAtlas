@@ -117,3 +117,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 The agent emits a one-sentence confirmation that all 24 PRD §9 sections of `.testatlas/bootstrap.md` were re-read and either no precedence conflicts surfaced or the conflicts that did surface are listed verbatim. The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that the constitution is reloaded:
+
+- **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
+- **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts

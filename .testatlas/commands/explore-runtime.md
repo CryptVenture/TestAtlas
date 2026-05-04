@@ -117,3 +117,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest runtime counts reflect the on-disk evidence.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the runtime surface is mapped:
+
+- **`/atlas:explore-performance`** — measure baseline performance against the running services
+- **`/atlas:test-flow`** — exercise scenarios against the documented runtime topology
+- **`/atlas:plan`** — fold runtime constraints into the test plan

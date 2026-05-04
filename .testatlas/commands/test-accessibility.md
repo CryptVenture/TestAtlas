@@ -110,3 +110,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The RUN JSON validates against `test-run.schema.json`.
 - Manifest `counts.runs` and `counts.evidence` are updated to match disk.
 - The five lifecycle files listed above are updated.
+
+## What's Next
+
+Now that accessibility scenarios have run:
+
+- **`/atlas:log-issue`** — file individual issues for failing assertions
+- **`/atlas:triage`** — assess severity and ownership across the a11y queue
+- **`/atlas:retest`** — re-run failing scenarios after a fix lands

@@ -116,3 +116,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Manifest `counts.api-endpoints` (or analogous) reflects the on-disk map.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that the API surface is mapped:
+
+- **`/atlas:explore-integrations`** — trace outbound dependencies the API depends on
+- **`/atlas:test-flow`** — execute API scenarios end-to-end with response evidence
+- **`/atlas:plan`** — turn the endpoint inventory into a test plan

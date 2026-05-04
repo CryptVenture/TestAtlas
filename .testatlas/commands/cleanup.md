@@ -93,3 +93,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` and `_testatlas/11_workspace_manifest.json` reflect on-disk reality.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
+
+## What's Next
+
+Now that the workspace is tidy:
+
+- **`/atlas:update`** — pull the latest suite version on a clean tree
+- **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift

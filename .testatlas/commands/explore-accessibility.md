@@ -114,3 +114,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `findings.md` exists and lists each finding with severity, confidence, and at least one evidence path.
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
+
+## What's Next
+
+Now that accessibility findings are recorded:
+
+- **`/atlas:test-accessibility`** — execute targeted a11y scenarios against the worst offenders
+- **`/atlas:plan`** — fold a11y findings into the test plan
+- **`/atlas:log-issue`** — file individual issues for high-severity findings

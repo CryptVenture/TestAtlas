@@ -103,3 +103,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered for the issues that completed retest.
+
+## What's Next
+
+Now that the retest pass has run:
+
+- **`/atlas:triage`** — re-classify any reopened regressions back into the queue
+- **`/atlas:report`** — fold retest outcomes into the next aggregate report
+- **`/atlas:log-issue`** — file new issues if retest surfaced fresh symptoms
