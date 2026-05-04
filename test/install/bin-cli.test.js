@@ -106,11 +106,23 @@ test('bin-cli: update subcommand prints stub message and exits 0', async () => {
   assert.match(r.stdout, /07-03/);
 });
 
-test('bin-cli: uninstall subcommand prints stub message and exits 0', async () => {
-  const r = await runNode(BIN, ['uninstall']);
+test('bin-cli: uninstall --help lists --target/--purge/--force-untracked/--dry-run', async () => {
+  const r = await runNode(BIN, ['uninstall', '--help']);
   assert.equal(r.code, 0);
-  assert.match(r.stdout, /stub/i);
-  assert.match(r.stdout, /07-02/);
+  assert.match(r.stdout, /--target/);
+  assert.match(r.stdout, /--purge/);
+  assert.match(r.stdout, /--force-untracked/);
+  assert.match(r.stdout, /--dry-run/);
+});
+
+test('bin-cli: uninstall against missing manifest exits non-zero', async (t) => {
+  // No init was run on this tmp; manifest is absent.
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['uninstall', '--target', dir]);
+    // Without --force-untracked, refuses (non-zero).
+    assert.notEqual(r.code, 0, `expected non-zero on missing manifest; stderr=${r.stderr}`);
+    assert.match(`${r.stdout}\n${r.stderr}`, /Manifest missing or invalid|--force-untracked/i);
+  });
 });
 
 test('install.js (git-clone path): node install.js <tmp> writes the suite tree', async (t) => {

@@ -11,6 +11,7 @@ import path from 'node:path';
 import { program } from 'commander';
 
 import { runInit } from '../scripts/lib/install-core.js';
+import { runUninstall } from '../scripts/uninstall.js';
 
 // Node 20.11+ exposes `import.meta.dirname` natively — no fileURLToPath shim.
 const PKG_PATH = path.join(import.meta.dirname, '..', 'package.json');
@@ -53,11 +54,18 @@ program
 
 program
   .command('uninstall')
-  .description('Remove the suite (Plan 07-02 lands the implementation).')
-  .action(() => {
-    process.stdout.write(
-      'testatlas uninstall: stub. Plan 07-02 lands the uninstall implementation.\n',
-    );
+  .description('Remove the TestAtlas suite from the current repo.')
+  .option('--target <dir>', 'Target repo (default: cwd)')
+  .option('--purge', 'Also remove _testatlas/ workspace state (DESTRUCTIVE)')
+  .option('--force-untracked', 'Allow uninstall when manifest is missing/corrupt')
+  .option('--dry-run', 'Print planned removals; do not delete')
+  .action(async (opts) => {
+    await runUninstall({
+      target: opts.target,
+      purge: Boolean(opts.purge),
+      forceUntracked: Boolean(opts.forceUntracked),
+      dryRun: Boolean(opts.dryRun),
+    });
   });
 
 await program.parseAsync(process.argv);
