@@ -101,6 +101,34 @@ test('bin-cli: init --help shows the locked option set', async () => {
   assert.match(r.stdout, /--dry-run/);
 });
 
+test('bin-cli: init --help lists --adapter <name> repeatable flag (Quick 260504-q4s)', async () => {
+  const r = await runNode(BIN, ['init', '--help']);
+  assert.equal(r.code, 0);
+  assert.match(r.stdout, /--adapter <name>/);
+  // Examples block mentions the flag.
+  assert.match(r.stdout, /--adapter cline/);
+});
+
+test('bin-cli: init --adapter cline --target <tmp> --dry-run reports only cline (Quick 260504-q4s)', async (t) => {
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['init', '--adapter', 'cline', '--target', dir, '--dry-run']);
+    assert.equal(r.code, 0, `stderr: ${r.stderr}`);
+    assert.match(r.stdout, /Adapters:\s*cline/);
+    assert.doesNotMatch(r.stdout, /Adapters:\s*[^,\n]*generic/);
+  });
+});
+
+test('bin-cli: init --adapter unknown errors with full valid-adapter list (Quick 260504-q4s)', async (t) => {
+  await withTmp(t, async (dir) => {
+    const r = await runNode(BIN, ['init', '--adapter', 'notreal', '--target', dir, '--dry-run']);
+    assert.notEqual(r.code, 0);
+    const all = `${r.stdout}\n${r.stderr}`;
+    assert.match(all, /Unknown adapter 'notreal'/);
+    assert.match(all, /claude-code/);
+    assert.match(all, /amazon-q/);
+  });
+});
+
 test('bin-cli: init --target <tmp> --dry-run does not write', async (t) => {
   await withTmp(t, async (dir) => {
     const r = await runNode(BIN, ['init', '--target', dir, '--dry-run']);

@@ -41,6 +41,11 @@ import { assertNotUpdate } from './workspace-guard.js';
  *                                      (or os.homedir() when --global).
  * @property {string} suiteRoot         Absolute path of the suite package root
  *                                      (the dir containing `.testatlas/`).
+ * @property {string[]} [adapters]      Explicit subset of adapter names. When
+ *                                      provided AND non-empty, bypasses
+ *                                      auto-detect and `allAdapters`. Each
+ *                                      name must be in ALL_ADAPTERS or runInit
+ *                                      throws "Unknown adapter '<name>'…".
  * @property {boolean} [allAdapters]    Install every adapter regardless of detection.
  * @property {boolean} [force]          Remove existing `.testatlas/` and reinstall.
  * @property {boolean} [noUpdateCheck]  Skip GitHub Releases version probe.
@@ -67,7 +72,7 @@ import { assertNotUpdate } from './workspace-guard.js';
  *                                      CLI use; useful for downstream tooling).
  */
 
-const ALL_ADAPTERS = Object.freeze([
+export const ALL_ADAPTERS = Object.freeze([
   'claude-code',
   'cursor',
   'aider',
@@ -91,6 +96,23 @@ const ALL_ADAPTERS = Object.freeze([
 const SUITE_DIR = '.testatlas';
 const TEST_WORKSPACE_DIRNAME = 'test-workspace';
 const ADAPTERS_DIRNAME = 'adapters';
+
+/**
+ * Validate a caller-supplied list of adapter names against ALL_ADAPTERS.
+ * Throws with a single-line, actionable error containing every valid name on
+ * the first unknown entry.
+ *
+ * Exported so `add-adapter-core.js` (Quick 260504-q4s Task 2) can reuse the
+ * exact same error shape.
+ *
+ * @param {string[]} names
+ */
+export function validateAdapterNames(names) {
+  const unknown = names.filter((n) => !ALL_ADAPTERS.includes(n));
+  if (unknown.length > 0) {
+    throw new Error(`Unknown adapter '${unknown[0]}'. Known adapters: ${ALL_ADAPTERS.join(', ')}.`);
+  }
+}
 
 /**
  * Walk a directory tree recursively, yielding absolute paths of every file.
@@ -168,7 +190,7 @@ async function pathExists(p) {
  * Read adapter-capabilities.json to enumerate adapter names and outputPatterns.
  * @param {string} suiteRoot
  */
-async function loadAdapterCapabilities(suiteRoot) {
+export async function loadAdapterCapabilities(suiteRoot) {
   const capPath = path.join(suiteRoot, SUITE_DIR, 'adapters', 'adapter-capabilities.json');
   const text = await readFile(capPath, 'utf8');
   const parsed = JSON.parse(text);
@@ -278,7 +300,7 @@ async function copySuiteTree(suiteRoot, target, matchedAdapters) {
  * @param {string[]} adapters
  * @param {object} caps adapter-capabilities.json parsed
  */
-async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps, opts = {}) {
+export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps, opts = {}) {
   /** @type {{absPath: string, source: string, type: 'command'}[]} */
   const entries = [];
   /** @type {string[]} */
@@ -464,8 +486,21 @@ export async function runInit(opts) {
     );
   }
 
-  // Adapter detection (or all-adapters override).
-  const detected = opts.allAdapters ? [...ALL_ADAPTERS] : await detectAdapters(target);
+  // Adapter selection precedence:
+  //   1. opts.adapters (explicit non-empty subset; bypasses auto-detect).
+  //   2. opts.allAdapters (every adapter from ALL_ADAPTERS).
+  //   3. detectAdapters(target) (signal-based heuristic).
+  let detected;
+  if (Array.isArray(opts.adapters) && opts.adapters.length > 0) {
+    validateAdapterNames(opts.adapters);
+    // Dedup while preserving caller-supplied order so manifest order is
+    // user-deterministic.
+    detected = [...new Set(opts.adapters)];
+  } else if (opts.allAdapters) {
+    detected = [...ALL_ADAPTERS];
+  } else {
+    detected = await detectAdapters(target);
+  }
   const adapterSet = new Set(detected);
 
   // Dry-run short-circuit.

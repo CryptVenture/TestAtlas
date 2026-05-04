@@ -52,7 +52,13 @@ program
       'install, run `/atlas:init` inside your AI coding agent to bootstrap the ' +
       '_testatlas/ workspace.',
   )
-  .option('--all-adapters', 'Install all 7 adapters regardless of detection')
+  .option(
+    '--adapter <name>',
+    'Install only this adapter (repeatable; bypasses auto-detect)',
+    (val, prev) => [...prev, val],
+    [],
+  )
+  .option('--all-adapters', 'Install all 18 adapters regardless of detection')
   .option('--force', 'Overwrite existing .testatlas/ (preserves _testatlas/)')
   .option('--no-update-check', 'Skip the GitHub Releases version check')
   .option('--target <dir>', 'Target repo directory (default: cwd)')
@@ -76,6 +82,7 @@ program
       '  $ testatlas init                                # install into cwd, auto-detect adapters',
       '  $ testatlas init --target ./my-app              # install into a sibling repo',
       '  $ testatlas init --all-adapters --force         # reinstall with every adapter',
+      '  $ testatlas init --adapter cline --adapter windsurf  # install only the named adapters',
       '  $ testatlas init --global                       # install command files into ~/.claude/, ~/.cursor/, etc.',
       '  $ testatlas init --dry-run                      # preview without writing',
       '',
@@ -95,6 +102,7 @@ program
     const result = await runInit({
       target,
       suiteRoot: SUITE_ROOT,
+      adapters: Array.isArray(opts.adapter) ? opts.adapter : [],
       allAdapters: Boolean(opts.allAdapters),
       force: Boolean(opts.force),
       noUpdateCheck: opts.updateCheck === false,
