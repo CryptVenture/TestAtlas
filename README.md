@@ -58,6 +58,7 @@ All three paths converge on the same install kernel and produce the same `.testa
 
 | Topic | Doc |
 |-------|-----|
+| First-hour walkthrough | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) |
 | Command reference (auto-generated) | [docs/COMMANDS.md](docs/COMMANDS.md) |
 | Schema reference (auto-generated) | [docs/SCHEMAS.md](docs/SCHEMAS.md) |
 | Adapter guides | [.testatlas/adapters/README.md](.testatlas/adapters/README.md) |
