@@ -2,7 +2,7 @@
 description: Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="b10b91de8f40f52f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="2617317f4b1b1989" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -40,14 +40,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 6. Capture seed-fixture inventory: which scenarios bootstrap which records (e.g. `seed:demo`, `seed:test-fixtures`); cite seed file paths. Record only fixture identifiers and counts — never row payloads.
 7. Save raw evidence to `_testatlas/evidence/explore-data/<timestamp>/`: schema dumps (structure only), migration listings, seed paths, queue topic enumerations, cache prefix tables, bucket inventories.
 8. Update `_testatlas/12_app_map.json` data entries with discovered shape + lifecycle metadata + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
-9. Append a data-inventory section to `_testatlas/01_app_inventory.md` listing entities and lifecycle state machines.
+9. Append a data-inventory section to `_testatlas/01_system_map.md` listing entities and lifecycle state machines.
 10. Close the lifecycle (next section).
 
 ## Outputs
 
 - Data entries in `_testatlas/12_app_map.json` — schema-valid models / queues / caches / storage entries, each citing evidence paths.
 - `_testatlas/evidence/explore-data/<timestamp>/` — schema dumps (structure only), migration listings, seed paths, queue/cache/storage inventories.
-- Updated `_testatlas/01_app_inventory.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
+- Updated `_testatlas/01_system_map.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
 
 ## Lifecycle
 

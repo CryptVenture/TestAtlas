@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-runtime. Paste .testatlas/bootstrap.md first; description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="a42bf59c8b2c207e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="c8e80c40a2254699" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -50,14 +50,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - Health-check declarations from compose / Dockerfile (recorded; not executed unless `safeMode=true` AND the check is local-only AND `allowDestructiveActions=true` is unnecessary for the probe).
    - Migration / seed inventory (paths + tooling identified).
 7. Update `_testatlas/00_overview.md` runtime-detection metadata. Preserve human content using generated-section markers (`<!-- testatlas:runtime-start -->` ... `<!-- testatlas:runtime-end -->`); only the content between markers is rewritten. If markers are missing, append a new managed section at the end of the file.
-8. Append a Runtime section to `_testatlas/01_app_inventory.md` summarizing services, ports, ENV-key counts, migration tooling.
+8. Append a Runtime section to `_testatlas/01_system_map.md` summarizing services, ports, ENV-key counts, migration tooling.
 9. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/evidence/explore-runtime/<timestamp>/` — env-keys.json, compose-config.json, image-inspect.json, port-bindings.json, migration-inventory.json.
 - Updated `_testatlas/00_overview.md` — runtime metadata between generated-section markers.
-- Updated `_testatlas/01_app_inventory.md` — Runtime section.
+- Updated `_testatlas/01_system_map.md` — Runtime section.
 
 ## Lifecycle
 

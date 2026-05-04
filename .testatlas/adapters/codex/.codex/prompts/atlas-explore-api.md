@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-api. Invoke as /prompts:atlas-explore-api. Description: Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces; capture contracts, auth, errors, pagination; safely probe sandbox endpoints. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="ca6dbcea4a64e233" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="c51bef120262d571" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -49,14 +49,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 6. **Destructive-endpoint discipline.** When `allowDestructiveActions=false`, do NOT probe endpoints whose method is `DELETE`, `PUT`, `PATCH`, or whose path contains delete-like verbs (`/delete`, `/drop`, `/reset`, `/purge`); record them as `executed: false` with `safety: destructive`. Probe only `GET`/`HEAD`/`OPTIONS` plus explicitly idempotent introspection endpoints (`/health`, `/version`, GraphQL `__schema`).
 7. For each safe sandbox probe, send a minimal request (with appropriate auth headers from `.env.example` placeholders if needed; never with live secrets). Save request/response under `_testatlas/evidence/explore-api/<timestamp>/<endpoint-slug>/request.txt`, `response.txt`, `headers.json`. Redact any token-like values per `bootstrap.md` redaction guidance.
 8. Update `_testatlas/12_app_map.json` api-endpoint entries with discovered shape + evidence references. Validate against `api-endpoint.schema.json`. Halt on validation failure; surface AJV errors verbatim.
-9. Append an API section to `_testatlas/01_app_inventory.md` listing endpoint counts by surface (REST / GraphQL / RPC / webhook / event-consumer) and total probed vs unprobed.
+9. Append an API section to `_testatlas/01_system_map.md` listing endpoint counts by surface (REST / GraphQL / RPC / webhook / event-consumer) and total probed vs unprobed.
 10. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/12_app_map.json` — api-endpoint entries with method, path, auth, request/response, errors, pagination, evidence paths.
 - `_testatlas/evidence/explore-api/<timestamp>/` — per-endpoint subdirectories with redacted request/response captures, schema file copies, introspection dumps.
-- Updated `_testatlas/01_app_inventory.md` — API section with surface-type counts.
+- Updated `_testatlas/01_system_map.md` — API section with surface-type counts.
 
 ## Lifecycle
 

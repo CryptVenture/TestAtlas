@@ -3,7 +3,7 @@ description: Map auth, payments, email, analytics, storage, webhooks, and featur
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="bebfed28911713d3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="97cf7802fd369d7f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -46,14 +46,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. For each safe sandbox integration with a discoverable read-only endpoint, send a minimal probe (auth status check, sandbox `me` endpoint, public health check) and capture the request envelope + response under `_testatlas/evidence/explore-integrations/<timestamp>/<integration-slug>/`. **NEVER trigger real charges, real emails, real SMS, real OAuth grants, real webhooks, or any side effect** — only read-only metadata calls. Probes that would have side effects must be skipped and logged as `probe: not-attempted` with reasoning.
 6. Document per-integration: SDK name + version (from `package.json` lockfile), env keys used (KEY NAMES only — never values), base URLs (sandbox vs prod), webhook receive endpoints in the target product (route + handler symbol), webhook send endpoints out of the target product (caller file + line).
 7. Update `_testatlas/12_app_map.json` integration entries with discovered shape + sandbox/prod classification + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
-8. Append an integration inventory to `_testatlas/01_app_inventory.md` listing each integration with category, sandbox/prod boundary, and probe outcome.
+8. Append an integration inventory to `_testatlas/01_system_map.md` listing each integration with category, sandbox/prod boundary, and probe outcome.
 9. Close the lifecycle (next section).
 
 ## Outputs
 
 - Integration entries in `_testatlas/12_app_map.json` — schema-valid integration entries citing evidence paths and explicitly classified sandbox / test / prod.
 - `_testatlas/evidence/explore-integrations/<timestamp>/` — per-integration probe envelopes (request + response, sandbox only), SDK config dumps, env-key inventories, and `skipped-prod.md` listing every prod endpoint deliberately not probed.
-- Updated `_testatlas/01_app_inventory.md` — integration inventory with category, classification, and probe outcome per integration.
+- Updated `_testatlas/01_system_map.md` — integration inventory with category, classification, and probe outcome per integration.
 
 ## Lifecycle
 

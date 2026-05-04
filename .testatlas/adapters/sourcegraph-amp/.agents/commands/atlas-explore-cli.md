@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-cli. Invoke as /atlas-explore-cli. Description: Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="5c01ea7a06fd2ba3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="6b7ef74be192a057" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -47,14 +47,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. For each `safe` command, run `<cmd> --help` (fall back to `-h`) and `<cmd> --version` if applicable. Use a short timeout (≤15s). Capture stdout, stderr, exit code, and the exact invocation under `_testatlas/evidence/explore-cli/<timestamp>/<cmd-slug>/help.txt`, `version.txt`, `meta.json`.
 6. Update `_testatlas/12_app_map.json` `cli-command` entries with: `name`, `source` (file path + line number), `runner` (npm / make / just / cargo / poe / etc.), `safety`, `executed`, `evidence` (array of paths from step 5), and any extracted subcommand list parsed from `--help`.
 7. Validate the produced cli-command entries against `cli-command.schema.json`. Halt on validation failure; surface AJV errors verbatim.
-8. Append a CLI section to `_testatlas/01_app_inventory.md` listing the discovered runners, total command counts (safe / destructive), and pointers to the evidence directory.
+8. Append a CLI section to `_testatlas/01_system_map.md` listing the discovered runners, total command counts (safe / destructive), and pointers to the evidence directory.
 9. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/12_app_map.json` — cli-command entries each citing at least one evidence path under `_testatlas/evidence/explore-cli/<timestamp>/`.
 - `_testatlas/evidence/explore-cli/<timestamp>/` — per-command subdirectories containing `help.txt`, `version.txt`, `meta.json` (invocation, exit code, duration).
-- Updated `_testatlas/01_app_inventory.md` — CLI section with runner inventory and safe/destructive counts.
+- Updated `_testatlas/01_system_map.md` — CLI section with runner inventory and safe/destructive counts.
 
 ## Lifecycle
 

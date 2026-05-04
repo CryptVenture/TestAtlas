@@ -77,14 +77,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    Record stale flags under `_testatlas/evidence/explore-docs/<timestamp>/stale.md` with one row per flagged doc citing source path, signal, and corroborating evidence (e.g. the manifest line that disagrees).
 6. **Normalize substantial requirements.** A doc is "substantial" when it contains acceptance criteria, user stories, explicit capability lists, or numbered requirements. For each, write `_testatlas/stories/<slug>.md` with a backlink to the source doc path, a short summary, and the verbatim requirement block (quoted, never paraphrased). Do NOT modify the source doc. Do NOT auto-merge stories that look similar — flag duplicates for the operator instead.
 7. **Flag conflicts.** Write `_testatlas/evidence/explore-docs/<timestamp>/conflicts.md` listing doc-vs-code or doc-vs-doc inconsistencies (e.g. README claims a CLI flag the binary no longer exposes; two ADRs choose opposing options; CHANGELOG entry contradicts a PRD acceptance criterion). Per bootstrap §3, verified repository truth wins; flag the doc, do not silently rewrite it.
-8. Append a Documentation section to `_testatlas/01_app_inventory.md` with counts by structural type, total stale flags, total conflict flags, and a pointer to the evidence directory.
+8. Append a Documentation section to `_testatlas/01_system_map.md` with counts by structural type, total stale flags, total conflict flags, and a pointer to the evidence directory.
 9. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/stories/<slug>.md` — one normalized story per substantial requirement block, with a backlink to the source doc.
 - `_testatlas/evidence/explore-docs/<timestamp>/` — `index.json` (doc inventory), `stale.md`, `conflicts.md`.
-- Updated `_testatlas/01_app_inventory.md` — Documentation section.
+- Updated `_testatlas/01_system_map.md` — Documentation section.
 
 ## Lifecycle
 
