@@ -61,9 +61,9 @@ This document is the live dashboard of the testing campaign. Every command updat
 ## Next Highest-Value Steps
 
 <!-- TESTATLAS:GENERATED:START section="next-steps" -->
-1. Run `/atlas:map-app` to discover domains and flows.
-2. Run `/atlas:propose-test-plan` to generate `plans/PLAN-master.md`.
-3. Begin domain-level exploration.
+1. Run `/atlas:explore` (then `/atlas:explore-codebase` and any sub-explorers it recommends) to discover the product surface.
+2. Run `/atlas:map-domains` to distill `_testatlas/12_app_map.json` into per-domain artifacts.
+3. Run `/atlas:plan` to generate `_testatlas/04_test_plan.md` and the master test plan.
 <!-- TESTATLAS:GENERATED:END section="next-steps" -->
 
 ## Latest Update Timestamp
