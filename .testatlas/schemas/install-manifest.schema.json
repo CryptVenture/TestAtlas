@@ -1,0 +1,70 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/install-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Install Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion",
+    "suiteVersion",
+    "schemaVersion",
+    "installedAt",
+    "target",
+    "adapters",
+    "files"
+  ],
+  "properties": {
+    "manifestVersion": { "type": "string", "const": "1" },
+    "suiteVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$",
+      "description": "Semver of the testatlas npm package that wrote this manifest."
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the _testatlas/ workspace; bumped by migrations."
+    },
+    "installedAt": { "type": "string", "format": "date-time" },
+    "target": {
+      "type": "string",
+      "description": "Absolute target path captured at install time (informational only; uninstall always uses cwd)."
+    },
+    "adapters": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["claude-code", "generic", "opencode", "kilocode", "cursor", "aider", "mcp"]
+      },
+      "uniqueItems": true
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "hash", "source", "type"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[^/\\\\][^\\\\]*$",
+            "description": "Target-relative POSIX path (forward-slashes only; backslashes rejected for cross-platform discipline)."
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{16}$",
+            "description": "16-hex SHA-256 of file content (CRLF-normalized via content-hash.js)."
+          },
+          "source": {
+            "type": "string",
+            "description": "Suite-relative POSIX path of the source file in the testatlas package."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["suite", "adapter", "command"]
+          }
+        }
+      }
+    }
+  }
+}
