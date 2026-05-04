@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-mobile-screens",
+  "name": "mobile-screens",
+  "displayName": "mobile-screens",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "Universal RN+web screens (home, login, profile, feed)",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

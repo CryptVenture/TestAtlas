@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-universal-sharedbutton-lacks-haptic-feedback-on-native",
+  "slug": "universal-sharedbutton-lacks-haptic-feedback-on-native",
+  "title": "Universal SharedButton lacks haptic feedback on native",
+  "status": "new",
+  "severity": "enhancement",
+  "confidence": "confirmed",
+  "type": "ux",
+  "domain": "domain-navigation",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "components/shared-button.js wraps Pressable but never calls expo-haptics; native users get no tactile confirmation on tap.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-002"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

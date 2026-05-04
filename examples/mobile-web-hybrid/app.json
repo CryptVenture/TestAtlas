@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "TestAtlas Mobile Web Hybrid",
+    "slug": "testatlas-mobile-web-hybrid",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "scheme": "testatlasmwh",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.testatlas.example.mwh"
+    },
+    "android": {
+      "package": "dev.testatlas.example.mwh"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"]
+  }
+}

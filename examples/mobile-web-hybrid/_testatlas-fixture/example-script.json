@@ -1,0 +1,136 @@
+{
+  "$schema": "../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "mobile-web-hybrid",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-mobile-screens",
+      "command": "create-domain",
+      "args": {
+        "name": "mobile-screens",
+        "purpose": "Universal RN+web screens (home, login, profile, feed)"
+      }
+    },
+    {
+      "id": "domain-auth",
+      "command": "create-domain",
+      "args": { "name": "auth", "purpose": "Mock authentication via api-client" }
+    },
+    {
+      "id": "domain-navigation",
+      "command": "create-domain",
+      "args": { "name": "navigation", "purpose": "Expo Router stack and bottom-tabs configuration" }
+    },
+    {
+      "id": "domain-api-client",
+      "command": "create-domain",
+      "args": { "name": "api-client", "purpose": "Universal fetch wrapper for auth and profile" }
+    },
+    {
+      "id": "flow-home-screen-load",
+      "command": "create-flow",
+      "args": {
+        "name": "Home Screen Load",
+        "domain": "domain-mobile-screens",
+        "persona": "first-time-user",
+        "goal": "Render the universal home screen with sign-in and feed CTAs"
+      }
+    },
+    {
+      "id": "flow-login",
+      "command": "create-flow",
+      "args": {
+        "name": "Login",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Submit email and password through the modal login route and land on the feed tab"
+      }
+    },
+    {
+      "id": "flow-feed-tab-load",
+      "command": "create-flow",
+      "args": {
+        "name": "Feed Tab Load",
+        "domain": "domain-mobile-screens",
+        "persona": "returning-user",
+        "goal": "Render the FlatList of mock posts inside the bottom-tab feed route"
+      }
+    },
+    {
+      "id": "flow-profile-tab-load",
+      "command": "create-flow",
+      "args": {
+        "name": "Profile Tab Load",
+        "domain": "domain-mobile-screens",
+        "persona": "returning-user",
+        "goal": "Render the profile screen with sign-out CTA inside the bottom-tab profile route"
+      }
+    },
+    {
+      "id": "flow-logout",
+      "command": "create-flow",
+      "args": {
+        "name": "Logout",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Invoke api-client logout from the profile tab and return to the home screen"
+      }
+    },
+    {
+      "id": "flow-tabs-navigation",
+      "command": "create-flow",
+      "args": {
+        "name": "Tabs Navigation",
+        "domain": "domain-navigation",
+        "persona": "returning-user",
+        "goal": "Switch between the feed and profile tabs without losing tab state"
+      }
+    },
+    {
+      "id": "evidence-login-no-offline",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of app/login.js surfacing fetch errors as opaque strings without offline detection"
+      }
+    },
+    {
+      "id": "evidence-pressable-no-haptics",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of components/shared-button.js Pressable without expo-haptics integration"
+      }
+    },
+    {
+      "id": "issue-login-no-offline",
+      "command": "create-issue",
+      "args": {
+        "title": "Login screen does not handle network offline state",
+        "domain": "domain-auth",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "validation",
+        "summary": "app/login.js renders fetch errors as opaque strings; there is no offline detection, retry, or telemetry.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    {
+      "id": "issue-pressable-no-haptics",
+      "command": "create-issue",
+      "args": {
+        "title": "Universal SharedButton lacks haptic feedback on native",
+        "domain": "domain-navigation",
+        "severity": "enhancement",
+        "confidence": "confirmed",
+        "type": "ux",
+        "summary": "components/shared-button.js wraps Pressable but never calls expo-haptics; native users get no tactile confirmation on tap.",
+        "evidence": "EVIDENCE-002"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}

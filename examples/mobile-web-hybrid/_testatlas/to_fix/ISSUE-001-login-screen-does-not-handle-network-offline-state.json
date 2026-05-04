@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-login-screen-does-not-handle-network-offline-state",
+  "slug": "login-screen-does-not-handle-network-offline-state",
+  "title": "Login screen does not handle network offline state",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "validation",
+  "domain": "domain-auth",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "app/login.js renders fetch errors as opaque strings; there is no offline detection, retry, or telemetry.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

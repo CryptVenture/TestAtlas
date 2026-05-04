@@ -1,0 +1,22 @@
+{
+  "name": "@testatlas/example-mobile-web-hybrid",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TestAtlas example: structure-only Expo Router 4 (SDK 52) universal app demonstrating mobile + web mappable concerns. NOT built natively in CI — see README §Structure-only.",
+  "main": "expo-router/entry",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "expo": "~52.0.49",
+    "expo-router": "~4.0.22",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-native": "0.76.9",
+    "react-native-web": "~0.19.13"
+  }
+}
