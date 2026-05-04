@@ -11,7 +11,7 @@
 // Excluded directories: node_modules, .git, .planning, dist, build, coverage,
 // .next, .expo, .tmp-* (test scratch), .testatlas.bak.*
 
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
