@@ -10,9 +10,10 @@
 //                                --evidence EVIDENCE-001 [--evidence ...] \
 //                                [--workspace <path>] [--cwd <path>] [--dry-run] [--help]
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
 import { ID_PATTERNS, padIssueNumber, slugify } from './lib/slug.js';
@@ -37,7 +38,7 @@ async function allocateNextIssueId(wsDir) {
 
   let diskMax = 0;
   try {
-    const entries = await readdir(path.join(wsDir, TARGET_DIR), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, TARGET_DIR), { withFileTypes: true });
     for (const e of entries) {
       if (!e.isFile()) continue;
       const m = e.name.match(/^ISSUE-(\d{3,})-/);
@@ -104,7 +105,7 @@ export async function createIssue(args = {}, _inject = {}) {
   const seq = await allocateNextIssueId(wsDir);
   const slug = slugify(args.title);
   const id = `ISSUE-${seq}-${slug}`;
-  const nowIso = new Date().toISOString();
+  const nowIso = now();
 
   const record = {
     $schema: ISSUE_SCHEMA,

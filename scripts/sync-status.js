@@ -8,10 +8,11 @@
 // CLI:
 //   node scripts/sync-status.js [--workspace <p>] [--cwd <p>] [--dry-run] [--help]
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -22,7 +23,7 @@ const COUNTS_SECTION = 'counts';
 
 async function countDirs(wsDir, sub, prefix) {
   try {
-    const entries = await readdir(path.join(wsDir, sub), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, sub), { withFileTypes: true });
     return entries.filter((e) => e.isDirectory() && (!prefix || e.name.startsWith(prefix))).length;
   } catch (err) {
     if (err.code === 'ENOENT') return 0;
@@ -32,7 +33,7 @@ async function countDirs(wsDir, sub, prefix) {
 
 async function countFiles(wsDir, sub, predicate) {
   try {
-    const entries = await readdir(path.join(wsDir, sub), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, sub), { withFileTypes: true });
     return entries.filter((e) => e.isFile() && predicate(e.name)).length;
   } catch (err) {
     if (err.code === 'ENOENT') return 0;
@@ -84,7 +85,7 @@ export async function syncStatus(args = {}, _inject = {}) {
   const manifest = JSON.parse(manifestText);
   const before = JSON.stringify(manifest.counts);
   manifest.counts = counts;
-  manifest.lastUpdatedAt = new Date().toISOString();
+  manifest.lastUpdatedAt = now();
   const manifestChanged = before !== JSON.stringify(counts);
 
   // Update 03_execution_status.md "counts" section if present.

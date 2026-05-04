@@ -11,11 +11,12 @@
 //   node scripts/update-indexes.js [--only=domains,flows] [--workspace <p>]
 //                                  [--cwd <p>] [--dry-run] [--help]
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { hashContent } from './lib/content-hash.js';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -38,7 +39,7 @@ const SECTIONS = ['domain-docs', 'flow-docs', 'issue-docs', 'evidence', 'reports
 async function listDomains(wsDir) {
   const out = [];
   try {
-    const entries = await readdir(path.join(wsDir, 'domains'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'domains'), { withFileTypes: true });
     for (const e of entries) {
       if (!e.isDirectory()) continue;
       out.push(`domains/${e.name}/index.md`);
@@ -52,7 +53,7 @@ async function listDomains(wsDir) {
 async function listFlows(wsDir) {
   const out = [];
   try {
-    const entries = await readdir(path.join(wsDir, 'flows'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'flows'), { withFileTypes: true });
     for (const e of entries) {
       if (e.isFile() && e.name.endsWith('.md') && e.name.startsWith('FLOW-')) {
         out.push(`flows/${e.name}`);
@@ -67,7 +68,7 @@ async function listFlows(wsDir) {
 async function listIssues(wsDir) {
   const out = [];
   try {
-    const entries = await readdir(path.join(wsDir, 'to_fix'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'to_fix'), { withFileTypes: true });
     for (const e of entries) {
       if (e.isFile() && e.name.endsWith('.md') && /^ISSUE-\d{3,}-/.test(e.name)) {
         out.push(`to_fix/${e.name}`);
@@ -82,7 +83,7 @@ async function listIssues(wsDir) {
 async function listEvidence(wsDir) {
   const out = [];
   try {
-    const entries = await readdir(path.join(wsDir, 'evidence'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'evidence'), { withFileTypes: true });
     for (const e of entries) {
       if (e.isDirectory() && /^EVIDENCE-/.test(e.name)) {
         out.push(e.name);
@@ -97,7 +98,7 @@ async function listEvidence(wsDir) {
 async function listReports(wsDir) {
   const out = [];
   try {
-    const entries = await readdir(path.join(wsDir, 'reports'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'reports'), { withFileTypes: true });
     for (const e of entries) {
       if (e.isFile() && e.name.endsWith('.md')) out.push(`reports/${e.name}`);
     }
@@ -204,7 +205,7 @@ export async function updateIndexes(args = {}, _inject = {}) {
     for (const { section, hash } of updatedSections) {
       manifest.generatedSections[fileKey][section] = hash;
     }
-    manifest.lastUpdatedAt = new Date().toISOString();
+    manifest.lastUpdatedAt = now();
     nextManifest = `${JSON.stringify(manifest, null, 2)}\n`;
   }
 

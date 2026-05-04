@@ -6,10 +6,11 @@
 // If a captured-file path is supplied via --file <path>, content-hash.js is
 // invoked over the file contents and `record.hash` is populated.
 
-import { mkdir, readdir, readFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { hashContent } from './lib/content-hash.js';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
 import { padIssueNumber } from './lib/slug.js';
@@ -29,7 +30,7 @@ async function allocateNextEvidenceId(wsDir) {
 
   let diskMax = 0;
   try {
-    const entries = await readdir(path.join(wsDir, 'evidence'), { withFileTypes: true });
+    const entries = await sortedReaddir(path.join(wsDir, 'evidence'), { withFileTypes: true });
     for (const e of entries) {
       if (!e.isDirectory()) continue;
       const m = e.name.match(/^EVIDENCE-(\d{3,})/);
@@ -61,7 +62,7 @@ export async function createEvidenceRecord(args = {}, _inject = {}) {
   const seq = await allocateNextEvidenceId(wsDir);
   const id = `EVIDENCE-${seq}`;
   const targetDir = `evidence/${id}`;
-  const nowIso = new Date().toISOString();
+  const nowIso = now();
 
   // Default to a path under evidence/<id>/ if no explicit path given.
   const recordPath = args.path ?? `evidence/${id}/${args.fileName ?? 'capture.bin'}`;

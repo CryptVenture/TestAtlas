@@ -15,10 +15,11 @@
 //   node scripts/generate-report.js [--workspace <p>] [--cwd <p>]
 //                                   [--report-path=<custom>] [--dry-run] [--help]
 
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
@@ -64,7 +65,7 @@ const SEVERITY_RANK = {
  */
 async function listFilesByPredicate(dir, predicate) {
   try {
-    const entries = await readdir(dir, { withFileTypes: true });
+    const entries = await sortedReaddir(dir, { withFileTypes: true });
     const out = [];
     for (const e of entries) {
       if (e.isFile() && predicate(e.name)) out.push(e.name);
@@ -82,7 +83,7 @@ async function listFilesByPredicate(dir, predicate) {
  */
 async function listSubdirs(dir) {
   try {
-    const entries = await readdir(dir, { withFileTypes: true });
+    const entries = await sortedReaddir(dir, { withFileTypes: true });
     return entries.filter((e) => e.isDirectory()).map((e) => e.name);
   } catch (err) {
     if (err.code === 'ENOENT') return [];
@@ -232,9 +233,17 @@ function buildJsonReport({
     /pass/i.test(r.frontmatter?.result ?? r.parsed?.result ?? ''),
   ).length;
 
-  const sortedIssues = [...issues].sort(
-    (a, b) => (SEVERITY_RANK[a.severity] ?? 99) - (SEVERITY_RANK[b.severity] ?? 99),
-  );
+  const sortedIssues = [...issues].sort((a, b) => {
+    const sa = SEVERITY_RANK[a.severity] ?? 99;
+    const sb = SEVERITY_RANK[b.severity] ?? 99;
+    if (sa !== sb) return sa - sb;
+    // Stable tiebreaker: id ascending (deterministic regardless of FS order).
+    const ida = a.id ?? '';
+    const idb = b.id ?? '';
+    if (ida < idb) return -1;
+    if (ida > idb) return 1;
+    return 0;
+  });
   const highestSeverityIssues = sortedIssues
     .filter((i) => i.severity === 'critical' || i.severity === 'high')
     .map((i) => i.id)
@@ -506,7 +515,7 @@ export async function generateReport(args = {}, _inject = {}) {
   }
 
   // ── Build JSON sidecar ───────────────────────────────────────────────────
-  const generatedAt = new Date().toISOString();
+  const generatedAt = now();
   const reportId = `REPORT-${generatedAt.replace(/[:.]/g, '-')}`;
   const jsonReport = buildJsonReport({
     reportId,

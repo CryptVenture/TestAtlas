@@ -13,6 +13,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
 import { slugify } from './lib/slug.js';
@@ -37,7 +38,7 @@ export async function createDomain(args = {}, _inject = {}) {
 
   const slug = slugify(args.name);
   const id = `domain-${slug}`;
-  const nowIso = new Date().toISOString();
+  const nowIso = now();
 
   const record = {
     $schema: DOMAIN_SCHEMA,

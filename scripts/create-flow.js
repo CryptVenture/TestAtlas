@@ -5,6 +5,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
 import { ID_PATTERNS, slugify } from './lib/slug.js';
@@ -47,7 +48,7 @@ export async function createFlow(args = {}, _inject = {}) {
   const domainSlug = args.domain.replace(/^domain-/, '');
   const flowSlug = slugify(args.name);
   const id = `FLOW-${domainSlug}-${flowSlug}`;
-  const nowIso = new Date().toISOString();
+  const nowIso = now();
 
   const record = {
     $schema: FLOW_SCHEMA,

@@ -10,10 +10,11 @@
 //   node scripts/summarize-run.js [--since=<ISO>] [--workspace <p>] [--cwd <p>]
 //                                  [--dry-run] [--help]
 
-import { readdir, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -21,7 +22,7 @@ import { assertNotUpdate } from './lib/workspace-guard.js';
 const RUNS_DIR = 'tests/runs';
 
 function timestamp() {
-  return new Date().toISOString().replace(/[:.]/g, '-');
+  return now().replace(/[:.]/g, '-');
 }
 
 export async function summarizeRun(args = {}, _inject = {}) {
@@ -38,7 +39,7 @@ export async function summarizeRun(args = {}, _inject = {}) {
   const runs = [];
   let entries;
   try {
-    entries = await readdir(path.join(wsDir, RUNS_DIR), { withFileTypes: true });
+    entries = await sortedReaddir(path.join(wsDir, RUNS_DIR), { withFileTypes: true });
   } catch (err) {
     if (err.code === 'ENOENT') entries = [];
     else throw err;
@@ -92,7 +93,7 @@ export async function summarizeRun(args = {}, _inject = {}) {
   const lines = [
     `# Session Summary — ${ts}`,
     '',
-    `Generated at: ${new Date().toISOString()}`,
+    `Generated at: ${now()}`,
     `Total runs: ${total}`,
     `Passed: ${passed}`,
     `Failed: ${failed}`,
