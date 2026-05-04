@@ -29,6 +29,12 @@ yarn-error.log*
 .testatlas/.update-cache.json
 .testatlas/.install-manifest.json
 _testatlas/
+# … except inside examples/, where each example ships a checked-in workspace
+# (Plan 08-01: examples/<name>/_testatlas/ is the deterministic-replay output
+# tree and is the source-of-truth the regenerate-example.js drift-check
+# compares against in CI).
+!examples/*/_testatlas/
+!examples/*/_testatlas/**
 
 # Env (suite uses none, but defensive)
 .env

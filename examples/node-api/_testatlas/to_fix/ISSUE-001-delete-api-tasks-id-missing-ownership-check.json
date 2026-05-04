@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-001-delete-api-tasks-id-missing-ownership-check",
+  "slug": "delete-api-tasks-id-missing-ownership-check",
+  "title": "DELETE api tasks id missing ownership check",
+  "status": "new",
+  "severity": "medium",
+  "confidence": "confirmed",
+  "type": "validation",
+  "domain": "domain-tasks",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "DELETE /api/tasks/:id does not verify the requester owns the task; any caller can delete any task.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-001"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

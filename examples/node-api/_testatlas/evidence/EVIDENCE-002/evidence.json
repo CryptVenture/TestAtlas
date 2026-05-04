@@ -1,0 +1,13 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "id": "EVIDENCE-002",
+  "type": "log",
+  "path": "evidence/EVIDENCE-002/capture.bin",
+  "domain": null,
+  "flow": null,
+  "issue": null,
+  "capturedOn": "2026-05-03T00:00:00.000Z",
+  "environment": "local",
+  "description": "Process restart followed by GET /api/tasks returning empty array",
+  "redacted": false
+}

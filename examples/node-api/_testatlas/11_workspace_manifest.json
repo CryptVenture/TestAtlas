@@ -1,0 +1,101 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/workspace-manifest.schema.json",
+  "suite": "TestAtlas",
+  "workspaceVersion": "1",
+  "workspaceDir": "_testatlas",
+  "initializedAt": "2026-05-03T00:00:00.000Z",
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z",
+  "project": {
+    "name": "TestAtlas",
+    "root": ".",
+    "detectedStack": [],
+    "packageManagers": [],
+    "runtimes": []
+  },
+  "counts": {
+    "domains": 3,
+    "flows": 4,
+    "issues": 3,
+    "evidenceRecords": 3,
+    "testRuns": 0
+  },
+  "latestReport": null,
+  "status": "initialized",
+  "generatedSections": {
+    "_testatlas/00_overview.md": {
+      "current-status": "4fc3cd82d6470742",
+      "latest-report-pointer": "849f86780034fbe2",
+      "last-updated": "b2acf42260643ff7"
+    },
+    "_testatlas/01_system_map.md": {
+      "source-references": "d60398288f929323"
+    },
+    "_testatlas/03_execution_status.md": {
+      "current-run": "3bb0a4ed34b49dc6",
+      "completed-explorations": "a06ed5db3ceda2f0",
+      "domains-mapped": "c99377464d01af92",
+      "flows-mapped": "64489410bf5b084d",
+      "flows-tested": "2dabcce1965180e1",
+      "issues-filed": "9d941eba6da8b5d4",
+      "pending-retests": "2be28eddd1b0c284",
+      "blockers": "4973501cf9d1fe88",
+      "next-steps": "f5c8d2243d4d632b",
+      "last-updated": "b2acf42260643ff7"
+    },
+    "_testatlas/09_artifact_index.md": {
+      "canonical-docs": "c7c23843a7a11c49",
+      "domain-docs": "c99377464d01af92",
+      "flow-docs": "64489410bf5b084d",
+      "issue-docs": "9d941eba6da8b5d4",
+      "evidence": "bc8b577346b452de",
+      "reports": "ef05d2b58e02f519",
+      "json-maps": "c4af485db8a628f2",
+      "command-outputs": "c00b53b8f1ae74c1",
+      "sub-agent-outputs": "20264dd605531bc7"
+    },
+    "_testatlas/10_command_log.md": {
+      "entries": "fd2da5b31c9ebc4e"
+    },
+    "_testatlas/13_quality_scorecard.md": {
+      "coverage": "36586ce9290b9b02",
+      "severity-weighted-issue-load": "baf08e65c356fdfa",
+      "confidence-trend": "18f70c6c5a223da7",
+      "blockers-trend": "d87749fa56f5762b",
+      "last-updated": "b2acf42260643ff7"
+    },
+    "09_artifact_index.md": {
+      "domain-docs": "1fad768987fc6716",
+      "flow-docs": "9f39251a5380c44a",
+      "issue-docs": "cc7afac6054cb123",
+      "evidence": "c3269b74cc3f5082",
+      "reports": "7df62e93006bdb54"
+    },
+    "to_fix/by_domain/domain-tasks.md": {
+      "entries": "0e23e32c078f9b3b"
+    },
+    "to_fix/by_severity/medium.md": {
+      "entries": "f0fd38548d4986e3"
+    },
+    "to_fix/by_status/new.md": {
+      "entries": "0d7a16df1cbd0d20"
+    },
+    "to_fix/by_type/validation.md": {
+      "entries": "f0fd38548d4986e3"
+    },
+    "to_fix/by_severity/enhancement.md": {
+      "entries": "fc33030b86d0e7f8"
+    },
+    "to_fix/by_type/reliability.md": {
+      "entries": "fc33030b86d0e7f8"
+    },
+    "to_fix/by_domain/domain-auth.md": {
+      "entries": "e3e7662ba05bb5f3"
+    },
+    "to_fix/by_severity/low.md": {
+      "entries": "e3e7662ba05bb5f3"
+    },
+    "to_fix/by_type/documentation.md": {
+      "entries": "e3e7662ba05bb5f3"
+    }
+  }
+}

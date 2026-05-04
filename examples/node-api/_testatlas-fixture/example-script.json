@@ -1,0 +1,129 @@
+{
+  "$schema": "../../../.testatlas/schemas/example-script.schema.json",
+  "exampleName": "node-api",
+  "suiteVersionRange": ">=1.0.0",
+  "fixedTimestamp": "2026-05-03T00:00:00.000Z",
+  "steps": [
+    { "id": "init", "command": "init-workspace" },
+    {
+      "id": "domain-auth",
+      "command": "create-domain",
+      "args": { "name": "auth", "purpose": "Authentication and session management" }
+    },
+    {
+      "id": "domain-tasks",
+      "command": "create-domain",
+      "args": { "name": "tasks", "purpose": "Task CRUD operations on the in-memory store" }
+    },
+    {
+      "id": "domain-health",
+      "command": "create-domain",
+      "args": { "name": "health", "purpose": "Liveness and readiness probes" }
+    },
+    {
+      "id": "flow-login",
+      "command": "create-flow",
+      "args": {
+        "name": "Login With Credentials",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Exchange email + password for a bearer token"
+      }
+    },
+    {
+      "id": "flow-logout",
+      "command": "create-flow",
+      "args": {
+        "name": "Logout",
+        "domain": "domain-auth",
+        "persona": "returning-user",
+        "goal": "Invalidate the active session"
+      }
+    },
+    {
+      "id": "flow-task-crud",
+      "command": "create-flow",
+      "args": {
+        "name": "Task CRUD",
+        "domain": "domain-tasks",
+        "persona": "task-owner",
+        "goal": "Create, list, update, and delete tasks via the API"
+      }
+    },
+    {
+      "id": "flow-health-check",
+      "command": "create-flow",
+      "args": {
+        "name": "Health Check",
+        "domain": "domain-health",
+        "persona": "ops-engineer",
+        "goal": "Confirm the API process is responsive"
+      }
+    },
+    {
+      "id": "evidence-delete-no-auth",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "curl trace showing DELETE /api/tasks/1 succeeds without an auth header"
+      }
+    },
+    {
+      "id": "evidence-store-restart",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "log",
+        "description": "Process restart followed by GET /api/tasks returning empty array"
+      }
+    },
+    {
+      "id": "evidence-jwt-literal",
+      "command": "create-evidence-record",
+      "args": {
+        "type": "file",
+        "description": "Snapshot of .env.example showing JWT_SECRET=replace-me-with-something-real"
+      }
+    },
+    {
+      "id": "issue-delete-no-auth",
+      "command": "create-issue",
+      "args": {
+        "title": "DELETE api tasks id missing ownership check",
+        "domain": "domain-tasks",
+        "severity": "medium",
+        "confidence": "confirmed",
+        "type": "validation",
+        "summary": "DELETE /api/tasks/:id does not verify the requester owns the task; any caller can delete any task.",
+        "evidence": "EVIDENCE-001"
+      }
+    },
+    {
+      "id": "issue-store-data-loss",
+      "command": "create-issue",
+      "args": {
+        "title": "In-memory store loses all state on process restart",
+        "domain": "domain-tasks",
+        "severity": "enhancement",
+        "confidence": "confirmed",
+        "type": "reliability",
+        "summary": "tasks live in a single-process Map; state is wiped on restart.",
+        "evidence": "EVIDENCE-002"
+      }
+    },
+    {
+      "id": "issue-mock-jwt-literal",
+      "command": "create-issue",
+      "args": {
+        "title": "Mock JWT secret in env example reads like a real secret",
+        "domain": "domain-auth",
+        "severity": "low",
+        "confidence": "confirmed",
+        "type": "documentation",
+        "summary": ".env.example ships JWT_SECRET=replace-me-with-something-real which can be mistaken for an issued secret.",
+        "evidence": "EVIDENCE-003"
+      }
+    },
+    { "id": "indexes", "command": "update-indexes" },
+    { "id": "sync", "command": "sync-status" }
+  ]
+}

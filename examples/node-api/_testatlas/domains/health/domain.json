@@ -1,0 +1,22 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/domain.schema.json",
+  "id": "domain-health",
+  "name": "health",
+  "displayName": "health",
+  "status": "mapped",
+  "confidence": "low",
+  "purpose": "Liveness and readiness probes",
+  "primaryUserGoals": [],
+  "personas": [],
+  "entryPoints": [],
+  "routes": [],
+  "apis": [],
+  "components": [],
+  "entities": [],
+  "flows": [],
+  "dependencies": [],
+  "issues": [],
+  "evidence": [],
+  "openQuestions": [],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

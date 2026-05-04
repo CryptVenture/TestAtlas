@@ -1,0 +1,16 @@
+{
+  "name": "@testatlas/example-node-api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TestAtlas example: minimal Express 5 ESM API used to demonstrate API exploration, endpoint mapping, and mock-auth security findings.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.0.0"
+  }
+}

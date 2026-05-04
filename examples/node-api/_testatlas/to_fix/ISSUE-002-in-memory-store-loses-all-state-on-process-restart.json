@@ -1,0 +1,26 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "id": "ISSUE-002-in-memory-store-loses-all-state-on-process-restart",
+  "slug": "in-memory-store-loses-all-state-on-process-restart",
+  "title": "In-memory store loses all state on process restart",
+  "status": "new",
+  "severity": "enhancement",
+  "confidence": "confirmed",
+  "type": "reliability",
+  "domain": "domain-tasks",
+  "flow": null,
+  "foundOn": "2026-05-03T00:00:00.000Z",
+  "summary": "tasks live in a single-process Map; state is wiped on restart.",
+  "expectedBehavior": "(to be filled)",
+  "actualBehavior": "(to be filled)",
+  "userImpact": "",
+  "reproductionSteps": [],
+  "frequency": "unknown",
+  "evidence": [
+    "EVIDENCE-002"
+  ],
+  "acceptanceCriteria": [
+    "issue resolved per description"
+  ],
+  "lastUpdatedAt": "2026-05-03T00:00:00.000Z"
+}

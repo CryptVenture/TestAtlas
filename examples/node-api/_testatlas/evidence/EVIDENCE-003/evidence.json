@@ -1,0 +1,13 @@
+{
+  "$schema": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "id": "EVIDENCE-003",
+  "type": "file",
+  "path": "evidence/EVIDENCE-003/capture.bin",
+  "domain": null,
+  "flow": null,
+  "issue": null,
+  "capturedOn": "2026-05-03T00:00:00.000Z",
+  "environment": "local",
+  "description": "Snapshot of .env.example showing JWT_SECRET=replace-me-with-something-real",
+  "redacted": false
+}
