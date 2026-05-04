@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-security. Invoke as /prompts:atlas-explore-security. Description: Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD §6.5 — read-only defensive audit; never attempts exploitation; never persists secret values. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="4cfadfd5e7952b02" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="a5bca69cb34d44af" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -15,6 +15,17 @@ Catalog the target product's security and privacy surface per PRD §6.5: authent
 - `prd/prd.md` §6.5 — security/privacy surface scope.
 - The target repo's auth config files, `.env.example` (and ANY `.env*` files present, KEYS only), secret-manager SDK config (e.g. AWS Secrets Manager, HashiCorp Vault, Doppler, GCP Secret Manager, Azure Key Vault), and any redaction utilities already shipped by the project.
 - `.testatlas/schemas/evidence.schema.json` — evidence sidecar shape.
+
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Audit the security surface — secrets exposure, auth model, OWASP-aligned read-only checks, redaction-pipeline coverage — of the target product. Read-only; no exploitation.
+- **scope:** Every auth-related route, integration, and handler entry in `_testatlas/12_app_map.json`; every `.env*` file (KEYS only); every redaction utility shipped by the project. Excludes active penetration testing — this command never executes attacks.
+- **files-to-read:** `_testatlas/12_app_map.json`; `prd/prd.md` §6.5 (security/privacy scope); the target's auth config files; `.env.example` / any `.env*` files (KEYS only); secret-manager SDK config (AWS Secrets Manager, HashiCorp Vault, Doppler, GCP Secret Manager, Azure Key Vault); `.testatlas/schemas/evidence.schema.json`.
+- **output-format:** Markdown findings list — one entry per OWASP-aligned check — with severity, confidence, evidence-path, recommended-action. Evidence (config dumps, redaction-test outputs, dependency CVE snapshots) under `_testatlas/evidence/explore-security/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every check produces a finding (or a documented "no surface" rationale); no secret values ever read or recorded; no exploitation attempted; redaction pipeline confirmed before any evidence persists.
 
 ## Required Actions
 

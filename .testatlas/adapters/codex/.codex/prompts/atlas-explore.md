@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore. Invoke as /prompts:atlas-explore. Description: Umbrella explorer router — classify which sub-explorers (ui/cli/api/docs/runtime/data/integrations/accessibility/performance/security) apply to the target product and emit a recommendation document. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="72c53ca6328e27ff" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9121340fff83c38c" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -22,6 +22,32 @@ Route the agent to the right subset of sub-explorers for the target product. Thi
 4. Write `_testatlas/explore-plan.md` listing the classification, the recommended invocation order (suggested baseline: codebase → docs → runtime → data → api → ui → integrations → cli → accessibility → performance → security), and a one-line rationale per skipped explorer.
 5. Estimate a time budget per recommended sub-explorer (small / medium / large) based on the count of routes / endpoints / integrations the app map records.
 6. Close the lifecycle (next section).
+
+## Sub-Agent Orchestration
+
+Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+
+**If `subagent-spawn` is available:**
+For each applicable child task in `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}` (filtered by the classification logic in step 3 — only `recommended` and `optional` children spawn):
+  Spawn a sub-agent with this brief (markdown convention):
+    - **objective:** "Map the `<domain>` surface area of the target product."
+    - **scope:** "Files and runtime artifacts in scope of the `<child-name>` command."
+    - **files-to-read:** ".testatlas/commands/`<child-name>`.md plus the product files relevant to `<domain>` (routes, handlers, manifests, config)."
+    - **output-format:** "Structured markdown matching the `explore-<domain>` finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
+    - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly unless this brief explicitly grants a path; the umbrella aggregates findings and writes `_testatlas/02_product_overview.md` plus per-domain artifacts.
+    - **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
+Run all sub-agents in parallel. Wait for all to complete.
+Merge structured results into the umbrella's recommendation + the aggregate product overview.
+Mark the run record `executionMode: 'parallel-subagents'`.
+
+**Else (sequential fallback):**
+For each applicable child task sequentially in this thread:
+  Execute the child task following its own command file.
+  Capture output.
+Synthesize results into the umbrella output.
+Mark the run record `executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if applicable child-task count is `< 2` after filtering, run inline regardless of capability (degenerate single-spawn is wasted overhead).
 
 ## Outputs
 

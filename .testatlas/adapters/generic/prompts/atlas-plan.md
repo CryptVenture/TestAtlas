@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-plan. Paste .testatlas/bootstrap.md first; description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="6c61969ba78aabc7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b76321e690adc4a5" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -29,6 +29,32 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 8. For scenarios that target capabilities not declared by the current adapter (e.g. `browser` not declared but the scenario needs it), mark `pending: capability-required` and exclude them from the dogfood-loop run rather than dropping them. Record the unmet capability so the operator can swap adapters.
 9. Validate every entry in `matrix.json` against `test-scenario.schema.json` before closing. If any entry fails, halt — do not commit a partial matrix.
 10. Close the lifecycle (next section).
+
+## Sub-Agent Orchestration
+
+Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+
+**If `subagent-spawn` is available:**
+For each domain entry in `_testatlas/01_domain_map.md` (one risk-analysis sub-agent per domain):
+  Spawn a sub-agent with this brief (markdown convention):
+    - **objective:** "Identify test risks and prioritize coverage for `<domain>`."
+    - **scope:** "All product features mapped to `<domain>` in `_testatlas/01_domain_map.md`."
+    - **files-to-read:** "`_testatlas/01_domain_map.md` (the `<domain>` entry); `_testatlas/02_product_overview.md`; the relevant `explore-*` findings under `_testatlas/evidence/`; prior `_testatlas/to_fix/` issues touching the domain."
+    - **output-format:** "Markdown risk list with severity-tagged entries (one per identified risk) plus draft `test-scenario` JSON fragments validating against `test-scenario.schema.json`."
+    - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella aggregates risks + scenarios and writes `02_test_strategy.md`, `plans/PLAN-master.md`, and `tests/matrix.{md,json}`.
+    - **exit-criteria:** "Risks ranked; uncovered surface flagged; scenarios drafted; ready for matrix synthesis."
+Run all sub-agents in parallel. Wait for all to complete.
+Merge structured results into the strategy + master plan + scenario matrix.
+Mark the run record `executionMode: 'parallel-subagents'`.
+
+**Else (sequential fallback):**
+For each domain sequentially in this thread:
+  Perform the per-domain risk analysis inline following the same brief above.
+  Capture output.
+Synthesize results into the umbrella output.
+Mark the run record `executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if applicable domain count is `< 2` after filtering, run inline regardless of capability (degenerate single-spawn is wasted overhead).
 
 ## Outputs
 

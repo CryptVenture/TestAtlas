@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-flow. Invoke as /atlas-test-flow. Description: Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="d121f2cc2b83dbef" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="098bf8b183ec4fa6" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,6 +28,34 @@ Execute one or more test scenarios from `_testatlas/tests/matrix.json` against t
 8. Update flow confidence per scenario outcomes — flows whose scenarios passed climb in confidence; flows with failures or skips drop and are marked for re-test in the next plan cycle.
 9. Validate the produced RUN JSON against `test-run.schema.json` before closing. If validation fails, halt — do not commit a malformed run record.
 10. Close the lifecycle (next section).
+
+## Sub-Agent Orchestration
+
+Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+
+**Independence guard (enforced first):** if any flow in the requested set shares state with another (setup → flow → teardown chain, shared fixture mutation, ordered DB seeding), MUST run sequentially in this thread regardless of capability — parallel execution would corrupt evidence. Only flows with no shared state mutation are eligible for parallel spawn.
+
+**If `subagent-spawn` is available AND flows are independent:**
+For each independent flow in the requested flow set:
+  Spawn a sub-agent with this brief (markdown convention):
+    - **objective:** "Execute `<flow-name>` against the target product and capture per-state evidence."
+    - **scope:** "The actions, assertions, and PRD §13 states defined in the flow file."
+    - **files-to-read:** "`_testatlas/flows/<flow-name>/flow.{md,json}`; `_testatlas/tests/matrix.json` entries for the flow; any referenced fixtures or seed data; `.testatlas/schemas/test-run.schema.json` and `evidence.schema.json`."
+    - **output-format:** "`RUN-<timestamp>.md` + `RUN-<timestamp>.json` per `test-run.schema.json`, with per-state evidence paths under `_testatlas/evidence/runs/<run-id>/<flow-name>/`."
+    - **may-write:** sub-agent MAY write evidence files under `_testatlas/evidence/runs/<run-id>/<flow-name>/` and the per-flow run record under `_testatlas/runs/`. Sub-agent MUST NOT write to `_testatlas/to_fix/` directly — the umbrella aggregates issue candidates from the run records into the optional `RUN-<timestamp>.suggestions.md` file.
+    - **exit-criteria:** "Run record persisted; pass/fail recorded; evidence redacted per the redaction-pipeline; schema validation passes."
+Run all sub-agents in parallel. Wait for all to complete.
+Merge structured results into the aggregate run summary.
+Mark the run record `executionMode: 'parallel-subagents'`.
+
+**Else (sequential fallback — also taken when flows share state):**
+For each flow sequentially in this thread:
+  Execute the flow inline following the brief above.
+  Capture output.
+Synthesize results into the umbrella output.
+Mark the run record `executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if applicable flow count is `< 2` after filtering, run inline regardless of capability (degenerate single-spawn is wasted overhead).
 
 ## Outputs
 

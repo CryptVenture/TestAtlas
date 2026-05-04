@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="91376adfe951cefb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="791f74d2e5d7a028" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,6 +19,17 @@ Evaluate the target product's accessibility per PRD §13.9: keyboard navigabilit
 - `prd/prd.md` §13.9 — must-discover items the audit must address.
 - `.testatlas/default.config.json` — `allowProductionTesting`, `safeMode` flags.
 - `.testatlas/schemas/evidence.schema.json` — evidence sidecar shape.
+
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Audit accessibility — WCAG 2.2 AA gaps, keyboard navigation, focus order, screen-reader landmarks, color contrast, ARIA labels — of the target product's UI surface.
+- **scope:** Every user-facing route in `_testatlas/12_app_map.json`; excludes API-only routes, internal admin tooling unless flagged, and headless services.
+- **files-to-read:** `_testatlas/12_app_map.json`; `prd/prd.md` §13.9 (accessibility must-discover items); `.testatlas/default.config.json` (`safeMode`, `allowProductionTesting`); `.testatlas/schemas/evidence.schema.json`.
+- **output-format:** Markdown findings list — one finding per WCAG-relevant gap — with severity, success-criterion id (e.g. WCAG 2.4.7 Focus Visible), evidence path, recommended remediation. Evidence (axe-core JSON, keyboard-nav recordings, screenshots, contrast-ratio dumps) under `_testatlas/evidence/explore-accessibility/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every audited route has a WCAG-aligned report; gaps cite both the rule and on-disk evidence; production hosts skipped when `allowProductionTesting=false`.
 
 ## Required Actions
 

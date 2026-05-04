@@ -3,12 +3,12 @@ description: Detect user-visible slowness, blocking interactions, retries, and r
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="64e2dabd89ddfbb9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="a50e2d75c199b64d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Detect user-visible performance issues per PRD §13.10: slow first paint, blocking long tasks during interaction, layout shifts, network waterfall hot spots, retried/failed requests, and reliability under throttled conditions. Drive Chrome DevTools MCP performance traces against the routes catalogued in `_testatlas/12_app_map.json`, both unthrottled and throttled (CPU + network), and persist evidence under `_testatlas/evidence/explore-performance/<timestamp>/` (trace JSONs, insights, network captures, threshold reports). Findings are scored per PRD §13.10 severity (critical / serious / moderate / minor) with explicit threshold rationale, and confidence per `bootstrap.md` §8. This command is finding-producing — every finding MUST cite an evidence path that exists on disk.
+Detect user-visible performance issues per PRD §13.10: slow first paint, long tasks, layout shifts, network waterfall hot spots, retried/failed requests, reliability under throttling. Drive Chrome DevTools MCP traces against the routes in `_testatlas/12_app_map.json` — unthrottled and throttled — and persist evidence under `_testatlas/evidence/explore-performance/<timestamp>/`. Findings carry PRD §13.10 severity (critical / serious / moderate / minor) plus confidence per `bootstrap.md` §8. Every finding MUST cite an evidence path that exists on disk.
 
 ## Required First Reads
 
@@ -20,6 +20,17 @@ Detect user-visible performance issues per PRD §13.10: slow first paint, blocki
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting`, performance thresholds if defined.
 - `.testatlas/schemas/evidence.schema.json` — evidence sidecar shape.
 
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Audit performance — page weight, bundle size, Core Web Vitals (LCP / INP / CLS), runtime bottlenecks — against declared performance budgets for the target product.
+- **scope:** A representative sample of routes from `_testatlas/12_app_map.json` (defaults: top traffic-hint routes if present, otherwise the index route plus highest-fan-in templates). Excludes load-testing of production hosts.
+- **files-to-read:** `_testatlas/12_app_map.json`; `_testatlas/00_overview.md` (local dev server start command + port + health endpoint); `prd/prd.md` §13.10 (performance must-discover items); `.testatlas/default.config.json` (`safeMode`, `allowDestructiveActions`, `allowProductionTesting`, declared performance thresholds); `.testatlas/schemas/evidence.schema.json`.
+- **output-format:** Markdown findings list with budget-pass/fail per measurement and one entry per measurable performance budget. Evidence (Lighthouse JSON, network HARs, bundle-size reports, profile traces) under `_testatlas/evidence/explore-performance/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** All measurable performance budgets evaluated against captured evidence; gaps in measurement coverage explicitly listed; no synthetic findings without backing evidence; production hosts skipped when `allowProductionTesting=false`.
+
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-performance/<timestamp>/` that exists on disk. Fabricated paths fail `validate-workspace`.
@@ -29,14 +40,13 @@ Detect user-visible performance issues per PRD §13.10: slow first paint, blocki
    - **If `shell` is unavailable, MUST NOT start the local dev server — fall back to a deployed sandbox URL when present in `_testatlas/00_overview.md` and mark findings `confidence: needs-validation` per `bootstrap.md` §4. If neither shell nor a sandbox URL is available, halt via stop condition.**
 3. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — never run perf traces against production. Inspect resolved URLs, not author-claimed environments.
 4. (If `shell` is available) Start the local dev server per `_testatlas/00_overview.md` runtime metadata. Wait for the documented health-check (HTTP 200 on `/health` or equivalent). Persist the startup log under `_testatlas/evidence/explore-performance/<timestamp>/dev-server.log`.
-5. Connect to Chrome DevTools MCP and confirm the canonical performance toolset is reachable. The required tools (verbatim names) are:
+5. Connect to Chrome DevTools MCP and confirm the performance toolset (verbatim names):
    - `navigate_page(url)` — load a target route under instrumentation.
-   - `wait_for(condition)` — wait for the route to settle to a stable, comparable state.
-   - `performance_start_trace(...)` — begin a trace capture before the user interaction.
-   - `performance_stop_trace()` — end the trace and receive the trace JSON.
-   - `performance_analyze_insight(...)` — derive insights (LCP, INP, CLS, long tasks, render-blocking, layout shifts) from a captured trace.
-   - `emulate({cpuThrottlingRate, networkConditions})` — apply CPU and network throttling profiles for reliability runs.
-   - `list_network_requests()` — capture XHR/fetch traffic with timing, status, retry counts, and payload size.
+   - `wait_for(condition)` — wait for the route to settle.
+   - `performance_start_trace(...)` / `performance_stop_trace()` — bracket a trace capture.
+   - `performance_analyze_insight(...)` — derive LCP, INP, CLS, long tasks, render-blocking, layout shifts.
+   - `emulate({cpuThrottlingRate, networkConditions})` — CPU + network throttling profiles.
+   - `list_network_requests()` — XHR/fetch traffic with timing, status, retries, payload size.
 6. Select a representative route set: the home/landing route plus the 2–3 most-trafficked routes from `_testatlas/12_app_map.json` (or, absent traffic hints, the routes most central to the dogfood-loop's primary user flow). Record the rationale in `route-selection.md`.
 7. For each selected route, capture a baseline trace: `navigate_page` → `wait_for` settle → `performance_start_trace` → exercise the primary user interaction (click, fill, submit) → `performance_stop_trace`. Persist the trace JSON under `_testatlas/evidence/explore-performance/<timestamp>/<route-slug>/baseline.trace.json`.
 8. For each selected route, capture a throttled trace: call `emulate({cpuThrottlingRate: 4, networkConditions: 'Slow 3G'})` (or the equivalent profile name supported by the MCP build), repeat the baseline interaction sequence, and persist as `throttled.trace.json`. This is the reliability surface — slow CPUs and bad networks reveal the failures real users hit.

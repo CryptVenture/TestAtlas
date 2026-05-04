@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-consolidate. Invoke as /atlas-consolidate.md. Description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="279cbdab31e03be5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="bcadeefcdf12c242" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -38,6 +38,32 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
 7. Re-derive per-severity, per-status, per-domain indexes under `_testatlas/to_fix/by_*/` from disk; never trust cached counts.
 8. Validate every modified issue JSON against `.testatlas/schemas/issue.schema.json`. Halt on any AJV failure with the error verbatim — do not commit a malformed sidecar.
 9. Close the lifecycle (next section).
+
+## Sub-Agent Orchestration
+
+Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+
+**If `subagent-spawn` is available:**
+For each independent summarization area in `{issues-by-severity, issues-by-confidence, runs-by-domain, coverage-gaps, regression-deltas}`:
+  Spawn a sub-agent with this brief (markdown convention):
+    - **objective:** "Summarize `<area>` across the workspace in the form ready to merge into `_testatlas/13_quality_scorecard.md`."
+    - **scope:** "All artifacts under the named area (e.g., for `issues-by-severity` — every `_testatlas/to_fix/ISSUE-*.json` plus the per-severity indexes under `_testatlas/to_fix/by_severity/`)."
+    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
+    - **output-format:** "Markdown section ready to merge into `_testatlas/13_quality_scorecard.md` between the generated-section markers, plus a JSON fragment with the longitudinal counts the umbrella appends to the scorecard's history block."
+    - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella merges all area summaries into `13_quality_scorecard.md` (preserving append-only history) and refreshes `coverage.md` + `regressions.md`.
+    - **exit-criteria:** "Section is self-contained, accurate against on-disk records, and length-bounded; counts are derived from disk (never cached)."
+Run all sub-agents in parallel. Wait for all to complete.
+Merge structured results into the refreshed scorecard + reports.
+Mark the run record `executionMode: 'parallel-subagents'`.
+
+**Else (sequential fallback):**
+For each summarization area sequentially in this thread:
+  Compute the area summary inline following the brief above.
+  Capture output.
+Synthesize results into the umbrella output.
+Mark the run record `executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if applicable area count is `< 2` after filtering (e.g., a fresh workspace with no prior runs has only one populated series), run inline regardless of capability (degenerate single-spawn is wasted overhead).
 
 ## Outputs
 

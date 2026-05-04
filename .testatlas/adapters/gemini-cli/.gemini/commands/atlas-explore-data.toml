@@ -1,6 +1,6 @@
 description = "Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="c157e14250f01c1b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="1d54b8759d4da078" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -16,6 +16,17 @@ Map the target product's persistence layer per PRD §13.7: ORM schemas, entities
 - ORM and schema definition files: `prisma/schema.prisma`, `db/schema.rb`, `models/`, `migrations/`, `alembic/`, `drizzle/schema.*`, `entities/` (TypeORM/MikroORM), Mongoose schemas, `sqlx`/`diesel` macros, GORM struct tags, `*.dbml`.
 - Seed and fixture files: `seeds/`, `db/seeds.rb`, `prisma/seed.*`, `fixtures/`, `factories/`.
 - Queue, cache, and storage references: BullMQ/Sidekiq/Celery/SQS topic constants, Redis prefix conventions, Kafka topic configs, S3/R2/GCS bucket constants, signed-URL helpers.
+
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the data layer — schemas, models, migrations, seed data shapes, queue topics, cache prefixes, object-storage buckets — of the target product.
+- **scope:** Every ORM model, schema definition, migration file, seed/fixture file, and queue/cache/storage reference in the codebase. Excludes runtime data introspection — this command reads code, not data stores.
+- **files-to-read:** `_testatlas/12_app_map.json` (REQUIRED); `.testatlas/schemas/app-map.schema.json`; `.testatlas/default.config.json` (`safeMode`, `allowProductionTesting`); ORM/schema files (`prisma/schema.prisma`, `db/schema.rb`, `models/`, `migrations/`, `alembic/`, `drizzle/schema.*`, `entities/`, Mongoose schemas, GORM struct tags, `*.dbml`); seed and fixture files; queue/cache/storage constants in source.
+- **output-format:** `data` entries in `12_app_map.json` validating against `app-map.schema.json` (one per model/table/topic/bucket); evidence (schema dumps, migration listings, fixture-shape captures) under `_testatlas/evidence/explore-data/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every model/migration/seed/topic/bucket cataloged with file path; no production data store contacted; schema validation passes.
 
 ## Required Actions
 

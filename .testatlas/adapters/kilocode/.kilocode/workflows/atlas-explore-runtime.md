@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="15bbebcb206098a5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="daf9188841a98e22" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -23,6 +23,17 @@ Map how to run the target product safely per PRD §13.6: package scripts, Docker
 - `_testatlas/12_app_map.json` — runtime metadata seeded by `explore-codebase` (apps, services, workers); this command enriches it.
 - `.testatlas/default.config.json` — read `safeMode`, `allowDestructiveActions`, `allowProductionTesting`. All three flags gate this command.
 - Target runtime artifacts: `Dockerfile` (and variants), `docker-compose.yml` / `compose.yaml`, `.env`, `.env.example`, `.env.*`, `Procfile`, `package.json` (`scripts.start`/`dev`/`serve`), `pyproject.toml` entry points, `Makefile` runtime targets, migration directories (`migrations/`, `db/migrate/`, `prisma/migrations/`), seed scripts, mock-server fixtures.
+
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map the runtime model — process topology, ports, environment variables (KEYS only, never values), service edges, health checks, migration state — of the target product.
+- **scope:** Every app/service/worker entry in `12_app_map.json`; excludes ephemeral CI containers and per-developer local-only overrides not committed to source.
+- **files-to-read:** `_testatlas/12_app_map.json`; `.testatlas/default.config.json` (`safeMode`, `allowDestructiveActions`, `allowProductionTesting`); `Dockerfile*`, `docker-compose.yml`, `Procfile`, `.env.example`, `package.json` scripts, `pyproject.toml` entry points, migration and seed files.
+- **output-format:** Updated runtime metadata in `_testatlas/00_overview.md` plus enriched runtime entries in `12_app_map.json`; evidence (port-probe output, env-key lists, migration-status dumps) under `_testatlas/evidence/explore-runtime/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every service has a port + start-command + health-endpoint recorded (or a documented gap); env-key inventory captured (keys only); migrations enumerated; no production endpoints probed when `allowProductionTesting=false`.
 
 ## Required Actions
 

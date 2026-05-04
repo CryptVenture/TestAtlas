@@ -3,7 +3,7 @@ description: Map auth, payments, email, analytics, storage, webhooks, and featur
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="fcc4361a6b1d8101" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="5115846ac62ee6bb" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -18,6 +18,17 @@ Map the target product's external integrations per PRD §13.8: auth providers, p
 - `.testatlas/schemas/app-map.schema.json` — output contract for the integration entries this command writes.
 - Target SDK config files: `stripe.config.*`, `auth.config.*`, `next-auth.config.*`, `clerk.config.*`, `sentry.config.*`, `resend.config.*`, `segment.config.*`, `launchdarkly.config.*`, `s3.config.*`. Also scan `package.json` for SDK dependencies (`stripe`, `@auth/*`, `@clerk/*`, `resend`, `@sendgrid/*`, `mixpanel-browser`, `@launchdarkly/*`, etc.).
 - Environment-key inventories: `.env.example`, `.env.sample`, `infra/secrets.tf`, deployment manifests. **Read key NAMES only — never values.**
+
+## Sub-Agent Task Brief Contract
+
+This command works as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standalone slash invocation. When called as a sub-agent, the brief received from the umbrella matches the contract below; when called standalone, the agent fills the brief from the defaults documented here.
+
+- **objective:** Map external integrations — auth, payments, email, SMS, analytics, telemetry, object storage, search, feature flags, webhooks, outbound APIs — and their sandbox-vs-production boundaries.
+- **scope:** Every third-party SDK referenced in `package.json` dependencies plus every integration entry already seeded by `explore-codebase`. **MUST NOT call production endpoints** — boundary distinction is read from source (env names, base URLs, key prefixes).
+- **files-to-read:** `_testatlas/12_app_map.json` (REQUIRED); `.testatlas/schemas/app-map.schema.json`; `.testatlas/default.config.json` (`safeMode`, `allowProductionTesting`); SDK config files (`stripe.config.*`, `auth.config.*`, `next-auth.config.*`, `clerk.config.*`, `sentry.config.*`, etc.); environment-key inventories (`.env.example`, `.env.sample`, `infra/secrets.tf`) — KEYS only.
+- **output-format:** `integration` entries in `12_app_map.json` (each with sandbox-vs-prod marker and env-key list); evidence (SDK config dumps, env-key listings) under `_testatlas/evidence/explore-integrations/<timestamp>/`.
+- **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
+- **exit-criteria:** Every integration cataloged with sandbox/production marker; no production endpoint contacted; secret values never read; schema validation passes.
 
 ## Required Actions
 
