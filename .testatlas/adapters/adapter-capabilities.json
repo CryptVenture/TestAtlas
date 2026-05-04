@@ -96,6 +96,70 @@
       "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Gemini CLI auto-discovers TOML commands at ~/.gemini/commands/. Run /commands reload (or restart) after install. Files invoke as /atlas-<name>."
+    },
+    {
+      "name": "cline",
+      "displayName": "Cline",
+      "outputDir": ".testatlas/adapters/cline",
+      "outputPattern": ".clinerules/workflows/atlas-{command}.md",
+      "globalOutputPattern": ".config/cline/workflows/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Cline workflows are slash-invoked WITH the .md extension (e.g. `/atlas-init.md`). Workflows live in `.clinerules/workflows/` per project; the global config dir is OS-dependent so we use `~/.config/cline/workflows/` as a portable default — set `cline.workflowsPath` in your IDE settings to point there."
+    },
+    {
+      "name": "windsurf",
+      "displayName": "Windsurf / Cascade",
+      "outputDir": ".testatlas/adapters/windsurf",
+      "outputPattern": ".windsurf/workflows/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Windsurf has no documented global workflow path; project-local install is the only supported mode."
+    },
+    {
+      "name": "kiro",
+      "displayName": "Kiro",
+      "outputDir": ".testatlas/adapters/kiro",
+      "outputPattern": ".kiro/skills/atlas-{command}.md",
+      "globalOutputPattern": ".kiro/skills/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Kiro skills are flat-file `~/.kiro/skills/atlas-<name>.md`. Slash-invoke as /atlas-<name>."
+    },
+    {
+      "name": "continue-dev",
+      "displayName": "Continue.dev",
+      "outputDir": ".testatlas/adapters/continue-dev",
+      "outputPattern": ".continue/prompts/atlas-{command}.prompt.md",
+      "globalOutputPattern": ".continue/prompts/atlas-{command}.prompt.md",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Continue auto-discovers `~/.continue/prompts/`. Slash-invoke as /atlas-<name> in Chat / Plan / Agent modes."
+    },
+    {
+      "name": "github-copilot",
+      "displayName": "GitHub Copilot",
+      "outputDir": ".testatlas/adapters/github-copilot",
+      "outputPattern": ".github/prompts/atlas-{command}.prompt.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "GitHub Copilot has no documented global filesystem path for prompts; --global skips. For machine-wide steering, edit `github.copilot.chat.codeGeneration.instructions` in VS Code user settings manually."
+    },
+    {
+      "name": "sourcegraph-amp",
+      "displayName": "Sourcegraph Amp",
+      "outputDir": ".testatlas/adapters/sourcegraph-amp",
+      "outputPattern": ".agents/commands/atlas-{command}.md",
+      "globalOutputPattern": ".agents/commands/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Amp walks AGENTS.md from cwd up to $HOME; per-command files in `~/.agents/commands/` are the practical global path."
     }
   ]
 }

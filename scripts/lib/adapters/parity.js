@@ -39,13 +39,19 @@ import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderAider } from './render-aider.js';
 import { renderClaudeCode } from './render-claude-code.js';
+import { renderCline } from './render-cline.js';
 import { renderCodex } from './render-codex.js';
+import { renderContinueDev } from './render-continue-dev.js';
 import { renderCursor } from './render-cursor.js';
 import { renderGemini } from './render-gemini.js';
 import { renderGeneric } from './render-generic.js';
+import { renderGithubCopilot } from './render-github-copilot.js';
 import { renderKilocode } from './render-kilocode.js';
+import { renderKiro } from './render-kiro.js';
 import { renderMcpToString } from './render-mcp.js';
 import { renderOpencode } from './render-opencode.js';
+import { renderSourcegraphAmp } from './render-sourcegraph-amp.js';
+import { renderWindsurf } from './render-windsurf.js';
 
 // Renderer dispatch table for layer-2 byte-compare. Each adapter must register
 // here when it ships. An adapter without a registered renderer skips the
@@ -53,12 +59,18 @@ import { renderOpencode } from './render-opencode.js';
 // is still caught).
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  cline: renderCline,
   codex: renderCodex,
+  'continue-dev': renderContinueDev,
   cursor: renderCursor,
   'gemini-cli': renderGemini,
   generic: renderGeneric,
+  'github-copilot': renderGithubCopilot,
   kilocode: renderKilocode,
+  kiro: renderKiro,
   opencode: renderOpencode,
+  'sourcegraph-amp': renderSourcegraphAmp,
+  windsurf: renderWindsurf,
 });
 
 // Multi-source dispatch (concatenated-conventions, mcp-server). Each entry

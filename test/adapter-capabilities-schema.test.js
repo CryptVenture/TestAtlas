@@ -36,6 +36,12 @@ const EXPECTED_ADAPTERS = new Set([
   'mcp',
   'codex',
   'gemini-cli',
+  'cline',
+  'windsurf',
+  'kiro',
+  'continue-dev',
+  'github-copilot',
+  'sourcegraph-amp',
 ]);
 const CAPABILITY_VOCAB = new Set(['browser', 'shell', 'web-fetch', 'MCP', 'file-write']);
 const RENDER_STRATEGIES = new Set(['per-command-file', 'concatenated-conventions', 'mcp-server']);

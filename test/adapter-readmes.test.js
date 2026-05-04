@@ -43,6 +43,12 @@ const ADAPTERS = [
   'mcp',
   'codex',
   'gemini-cli',
+  'cline',
+  'windsurf',
+  'kiro',
+  'continue-dev',
+  'github-copilot',
+  'sourcegraph-amp',
 ];
 
 // Per-adapter "Limitations equivalent" alternatives. A plain `## Limitations`

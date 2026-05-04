@@ -149,6 +149,12 @@ test('install-core: allAdapters → manifest lists every shipped adapter', async
       'generic',
       'codex',
       'gemini-cli',
+      'cline',
+      'windsurf',
+      'kiro',
+      'continue-dev',
+      'github-copilot',
+      'sourcegraph-amp',
     ];
     assert.equal(result.adapters.length, expected.length);
     for (const name of expected) {

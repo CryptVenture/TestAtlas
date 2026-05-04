@@ -76,6 +76,12 @@ const ALL_ADAPTERS = Object.freeze([
   'generic',
   'codex',
   'gemini-cli',
+  'cline',
+  'windsurf',
+  'kiro',
+  'continue-dev',
+  'github-copilot',
+  'sourcegraph-amp',
 ]);
 
 const SUITE_DIR = '.testatlas';

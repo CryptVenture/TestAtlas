@@ -18,6 +18,12 @@ the *output* of that pipeline.
 | **MCP** (`mcp`) | shell, web-fetch, file-write | `mcp-server` | `mcp-server-manifest.json` (runnable JSON-RPC server) | [`mcp/README.md`](./mcp/README.md) |
 | **OpenAI Codex CLI** (`codex`) | shell, web-fetch, MCP, file-write | `per-command-file` | `.codex/prompts/atlas-{command}.md` | [`codex/README.md`](./codex/README.md) |
 | **Google Gemini CLI** (`gemini-cli`) | shell, web-fetch, MCP, file-write | `per-command-file` (TOML) | `.gemini/commands/atlas-{command}.toml` | [`gemini-cli/README.md`](./gemini-cli/README.md) |
+| **Cline** (`cline`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.clinerules/workflows/atlas-{command}.md` | [`cline/README.md`](./cline/README.md) |
+| **Windsurf / Cascade** (`windsurf`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.windsurf/workflows/atlas-{command}.md` | [`windsurf/README.md`](./windsurf/README.md) |
+| **Kiro** (`kiro`) | shell, web-fetch, MCP, file-write | `per-command-file` | `.kiro/skills/atlas-{command}.md` | [`kiro/README.md`](./kiro/README.md) |
+| **Continue.dev** (`continue-dev`) | shell, web-fetch, MCP, file-write | `per-command-file` | `.continue/prompts/atlas-{command}.prompt.md` | [`continue-dev/README.md`](./continue-dev/README.md) |
+| **GitHub Copilot** (`github-copilot`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.github/prompts/atlas-{command}.prompt.md` | [`github-copilot/README.md`](./github-copilot/README.md) |
+| **Sourcegraph Amp** (`sourcegraph-amp`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.agents/commands/atlas-{command}.md` | [`sourcegraph-amp/README.md`](./sourcegraph-amp/README.md) |
 
 The canonical capability declarations live in
 [`adapter-capabilities.json`](./adapter-capabilities.json) and are validated by
@@ -40,7 +46,7 @@ from.
 ## Parity gate
 
 The strict-mode parity check enumerates every command × adapter obligation
-(30 commands × 9 adapters = 270 today; the count grows as new adapters land)
+(30 commands × 15 adapters = 450 today; the count grows as new adapters land)
 and asserts coverage is 1.0 with zero drift entries:
 
 ```sh

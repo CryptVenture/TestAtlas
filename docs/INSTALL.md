@@ -31,6 +31,12 @@ Where files land:
 | KiloCode | `<repo>/.kilocode/workflows/atlas-*.md` | `~/.kilocode/workflows/atlas-*.md` |
 | OpenAI Codex CLI | `<repo>/.codex/prompts/atlas-*.md` | `~/.codex/prompts/atlas-*.md` |
 | Google Gemini CLI | `<repo>/.gemini/commands/atlas-*.toml` | `~/.gemini/commands/atlas-*.toml` |
+| Cline | `<repo>/.clinerules/workflows/atlas-*.md` | `~/.config/cline/workflows/atlas-*.md` |
+| Windsurf / Cascade | `<repo>/.windsurf/workflows/atlas-*.md` | _(no global path; project-local only)_ |
+| Kiro | `<repo>/.kiro/skills/atlas-*.md` | `~/.kiro/skills/atlas-*.md` |
+| Continue.dev | `<repo>/.continue/prompts/atlas-*.prompt.md` | `~/.continue/prompts/atlas-*.prompt.md` |
+| GitHub Copilot | `<repo>/.github/prompts/atlas-*.prompt.md` | _(no global path; settings-only)_ |
+| Sourcegraph Amp | `<repo>/.agents/commands/atlas-*.md` | `~/.agents/commands/atlas-*.md` |
 | Aider | `<repo>/CONVENTIONS.md` | `~/.config/aider/CONVENTIONS.md` |
 | MCP | `<repo>/mcp-server-manifest.json` | `~/.config/testatlas/mcp-server-manifest.json` |
 | Generic prompts | `<repo>/prompts/atlas-*.md` | `~/.config/testatlas/prompts/atlas-*.md` |

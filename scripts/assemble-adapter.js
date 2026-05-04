@@ -25,13 +25,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderAider } from './lib/adapters/render-aider.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
+import { renderCline } from './lib/adapters/render-cline.js';
 import { renderCodex } from './lib/adapters/render-codex.js';
+import { renderContinueDev } from './lib/adapters/render-continue-dev.js';
 import { renderCursor } from './lib/adapters/render-cursor.js';
 import { renderGemini } from './lib/adapters/render-gemini.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
+import { renderGithubCopilot } from './lib/adapters/render-github-copilot.js';
 import { renderKilocode } from './lib/adapters/render-kilocode.js';
+import { renderKiro } from './lib/adapters/render-kiro.js';
 import { renderMcpToString } from './lib/adapters/render-mcp.js';
 import { renderOpencode } from './lib/adapters/render-opencode.js';
+import { renderSourcegraphAmp } from './lib/adapters/render-sourcegraph-amp.js';
+import { renderWindsurf } from './lib/adapters/render-windsurf.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { listCommandFiles } from './lib/list-command-files.js';
@@ -46,12 +52,18 @@ const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.jso
 // strategy) bypass this table and use the multi-source dispatch below.
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  cline: renderCline,
   codex: renderCodex,
+  'continue-dev': renderContinueDev,
   cursor: renderCursor,
   'gemini-cli': renderGemini,
   generic: renderGeneric,
+  'github-copilot': renderGithubCopilot,
   kilocode: renderKilocode,
+  kiro: renderKiro,
   opencode: renderOpencode,
+  'sourcegraph-amp': renderSourcegraphAmp,
+  windsurf: renderWindsurf,
 });
 
 // Multi-source renderer dispatch. Each entry takes
