@@ -14,16 +14,28 @@ const EXAMPLE = path.join(REPO_ROOT, 'examples', 'nextjs-saas');
 const WS = path.join(EXAMPLE, '_testatlas');
 
 test('nextjs-saas: validate-workspace exits 0 against the checked-in _testatlas', async () => {
-  const code = await new Promise((resolve, reject) => {
+  const { code, stdout, stderr } = await new Promise((resolve, reject) => {
     const c = spawn(
       'node',
       [path.join(REPO_ROOT, 'scripts/validate-workspace.js'), '--workspace', WS],
-      { cwd: REPO_ROOT, stdio: 'ignore' },
+      { cwd: REPO_ROOT, stdio: ['ignore', 'pipe', 'pipe'] },
     );
+    let stdout = '';
+    let stderr = '';
+    c.stdout.on('data', (d) => {
+      stdout += d.toString('utf8');
+    });
+    c.stderr.on('data', (d) => {
+      stderr += d.toString('utf8');
+    });
     c.on('error', reject);
-    c.on('close', (n) => resolve(n ?? 0));
+    c.on('close', (n) => resolve({ code: n ?? 0, stdout, stderr }));
   });
-  assert.equal(code, 0);
+  assert.equal(
+    code,
+    0,
+    `validate-workspace exited ${code}\n--- stdout ---\n${stdout}\n--- stderr ---\n${stderr}`,
+  );
 });
 
 test('nextjs-saas: _testatlas/domains has at least one artifact for auth, dashboard, marketing', async () => {
