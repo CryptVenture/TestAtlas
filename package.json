@@ -34,11 +34,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<org>/testatlas.git"
+    "url": "https://github.com/testatlas-dev/testatlas.git"
   },
-  "homepage": "https://github.com/<org>/testatlas#readme",
+  "homepage": "https://github.com/testatlas-dev/testatlas#readme",
   "bugs": {
-    "url": "https://github.com/<org>/testatlas/issues"
+    "url": "https://github.com/testatlas-dev/testatlas/issues"
   },
   "keywords": [
     "testing",
@@ -64,7 +64,10 @@
     "shellcheck": "shellcheck install.sh",
     "changeset": "changeset",
     "prepare": "simple-git-hooks",
-    "regenerate-example": "node scripts/regenerate-example.js"
+    "regenerate-example": "node scripts/regenerate-example.js",
+    "docs:commands": "node scripts/generate-commands-doc.js",
+    "docs:schemas": "node scripts/generate-schemas-doc.js",
+    "check:org-placeholder": "node scripts/check-org-placeholder.js"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",

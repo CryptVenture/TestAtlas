@@ -15,7 +15,7 @@ set -eu
 VERSION="0.1.0"
 TARBALL_SHA256="REPLACE_AT_RELEASE"
 TARBALL_URL="https://registry.npmjs.org/testatlas/-/testatlas-${VERSION}.tgz"
-GITHUB_RELEASE_URL="https://github.com/<org>/testatlas/releases/download/v${VERSION}/testatlas-${VERSION}.tgz"
+GITHUB_RELEASE_URL="https://github.com/testatlas-dev/testatlas/releases/download/v${VERSION}/testatlas-${VERSION}.tgz"
 
 _log() { printf '[testatlas] %s\n' "$*"; }
 _err() { printf '[testatlas:error] %s\n' "$*" >&2; }
@@ -99,7 +99,7 @@ _verify_signature_if_enabled() {
         --bundle "$bundle" \
         --new-bundle-format \
         --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
-        --certificate-identity-regexp="^https://github.com/<org>/testatlas/.github/workflows/release.yml.*" \
+        --certificate-identity-regexp="^https://github.com/testatlas-dev/testatlas/.github/workflows/release.yml.*" \
         "$tarball"
 }
 

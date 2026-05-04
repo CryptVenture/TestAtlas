@@ -39,7 +39,7 @@ Useful flags:
 ## Path 2 — `curl … | sh` (POSIX installer)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/<org>/testatlas/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/main/install.sh | sh
 ```
 
 Use this when:
@@ -65,7 +65,7 @@ Override hooks (testing / mirroring):
 ## Path 3 — `git clone` + `node install.js` (offline)
 
 ```sh
-git clone https://github.com/<org>/testatlas.git
+git clone https://github.com/testatlas-dev/testatlas.git
 cd testatlas
 node install.js /path/to/your/project
 ```

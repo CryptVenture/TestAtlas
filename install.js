@@ -3,7 +3,7 @@
 //
 // Plan 07-01 Task 2. Top-level entry point for the git-clone install path:
 //
-//   git clone https://github.com/<org>/testatlas
+//   git clone https://github.com/testatlas-dev/testatlas
 //   cd testatlas
 //   node install.js /path/to/target-repo
 //

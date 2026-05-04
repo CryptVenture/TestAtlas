@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/testatlas.svg)](https://www.npmjs.com/package/testatlas)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/<org>/testatlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/testatlas-dev/testatlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
 
 TestAtlas is an installable, agent-agnostic product testing and quality intelligence framework. It turns any capable AI coding agent (Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP-capable, generic) into a persistent product-understanding, exploration, test-planning, user-flow execution, evidence-collection, and issue-management system that produces a durable `_testatlas/` workspace inside any target repository.
 
@@ -28,7 +28,7 @@ Auto-detects the installed agent platform (Claude Code, Cursor, Aider, KiloCode,
 ### Path 2 — `curl … | sh` (POSIX installer)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/<org>/testatlas/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/main/install.sh | sh
 ```
 
 Use when Node isn't installed yet, or for unattended provisioning. Pinned to a tagged release with SHA-256 verification. Tested on Linux + macOS (Alpine + BusyBox compatible).
@@ -36,7 +36,7 @@ Use when Node isn't installed yet, or for unattended provisioning. Pinned to a t
 ### Path 3 — `git clone` + `node install.js` (offline)
 
 ```sh
-git clone https://github.com/<org>/testatlas.git
+git clone https://github.com/testatlas-dev/testatlas.git
 cd testatlas
 node install.js /path/to/your/project
 ```

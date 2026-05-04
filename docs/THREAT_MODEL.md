@@ -22,7 +22,7 @@ service.
 ## Surface 1: `curl | sh` Installer
 
 **Description.** Users may install TestAtlas via
-`curl -fsSL https://raw.githubusercontent.com/<org>/testatlas/<tag>/install.sh | sh`.
+`curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/<tag>/install.sh | sh`.
 Anything served from the install URL executes with the user's shell privileges.
 
 **Threats:**
