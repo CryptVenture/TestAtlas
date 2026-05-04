@@ -28,6 +28,7 @@
 
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { discoverWorkspaces } from './lib/all-workspaces.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { loadConfig } from './lib/load-config.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
@@ -242,10 +243,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile
  */
 async function runCli(argv) {
   const opts = {};
+  let allWorkspacesRoot = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--workspace') {
       opts.workspaceDir = argv[++i];
+    } else if (a === '--all-workspaces') {
+      allWorkspacesRoot = argv[++i];
     } else if (a === '--cwd') {
       opts.cwd = argv[++i];
     } else if (a === '--dry-run') {
@@ -270,6 +274,10 @@ async function runCli(argv) {
           '',
           'Options:',
           '  --workspace <path>     Workspace dir (default: from testatlas.config.json)',
+          '  --all-workspaces <root>',
+          '                         Discover every _testatlas/ under <root> and validate each',
+          '                         in turn. Mutually exclusive with --workspace. Exit code is',
+          '                         0 only if every workspace passes.',
           '  --cwd <path>           Working directory (default: process.cwd())',
           '  --dry-run              Do not write any reports or autoheal changes',
           '  --auto-heal            Apply safe auto-heals (HEAL-01..04, Plan 05-04)',
@@ -285,6 +293,22 @@ async function runCli(argv) {
       process.exit(2);
     }
   }
+
+  // Mutual-exclusion guard: --workspace and --all-workspaces are different
+  // entry points; refuse to run when both are present so the caller's intent
+  // is unambiguous.
+  if (allWorkspacesRoot !== null && opts.workspaceDir !== undefined) {
+    console.error(
+      'validate-workspace: --workspace and --all-workspaces are mutually exclusive; specify one, not both',
+    );
+    process.exit(2);
+  }
+
+  if (allWorkspacesRoot !== null) {
+    await runAllWorkspaces(allWorkspacesRoot, opts);
+    return;
+  }
+
   try {
     const r = await validateWorkspace(opts);
     if (r.message) {
@@ -296,6 +320,64 @@ async function runCli(argv) {
     process.exit(r.exitCode);
   } catch (err) {
     console.error(`validate-workspace: ${err.code ?? 'ERROR'} — ${err.message}`);
+    process.exit(1);
+  }
+}
+
+/**
+ * Run validate-workspace against every `_testatlas/` discovered under `root`.
+ * Prints a per-workspace block + final aggregate. Exits 0 only if all pass.
+ *
+ * @param {string} root
+ * @param {object} sharedOpts validate-workspace options to forward to each run
+ *                            (excluding workspaceDir + cwd, which are derived
+ *                            per-workspace)
+ */
+async function runAllWorkspaces(root, sharedOpts) {
+  const absRoot = path.resolve(root);
+  const workspaces = await discoverWorkspaces(absRoot);
+  if (workspaces.length === 0) {
+    console.error(`validate-workspace: no _testatlas/ workspaces found under ${absRoot}`);
+    process.exit(1);
+  }
+
+  const results = [];
+  for (const ws of workspaces) {
+    const rel = path.relative(absRoot, ws) || ws;
+    let ok = false;
+    let detail = '';
+    try {
+      const r = await validateWorkspace({
+        ...sharedOpts,
+        workspaceDir: ws,
+        // cwd is preserved from the caller (suite-root) so .testatlas/
+        // schema + config resolution works. workspaceDir is an absolute
+        // path returned by discoverWorkspaces so no relative resolution
+        // happens here.
+      });
+      ok = r.exitCode === 0;
+      if (!ok) {
+        const failed = (r.results ?? []).filter((x) => x.status === 'fail');
+        detail = `${failed.length} check${failed.length === 1 ? '' : 's'} failed`;
+      }
+    } catch (err) {
+      ok = false;
+      detail = `${err.code ?? 'ERROR'} — ${err.message}`;
+    }
+    results.push({ ws, rel, ok, detail });
+    const marker = ok ? 'PASS' : 'FAIL';
+    const tail = ok ? '' : ` — ${detail}`;
+    process.stdout.write(`[${marker}] ${rel}${tail}\n`);
+  }
+
+  const passed = results.filter((r) => r.ok).length;
+  const failed = results.filter((r) => !r.ok);
+  if (failed.length === 0) {
+    process.stdout.write(`\nOK ${passed}/${results.length}\n`);
+    process.exit(0);
+  } else {
+    const failPaths = failed.map((r) => r.rel).join(', ');
+    process.stdout.write(`\nFAIL ${failed.length}/${results.length} (${failPaths})\n`);
     process.exit(1);
   }
 }
