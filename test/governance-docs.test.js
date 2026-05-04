@@ -27,10 +27,22 @@ test('LICENSE exists, declares MIT, and includes a copyright year', async () => 
 });
 
 // ---- GOV-01: README ----
-test('README.md exists, has H1, and links to CONTRIBUTING.md and docs/SCOPE.md', async () => {
+test('README.md exists, has identifying header, and links to CONTRIBUTING.md and docs/SCOPE.md', async () => {
   const readme = await read('README.md');
   assert.ok(readme.length > 0, 'README.md should not be empty');
-  assert.match(readme, /^# /m, 'README.md must contain an H1 heading');
+  // GOV-01 intent: README must visually identify the project at the top.
+  // Accepted forms: a markdown H1 heading, or a centered logo image
+  // (HTML <img> inside <p align="center">) where the alt text names the
+  // project. The centered-logo pattern was adopted in May 2026 and serves
+  // the same purpose as a textual H1.
+  const hasH1 = /^# /m.test(readme);
+  const hasCenteredLogo = /<p\s+align=["']center["'][^>]*>\s*<img[^>]+alt=["']TestAtlas["']/i.test(
+    readme,
+  );
+  assert.ok(
+    hasH1 || hasCenteredLogo,
+    'README.md must visually identify the project at the top — either via a Markdown H1 heading or a centered <img alt="TestAtlas"/>',
+  );
   assert.match(readme, /CONTRIBUTING\.md/, 'README.md must link to CONTRIBUTING.md');
   assert.match(readme, /docs\/SCOPE\.md/, 'README.md must link to docs/SCOPE.md');
 });
