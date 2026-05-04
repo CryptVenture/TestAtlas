@@ -143,3 +143,10 @@ GitHub's unauthenticated API rate limit is 60 req/h per IP. The cache TTL (defau
 ### "Signature verification failed"
 
 The downloaded tarball's sigstore bundle didn't verify. Likely transient — retry. If persistent, that's a serious supply-chain signal: stop, investigate, file an issue.
+
+## What's Next
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
+- **[CHANGELOG](../CHANGELOG.md)** — see what changed in this release
+- **[Install](./INSTALL.md)** — fresh-install reference if rolling back
+- **[LTS](./LTS.md)** — long-term support window policy

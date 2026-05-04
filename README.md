@@ -110,3 +110,10 @@ The full threat model lives at [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md).
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## What's Next
+
+- **`/atlas:init`** — bootstrap a TestAtlas workspace in your repo
+- **[Getting Started](docs/GETTING_STARTED.md)** — first-hour walkthrough of the 30 `/atlas:*` commands
+- **[Install](docs/INSTALL.md)** — three install paths (npx, install.sh, git clone)
+- **[Adapter Owners](ADAPTER-OWNERS.md)** — see who owns each adapter family
