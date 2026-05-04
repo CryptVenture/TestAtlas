@@ -3,7 +3,7 @@
 // Plan 06-03 Task 3: KiloCode adapter renderer.
 //
 // Input  : raw text of `.testatlas/commands/<name>.md` and its absolute path.
-// Output : the derived `.kilo/agents/atlas-<name>.md` content as a string.
+// Output : the derived `.kilocode/workflows/atlas-<name>.md` content as a string.
 //
 // Output shape:
 //   ---
@@ -24,8 +24,9 @@
 //   <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 //
 // KiloCode contract (06-RESEARCH.md §Q1.3 + Open Question 4):
-//   - 2026 unified agents model: `.kilo/agents/<name>.md` (legacy
-//     `.kilocodemodes` is deprecated; we don't emit it).
+//   - 2026 canonical path: `.kilocode/workflows/<name>.md` (slash-invokable
+//     workflows model). Legacy `.kilocodemodes` and `.kilo/agents/` paths
+//     are deprecated; we emit only the canonical form.
 //   - `mode: primary` — every TestAtlas command is user-selectable from
 //     KiloCode's agent picker.
 //   - The `permission` block is the load-bearing safety contract: it locks

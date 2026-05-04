@@ -1,9 +1,9 @@
 // test/adapter-kilocode.test.js
 //
 // Plan 06-03 Task 3: structural assertions on the 30 generated KiloCode
-// adapter files. KiloCode 2026 unified custom modes + custom commands into
-// a single agents model — files live at `.kilo/agents/<name>.md` per
-// kilo.ai/docs/features/custom-modes.
+// adapter files. KiloCode's canonical 2026 path is
+// `.kilocode/workflows/<name>.md` per kilo.ai/docs/customize/custom-modes —
+// 30 atlas commands map to slash-invokable workflows.
 //
 // Critical contract: the `permission` block enforces TestAtlas's two-tree
 // invariant (D-RES Open Question 4):
@@ -25,7 +25,14 @@ import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
-const ADAPTER_DIR = path.join(repoRoot, '.testatlas', 'adapters', 'kilocode', '.kilo', 'agents');
+const ADAPTER_DIR = path.join(
+  repoRoot,
+  '.testatlas',
+  'adapters',
+  'kilocode',
+  '.kilocode',
+  'workflows',
+);
 
 test('Test 1: 30 derived atlas-*.md agent files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
@@ -121,13 +128,17 @@ test('Test 3: envelope present; line after START is BOOTSTRAP_PREAMBLE; marker s
   }
 });
 
-test('Test 4: README.md exists with required sections + permission philosophy + 2026 unified-agents note', async () => {
+test('Test 4: README.md exists with required sections + permission philosophy + canonical-path note', async () => {
   const readmePath = path.join(repoRoot, '.testatlas', 'adapters', 'kilocode', 'README.md');
   const text = await readFile(readmePath, 'utf8');
-  for (const heading of ['Install', 'Capabilities', 'Permission', 'unified']) {
+  for (const heading of ['Install', 'Capabilities', 'Permission', 'canonical']) {
     assert.match(text, new RegExp(heading, 'i'), `README missing section/topic: ${heading}`);
   }
-  assert.match(text, /\.kilo\/agents/, 'README must reference .kilo/agents path');
+  assert.match(
+    text,
+    /\.kilocode\/workflows/,
+    'README must reference canonical .kilocode/workflows path',
+  );
   assert.match(text, /two-tree/i, 'README must explain the two-tree invariant');
 });
 

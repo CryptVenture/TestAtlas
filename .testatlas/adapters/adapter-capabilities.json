@@ -37,8 +37,8 @@
       "name": "kilocode",
       "displayName": "KiloCode",
       "outputDir": ".testatlas/adapters/kilocode",
-      "outputPattern": ".kilo/agents/atlas-{command}.md",
-      "globalOutputPattern": ".kilo/agents/atlas-{command}.md",
+      "outputPattern": ".kilocode/workflows/atlas-{command}.md",
+      "globalOutputPattern": ".kilocode/workflows/atlas-{command}.md",
       "fileExtension": ".md",
       "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file"
