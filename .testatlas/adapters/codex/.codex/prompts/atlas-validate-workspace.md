@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-validate-workspace. Invoke as /prompts:atlas-validate-workspace. Description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="b83891cf91ea86ab" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="0129942a1964ca08" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -24,7 +24,7 @@ Use the manual fallback below only when shell capability is unavailable. `--auto
 1. **Preferred path (if `shell` is available):** run `npx @webventures/testatlas validate` (or `node .testatlas/scripts/validate-workspace.js` when the package is locally installed). Pass `--auto-heal --apply` to repair safely-fixable findings in place. If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read files manually instead — items 2–11 below describe each check the runtime performs.
 2. **Canonical files present (PRD §33 condition 1):** confirm `_testatlas/00_overview.md` through `_testatlas/13_quality_scorecard.md` exist; surface a finding for each missing file. This is the schema validity check on the canonical 14-file set.
 3. **JSON Schema validity (PRD §33 condition 2):** for every JSON artifact (`_testatlas/11_workspace_manifest.json`, `app_map.json`, `domains/<slug>/domain.json`, `flows/<slug>/flow.json`, `to_fix/ISSUE-*.json`, `evidence/<id>/manifest.json`, `runs/<run-id>/run.json`, `reports/<id>/report.json`), validate against the matching schema in `.testatlas/schemas/`. Surface every AJV error verbatim — do not paraphrase.
-4. **Broken links (PRD §33 condition 3):** every markdown cross-reference of the form `[text](./relative/path)` resolves to an on-disk file or anchor inside `_testatlas/`.
+4. **Broken links (PRD §33 condition 3):** every markdown cross-reference whose target is a relative path (e.g. `[text](some-relative-path.md)`) resolves to an on-disk file or anchor inside `_testatlas/`.
 5. **Orphaned evidence (PRD §33 condition 4):** every `_testatlas/evidence/<id>/<file>` is referenced by at least one issue or run record. Unreferenced evidence is a finding (likely stale; do not delete in v1).
 6. **Issue index consistency (PRD §33 condition 5):** the per-domain issue indexes (`_testatlas/domains/<slug>/issues.md`), per-severity indexes (`_testatlas/to_fix/by_severity/*.md`), and per-status indexes (`_testatlas/to_fix/by_status/*.md`) all match the actual issue files on disk.
 7. **Missing domain/flow indexes (PRD §33 condition 6):** every domain directory under `_testatlas/domains/` has its `index.md`; every flow directory under `_testatlas/flows/` has its state-coverage index.

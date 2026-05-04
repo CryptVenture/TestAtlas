@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-map-domains. Invoke as /atlas-map-domains.md. Description: Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="cdaaa80dca502f95" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="beca938eb26aba00" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
 - `_testatlas/12_app_map.json` — REQUIRED. If missing, halt with `Run /atlas:explore-codebase first.`
 - `.testatlas/schemas/domain.schema.json` — required JSON shape this command must satisfy for each domain sidecar.
 - `.testatlas/vocabulary.json` — `domainId` pattern (kebab-case slug rules per PRD §32).
-- `_testatlas/01_system_map.md` — domain-inventory stub written by `explore-codebase`.
+- `_testatlas/01_app_inventory.md` — domain-inventory stub written by `explore-codebase`.
 
 ## Required Actions
 
@@ -22,7 +22,7 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
 3. For each cluster, propose a kebab-case `domainId` per PRD §32 and the `domainId` pattern in `vocabulary.json`. Names should describe a user-visible capability (`billing`, `account-settings`, `search`) rather than an internal module (`util-helpers`).
 4. For each domain, write the pair `_testatlas/domains/<slug>/domain.md` (markdown narrative) and `_testatlas/domains/<slug>/domain.json` (validates against `domain.schema.json`) per PRD §15. Required content: name, description, owned routes, owned APIs, owned components, owned jobs, owned integrations, related flows (initially empty — populated later by `map-flows`), and per-claim evidence references.
 5. For every ownership claim (this domain owns this route / API / component / job / integration), cite the originating `12_app_map.json` entry by stable identifier. The app-map entry itself already references an evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`; preserve that chain so `validate-workspace` can verify it.
-6. Update `_testatlas/01_system_map.md` per-domain index: list each domain with its slug, one-line description, and counts (routes / APIs / components / jobs / integrations).
+6. Update `_testatlas/01_app_inventory.md` per-domain index: list each domain with its slug, one-line description, and counts (routes / APIs / components / jobs / integrations).
 7. If `12_app_map.json` is sparse — fewer than ~10 entries total, or if `explore-codebase` ran with `confidence: needs-validation` — MUST mark every produced domain `confidence: needs-validation` and surface the gap in `_testatlas/12_gaps.md` so the operator knows to re-run `explore-codebase` with shell available.
 8. Validate every domain JSON against `domain.schema.json` before closing. If any sidecar fails validation, halt — do not partially commit a domain set.
 9. Close the lifecycle (next section).
@@ -30,8 +30,8 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
 ## Outputs
 
 - One `_testatlas/domains/<slug>/domain.md` + `_testatlas/domains/<slug>/domain.json` pair per domain — schema-valid sidecars per PRD §15.
-- Updated `_testatlas/01_system_map.md` — per-domain index with slug, description, counts.
-- Updated `_testatlas/06_risks_and_gaps.md` (under the `## Gaps` section) if any domains were forced to `confidence: needs-validation` (sparse map or unresolved cluster ambiguity).
+- Updated `_testatlas/01_app_inventory.md` — per-domain index with slug, description, counts.
+- Updated `_testatlas/12_gaps.md` if any domains were forced to `confidence: needs-validation` (sparse map or unresolved cluster ambiguity).
 
 ## Lifecycle
 
@@ -46,12 +46,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Stop Conditions
 
 - `_testatlas/12_app_map.json` missing → halt; "Run /atlas:explore-codebase first." Do not invent a domain set.
-- A single app-map entry could fit three or more domains with equal weight → leave that entry unassigned and log it under `06_risks_and_gaps.md` (in the `## Gaps` section) rather than guessing.
+- A single app-map entry could fit three or more domains with equal weight → leave that entry unassigned and log it under `12_gaps.md` rather than guessing.
 - `domain.schema.json` validation fails on any produced sidecar → halt; do not commit a partial / malformed domain set.
 
 ## Completion Criteria
 
-- At least one `_testatlas/domains/<slug>/domain.{md,json}` pair exists, or there is an unambiguous justification for zero domains recorded in `06_risks_and_gaps.md`.
+- At least one `_testatlas/domains/<slug>/domain.{md,json}` pair exists, or there is an unambiguous justification for zero domains recorded in `12_gaps.md`.
 - Every domain claim cites the originating app-map entry, preserving the evidence chain back to `_testatlas/evidence/explore-codebase/`.
 - Every domain JSON validates against `domain.schema.json`.
 - Manifest `counts.domains` matches the on-disk domain count.
