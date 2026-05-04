@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file. Format is b
 ### Changed
 
 - 9 adapters now declare `subagent-spawn` in `.testatlas/adapters/adapter-capabilities.json` (claude-code, opencode, kilocode, codex, gemini-cli, github-copilot, cline, kiro, sourcegraph-amp). The other 9 (cursor, continue-dev, aider, generic, mcp, windsurf, roo-code, zed, amazon-q) remain documented as no-spawn (sequential-fallback only).
-- `.testatlas/templates/canonical/03_execution_status.md` "Next Highest-Value Steps" rewritten to use the canonical command graph (`/atlas:explore` → `/atlas:map-domains` → `/atlas:plan`) instead of the legacy never-implemented names (`/atlas:map-app`, `/atlas:propose-test-plan`).
+- `.testatlas/templates/canonical/03_execution_status.md` "Next Highest-Value Steps" rewritten to use the canonical command graph (`/atlas:explore` → `/atlas:map-domains` → `/atlas:plan`) instead of legacy never-implemented command names that previously appeared there.
 - Eight explorer/map-domains commands updated to reference the canonical `01_system_map.md` instead of the never-bootstrapped `01_app_inventory.md`.
 
 ### Removed

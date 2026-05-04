@@ -20,6 +20,7 @@ const VOCAB_PATH = path.join(repoRoot, '.testatlas/vocabulary.json');
 const VOCAB_ID = 'https://testatlas.dev/schemas/v1/vocabulary.schema.json';
 
 const REQUIRED_DEFS = [
+  'capability',
   'severity',
   'confidence',
   'issueStatus',
