@@ -4,12 +4,17 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="ebca2895c17ed0aa" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="eb5d6c6bed7b6488" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Schema-validate every artifact under `_testatlas/`, detect drift between the workspace manifest and on-disk state, and surface every PRD §33 violation as a finding the operator can act on. This phase ships the contract; Phase 5 ships the runtime (`scripts/validate-workspace.js`). Until Phase 5 ships, agents perform repairs manually, surfacing each repair as a separate command run. Phase 5 introduces `--auto-heal`; v1 of this command does not.
+Schema-validate every artifact under `_testatlas/`, detect drift between the workspace manifest and on-disk state, and surface every PRD §33 violation as a finding the operator can act on. The validator runtime ships with the suite. Two reachable invocation paths:
+
+1. **Preferred (always works):** `npx @webventures/testatlas validate`
+2. **In-tree (requires the @webventures/testatlas package locally installed):** `node .testatlas/scripts/validate-workspace.js`
+
+Use the manual fallback below only when shell capability is unavailable. `--auto-heal` is opt-in and surfaces findings without writing unless `--apply` is also passed.
 
 ## Required First Reads
 
@@ -20,7 +25,7 @@ Schema-validate every artifact under `_testatlas/`, detect drift between the wor
 
 ## Required Actions
 
-1. **Preferred path (if `shell` is available):** run `node scripts/validate-workspace.js` (Phase 5 runtime; until Phase 5 ships, perform each check below manually). If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read files manually instead.
+1. **Preferred path (if `shell` is available):** run `npx @webventures/testatlas validate` (or `node .testatlas/scripts/validate-workspace.js` when the package is locally installed). Pass `--auto-heal --apply` to repair safely-fixable findings in place. If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read files manually instead — items 2–11 below describe each check the runtime performs.
 2. **Canonical files present (PRD §33 condition 1):** confirm `_testatlas/00_overview.md` through `_testatlas/13_quality_scorecard.md` exist; surface a finding for each missing file. This is the schema validity check on the canonical 14-file set.
 3. **JSON Schema validity (PRD §33 condition 2):** for every JSON artifact (`_testatlas/11_workspace_manifest.json`, `app_map.json`, `domains/<slug>/domain.json`, `flows/<slug>/flow.json`, `to_fix/ISSUE-*.json`, `evidence/<id>/manifest.json`, `runs/<run-id>/run.json`, `reports/<id>/report.json`), validate against the matching schema in `.testatlas/schemas/`. Surface every AJV error verbatim — do not paraphrase.
 4. **Broken links (PRD §33 condition 3):** every markdown cross-reference of the form `[text](./relative/path)` resolves to an on-disk file or anchor inside `_testatlas/`.

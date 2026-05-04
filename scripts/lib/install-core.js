@@ -97,6 +97,34 @@ const SUITE_DIR = '.testatlas';
 const TEST_WORKSPACE_DIRNAME = 'test-workspace';
 const ADAPTERS_DIRNAME = 'adapters';
 
+// Validator runtime + library closure copied into <target>/.testatlas/scripts/
+// during `runInit` (Quick 260504-r3q deliverable B). Paths are relative to
+// suiteRoot. The destination mirrors the source path under .testatlas/,
+// preserving the validator's relative imports (e.g. ./lib/foo.js,
+// ../validate/bar.js) without source rewrite.
+//
+// The check-*.js modules under scripts/lib/validate/ are discovered at copy
+// time (via readdir) so partial-wave rollouts and future check additions are
+// handled automatically.
+//
+// Each copied file is manifest-tracked with `type: 'suite'` so uninstall
+// reverses cleanly.
+export const SUITE_SCRIPTS_TO_COPY = Object.freeze([
+  'scripts/validate-workspace.js',
+  'scripts/lib/all-workspaces.js',
+  'scripts/lib/atomic-write.js',
+  'scripts/lib/load-config.js',
+  'scripts/lib/schema-loader.js',
+  'scripts/lib/workspace-guard.js',
+  'scripts/lib/ajv-instance.js',
+  'scripts/lib/content-hash.js',
+  'scripts/lib/determinism.js',
+  'scripts/lib/markers.js',
+  'scripts/lib/validate/autoheal.js',
+  'scripts/lib/validate/reporter.js',
+  'scripts/lib/validate/walk-workspace.js',
+]);
+
 /**
  * Validate a caller-supplied list of adapter names against ALL_ADAPTERS.
  * Throws with a single-line, actionable error containing every valid name on
@@ -378,6 +406,62 @@ export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps,
 }
 
 /**
+ * Copy the validator runtime + library closure into <target>/.testatlas/scripts/
+ * (Quick 260504-r3q deliverable B). Each source file lands at
+ * `<target>/.testatlas/<src-rel>`, preserving the directory structure so the
+ * validator's relative imports resolve.
+ *
+ * Feature-check: if a source file is missing (e.g. dev/stripped install),
+ * skip silently so the install never breaks just because the validator
+ * runtime hasn't been authored on a given branch. The check-*.js modules
+ * under scripts/lib/validate/ are globbed at copy time so future check
+ * additions are picked up without editing this list.
+ *
+ * Returns suite-typed manifest entries.
+ *
+ * @param {string} suiteRoot
+ * @param {string} target
+ * @returns {Promise<Array<{absPath: string, source: string, type: 'suite'}>>}
+ */
+async function copyValidatorScripts(suiteRoot, target) {
+  /** @type {Array<{absPath: string, source: string, type: 'suite'}>} */
+  const entries = [];
+  const dstSuite = path.join(target, SUITE_DIR);
+
+  // Static closure
+  for (const srcRel of SUITE_SCRIPTS_TO_COPY) {
+    const absSrc = path.join(suiteRoot, srcRel);
+    if (!(await pathExists(absSrc))) continue; // feature-check guard
+    const dst = path.join(dstSuite, srcRel);
+    await mkdir(path.dirname(dst), { recursive: true });
+    await cp(absSrc, dst, { force: true });
+    entries.push({ absPath: dst, source: srcRel, type: 'suite' });
+  }
+
+  // Dynamic check-*.js discovery — the validator dynamically imports these
+  // by id and tolerates ERR_MODULE_NOT_FOUND, so we glob whatever is on disk
+  // at copy time.
+  const checksDir = path.join(suiteRoot, 'scripts', 'lib', 'validate');
+  try {
+    const checkFiles = await readdir(checksDir);
+    for (const f of checkFiles) {
+      if (!f.startsWith('check-') || !f.endsWith('.js')) continue;
+      const srcRel = ['scripts', 'lib', 'validate', f].join('/');
+      const absSrc = path.join(suiteRoot, srcRel);
+      const dst = path.join(dstSuite, srcRel);
+      await mkdir(path.dirname(dst), { recursive: true });
+      await cp(absSrc, dst, { force: true });
+      entries.push({ absPath: dst, source: srcRel, type: 'suite' });
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+    // No validate/ dir at all — silent skip.
+  }
+
+  return entries;
+}
+
+/**
  * Optionally run init-workspace.js if _testatlas/ is absent. Failure here is
  * a warning, not an error (per locked decision: workspace init is a separate
  * concern from suite install).
@@ -459,9 +543,9 @@ export async function runInit(opts) {
   const targetSuiteDir = path.join(target, SUITE_DIR);
   const haveExisting = await pathExists(targetSuiteDir);
 
-  // Step 1/4 — resolution + adapter detection. Emitted before the
+  // Step 1/5 — resolution + adapter detection. Emitted before the
   // idempotency check so re-runs still print the leading marker.
-  if (!opts.logger) step(1, 4, 'Resolving target & adapters');
+  if (!opts.logger) step(1, 5, 'Resolving target & adapters');
 
   // Idempotency check — reads existing manifest, recomputes hashes.
   if (haveExisting && !opts.force) {
@@ -507,6 +591,9 @@ export async function runInit(opts) {
   if (opts.dryRun) {
     info(`[dry-run] Would install TestAtlas at ${target}${isGlobal ? ' (global)' : ''}`);
     info(`[dry-run] Adapters: ${detected.join(', ')}`);
+    info(
+      `[dry-run] Validator runtime: copying ${SUITE_SCRIPTS_TO_COPY.length} core files + check-*.js modules into .testatlas/scripts/`,
+    );
     info(`[dry-run] Force: ${Boolean(opts.force)}`);
     return {
       status: 'dry-run',
@@ -521,16 +608,22 @@ export async function runInit(opts) {
     await rm(targetSuiteDir, { recursive: true, force: true });
   }
 
-  // Step 2/4 — copy the suite tree (filtered). In both local and global modes
+  // Step 2/5 — copy the suite tree (filtered). In both local and global modes
   // the suite tree lands at <target>/.testatlas/ so the bootstrap.md preamble
   // can be resolved consistently.
-  if (!opts.logger) step(2, 4, 'Copying suite tree');
+  if (!opts.logger) step(2, 5, 'Copying suite tree');
   const suiteEntries = await copySuiteTree(suiteRoot, target, adapterSet);
 
-  // Step 3/4 — copy per-adapter command files. In global mode the adapter
+  // Step 3/5 — copy the validator runtime + lib closure into
+  // <target>/.testatlas/scripts/ (Quick 260504-r3q deliverable B). Manifest-
+  // tracked under type:'suite' so uninstall reverses cleanly.
+  if (!opts.logger) step(3, 5, 'Copying validator runtime');
+  const validatorEntries = await copyValidatorScripts(suiteRoot, target);
+
+  // Step 4/5 — copy per-adapter command files. In global mode the adapter
   // renderer honors `globalOutputPattern` and skips adapters that don't
   // declare one.
-  if (!opts.logger) step(3, 4, 'Installing adapters');
+  if (!opts.logger) step(4, 5, 'Installing adapters');
   const caps = await loadAdapterCapabilities(suiteRoot);
   const {
     entries: cmdEntries,
@@ -547,17 +640,17 @@ export async function runInit(opts) {
   // Build the file manifest. Filter out the soon-to-be-overwritten manifest
   // path itself if it slipped into suiteEntries (it shouldn't, since the
   // source suite tree never contains an install-manifest).
-  const allEntries = [...suiteEntries, ...cmdEntries].filter((e) => {
+  const allEntries = [...suiteEntries, ...validatorEntries, ...cmdEntries].filter((e) => {
     const rel = path.relative(target, e.absPath).split(path.sep).join('/');
     return rel !== INSTALL_MANIFEST_PATH;
   });
 
   const suiteVersion = await readSuiteVersion(suiteRoot);
 
-  // Step 4/4 — write manifest. Manifest tracks the actually-installed adapter
+  // Step 5/5 — write manifest. Manifest tracks the actually-installed adapter
   // set so uninstall reverses exactly. In global mode that's
   // `detected − skippedAdapters`.
-  if (!opts.logger) step(4, 4, 'Writing manifest');
+  if (!opts.logger) step(5, 5, 'Writing manifest');
   const installedAdapters = detected.filter((n) => !skippedAdapters.includes(n));
 
   await writeManifest(
@@ -599,6 +692,11 @@ export async function runInit(opts) {
     // Next-steps tip — surfaces the workspace-bootstrap entry-point so the
     // user knows what to do next without hunting through the README.
     info('Next: run /atlas:init inside your AI coding agent to bootstrap the workspace.');
+    if (validatorEntries.length > 0) {
+      info(
+        'Validator: run `npx @webventures/testatlas validate` (or `node .testatlas/scripts/validate-workspace.js` with the package locally installed).',
+      );
+    }
     info('Docs: https://github.com/CryptVenture/TestAtlas');
   }
   return result;

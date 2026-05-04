@@ -253,9 +253,11 @@ test('bin-cli: init --target <tmp> emits step markers and [OK] tag', async (t) =
   await withTmp(t, async (dir) => {
     const r = await runNode(BIN, ['init', '--target', dir]);
     assert.equal(r.code, 0, `stderr: ${r.stderr}`);
-    // Step markers from install-core.js step(...).
-    assert.match(r.stdout, /\[1\/4\]/);
-    assert.match(r.stdout, /\[4\/4\]/);
+    // Step markers from install-core.js step(...). Quick 260504-r3q expanded
+    // the install pipeline from 4 → 5 steps (added the validator-runtime copy
+    // step between suite-tree and adapters).
+    assert.match(r.stdout, /\[1\/5\]/);
+    assert.match(r.stdout, /\[5\/5\]/);
     // [OK] tag appears under NO_UNICODE=1 (forced by DETERMINISTIC_ENV).
     assert.match(r.stdout, /\[OK\]/);
     // Next-steps tip is surfaced.

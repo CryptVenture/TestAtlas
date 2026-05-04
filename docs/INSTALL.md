@@ -95,6 +95,30 @@ testatlas add-adapter cline --global              # add adapter to the ~/.testat
 
 The subcommand reads the existing `.testatlas/.install-manifest.json`, copies only the named adapter's command files, and atomically updates the manifest. Re-runs are idempotent (already-installed adapters are reported and skipped without disk mutation). Use `--dry-run` to preview file additions without writing.
 
+## Validation
+
+Once installed, validate the workspace at any time. Two reachable invocation paths:
+
+| Path | When to use | Command |
+|------|-------------|---------|
+| `npx` (preferred) | Works under any install — no local package required | `npx @webventures/testatlas validate` |
+| In-tree script | Faster on subsequent runs; requires `@webventures/testatlas` locally installed | `node .testatlas/scripts/validate-workspace.js` |
+
+Common flags (both paths):
+
+- `--auto-heal [--apply]` — repair safely-fixable findings (preview without `--apply`).
+- `--json` — emit the machine-readable JSON report (CLI subcommand only).
+- `--output <file>` — write markdown to `<file>` + JSON to `<file>.json`.
+- `--only <ids>` — run a subset of checks (e.g. `--only=schemas,broken-links`).
+
+Example:
+
+```sh
+npx @webventures/testatlas validate --auto-heal --apply
+```
+
+The validator runtime is installed under `<target>/.testatlas/scripts/` during `init`. Uninstall removes it cleanly via the manifest.
+
 ## Path 2 — `curl … | sh` (POSIX installer)
 
 ```sh
