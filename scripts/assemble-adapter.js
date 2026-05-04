@@ -24,6 +24,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
+import { renderCursor } from './lib/adapters/render-cursor.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
 import { renderKilocode } from './lib/adapters/render-kilocode.js';
 import { renderOpencode } from './lib/adapters/render-opencode.js';
@@ -40,6 +41,7 @@ const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.jso
 // and the all-adapters mode silently skips it.
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  cursor: renderCursor,
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,
@@ -125,7 +127,7 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
     const sourceText = await readFile(sourcePath, 'utf8');
     const baseName = path.basename(sourcePath, '.md');
     const outPath = computeOutputPath(workspace, adapter, baseName);
-    const rendered = render({ sourceText, sourcePath });
+    const rendered = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
 
     let existing = null;
     try {

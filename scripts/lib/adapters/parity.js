@@ -38,6 +38,7 @@ import { hashContent } from '../content-hash.js';
 import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderClaudeCode } from './render-claude-code.js';
+import { renderCursor } from './render-cursor.js';
 import { renderGeneric } from './render-generic.js';
 import { renderKilocode } from './render-kilocode.js';
 import { renderOpencode } from './render-opencode.js';
@@ -48,6 +49,7 @@ import { renderOpencode } from './render-opencode.js';
 // runs, so source-drift is still caught).
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  cursor: renderCursor,
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,
@@ -194,7 +196,7 @@ async function classifyOne(ctx) {
   // body without touching the marker line).
   const render = RENDERERS[adapter.name];
   if (render) {
-    const fresh = render({ sourceText, sourcePath });
+    const fresh = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
     if (fresh !== derivedText) {
       return {
         kind: 'hand-edit',
