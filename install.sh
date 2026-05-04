@@ -133,6 +133,32 @@ _main() {
     _log "Extracting and running install"
     (cd "$TMP" && tar -xzf testatlas.tgz)
     # npm tarball top-level dir is `package/`.
+
+    # Read VERSION from the extracted package.json so dev-smoke runs
+    # report the actual tarball version instead of the install.sh
+    # hardcoded constant. Release-time sed still rewrites VERSION above
+    # so the network-fetch URLs stay correct, but the runtime log
+    # tracks what we actually unpacked.
+    if [ -f "${TMP}/package/package.json" ]; then
+        UNPACKED_VERSION=$(node -p "require('${TMP}/package/package.json').version")
+        if [ "$UNPACKED_VERSION" != "$VERSION" ]; then
+            _log "Unpacked tarball is v${UNPACKED_VERSION} (install.sh pin: v${VERSION})"
+        fi
+    fi
+
+    # The npm tarball ships SOURCE only; runtime deps (commander, ajv,
+    # ajv-formats, semver) are NOT bundled. Resolve them inside the
+    # extracted dir before invoking install.js. `--omit=dev --no-audit
+    # --no-fund --silent` keeps the install lean (~3 packages) and
+    # quiet. We require `npm` to be on PATH (it ships with Node).
+    if ! command -v npm >/dev/null 2>&1; then
+        _err "npm not found on PATH (expected — it ships with Node)."
+        _err "Reinstall Node.js or fix PATH and retry."
+        exit 1
+    fi
+    _log "Resolving runtime dependencies"
+    (cd "${TMP}/package" && npm install --omit=dev --no-audit --no-fund --silent)
+
     node "${TMP}/package/install.js" "${TARGET:-$PWD}"
 
     _log "Done. Run your agent's bootstrap (e.g. /atlas:bootstrap) to start."
