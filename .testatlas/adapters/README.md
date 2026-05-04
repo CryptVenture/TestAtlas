@@ -12,10 +12,12 @@ the *output* of that pipeline.
 | **Claude Code (canonical)** (`claude-code`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.claude/commands/atlas-{command}.md` | [`claude-code/README.md`](./claude-code/README.md) |
 | **Generic Prompts** (`generic`) | browser, shell, web-fetch, MCP, file-write (paste-time-decided) | `per-command-file` | `prompts/atlas-{command}.md` | [`generic/README.md`](./generic/README.md) |
 | **OpenCode** (`opencode`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.opencode/commands/atlas-{command}.md` | [`opencode/README.md`](./opencode/README.md) |
-| **KiloCode** (`kilocode`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.kilo/agents/atlas-{command}.md` | [`kilocode/README.md`](./kilocode/README.md) |
+| **KiloCode** (`kilocode`) | browser, shell, web-fetch, MCP, file-write | `per-command-file` | `.kilocode/workflows/atlas-{command}.md` | [`kilocode/README.md`](./kilocode/README.md) |
 | **Cursor** (`cursor`) | shell, web-fetch, file-write | `per-command-file` | `.cursor/rules/atlas-{command}.mdc` | [`cursor/README.md`](./cursor/README.md) |
 | **Aider** (`aider`) | shell, file-write | `concatenated-conventions` | `CONVENTIONS.md` | [`aider/README.md`](./aider/README.md) |
 | **MCP** (`mcp`) | shell, web-fetch, file-write | `mcp-server` | `mcp-server-manifest.json` (runnable JSON-RPC server) | [`mcp/README.md`](./mcp/README.md) |
+| **OpenAI Codex CLI** (`codex`) | shell, web-fetch, MCP, file-write | `per-command-file` | `.codex/prompts/atlas-{command}.md` | [`codex/README.md`](./codex/README.md) |
+| **Google Gemini CLI** (`gemini-cli`) | shell, web-fetch, MCP, file-write | `per-command-file` (TOML) | `.gemini/commands/atlas-{command}.toml` | [`gemini-cli/README.md`](./gemini-cli/README.md) |
 
 The canonical capability declarations live in
 [`adapter-capabilities.json`](./adapter-capabilities.json) and are validated by
@@ -38,7 +40,8 @@ from.
 ## Parity gate
 
 The strict-mode parity check enumerates every command × adapter obligation
-(30 × 7 = 210) and asserts coverage is 1.0 with zero drift entries:
+(30 commands × 9 adapters = 270 today; the count grows as new adapters land)
+and asserts coverage is 1.0 with zero drift entries:
 
 ```sh
 node scripts/check-adapter-parity.js --strict

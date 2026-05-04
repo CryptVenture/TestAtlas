@@ -29,6 +29,8 @@ Where files land:
 | Cursor | `<repo>/.cursor/rules/atlas-*.mdc` | `~/.cursor/rules/atlas-*.mdc` |
 | OpenCode | `<repo>/.opencode/commands/atlas-*.md` | `~/.config/opencode/command/atlas-*.md` |
 | KiloCode | `<repo>/.kilocode/workflows/atlas-*.md` | `~/.kilocode/workflows/atlas-*.md` |
+| OpenAI Codex CLI | `<repo>/.codex/prompts/atlas-*.md` | `~/.codex/prompts/atlas-*.md` |
+| Google Gemini CLI | `<repo>/.gemini/commands/atlas-*.toml` | `~/.gemini/commands/atlas-*.toml` |
 | Aider | `<repo>/CONVENTIONS.md` | `~/.config/aider/CONVENTIONS.md` |
 | MCP | `<repo>/mcp-server-manifest.json` | `~/.config/testatlas/mcp-server-manifest.json` |
 | Generic prompts | `<repo>/prompts/atlas-*.md` | `~/.config/testatlas/prompts/atlas-*.md` |

@@ -34,6 +34,8 @@ const EXPECTED_ADAPTERS = new Set([
   'cursor',
   'aider',
   'mcp',
+  'codex',
+  'gemini-cli',
 ]);
 const CAPABILITY_VOCAB = new Set(['browser', 'shell', 'web-fetch', 'MCP', 'file-write']);
 const RENDER_STRATEGIES = new Set(['per-command-file', 'concatenated-conventions', 'mcp-server']);
@@ -69,10 +71,14 @@ test('Test 2: adapter-capabilities.json validates against schema', async () => {
   );
 });
 
-test('Test 3: declares EXACTLY 7 adapters with locked names', async () => {
+test('Test 3: declares the locked adapter set with no extras', async () => {
   const data = JSON.parse(await readFile(CAPS_PATH, 'utf8'));
   const names = new Set(data.adapters.map((a) => a.name));
-  assert.equal(names.size, 7, `expected 7 adapters; got ${names.size}`);
+  assert.equal(
+    names.size,
+    EXPECTED_ADAPTERS.size,
+    `expected ${EXPECTED_ADAPTERS.size} adapters; got ${names.size}`,
+  );
   for (const expected of EXPECTED_ADAPTERS) {
     assert.ok(names.has(expected), `missing adapter: ${expected}`);
   }

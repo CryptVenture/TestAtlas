@@ -6,8 +6,9 @@
 //
 // Three guarantees:
 //
-//   1. For each of the 7 adapters (claude-code, generic, opencode, kilocode,
-//      cursor, aider, mcp), `.testatlas/adapters/<name>/README.md` exists.
+//   1. For each shipped adapter (claude-code, generic, opencode, kilocode,
+//      cursor, aider, mcp, codex, gemini-cli),
+//      `.testatlas/adapters/<name>/README.md` exists.
 //   2. Every per-adapter README contains the required H2 sections:
 //      - `## Install`
 //      - `## Capabilities`
@@ -17,7 +18,7 @@
 //      `## Why one file, not 30`; cursor: `## Note on flat-MDC vs folder
 //      format`); a plain `## Limitations` heading is also accepted.
 //   3. The top-level `.testatlas/adapters/README.md` exists and references
-//      all 7 adapter names — each must appear at least once in the file.
+//      every adapter name — each must appear at least once in the file.
 //
 // Headings are matched case-insensitively at the start of a line so the
 // audit doesn't get fragile about future copyedits.
@@ -32,13 +33,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const ADAPTERS_DIR = path.join(repoRoot, '.testatlas', 'adapters');
 
-const ADAPTERS = ['claude-code', 'generic', 'opencode', 'kilocode', 'cursor', 'aider', 'mcp'];
+const ADAPTERS = [
+  'claude-code',
+  'generic',
+  'opencode',
+  'kilocode',
+  'cursor',
+  'aider',
+  'mcp',
+  'codex',
+  'gemini-cli',
+];
 
 // Per-adapter "Limitations equivalent" alternatives. A plain `## Limitations`
 // heading is always accepted; specific adapters use a contextual variant
 // because rendering-strategy quirks are clearer than a generic header.
-// 06-01..04 each authored its adapter's README with a domain-specific section
-// covering the limitations/quirks; this gate accepts those by name.
 const LIMITATIONS_ALTERNATIVES = {
   aider: [/^##\s+Why one file,? not 30/im, /^##\s+Limitations/im],
   cursor: [/^##\s+Note on flat-MDC/im, /^##\s+Limitations/im],
@@ -46,6 +55,8 @@ const LIMITATIONS_ALTERNATIVES = {
   opencode: [/^##\s+Note on the `agent:` field/im, /^##\s+Limitations/im],
   kilocode: [/^##\s+Permission philosophy/im, /^##\s+Limitations/im],
   mcp: [/^##\s+NO PER-COMMAND FILES/im, /^##\s+Why prompts\//im, /^##\s+Limitations/im],
+  codex: [/^##\s+Caveat/im, /^##\s+Limitations/im],
+  'gemini-cli': [/^##\s+Caveats?/im, /^##\s+Limitations/im],
   // claude-code falls through to default `## Limitations`.
 };
 
@@ -58,7 +69,7 @@ async function exists(p) {
   }
 }
 
-test('Test 1: each of the 7 per-adapter README.md files exists', async () => {
+test('Test 1: each per-adapter README.md exists', async () => {
   for (const name of ADAPTERS) {
     const p = path.join(ADAPTERS_DIR, name, 'README.md');
     assert.ok(await exists(p), `expected README.md for adapter '${name}' at ${p}`);
@@ -93,7 +104,7 @@ test('Test 2: each per-adapter README contains required H2 sections', async () =
   }
 });
 
-test('Test 3: top-level .testatlas/adapters/README.md exists and lists all 7 adapters', async () => {
+test('Test 3: top-level .testatlas/adapters/README.md exists and lists every adapter', async () => {
   const p = path.join(ADAPTERS_DIR, 'README.md');
   assert.ok(await exists(p), `top-level adapters README must exist at ${p}`);
   const text = await readFile(p, 'utf8');

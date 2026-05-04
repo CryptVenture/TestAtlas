@@ -129,7 +129,7 @@ test('install-core: --force preserves _testatlas/ workspace', async (t) => {
   });
 });
 
-test('install-core: allAdapters → manifest lists all 7 regardless of detection', async (t) => {
+test('install-core: allAdapters → manifest lists every shipped adapter', async (t) => {
   await withTmp(t, async (target) => {
     const result = await runInit({
       target,
@@ -137,8 +137,9 @@ test('install-core: allAdapters → manifest lists all 7 regardless of detection
       allAdapters: true,
       logger: QUIET,
     });
-    assert.equal(result.adapters.length, 7);
-    for (const name of [
+    // Adapters shipped by TestAtlas as of v1.x. Adding a new adapter requires
+    // bumping ALL_ADAPTERS in install-core.js and adding the name here.
+    const expected = [
       'claude-code',
       'cursor',
       'aider',
@@ -146,7 +147,11 @@ test('install-core: allAdapters → manifest lists all 7 regardless of detection
       'opencode',
       'mcp',
       'generic',
-    ]) {
+      'codex',
+      'gemini-cli',
+    ];
+    assert.equal(result.adapters.length, expected.length);
+    for (const name of expected) {
       assert.ok(result.adapters.includes(name), `expect ${name}`);
     }
   });

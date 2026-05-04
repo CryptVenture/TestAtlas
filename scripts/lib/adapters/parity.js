@@ -39,19 +39,23 @@ import { listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderAider } from './render-aider.js';
 import { renderClaudeCode } from './render-claude-code.js';
+import { renderCodex } from './render-codex.js';
 import { renderCursor } from './render-cursor.js';
+import { renderGemini } from './render-gemini.js';
 import { renderGeneric } from './render-generic.js';
 import { renderKilocode } from './render-kilocode.js';
 import { renderMcpToString } from './render-mcp.js';
 import { renderOpencode } from './render-opencode.js';
 
-// Renderer dispatch table for layer-2 byte-compare. Plans 06-03/04 register
-// additional renderers here as they ship. An adapter without a registered
-// renderer skips the layer-2 hand-edit check (the marker-hash check still
-// runs, so source-drift is still caught).
+// Renderer dispatch table for layer-2 byte-compare. Each adapter must register
+// here when it ships. An adapter without a registered renderer skips the
+// layer-2 hand-edit check (the marker-hash check still runs, so source-drift
+// is still caught).
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  codex: renderCodex,
   cursor: renderCursor,
+  'gemini-cli': renderGemini,
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,

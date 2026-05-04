@@ -74,6 +74,28 @@
       "capabilities": ["shell", "web-fetch", "file-write"],
       "renderStrategy": "mcp-server",
       "globalNotes": "MCP clients are configured per-app (Claude Desktop, Cursor MCP, etc.). Point them at `node ~/.config/testatlas/scripts/mcp-server.js` after `--global` install."
+    },
+    {
+      "name": "codex",
+      "displayName": "OpenAI Codex CLI",
+      "outputDir": ".testatlas/adapters/codex",
+      "outputPattern": ".codex/prompts/atlas-{command}.md",
+      "globalOutputPattern": ".codex/prompts/atlas-{command}.md",
+      "fileExtension": ".md",
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Codex auto-discovers prompts at ~/.codex/prompts/ (set $CODEX_HOME to override). Files invoke as /prompts:atlas-<name>."
+    },
+    {
+      "name": "gemini-cli",
+      "displayName": "Google Gemini CLI",
+      "outputDir": ".testatlas/adapters/gemini-cli",
+      "outputPattern": ".gemini/commands/atlas-{command}.toml",
+      "globalOutputPattern": ".gemini/commands/atlas-{command}.toml",
+      "fileExtension": ".toml",
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "renderStrategy": "per-command-file",
+      "globalNotes": "Gemini CLI auto-discovers TOML commands at ~/.gemini/commands/. Run /commands reload (or restart) after install. Files invoke as /atlas-<name>."
     }
   ]
 }

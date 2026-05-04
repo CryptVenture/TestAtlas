@@ -39,7 +39,17 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["claude-code", "generic", "opencode", "kilocode", "cursor", "aider", "mcp"]
+        "enum": [
+          "claude-code",
+          "generic",
+          "opencode",
+          "kilocode",
+          "cursor",
+          "aider",
+          "mcp",
+          "codex",
+          "gemini-cli"
+        ]
       },
       "uniqueItems": true
     },

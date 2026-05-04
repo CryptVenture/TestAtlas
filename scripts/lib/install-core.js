@@ -74,6 +74,8 @@ const ALL_ADAPTERS = Object.freeze([
   'opencode',
   'mcp',
   'generic',
+  'codex',
+  'gemini-cli',
 ]);
 
 const SUITE_DIR = '.testatlas';

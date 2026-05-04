@@ -25,7 +25,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderAider } from './lib/adapters/render-aider.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
+import { renderCodex } from './lib/adapters/render-codex.js';
 import { renderCursor } from './lib/adapters/render-cursor.js';
+import { renderGemini } from './lib/adapters/render-gemini.js';
 import { renderGeneric } from './lib/adapters/render-generic.js';
 import { renderKilocode } from './lib/adapters/render-kilocode.js';
 import { renderMcpToString } from './lib/adapters/render-mcp.js';
@@ -44,7 +46,9 @@ const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.jso
 // strategy) bypass this table and use the multi-source dispatch below.
 const RENDERERS = Object.freeze({
   'claude-code': renderClaudeCode,
+  codex: renderCodex,
   cursor: renderCursor,
+  'gemini-cli': renderGemini,
   generic: renderGeneric,
   kilocode: renderKilocode,
   opencode: renderOpencode,

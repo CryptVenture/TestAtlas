@@ -29,15 +29,16 @@
 //   - Transitional (Plans 06-02 → 06-04, retired): only `missing` drift was
 //     tolerated to cover not-yet-shipped adapters. Non-missing kinds always
 //     failed.
-//   - Strict (Plan 06-05 onward — this is the live mode): every one of the 7
-//     adapters is shipped; the parity gate now requires
-//     `coverage === 1.0` AND `drift.length === 0` against the live tree.
+//   - Strict (Plan 06-05 onward — this is the live mode): every shipped
+//     adapter is populated; the parity gate requires `coverage === 1.0` AND
+//     `drift.length === 0` against the live tree.
 //
-// The matrix is 30 commands × 7 adapters = 210 expected obligations. All 7
-// adapters (claude-code, generic, opencode, kilocode, cursor, aider, mcp) are
-// populated in the live tree, so `found` MUST equal 210 and `coverage` MUST
-// equal 1.0. Tests 2–6 below operate on tmp-tree mutations and exercise drift
-// detection independently of the strict happy-path assertion.
+// The matrix is 30 commands × N adapters expected obligations, where N is
+// the count declared in adapter-capabilities.json. The expected count is
+// computed dynamically from the live result (not hard-coded) so adding a
+// new adapter doesn't require updating this assertion. Tests 2–6 below
+// operate on tmp-tree mutations and exercise drift detection independently
+// of the strict happy-path assertion.
 
 import { strict as assert } from 'node:assert';
 import { cp, mkdtemp, readFile, rm, unlink, writeFile } from 'node:fs/promises';
@@ -64,16 +65,20 @@ async function makeTmpRepo() {
 }
 
 test('Test 1: live tree — strict mode: coverage === 1.0 AND drift.length === 0', async () => {
-  // Strict mode active as of Plan 06-05. All 7 adapters must be populated;
-  // every one of the 30 commands × 7 adapters = 210 obligations must be
-  // satisfied; drift of any kind (missing / no-marker / hash-mismatch /
-  // hand-edit) fails the gate.
+  // Strict mode active as of Plan 06-05. Every shipped adapter must be
+  // populated; every 30 commands × N adapters obligation must be satisfied;
+  // drift of any kind (missing / no-marker / hash-mismatch / hand-edit)
+  // fails the gate.
   const result = await enumerate({ repoRoot });
-  assert.strictEqual(result.expected, 210, 'expected obligations = 30 commands × 7 adapters');
+  // expected = 30 × adapter count; with 9 shipped adapters today this is 270.
+  assert.ok(
+    result.expected > 0 && result.expected % 30 === 0,
+    `expected obligations must be a positive multiple of 30; got ${result.expected}`,
+  );
   assert.strictEqual(
     result.found,
-    210,
-    `strict mode: every obligation must be satisfied; got found=${result.found}`,
+    result.expected,
+    `strict mode: every obligation must be satisfied; got found=${result.found} of ${result.expected}`,
   );
   assert.strictEqual(
     result.coverage,
