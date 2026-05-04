@@ -63,6 +63,32 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 9. Validate every entry in `matrix.json` against `test-scenario.schema.json` before closing. If any entry fails, halt — do not commit a partial matrix.
 10. Close the lifecycle (next section).
 
+## Sub-Agent Orchestration
+
+Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+
+**If `subagent-spawn` is available:**
+For each domain entry in `_testatlas/01_domain_map.md` (one risk-analysis sub-agent per domain):
+  Spawn a sub-agent with this brief (markdown convention):
+    - **objective:** "Identify test risks and prioritize coverage for `<domain>`."
+    - **scope:** "All product features mapped to `<domain>` in `_testatlas/01_domain_map.md`."
+    - **files-to-read:** "`_testatlas/01_domain_map.md` (the `<domain>` entry); `_testatlas/02_product_overview.md`; the relevant `explore-*` findings under `_testatlas/evidence/`; prior `_testatlas/to_fix/` issues touching the domain."
+    - **output-format:** "Markdown risk list with severity-tagged entries (one per identified risk) plus draft `test-scenario` JSON fragments validating against `test-scenario.schema.json`."
+    - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella aggregates risks + scenarios and writes `02_test_strategy.md`, `plans/PLAN-master.md`, and `tests/matrix.{md,json}`.
+    - **exit-criteria:** "Risks ranked; uncovered surface flagged; scenarios drafted; ready for matrix synthesis."
+Run all sub-agents in parallel. Wait for all to complete.
+Merge structured results into the strategy + master plan + scenario matrix.
+Mark the run record `executionMode: 'parallel-subagents'`.
+
+**Else (sequential fallback):**
+For each domain sequentially in this thread:
+  Perform the per-domain risk analysis inline following the same brief above.
+  Capture output.
+Synthesize results into the umbrella output.
+Mark the run record `executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if applicable domain count is `< 2` after filtering, run inline regardless of capability (degenerate single-spawn is wasted overhead).
+
 ## Outputs
 
 - `_testatlas/02_test_strategy.md` — one-page strategy framing.
