@@ -53,6 +53,7 @@ jobs:
         node:
           - 20.x
           - 22.x
+          - 24.x
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -153,3 +154,88 @@ jobs:
             echo "WARN — Signature status: $STATUS. Review docs/THREAT_MODEL.md M1.7 for branch-protection expectations."
           fi
         # Intentionally never fails: the job exists to surface the signal.
+
+  shellcheck:
+    name: shellcheck install.sh (Linux)
+    # Plan 07-02 (INSTALL-02). Linux-only — shellcheck is the same binary
+    # on every OS but our policy gate runs once.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: shellcheck install.sh
+
+  install-sh-smoke:
+    name: install.sh smoke (${{ matrix.os }})
+    # Plan 07-02 (INSTALL-02 + INSTALL-06). POSIX-only — install.sh is /bin/sh
+    # and not run on Windows; Windows uses the npx flow validated by the
+    # `test` job above.
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Pack suite as a fake tarball for the smoke
+        # `pnpm pack` writes testatlas-<version>.tgz at repo root (npm tarball
+        # layout: top-level dir is `package/`). install.sh's
+        # `_TESTATLAS_TARBALL_OVERRIDE` test hook copies this local file in
+        # place of a network fetch, fully exercising the extract → invoke
+        # node install.js path against a real tarball.
+        run: pnpm pack
+
+      - name: Smoke install.sh against tmp target
+        run: |
+          set -eu
+          TARBALL=$(ls testatlas-*.tgz | head -1)
+          TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t testatlas)
+          _TESTATLAS_TARBALL_OVERRIDE="$PWD/$TARBALL" TARGET="$TARGET" sh install.sh
+          test -d "$TARGET/.testatlas" || { echo 'install.sh did not create .testatlas/'; exit 1; }
+          test -f "$TARGET/.testatlas/.install-manifest.json" || { echo 'install-manifest missing'; exit 1; }
+
+      - name: Smoke uninstall round-trip
+        run: |
+          set -eu
+          TARBALL=$(ls testatlas-*.tgz | head -1)
+          TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t testatlas)
+          _TESTATLAS_TARBALL_OVERRIDE="$PWD/$TARBALL" TARGET="$TARGET" sh install.sh
+          node bin/testatlas.js uninstall --target "$TARGET"
+          if [ -d "$TARGET/.testatlas" ]; then
+            echo '.testatlas/ should be removed'
+            exit 1
+          fi
+          if [ ! -d "$TARGET/_testatlas" ]; then
+            echo '_testatlas/ must be preserved by default'
+            exit 1
+          fi
+          node bin/testatlas.js uninstall --target "$TARGET" --force-untracked --purge
+          if [ -d "$TARGET/_testatlas" ]; then
+            echo '_testatlas/ should be removed under --purge'
+            exit 1
+          fi
