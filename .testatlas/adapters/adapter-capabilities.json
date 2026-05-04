@@ -9,7 +9,7 @@
       "outputPattern": ".claude/commands/atlas-{command}.md",
       "globalOutputPattern": ".claude/commands/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file"
     },
     {
@@ -30,7 +30,7 @@
       "outputPattern": ".opencode/commands/atlas-{command}.md",
       "globalOutputPattern": ".config/opencode/command/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file"
     },
     {
@@ -40,7 +40,7 @@
       "outputPattern": ".kilocode/workflows/atlas-{command}.md",
       "globalOutputPattern": ".kilocode/workflows/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file"
     },
     {
@@ -82,7 +82,7 @@
       "outputPattern": ".codex/prompts/atlas-{command}.md",
       "globalOutputPattern": ".codex/prompts/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Codex auto-discovers prompts at ~/.codex/prompts/ (set $CODEX_HOME to override). Files invoke as /prompts:atlas-<name>."
     },
@@ -93,7 +93,7 @@
       "outputPattern": ".gemini/commands/atlas-{command}.toml",
       "globalOutputPattern": ".gemini/commands/atlas-{command}.toml",
       "fileExtension": ".toml",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Gemini CLI auto-discovers TOML commands at ~/.gemini/commands/. Run /commands reload (or restart) after install. Files invoke as /atlas-<name>."
     },
@@ -104,7 +104,7 @@
       "outputPattern": ".clinerules/workflows/atlas-{command}.md",
       "globalOutputPattern": ".config/cline/workflows/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Cline workflows are slash-invoked WITH the .md extension (e.g. `/atlas-init.md`). Workflows live in `.clinerules/workflows/` per project; the global config dir is OS-dependent so we use `~/.config/cline/workflows/` as a portable default — set `cline.workflowsPath` in your IDE settings to point there."
     },
@@ -125,7 +125,7 @@
       "outputPattern": ".kiro/skills/atlas-{command}.md",
       "globalOutputPattern": ".kiro/skills/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Kiro skills are flat-file `~/.kiro/skills/atlas-<name>.md`. Slash-invoke as /atlas-<name>."
     },
@@ -146,7 +146,7 @@
       "outputDir": ".testatlas/adapters/github-copilot",
       "outputPattern": ".github/prompts/atlas-{command}.prompt.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "GitHub Copilot has no documented global filesystem path for prompts; --global skips. For machine-wide steering, edit `github.copilot.chat.codeGeneration.instructions` in VS Code user settings manually."
     },
@@ -157,7 +157,7 @@
       "outputPattern": ".agents/commands/atlas-{command}.md",
       "globalOutputPattern": ".agents/commands/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Amp walks AGENTS.md from cwd up to $HOME; per-command files in `~/.agents/commands/` are the practical global path."
     },
