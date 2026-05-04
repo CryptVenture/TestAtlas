@@ -4,7 +4,7 @@ description: Refresh the agent's understanding of the TestAtlas constitution and
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="d589a7baed818073" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="ab2a50a157b8e467" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -21,6 +21,54 @@ Refresh the agent's understanding of the TestAtlas constitution and reaffirm the
 2. Confirm the first-500-token rules are still in effect: identity, workspace ownership (`_testatlas/` is the only writable surface), instruction precedence, safety, and persistence (including `No evidence, no finding.` per `bootstrap.md` §8).
 3. Note any conflicts between the constitution and prior decisions taken earlier in this session. Surface each conflict explicitly. Do not silently override.
 4. Close the lifecycle (next section).
+
+## Capability Degradation
+
+The capability `subagent-spawn` indicates the host supports parallel sub-agent
+invocation driven from a markdown command file. When an umbrella command's
+instruction body includes a Sub-Agent Orchestration block, the agent MUST
+detect this capability before spawning.
+
+**If `subagent-spawn` is available:** spawn one sub-agent per applicable child
+task in parallel; merge structured results into the umbrella's output. Mark
+the run record `executionMode: 'parallel-subagents'`.
+
+**If `subagent-spawn` is unavailable (sequential fallback):** execute child
+tasks sequentially in the current context. Mark any output records with
+`executionMode: 'sequential-fallback'`.
+
+**Threshold guard:** if the applicable child-task count is < 2 after
+filtering, run inline regardless of capability (degenerate single-spawn case
+is always wasted overhead).
+
+### Per-host invocation table
+
+| Adapter            | subagent-spawn | Canonical 2026 invocation pattern                                          |
+|--------------------|----------------|-----------------------------------------------------------------------------|
+| claude-code        | yes            | Task tool / Agent tool (up to 7 parallel sub-agents per turn)              |
+| opencode           | yes            | Subagent file in .opencode/agent/NAME.md; agents.max_depth=1 default       |
+| kilocode           | yes            | Task tool subagent; respects agents.max_depth                              |
+| codex              | yes            | @subagent-name syntax + Codex orchestrator (.codex/agents/NAME.md)         |
+| gemini-cli         | yes            | @agent-name sub-agent syntax in prompt (.gemini/agents/NAME.md)             |
+| github-copilot     | yes            | /fleet CLI sub-agent command (Copilot CLI only — IDE has no parallel sub-agents) |
+| cline              | yes            | Native subagents via .clinerules/workflows/ Task primitive                  |
+| kiro               | yes            | Custom subagent skills at .kiro/skills/; parallel by default               |
+| sourcegraph-amp    | yes            | Subagent declaration in Amp config; isolated context per subagent          |
+| cursor             | no             | UI-only /multitask — not driveable from .cursor/rules/*.mdc                |
+| aider              | sequential     | Single-context terminal pair-programmer; sequential fallback               |
+| continue-dev       | sequential     | No first-class subagent primitive in 2026; sequential                      |
+| windsurf           | no             | Cascade uses parallel tools internally; no user-driven subagents           |
+| zed                | no             | AI-assist only; no subagent spawn                                          |
+| roo-code           | sequential     | Architect/Coder/Debugger role-modes only; sequential                       |
+| amazon-q           | sequential     | Sunset (signups closed 2026-05-15); sequential                             |
+| mcp                | runtime-probe  | Transport, not runtime; default false until host probes confirm yes        |
+| generic            | runtime-probe  | Paste-target — default false; user may override per host                   |
+
+The marker vocabulary (`yes`, `no`, `runtime-probe`, `sequential`, `false`) is
+the single source of truth consumed by umbrella-orchestration commands. Hosts
+marked `sequential` or `no` always take the sequential-fallback path; hosts
+marked `runtime-probe` default to false until the host's runtime confirms
+subagent capability is present.
 
 ## Outputs
 
