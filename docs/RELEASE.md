@@ -46,7 +46,7 @@ Before the first real publish, configure npm Trusted Publishing so the workflow 
 
 1. Go to https://www.npmjs.com/package/testatlas/access (after the first publish exists; for the very first publish, fall back to a one-shot `NPM_TOKEN` secret).
 2. Trusted Publishers → Add → GitHub Actions.
-3. Repository: `testatlas-dev/testatlas`.
+3. Repository: `CryptVenture/TestAtlas`.
 4. Workflow: `release.yml`.
 5. Environment: leave blank (we don't gate on a GHA environment).
 6. Save.
@@ -105,7 +105,7 @@ v1.0.0 is the **first publish**. Trusted Publishing (OIDC) requires the npm pack
 
    - Visit https://www.npmjs.com/package/testatlas/access.
    - Trusted Publishers → Add → GitHub Actions.
-   - Repository: `testatlas-dev/testatlas`.
+   - Repository: `CryptVenture/TestAtlas`.
    - Workflow filename: `release.yml`.
    - Save.
 

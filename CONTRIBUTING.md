@@ -16,7 +16,7 @@ This project adopts the [Contributor Covenant](CODE_OF_CONDUCT.md). By participa
 ## Development Setup
 
 ```
-git clone https://github.com/testatlas-dev/testatlas
+git clone https://github.com/CryptVenture/TestAtlas
 cd testatlas
 pnpm install
 pnpm test

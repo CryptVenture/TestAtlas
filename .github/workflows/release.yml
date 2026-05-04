@@ -141,7 +141,7 @@ jobs:
           # Prefer dist.shasum (SHA-1) for npm, but compute SHA-256 of the
           # tarball downloaded from the registry — that's what install.sh
           # verifies.
-          TARBALL_URL="https://registry.npmjs.org/testatlas/-/testatlas-${VERSION}.tgz"
+          TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
           curl -fsSL "$TARBALL_URL" -o "testatlas-${VERSION}.tgz"
           SHA=$(sha256sum "testatlas-${VERSION}.tgz" | cut -d' ' -f1)
           sed -i.bak "s/^VERSION=.*$/VERSION=\"${VERSION}\"/" install.sh
@@ -158,7 +158,7 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if [ ! -f "testatlas-${VERSION}.tgz" ]; then
-            curl -fsSL "https://registry.npmjs.org/testatlas/-/testatlas-${VERSION}.tgz" \
+            curl -fsSL "https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz" \
               -o "testatlas-${VERSION}.tgz"
           fi
           sha256sum "testatlas-${VERSION}.tgz" > "testatlas-${VERSION}.tgz.sha256"
@@ -171,7 +171,7 @@ jobs:
           # npm registry exposes provenance attestations for packages published
           # under Trusted Publishing; the sigstore bundle is fetched via
           # `npm view ...` or the `attestations.url` pointer.
-          ATT_URL=$(npm view "testatlas@${VERSION}" --json | node -e "
+          ATT_URL=$(npm view "@webventures/testatlas@${VERSION}" --json | node -e "
             let j=''; process.stdin.on('data',c=>j+=c).on('end',()=>{
               const o=JSON.parse(j);
               const a=o.dist && o.dist.attestations;

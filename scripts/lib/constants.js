@@ -5,9 +5,9 @@
 // avoid hardcoding the org/repo in dozens of places — every other module
 // imports these constants.
 //
-// Plan 08-05 (GA closure) finalized the canonical org as `testatlas-dev`.
+// Plan 08-05 (GA closure) finalized the canonical org as `CryptVenture`.
 
-export const REPO_OWNER_REPO = 'testatlas-dev/testatlas';
+export const REPO_OWNER_REPO = 'CryptVenture/TestAtlas';
 export const GH_RELEASES_API = `https://api.github.com/repos/${REPO_OWNER_REPO}/releases`;
 export const GH_LATEST_RELEASE_API = `${GH_RELEASES_API}/latest`;
 

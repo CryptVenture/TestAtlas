@@ -69,7 +69,7 @@ The flag fetches `<tarball>.sigstore.json` from the GitHub Release sidecar (or f
 ```sh
 cosign verify-blob-attestation \
   --bundle testatlas-<VERSION>.tgz.sigstore.json \
-  --certificate-identity-regexp 'https://github.com/testatlas-dev/testatlas/\.github/workflows/release\.yml@refs/tags/v.*' \
+  --certificate-identity-regexp 'https://github.com/CryptVenture/TestAtlas/\.github/workflows/release\.yml@refs/tags/v.*' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   testatlas-<VERSION>.tgz
 ```
@@ -85,13 +85,13 @@ You can verify a release entirely outside the install flow:
 curl -fsSL https://registry.npmjs.org/testatlas/-/testatlas-0.1.0.tgz -o testatlas.tgz
 
 # 2. Download the sigstore bundle (from GitHub Releases)
-curl -fsSL https://github.com/testatlas-dev/testatlas/releases/download/v0.1.0/testatlas-0.1.0.tgz.sigstore.json \
+curl -fsSL https://github.com/CryptVenture/TestAtlas/releases/download/v0.1.0/testatlas-0.1.0.tgz.sigstore.json \
   -o testatlas.tgz.sigstore.json
 
 # 3. Verify
 cosign verify-blob-attestation \
   --bundle testatlas.tgz.sigstore.json \
-  --certificate-identity-regexp 'https://github.com/testatlas-dev/testatlas/\.github/workflows/release\.yml@refs/tags/v.*' \
+  --certificate-identity-regexp 'https://github.com/CryptVenture/TestAtlas/\.github/workflows/release\.yml@refs/tags/v.*' \
   --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
   testatlas.tgz
 ```

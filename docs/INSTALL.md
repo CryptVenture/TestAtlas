@@ -22,7 +22,7 @@ By default `testatlas init` installs into the current project (per-repo `.testat
 ```sh
 npx testatlas init --global --all-adapters
 # or via the POSIX installer:
-curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/main/install.sh | sh -s -- --global
+curl -fsSL https://raw.githubusercontent.com/CryptVenture/TestAtlas/main/install.sh | sh -s -- --global
 ```
 
 Where files land:
@@ -85,7 +85,7 @@ Useful flags:
 ## Path 2 — `curl … | sh` (POSIX installer)
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/testatlas-dev/testatlas/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/CryptVenture/TestAtlas/main/install.sh | sh
 ```
 
 Use this when:
@@ -111,7 +111,7 @@ Override hooks (testing / mirroring):
 ## Path 3 — `git clone` + `node install.js` (offline)
 
 ```sh
-git clone https://github.com/testatlas-dev/testatlas.git
+git clone https://github.com/CryptVenture/TestAtlas.git
 cd testatlas
 node install.js /path/to/your/project
 ```

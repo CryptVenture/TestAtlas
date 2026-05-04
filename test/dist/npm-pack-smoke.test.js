@@ -100,9 +100,9 @@ test('npm pack: includes at least some .testatlas/ files', () => {
   assert.ok(hasTestAtlas, 'expected at least one .testatlas/ file in npm pack output');
 });
 
-test('package.json: name === "testatlas"', async () => {
+test('package.json: name === "@webventures/testatlas"', async () => {
   const pkg = JSON.parse(await readFile(PKG_JSON_PATH, 'utf8'));
-  assert.equal(pkg.name, 'testatlas');
+  assert.equal(pkg.name, '@webventures/testatlas');
 });
 
 test('package.json: version matches semver core (^\\d+\\.\\d+\\.\\d+)', async () => {

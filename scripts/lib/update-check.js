@@ -3,7 +3,7 @@
 // Plan 07-04 Task 1 — GitHub Releases auto-check + TTL cache + offline
 // tolerance (UPDATE-01, UPDATE-03).
 //
-// Calls `https://api.github.com/repos/testatlas-dev/testatlas/releases/latest` with a
+// Calls `https://api.github.com/repos/CryptVenture/TestAtlas/releases/latest` with a
 // 5s `AbortController` timeout. Caches the response in
 // `<target>/.testatlas/.update-cache.json` honoring `ttlHours` (default 24
 // elsewhere; this module is TTL-agnostic — caller passes the value).

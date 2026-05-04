@@ -1,5 +1,5 @@
 {
-  "name": "testatlas",
+  "name": "@webventures/testatlas",
   "version": "1.0.0",
   "description": "Installable, agent-agnostic product testing and quality intelligence framework for AI coding agents.",
   "type": "module",
@@ -34,11 +34,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/testatlas-dev/testatlas.git"
+    "url": "https://github.com/CryptVenture/TestAtlas.git"
   },
-  "homepage": "https://github.com/testatlas-dev/testatlas#readme",
+  "homepage": "https://github.com/CryptVenture/TestAtlas#readme",
   "bugs": {
-    "url": "https://github.com/testatlas-dev/testatlas/issues"
+    "url": "https://github.com/CryptVenture/TestAtlas/issues"
   },
   "keywords": [
     "testing",

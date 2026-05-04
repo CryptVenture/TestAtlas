@@ -8,7 +8,7 @@
 
 [![npm version](https://img.shields.io/npm/v/testatlas.svg)](https://www.npmjs.com/package/testatlas)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/testatlas-dev/testatlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/CryptVenture/TestAtlas/ci.yml?branch=main&label=ci)](.github/workflows/ci.yml)
 [![Provenance](https://img.shields.io/badge/npm-provenance-success.svg)](https://docs.npmjs.com/generating-provenance-statements)
 
 ## What is this?
