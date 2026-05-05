@@ -2,7 +2,7 @@
 description: Umbrella explorer router — classify which sub-explorers (ui/cli/api/docs/runtime/data/integrations/accessibility/performance/security) apply to the target product and emit a recommendation document.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="95d551f1978dd4cc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9aeed0da3834cf67" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -25,31 +25,22 @@ Route the agent to the right subset of sub-explorers for the target product. Thi
 5. Estimate a time budget per recommended sub-explorer (small / medium / large) based on the count of routes / endpoints / integrations the app map records.
 6. Close the lifecycle (next section).
 
-## Sub-Agent Orchestration
+## Sub-Agent Orchestration (advisory, classification-only)
 
-Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradation section (per-host invocation table). Then:
+This command's contract is to classify and write `_testatlas/explore-plan.md` only. It does NOT spawn or merge sub-explorer results — that's the responsibility of a follow-up `/atlas:explore-<child>` invocation (or a future orchestrator command that explicitly produces a product overview). When the operator chains the recommended explorers, the host's `subagent-spawn` capability (per `bootstrap.md` Capability Degradation) lets them run in parallel; but spawning is not this command's job.
 
-**If `subagent-spawn` is available:**
-For each applicable child task in `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}` (filtered by the classification logic in step 3 — only `recommended` and `optional` children spawn):
-  Spawn a sub-agent with this brief (markdown convention):
-    - **objective:** "Map the `<domain>` surface area of the target product."
-    - **scope:** "Files and runtime artifacts in scope of the `<child-name>` command."
-    - **files-to-read:** ".testatlas/commands/`<child-name>`.md plus the product files relevant to `<domain>` (routes, handlers, manifests, config)."
-    - **output-format:** "Structured markdown matching the `explore-<domain>` finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
-    - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly unless this brief explicitly grants a path; the umbrella aggregates findings and writes `_testatlas/02_product_overview.md` plus per-domain artifacts.
-    - **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
-Run all sub-agents in parallel. Wait for all to complete.
-Merge structured results into the umbrella's recommendation + the aggregate product overview.
-Mark the run record `executionMode: 'parallel-subagents'`.
+Recording for completeness: applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}`, filtered by the classification produced in step 3.
 
-**Else (sequential fallback):**
-For each applicable child task sequentially in this thread:
-  Execute the child task following its own command file.
-  Capture output.
-Synthesize results into the umbrella output.
-Mark the run record `executionMode: 'sequential-fallback'`.
+When the operator (or a downstream orchestrator) invokes a recommended sub-explorer, the brief contract that explorer expects is — for reference only:
 
-**Threshold guard:** if applicable child-task count is `< 2` after filtering, run inline regardless of capability (degenerate single-spawn is wasted overhead).
+- **objective:** "Map the `<domain>` surface area of the target product."
+- **scope:** "Files and runtime artifacts in scope of the `<child-name>` command."
+- **files-to-read:** ".testatlas/commands/`<child-name>`.md plus the product files relevant to `<domain>` (routes, handlers, manifests, config)."
+- **output-format:** "Structured markdown matching the `explore-<domain>` finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
+- **may-write:** the child writes only to the paths its own command file authorizes; this umbrella never grants additional write paths.
+- **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
+
+Mark the run record `executionMode: 'classify-only'` regardless of host capability — this command produces no aggregate output.
 
 ## Outputs
 
@@ -68,7 +59,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/12_app_map.json` absent → halt with the explore-codebase recommendation. The umbrella cannot classify without an app map.
+- `_testatlas/12_app_map.json` absent OR contains zero entries across all 11 surface arrays (`domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships`) → halt with the explore-codebase recommendation. The umbrella cannot classify without surface signals.
 - Any required step would write to `_testatlas/evidence/` → halt; this command is non-finding-producing and MUST NOT emit evidence.
 - Any required step would produce a schema artifact (`app-map`, `domain`, `route`, `component`, `evidence`, `issue`, etc.) → halt; the umbrella's only output is the recommendation markdown.
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.

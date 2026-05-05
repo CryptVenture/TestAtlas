@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-codebase. Invoke as /prompts:atlas-explore-codebase. Description: Map the target product across languages, frameworks, monorepo layout, apps/services/workers, routes, handlers, jobs, integrations, and data flows; produce 12_app_map.json plus a domain inventory. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="6dc07778edda4de4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="2a1ec08bd539514c" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,6 +28,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Required Actions
 
+0. **Short-circuit on already-mapped state.** If `_testatlas/12_app_map.json` is non-stub (any one of its 11 surface arrays — `domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships` — is non-empty) AND its most recent evidence directory at `_testatlas/evidence/explore-codebase/<timestamp>/` exists AND no source files in `git ls-files` have a modification time newer than the evidence directory's mtime, exit with `status: already-mapped` and update `10_command_log.md` only — do NOT regenerate the app-map or capture new evidence. The operator can force a refresh by deleting the most recent evidence directory.
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
 2. Detect language(s), frameworks, build tools, test runners, linters, monorepo layout (workspaces / apps / packages / services). If `shell` is available, run `git ls-files`, parse package manifests, and run framework introspection commands (e.g. `next routes`, `rails routes`, `php artisan route:list`) where the toolchain ships them. **If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read package files manually instead — never invent routes, handlers, or integrations from training-data priors.**
 3. Enumerate apps / services / workers: frontends (web, mobile, desktop), HTTP APIs, RPC services, background workers, schedulers, queue consumers, cron jobs, edge functions, lambdas. Record entry-point file paths and runtime metadata for each.
@@ -56,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, and counts of apps / routes / integrations discovered.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and `12_app_map.json` must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.apps`, `counts.routes`, `counts.integrations`, `counts.models`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (This command does not write to `counts.*` — those track per-domain/flow/issue/evidence/run artifacts that explore-codebase does not produce. Run `node .testatlas/scripts/sync-status.js` if downstream commands have populated counts that need reconciling against on-disk reality.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` apps, `<n>` routes, `<n>` integrations into `12_app_map.json`."
 
 ## Stop Conditions
@@ -72,7 +73,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/12_app_map.json` exists and validates against `app-map.schema.json`.
 - Every app, route, handler, job, integration, and model entry cites at least one evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/` that exists on disk.
 - `_testatlas/01_system_map.md` lists at least one app (or unambiguous justification for zero).
-- Manifest `counts.apps`, `counts.routes`, `counts.integrations`, `counts.models` are updated to match the on-disk map.
+- Manifest `lastUpdatedAt` is bumped; `counts.*` is left untouched (this command produces no countable per-domain/flow/issue/evidence/run artifacts).
 - The five lifecycle files listed above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
 
