@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/commands/*.md` by `scripts/generate-commands-doc.js`. Do not edit by hand._
 
-This index covers every `/atlas:*` command shipped with TestAtlas (31 commands). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
+This index covers every `/atlas:*` command shipped with TestAtlas (32 commands). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
 
 See [docs/SCHEMAS.md](./SCHEMAS.md) for the JSON Schemas these commands consume and produce.
 
@@ -235,6 +235,16 @@ Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit
 **Capabilities:** `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/test-accessibility.md)
+
+---
+
+## /atlas:test-all
+
+Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-domain --all` and aggregates per-child run records into a single merged RUN-<timestamp>.{md,json}.
+
+**Capabilities:** `shell`, `browser`, `file-write`
+
+[Source](../.testatlas/commands/test-all.md)
 
 ---
 
