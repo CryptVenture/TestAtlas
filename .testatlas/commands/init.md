@@ -6,6 +6,7 @@ capabilities: [shell, file-write]
 produces:
   - workspace-manifest
   - app-map
+  - command-result
 consumes:
   - command-instruction
 lifecycle:

@@ -11,7 +11,7 @@ lifecycle:
   - 10_command_log.md
   - 11_workspace_manifest.json
   - history/run_log.md
-boundary: Does NOT execute any product behavior. Does NOT modify domain/flow/issue artifacts. Refresh-of-understanding only — read bootstrap.md and write the lifecycle close.
+boundary: Does NOT execute any product behavior. Does NOT modify domain/flow/issue artifacts. Refresh-of-understanding only — read bootstrap.md and write the lifecycle close. produces: [] is intentional — no domain artifact is emitted; the only output is the command-result row appended to 10_command_log.md via the lifecycle close.
 ---
 
 # TestAtlas Command: bootstrap

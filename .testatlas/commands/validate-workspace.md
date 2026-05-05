@@ -12,7 +12,7 @@ lifecycle:
   - 10_command_log.md
   - 11_workspace_manifest.json
   - history/run_log.md
-boundary: Default mode surfaces findings only; pass --auto-heal (CLI) or set autoHeal=true (programmatic) to repair safely-fixable findings. Does NOT delete artifacts. Does NOT modify _testatlas/ except for lifecycle records and an optional report file.
+boundary: Default mode surfaces findings only; pass --auto-heal (CLI) or set autoHeal=true (programmatic) to repair safely-fixable findings. Does NOT delete artifacts. Does NOT modify _testatlas/ except for lifecycle records and an optional report file. produces: [] is intentional — report-only command; the only output is the command-result row appended to 10_command_log.md via the lifecycle close (the markdown/JSON report is an out-of-tree side effect, not a workspace artifact).
 ---
 
 # TestAtlas Command: validate-workspace

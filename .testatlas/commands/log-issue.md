@@ -6,6 +6,7 @@ capabilities: [file-write]
 produces:
   - issue
   - evidence
+  - command-result
 consumes:
   - workspace-manifest
   - issue

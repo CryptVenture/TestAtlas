@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-validate-workspace. Invoke as /atlas-validate-workspace. Description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="153c48a1368e5697556ff671f062e2cf2276eb75573a0d3cc468aff8a18ff870" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="b8007ee3e98c4b8302298ada30edb85600df942f898e1673da09a5218442c3c9" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

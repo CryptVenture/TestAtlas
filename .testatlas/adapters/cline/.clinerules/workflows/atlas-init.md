@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-init. Invoke as /atlas-init.md. Description: Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="2c07ff358adece3f34e35f9e89cb68c1bdc1ce72b2821c619e445c94307b4b73" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="27b8d9fd271dfc1c1af6098e3c5bfa7541a9905a8d3c9653af20b37c22912599" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
