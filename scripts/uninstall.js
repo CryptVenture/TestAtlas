@@ -128,7 +128,7 @@ export async function runUninstall(opts = {}) {
         else info(`[dry-run] rm ${osPath}`);
       } else {
         try {
-          await rm(osPath, { force: true });
+          await rm(osPath, { force: true, recursive: true });
           filesRemoved++;
         } catch (err) {
           // Logged but non-fatal; uninstall is best-effort once started.

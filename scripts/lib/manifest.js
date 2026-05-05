@@ -20,7 +20,7 @@
 // `ajv.addSchema` — that double-registers and throws per ajv-instance.js
 // docstring).
 
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { formatErrors } from './ajv-instance.js';
 import { atomicWrite } from './atomic-write.js';
@@ -59,6 +59,12 @@ function toPosix(p) {
  * @returns {Promise<string>}
  */
 async function fileHash(absPath) {
+  const s = await stat(absPath);
+  if (s.isDirectory()) {
+    // Directories (e.g., vendored node_modules) get a deterministic placeholder
+    // so the manifest schema (which requires a hash for every entry) stays valid.
+    return hashContent(`dir:${absPath}`);
+  }
   const buf = await readFile(absPath);
   return hashContent(buf.toString('utf8'));
 }

@@ -255,9 +255,10 @@ test('bin-cli: init --target <tmp> emits step markers and [OK] tag', async (t) =
     assert.equal(r.code, 0, `stderr: ${r.stderr}`);
     // Step markers from install-core.js step(...). Quick 260504-r3q expanded
     // the install pipeline from 4 → 5 steps (added the validator-runtime copy
-    // step between suite-tree and adapters).
-    assert.match(r.stdout, /\[1\/5\]/);
-    assert.match(r.stdout, /\[5\/5\]/);
+    // step between suite-tree and adapters). Later expanded to 6 steps with
+    // runtime dependency vendoring (ajv, ajv-formats, etc. into node_modules).
+    assert.match(r.stdout, /\[1\/6\]/);
+    assert.match(r.stdout, /\[6\/6\]/);
     // [OK] tag appears under NO_UNICODE=1 (forced by DETERMINISTIC_ENV).
     assert.match(r.stdout, /\[OK\]/);
     // Next-steps tip is surfaced.

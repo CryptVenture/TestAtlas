@@ -125,6 +125,18 @@ export const SUITE_SCRIPTS_TO_COPY = Object.freeze([
   'scripts/lib/validate/walk-workspace.js',
 ]);
 
+// NPM packages required by the copied validator scripts at runtime.
+// These are vendored into <target>/.testatlas/node_modules/ so the
+// scripts work in target repos that do not have these deps installed.
+const RUNTIME_DEPS = Object.freeze([
+  'ajv',
+  'ajv-formats',
+  'fast-deep-equal',
+  'fast-uri',
+  'json-schema-traverse',
+  'require-from-string',
+]);
+
 /**
  * Validate a caller-supplied list of adapter names against ALL_ADAPTERS.
  * Throws with a single-line, actionable error containing every valid name on
@@ -250,6 +262,8 @@ async function checkAlreadyInstalled(target, suiteRoot) {
   for (const entry of manifest.files) {
     const abs = path.join(target, ...entry.path.split('/'));
     if (!(await pathExists(abs))) return null;
+    const s = await stat(abs);
+    if (s.isDirectory()) continue; // directories (vendored node_modules) skipped
     const buf = await readFile(abs);
     const fresh = hashContent(buf.toString('utf8'));
     if (fresh !== entry.hash) return null; // drift
@@ -462,6 +476,67 @@ async function copyValidatorScripts(suiteRoot, target) {
 }
 
 /**
+ * Copy the runtime npm dependencies required by the validator scripts into
+ * <target>/.testatlas/node_modules/ so the scripts resolve imports correctly
+ * in target repos that do not have ajv/ajv-formats installed.
+ *
+ * Strategy: resolve the primary packages (ajv, ajv-formats) to their real
+ * on-disk locations, then scan the *parent* node_modules directories for
+ * sibling packages that are also in RUNTIME_DEPS. This catches transitive
+ * dependencies (fast-deep-equal, fast-uri, etc.) that pnpm isolates in the
+ * same .pnpm/<pkg>/node_modules/ directory but does not expose as top-level
+ * symlinks.
+ *
+ * @param {string} _suiteRoot  unused — resolution is relative to this module
+ * @param {string} target
+ * @returns {Promise<Array<{absPath: string, source: string, type: 'suite'}>>}
+ */
+async function copyNodeModules(_suiteRoot, target) {
+  /** @type {Array<{absPath: string, source: string, type: 'suite'}>} */
+  const entries = [];
+  const dstModules = path.join(target, SUITE_DIR, 'node_modules');
+  const seen = new Set();
+
+  // Collect candidate source directories: for each primary package, add its
+  // parent node_modules dir to the scan list.
+  const candidateDirs = new Set();
+  for (const primary of ['ajv', 'ajv-formats']) {
+    let resolvedUrl;
+    try {
+      resolvedUrl = import.meta.resolve(`${primary}/package.json`);
+    } catch {
+      continue;
+    }
+    const realPkgPath = new URL(resolvedUrl).pathname.replace(/\/package\.json$/, '');
+    candidateDirs.add(path.dirname(realPkgPath));
+  }
+
+  for (const pkg of RUNTIME_DEPS) {
+    if (seen.has(pkg)) continue;
+    seen.add(pkg);
+
+    // Find the first candidate dir that contains this package.
+    let src = null;
+    for (const dir of candidateDirs) {
+      const candidate = path.join(dir, pkg);
+      if (await pathExists(candidate)) {
+        src = candidate;
+        break;
+      }
+    }
+    if (!src) continue;
+
+    const dst = path.join(dstModules, pkg);
+    await mkdir(path.dirname(dst), { recursive: true });
+    // dereference: true follows symlinks (required for pnpm's isolated store).
+    await cp(src, dst, { recursive: true, dereference: true, force: true });
+    entries.push({ absPath: dst, source: `node_modules/${pkg}`, type: 'suite' });
+  }
+
+  return entries;
+}
+
+/**
  * Optionally run init-workspace.js if _testatlas/ is absent. Failure here is
  * a warning, not an error (per locked decision: workspace init is a separate
  * concern from suite install).
@@ -545,7 +620,7 @@ export async function runInit(opts) {
 
   // Step 1/5 — resolution + adapter detection. Emitted before the
   // idempotency check so re-runs still print the leading marker.
-  if (!opts.logger) step(1, 5, 'Resolving target & adapters');
+  if (!opts.logger) step(1, 6, 'Resolving target & adapters');
 
   // Idempotency check — reads existing manifest, recomputes hashes.
   if (haveExisting && !opts.force) {
@@ -594,6 +669,9 @@ export async function runInit(opts) {
     info(
       `[dry-run] Validator runtime: copying ${SUITE_SCRIPTS_TO_COPY.length} core files + check-*.js modules into .testatlas/scripts/`,
     );
+    info(
+      `[dry-run] Runtime deps: copying ${RUNTIME_DEPS.length} packages into .testatlas/node_modules/`,
+    );
     info(`[dry-run] Force: ${Boolean(opts.force)}`);
     return {
       status: 'dry-run',
@@ -608,22 +686,28 @@ export async function runInit(opts) {
     await rm(targetSuiteDir, { recursive: true, force: true });
   }
 
-  // Step 2/5 — copy the suite tree (filtered). In both local and global modes
+  // Step 2/6 — copy the suite tree (filtered). In both local and global modes
   // the suite tree lands at <target>/.testatlas/ so the bootstrap.md preamble
   // can be resolved consistently.
-  if (!opts.logger) step(2, 5, 'Copying suite tree');
+  if (!opts.logger) step(2, 6, 'Copying suite tree');
   const suiteEntries = await copySuiteTree(suiteRoot, target, adapterSet);
 
-  // Step 3/5 — copy the validator runtime + lib closure into
+  // Step 3/6 — copy the validator runtime + lib closure into
   // <target>/.testatlas/scripts/ (Quick 260504-r3q deliverable B). Manifest-
   // tracked under type:'suite' so uninstall reverses cleanly.
-  if (!opts.logger) step(3, 5, 'Copying validator runtime');
+  if (!opts.logger) step(3, 6, 'Copying validator runtime');
   const validatorEntries = await copyValidatorScripts(suiteRoot, target);
 
-  // Step 4/5 — copy per-adapter command files. In global mode the adapter
+  // Step 4/6 — copy runtime npm dependencies (ajv, ajv-formats, etc.) into
+  // <target>/.testatlas/node_modules/ so validator scripts resolve imports
+  // in target repos that don't have these deps installed.
+  if (!opts.logger) step(4, 6, 'Copying runtime dependencies');
+  const nodeModulesEntries = await copyNodeModules(suiteRoot, target);
+
+  // Step 5/6 — copy per-adapter command files. In global mode the adapter
   // renderer honors `globalOutputPattern` and skips adapters that don't
   // declare one.
-  if (!opts.logger) step(4, 5, 'Installing adapters');
+  if (!opts.logger) step(5, 6, 'Installing adapters');
   const caps = await loadAdapterCapabilities(suiteRoot);
   const {
     entries: cmdEntries,
@@ -640,17 +724,22 @@ export async function runInit(opts) {
   // Build the file manifest. Filter out the soon-to-be-overwritten manifest
   // path itself if it slipped into suiteEntries (it shouldn't, since the
   // source suite tree never contains an install-manifest).
-  const allEntries = [...suiteEntries, ...validatorEntries, ...cmdEntries].filter((e) => {
+  const allEntries = [
+    ...suiteEntries,
+    ...validatorEntries,
+    ...nodeModulesEntries,
+    ...cmdEntries,
+  ].filter((e) => {
     const rel = path.relative(target, e.absPath).split(path.sep).join('/');
     return rel !== INSTALL_MANIFEST_PATH;
   });
 
   const suiteVersion = await readSuiteVersion(suiteRoot);
 
-  // Step 5/5 — write manifest. Manifest tracks the actually-installed adapter
+  // Step 6/6 — write manifest. Manifest tracks the actually-installed adapter
   // set so uninstall reverses exactly. In global mode that's
   // `detected − skippedAdapters`.
-  if (!opts.logger) step(5, 5, 'Writing manifest');
+  if (!opts.logger) step(6, 6, 'Writing manifest');
   const installedAdapters = detected.filter((n) => !skippedAdapters.includes(n));
 
   await writeManifest(
