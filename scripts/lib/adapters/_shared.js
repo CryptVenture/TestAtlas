@@ -113,7 +113,11 @@ export function capsToTools(capabilities) {
   // Dedup while preserving first-occurrence order (mcp__* could be added once
   // even if both browser and MCP are present — guarded above — but be defensive).
   const seen = new Set();
-  return out.filter((t) => (seen.has(t) ? false : (seen.add(t), true)));
+  return out.filter((t) => {
+    if (seen.has(t)) return false;
+    seen.add(t);
+    return true;
+  });
 }
 
 /**

@@ -51,7 +51,7 @@
 
 import path from 'node:path';
 import { hashContent } from '../content-hash.js';
-import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
+import { parseFrontmatter } from '../parse-frontmatter.js';
 import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
 
 const MAX_LINES_PER_SECTION = 7;

@@ -32,7 +32,7 @@
 // validation suite) — over-engineering for v1.
 
 import path from 'node:path';
-import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
+import { parseFrontmatter } from '../parse-frontmatter.js';
 
 /**
  * Derive the command base name (e.g. "init") from the absolute source path.
