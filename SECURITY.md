@@ -2,9 +2,9 @@
 
 ## Supported Versions
 
-| Version | Status                |
-| ------- | --------------------- |
-| 1.x     | Pre-release / not yet GA |
+| Version | Status                                              |
+| ------- | --------------------------------------------------- |
+| 1.x     | Supported (GA shipped 2026-05-04 per CHANGELOG.md)  |
 
 ## Reporting a Vulnerability
 
