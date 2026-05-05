@@ -44,7 +44,7 @@ jobs:
       NPM_CONFIG_PROVENANCE: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
         with:
           fetch-depth: 0
           # Use a token that can push back to main (sed install.sh after
@@ -53,12 +53,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1  # v4
         with:
           version: 10
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4
         with:
           node-version: 22.x
           cache: pnpm
@@ -113,7 +113,7 @@ jobs:
       - name: Create Release Pull Request or Publish
         if: github.event.inputs.dry-run != 'true'
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@6a0a831ff30acef54f2c6aa1cbbc1096b066edaf  # v1
         with:
           version: pnpm changeset version
           publish: pnpm changeset publish
@@ -165,7 +165,6 @@ jobs:
 
       - name: Fetch sigstore bundle from npm provenance store
         if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
-        continue-on-error: true
         run: |
           VERSION=$(node -p "require('./package.json').version")
           # npm registry exposes provenance attestations for packages published
@@ -186,7 +185,7 @@ jobs:
 
       - name: Create GitHub Release with assets
         if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
         with:
           tag_name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
           name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
@@ -200,3 +199,24 @@ jobs:
             testatlas-*.tgz.sigstore.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------------------
+      # POST-PUBLISH ASSERTION (ISSUE-011 fix): when triggered by
+      # release:published (real releases), verify the sigstore sidecar made
+      # it to the published GitHub Release assets. Fails the workflow with a
+      # loud error if the sigstore.json sidecar is absent — consumers using
+      # TESTATLAS_VERIFY_SIGNATURE=1 would otherwise silently break.
+      # Skipped on workflow_dispatch (dry-run) since no Release exists yet.
+      # ---------------------------------------------------------------------
+      - name: Verify sigstore bundle published
+        if: github.event_name == 'release' && github.event.action == 'published'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          EXPECTED="testatlas-${VERSION}.tgz.sigstore.json"
+          if ! gh release view "${{ github.event.release.tag_name }}" --json assets -q '.assets[].name' | grep -qx "${EXPECTED}"; then
+            echo "::error::Sigstore bundle ${EXPECTED} not present in published Release assets — release is broken for --verify-signature consumers. Maintainer must re-attach the sidecar via 'gh release upload'."
+            exit 1
+          fi
+          echo "Sigstore bundle ${EXPECTED} present — release is verifiable."
