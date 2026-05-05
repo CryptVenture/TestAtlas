@@ -19,11 +19,21 @@ import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
 import { validateWorkspace } from '../scripts/validate-workspace.js';
 
-// Plan 07-04 (UPDATE-07). When --verify-signature is passed, probe for cosign
-// on PATH; abort with an actionable error if missing. The actual cosign
-// invocation is owned by install.sh (curl-pipe path) and tarball.js (npx
-// path); this top-level probe is a fast-fail to avoid downloading anything
-// when the verifier isn't available.
+// Plan 12-01 (post-Phase-12 reality):
+//   --verify-signature → kernels invoke `cosign verify-blob-attestation` via
+//                        scripts/lib/tarball.js (npx path) and via
+//                        install.sh:79-104 (curl-pipe path). Both flows use
+//                        the same OIDC-issuer + cert-identity-regexp pins.
+//   --verify-checksum  → kernels fetch the `.sha256` sidecar from GitHub
+//                        Releases (npm-attestation bundle as fallback) and
+//                        call tarball.verifyChecksum with the expected SHA.
+//                        Halts with TESTATLAS_CHECKSUM_MISMATCH on mismatch
+//                        or TESTATLAS_SHA_SIDECAR_UNAVAILABLE if the sidecar
+//                        can't be fetched. Both flags are opt-in (default
+//                        behavior preserved). When --verify-signature is
+//                        passed, this top-level probe is a fast-fail to avoid
+//                        downloading anything when the cosign binary is
+//                        absent on PATH.
 function probeCosignOrExit() {
   const probe = spawnSync('cosign', ['version'], { stdio: 'ignore' });
   if (probe.status === 0) return;
@@ -76,6 +86,10 @@ program
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
   )
+  .option(
+    '--verify-checksum',
+    'Verify the release tarball SHA-256 against the GitHub Release .sha256 sidecar',
+  )
   .addHelpText(
     'after',
     [
@@ -110,6 +124,7 @@ program
       noUpdateCheck: opts.updateCheck === false,
       dryRun: Boolean(opts.dryRun),
       verifySignature: Boolean(opts.verifySignature),
+      verifyChecksum: Boolean(opts.verifyChecksum),
       global: isGlobal,
     });
     process.exitCode = result.status === 'dry-run' || result.filesWritten >= 0 ? 0 : 1;
@@ -128,6 +143,10 @@ program
   .option(
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
+  .option(
+    '--verify-checksum',
+    'Verify the release tarball SHA-256 against the GitHub Release .sha256 sidecar',
   )
   .addHelpText(
     'after',
@@ -155,6 +174,7 @@ program
       dryRun: Boolean(opts.dryRun),
       force: Boolean(opts.force),
       verifySignature: Boolean(opts.verifySignature),
+      verifyChecksum: Boolean(opts.verifyChecksum),
       global: isGlobal,
     });
     process.exitCode =
@@ -178,6 +198,10 @@ program
   .option(
     '--verify-signature',
     'Verify the release tarball cosign attestation (requires cosign on PATH)',
+  )
+  .option(
+    '--verify-checksum',
+    'Verify the downloaded tarball SHA-256 against the GitHub Release .sha256 sidecar',
   )
   .addHelpText(
     'after',
@@ -204,6 +228,7 @@ program
       dryRun: Boolean(opts.dryRun),
       noUpdateCheck: opts.updateCheck === false,
       verifySignature: Boolean(opts.verifySignature),
+      verifyChecksum: Boolean(opts.verifyChecksum),
     });
     process.exitCode =
       result.status === 'updated' ||

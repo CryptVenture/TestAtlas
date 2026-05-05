@@ -15,25 +15,42 @@
 // time to bypass network operations and inject canned responses. See
 // `test/update/update-atomic.test.js` for the pattern.
 
-import { spawn } from 'node:child_process';
+import { execFile as execFileCb, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { promisify } from 'node:util';
 import { REPO_OWNER_REPO } from './constants.js';
 import { assertCapability } from './safety.js';
+
+const execFile = promisify(execFileCb);
+
+// Plan 12-01 (ISSUE-016). Cosign chain pins — MIRROR install.sh:79-104 EXACTLY.
+// Both pins are part of the verification contract: the OIDC issuer is the
+// GitHub Actions token endpoint, and the certificate identity must match the
+// release.yml workflow URL on this repo. Pin drift = silent verification
+// regression, so these constants are intentionally NOT configurable.
+const COSIGN_ISSUER = 'https://token.actions.githubusercontent.com';
+const COSIGN_CERT_IDENTITY_REGEXP =
+  '^https://github.com/CryptVenture/TestAtlas/.github/workflows/release.yml.*';
 
 /**
  * Test seam — set via `tarball.setTestHooks({...})` before importing modules
  * that use these helpers. Each hook, if present, replaces the live
  * implementation. Production code never sets these.
  *
+ * Plan 12-01 (ISSUE-016 + ISSUE-017): added cosign + sidecar hooks.
+ *
  * @type {{
  *   downloadTarball?: typeof downloadTarball,
  *   verifyChecksum?: typeof verifyChecksum,
  *   extractTarball?: typeof extractTarball,
+ *   verifyCosignAttestation?: typeof verifyCosignAttestation,
+ *   fetchSigstoreBundle?: typeof fetchSigstoreBundle,
+ *   fetchExpectedSha?: typeof fetchExpectedSha,
  * }}
  */
 export const _testHooks = {};
@@ -97,6 +114,11 @@ export async function downloadTarball(version, dst, opts = {}) {
  * Verify a file's SHA-256 against `expectedSha`. Pass `null` or `undefined`
  * to skip with a stderr warning (compatibility with v0.x release tooling that
  * may not always provide a sidecar checksum).
+ *
+ * Plan 12-01 (ISSUE-017): when called from `runUpdate` with `verifyChecksum:
+ * true`, the caller fetches the `.sha256` sidecar (`fetchExpectedSha`) so
+ * `expectedSha` is always non-null and the legacy stderr-warning path is
+ * inactive. Halts with `TESTATLAS_CHECKSUM_MISMATCH` on actual mismatch.
  *
  * @param {string} file
  * @param {string|null|undefined} expectedSha  Hex-encoded SHA-256 digest.
@@ -165,4 +187,174 @@ export async function extractTarball(tarballPath, dstDir) {
       reject(err);
     });
   });
+}
+
+// =============================================================================
+// Plan 12-01 (ISSUE-016 + ISSUE-017) — npx-path integrity verification helpers.
+//
+// Three exports below close the silent-no-op cosign + checksum gap on the
+// JS install/update kernels. They mirror the chain established in
+// `install.sh:79-104` (cosign verify-blob-attestation + sha256sum) so the
+// curl-pipe and npx flows verify identically.
+//
+// Subprocess discipline: `child_process.execFile` (NOT `spawn({shell:true})`)
+// is the project rule per CLAUDE.md / RESEARCH.md — no shell-injection
+// vector even if a future feature lets users supply tarball paths.
+// =============================================================================
+
+/**
+ * Verify a tarball's cosign attestation bundle.
+ *
+ * Mirrors `install.sh:97-103`. The OIDC-issuer + cert-identity-regexp pins
+ * are the verification contract and are intentionally hardcoded — pin drift
+ * would be a silent verification regression.
+ *
+ * Halts with `TESTATLAS_COSIGN_VERIFY_FAILED` on cosign non-zero exit.
+ * Halts with `TESTATLAS_COSIGN_NOT_FOUND` if the cosign binary is absent on
+ * PATH (probe is normally done by `bin/testatlas.js` before reaching here;
+ * this is a defensive backstop for programmatic callers).
+ *
+ * @param {string} tarballPath  Absolute path to the .tgz to verify.
+ * @param {string} bundlePath   Absolute path to the .sigstore.json bundle.
+ * @returns {Promise<void>}
+ */
+export async function verifyCosignAttestation(tarballPath, bundlePath) {
+  if (_testHooks.verifyCosignAttestation) {
+    return _testHooks.verifyCosignAttestation(tarballPath, bundlePath);
+  }
+  // ISSUE-014 defense-in-depth (capability gate). cosign is a verification-only
+  // subprocess; runs only when the user has explicitly opted into
+  // --verify-signature. The intent is gated by the user-facing flag, not
+  // config — when no explicit config is threaded through, treat the call as
+  // permissive (mirrors tarball.extractTarball's pattern).
+  const cap = assertCapability({ safeMode: false, allowDestructiveActions: true }, 'spawn');
+  if (!cap.allowed) {
+    const err = new Error(`tarball.verifyCosignAttestation: ${cap.reason}`);
+    err.code = 'CAPABILITY_DENIED';
+    throw err;
+  }
+  try {
+    await execFile('cosign', [
+      'verify-blob-attestation',
+      '--bundle',
+      bundlePath,
+      '--new-bundle-format',
+      `--certificate-oidc-issuer=${COSIGN_ISSUER}`,
+      `--certificate-identity-regexp=${COSIGN_CERT_IDENTITY_REGEXP}`,
+      tarballPath,
+    ]);
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      const e = new Error(
+        'cosign not found on PATH. Install: https://docs.sigstore.dev/cosign/installation/',
+      );
+      e.code = 'TESTATLAS_COSIGN_NOT_FOUND';
+      throw e;
+    }
+    const e = new Error(
+      `cosign verify-blob-attestation failed: ${err.stderr ?? err.message}`,
+    );
+    e.code = 'TESTATLAS_COSIGN_VERIFY_FAILED';
+    throw e;
+  }
+}
+
+/**
+ * Fetch the cosign sigstore bundle (`.sigstore.json`) for a given version.
+ *
+ * Source-of-truth precedence (mirrors `install.sh:91-95` exactly):
+ *   1. `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-<v>.tgz.sigstore.json`
+ *      — npm-attestation source-of-truth (Trusted Publisher chain).
+ *   2. (fallback) `https://github.com/<owner>/<repo>/releases/download/v<v>/testatlas-<v>.tgz.sigstore.json`
+ *      — GitHub Release sidecar attached by release.yml after npm publish.
+ *
+ * Both URLs serve the same bundle content (release.yml line 199 re-attaches
+ * the npm-attestation bundle). Trying npm first reduces source-of-truth
+ * divergence between the curl-pipe and npx flows.
+ *
+ * Halts with `TESTATLAS_SIGSTORE_BUNDLE_UNAVAILABLE` if neither URL succeeds.
+ *
+ * @param {string} version              Version string (e.g. "1.0.0", no leading "v").
+ * @param {string} outPath              Absolute path to write the bundle to.
+ * @param {typeof fetch} [fetchImpl]    Override (test seam).
+ * @returns {Promise<string>}           Resolves to `outPath`.
+ */
+export async function fetchSigstoreBundle(version, outPath, fetchImpl = fetch) {
+  if (_testHooks.fetchSigstoreBundle) {
+    return _testHooks.fetchSigstoreBundle(version, outPath);
+  }
+  const npmUrl = `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${version}.tgz.sigstore.json`;
+  const ghUrl = `https://github.com/${REPO_OWNER_REPO}/releases/download/v${version}/testatlas-${version}.tgz.sigstore.json`;
+  const errors = [];
+  for (const url of [npmUrl, ghUrl]) {
+    try {
+      const res = await fetchImpl(url);
+      if (!res.ok) {
+        errors.push(`${url} → ${res.status} ${res.statusText}`);
+        continue;
+      }
+      const body = await res.text();
+      await mkdir(path.dirname(outPath), { recursive: true });
+      await writeFile(outPath, body, 'utf8');
+      return outPath;
+    } catch (e) {
+      errors.push(`${url} → ${e.message}`);
+    }
+  }
+  const err = new Error(
+    `tarball.fetchSigstoreBundle: sigstore bundle unavailable for v${version}:\n  ${errors.join('\n  ')}`,
+  );
+  err.code = 'TESTATLAS_SIGSTORE_BUNDLE_UNAVAILABLE';
+  throw err;
+}
+
+/**
+ * Fetch the expected SHA-256 hex digest from the GitHub Release `.sha256`
+ * sidecar (published by `.github/workflows/release.yml`).
+ *
+ * Sidecar format is the standard `sha256sum` two-column shape:
+ *   `<64-hex-sha>  <filename>\n`
+ *
+ * Halts with:
+ *   - `TESTATLAS_SHA_SIDECAR_UNAVAILABLE` if the URL returns non-2xx.
+ *   - `TESTATLAS_SHA_SIDECAR_MALFORMED` if the body doesn't match the
+ *     two-column format (no 64-hex prefix).
+ *
+ * @param {string} version              Version string (no leading "v").
+ * @param {typeof fetch} [fetchImpl]    Override (test seam).
+ * @returns {Promise<string>}           Lowercase 64-hex SHA-256 digest.
+ */
+export async function fetchExpectedSha(version, fetchImpl = fetch) {
+  if (_testHooks.fetchExpectedSha) {
+    return _testHooks.fetchExpectedSha(version);
+  }
+  const url = `https://github.com/${REPO_OWNER_REPO}/releases/download/v${version}/testatlas-${version}.tgz.sha256`;
+  let res;
+  try {
+    res = await fetchImpl(url);
+  } catch (e) {
+    const err = new Error(
+      `tarball.fetchExpectedSha: cannot fetch expected SHA from ${url}: ${e.message}`,
+    );
+    err.code = 'TESTATLAS_SHA_SIDECAR_UNAVAILABLE';
+    throw err;
+  }
+  if (!res.ok) {
+    const err = new Error(
+      `tarball.fetchExpectedSha: cannot fetch expected SHA from ${url} (HTTP ${res.status})`,
+    );
+    err.code = 'TESTATLAS_SHA_SIDECAR_UNAVAILABLE';
+    throw err;
+  }
+  const text = await res.text();
+  const m = text.match(/^([a-f0-9]{64})\s/i);
+  if (!m) {
+    const err = new Error(
+      `tarball.fetchExpectedSha: malformed .sha256 sidecar at ${url} ` +
+        `(expected two-column "<64-hex>  <filename>"; got first 80 chars: ${text.slice(0, 80)})`,
+    );
+    err.code = 'TESTATLAS_SHA_SIDECAR_MALFORMED';
+    throw err;
+  }
+  return m[1].toLowerCase();
 }
