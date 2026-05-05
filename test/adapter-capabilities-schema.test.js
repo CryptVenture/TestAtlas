@@ -149,11 +149,12 @@ test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07
     .map((e) => e.name);
   // Plan 06-01 added the 17th schema (adapter-capabilities). Plan 07-01 added the
   // 18th (install-manifest). Plan 08-01 adds the 19th (example-script).
+  // Plan 08-02 adds the 20th (matrix).
   // Future schema additions bump this count.
   assert.equal(
     schemaFiles.length,
-    19,
-    `expected 19 schemas after Plan 08-01; got ${schemaFiles.length}`,
+    20,
+    `expected 20 schemas after matrix.schema.json; got ${schemaFiles.length}`,
   );
   // And loadAllSchemas registers the adapter-capabilities schema without error.
   const ajv = await loadAllSchemas({ cwd: repoRoot });

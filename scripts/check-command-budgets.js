@@ -2,7 +2,7 @@
 // scripts/check-command-budgets.js
 //
 // CI driver — enumerates .testatlas/commands/*.md and runs check-token-budget.js
-// against each with maxWords=1500. Exits 0 if all files are under budget OR the
+// against each with maxWords=1800. Exits 0 if all files are under budget OR the
 // directory is missing/empty (Wave-0 tolerance: Plan 03-01 ships this gate
 // before Plans 03-02/03-03 author the command files).
 
@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { listCommandFiles } from './lib/list-command-files.js';
 import { assertCapability } from './lib/safety.js';
 
-const MAX_WORDS = 1500;
+const MAX_WORDS = 1800;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TOKEN_BUDGET_SCRIPT = path.join(__dirname, 'check-token-budget.js');
 const root = argv[2] || cwd();

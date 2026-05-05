@@ -227,7 +227,7 @@ Only for security incidents (leaked secret, malicious code):
 Before a Release PR can merge:
 
 - `ci.yml` matrix green on Linux/macOS/Windows × Node 20/22/24.
-- Token-budget gate green (bootstrap ≤ 3000 words, command ≤ 1500 words).
+- Token-budget gate green (bootstrap ≤ 3000 words, command ≤ 1800 words).
 - Schema/template parity gate green.
 - Adapter parity gate green.
 - Long-jump migration test green (v1 → current).

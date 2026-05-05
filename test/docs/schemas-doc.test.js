@@ -41,7 +41,7 @@ test('docs/SCHEMAS.md: every .testatlas/schemas/*.schema.json has a section', as
   const onDisk = await readFile(DOCS_PATH, 'utf8');
   const entries = await readdir(SCHEMAS_DIR);
   const schemaFiles = entries.filter((n) => n.endsWith('.schema.json'));
-  assert.ok(schemaFiles.length >= 19, `expected >= 19 schemas, got ${schemaFiles.length}`);
+  assert.ok(schemaFiles.length >= 20, `expected >= 20 schemas, got ${schemaFiles.length}`);
   for (const file of schemaFiles) {
     // Section heading uses schema title; assert link to source file is present.
     assert.match(

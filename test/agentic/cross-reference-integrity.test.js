@@ -149,7 +149,7 @@ test('every schema $id URL maps to a real schema file', async () => {
   const missing = [];
   const idRe = /https:\/\/testatlas\.dev\/schemas\/v1\/([a-z][a-z0-9-]*)\.schema\.json/g;
   // Resolution order: prefer the conventional `.testatlas/schemas/<name>.schema.json`
-  // (where 18 of the 19 schemas live); fall back to `.testatlas/<name>.json`
+  // (where 19 of the 20 schemas live); fall back to `.testatlas/<name>.json`
   // for the lone vocabulary file which is intentionally root-anchored because
   // every schema-loader, slug helper, and adapter render-pass treats
   // `.testatlas/vocabulary.json` as canonical (see scripts/lib/schema-loader.js

@@ -12,7 +12,7 @@
 //      AND does NOT contain `9 of 26`. The pre-GA framing has been replaced
 //      with a post-GA full-surface description.
 //   3. CLAUDE.md does NOT contain `15 JSON Schemas`; DOES contain
-//      `19 JSON Schemas` (matching ls .testatlas/schemas/*.schema.json).
+//      `20 JSON Schemas` (matching ls .testatlas/schemas/*.schema.json).
 //   4. ADAPTER-OWNERS.md does NOT contain the unenforced
 //      `Every adapter family MUST have **≥1 named owner** at all times.`
 //      MUST-language line. Also reflects 18 (not 7) adapter families:
@@ -79,11 +79,11 @@ test('CLAUDE.md does not contain stale `15 JSON Schemas` claim', async () => {
   const text = await readFile(CLAUDE_PATH, 'utf8');
   assert.ok(
     !text.includes('15 JSON Schemas'),
-    'CLAUDE.md still claims `15 JSON Schemas`. Update to the live count (currently 19; verifiable via ls .testatlas/schemas/*.schema.json | wc -l).',
+    'CLAUDE.md still claims `15 JSON Schemas`. Update to the live count (currently 20; verifiable via ls .testatlas/schemas/*.schema.json | wc -l).',
   );
 });
 
-test('CLAUDE.md reports the live JSON Schema count (currently 19)', async () => {
+test('CLAUDE.md reports the live JSON Schema count (currently 20)', async () => {
   const [text, n] = await Promise.all([readFile(CLAUDE_PATH, 'utf8'), countSchemas()]);
   const expected = `${n} JSON Schemas`;
   assert.ok(

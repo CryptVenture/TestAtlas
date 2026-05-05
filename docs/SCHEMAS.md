@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/schemas/*.schema.json` by `scripts/generate-schemas-doc.js`. Do not edit by hand._
 
-Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 19 schemas shipped with v1.
+Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 20 schemas shipped with v1.
 
 See [docs/COMMANDS.md](./COMMANDS.md) for the commands that consume and produce these schemas.
 
@@ -159,6 +159,18 @@ Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).
 **Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`
 
 [Source](../.testatlas/schemas/issue.schema.json)
+
+---
+
+## TestAtlas Scenario Matrix
+
+Schema for tests/matrix.json — the bundled scenario index produced by /atlas:plan (PRD §12.14). Each entry is a lightweight scenario reference; full scenario detail lives in tests/scenarios/TEST-*.{md,json}.
+
+**`$id`:** `https://testatlas.dev/schemas/v1/matrix.schema.json`
+
+**Top-level properties:** `generatedAt`, `scenarios`
+
+[Source](../.testatlas/schemas/matrix.schema.json)
 
 ---
 

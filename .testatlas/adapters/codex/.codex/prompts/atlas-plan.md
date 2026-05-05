@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-plan. Invoke as /prompts:atlas-plan. Description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b7e7339f6dc15a16e2b45aa7016c88db6a84ee89c70dd480b1f3ba5044113ba6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="af6baa9a706902fa1033f0bc55036a560b5e61b36cc8598ed60657a84d1181b6" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,8 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 - `_testatlas/domains/*/domain.json` — every domain `map-domains` produced; the unit of test planning.
 - `_testatlas/flows/` — any flows recorded by prior runs (used to derive flow-targeted scenarios).
 - `_testatlas/to_fix/` — any prior issues; closed/active issues feed regression scenarios.
-- `.testatlas/schemas/test-scenario.schema.json` — required JSON shape per scenario in `matrix.json`.
+- `.testatlas/schemas/matrix.schema.json` — required JSON shape for the bundled `matrix.json` index.
+- `.testatlas/schemas/test-scenario.schema.json` — required JSON shape per scenario sidecar in `tests/scenarios/`.
 - `.testatlas/default.config.json` — currently declared adapter capabilities (used to gate scenarios per step 8).
 
 ## Required Actions
@@ -25,10 +26,10 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 4. Write `_testatlas/02_test_strategy.md` — a one-page strategy framing: scope, risk model, test-type mix, capability-availability assumptions, success thresholds, and explicit out-of-scope items.
 5. Write `_testatlas/plans/PLAN-master.md` — the prioritized master scenario list (P0 → P1 → P2). Each row links to its `matrix.json` entry by id and notes the next command (`/atlas:test-flow`, etc.) that will execute it.
    - **Preferred path for flow emission (if `shell` is available):** for each net-new flow surfaced by the strategy, run `node .testatlas/scripts/create-flow.js --name "<name>" --domain domain-<slug> --persona "<persona>" --goal "<goal>" [--priority <priority>] [--status draft] [--confidence <c>] [--workspace <p>]`. The script AJV-validates against `flow.schema.json` and increments `counts.flows` in the manifest. Scenarios in `matrix.{md,json}` are still authored by this command; the script only handles flow record emission.
-6. Write `_testatlas/tests/matrix.md` (human-readable scenario table grouped by domain and type) and `_testatlas/tests/matrix.json` (one entry per scenario, each validating against `test-scenario.schema.json`).
+6. Write `_testatlas/tests/matrix.md` (human-readable scenario table grouped by domain and type) and `_testatlas/tests/matrix.json` (bundled index, validating against `matrix.schema.json`).
 7. Write `_testatlas/tests/exploratory_charters.md` — time-boxed exploratory testing missions per PRD §26. Each charter names a domain, a duration, a focus area, and an oracle.
 8. For scenarios that target capabilities not declared by the current adapter (e.g. `browser` not declared but the scenario needs it), mark `pending: capability-required` and exclude them from the dogfood-loop run rather than dropping them. Record the unmet capability so the operator can swap adapters.
-9. Validate every entry in `matrix.json` against `test-scenario.schema.json` before closing. If any entry fails, halt — do not commit a partial matrix.
+9. Validate `matrix.json` against `matrix.schema.json` and every per-scenario sidecar against `test-scenario.schema.json` before closing. If any validation fails, halt — do not commit a partial matrix.
 10. Close the lifecycle (next section).
 
 ## Sub-Agent Orchestration
@@ -78,13 +79,13 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - No domains exist (`_testatlas/domains/` empty) → halt; "Run /atlas:map-domains first." Strategy without domains is unmoored.
 - More than 500 scenarios planned in a single run → halt; require operator review (almost always over-scoping; risk-prioritization is failing).
-- `test-scenario.schema.json` validation fails on any entry → halt; do not commit a partial matrix.
+- `matrix.schema.json` or `test-scenario.schema.json` validation fails on any entry → halt; do not commit a partial matrix.
 - All scenarios marked `pending: capability-required` (zero runnable) → halt; require operator to swap adapter or revise scope.
 
 ## Completion Criteria
 
 - All four plan artifacts exist: `02_test_strategy.md`, `plans/PLAN-master.md`, `tests/matrix.{md,json}`, `tests/exploratory_charters.md`.
-- Every scenario in `matrix.json` validates against `test-scenario.schema.json`.
+- `matrix.json` validates against `matrix.schema.json`; every per-scenario sidecar validates against `test-scenario.schema.json`.
 - Every scenario carries an explicit `confidence` per `bootstrap.md` §11.
 - Manifest `counts.scenarios` and `counts.charters` match on-disk counts.
 - The five lifecycle files listed above are updated.

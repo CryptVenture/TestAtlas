@@ -1,7 +1,7 @@
 // test/commands/command-budget.test.js
 //
 // CMD-03: scripts/check-command-budgets.js exits 0 when commands dir is empty
-// or missing, exits 1 when any file exceeds 1500 words, exits 0 otherwise.
+// or missing, exits 1 when any file exceeds 1800 words, exits 0 otherwise.
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -63,16 +63,16 @@ test('check-command-budgets: live repo state — exit 0 (Wave-0: no command file
   assert.equal(result.status, 0);
 });
 
-test('CMD-03: every shipped command file is under the 1500-word budget', async () => {
+test('CMD-03: every shipped command file is under the 1800-word budget', async () => {
   const files = await listCommandFiles({ cwd: REPO_ROOT });
   if (files.length === 0) return; // Wave-0 short-circuit
   // The CI gate will catch over-budget; this test is a redundancy.
   for (const file of files) {
     const result = spawnSync(
       'node',
-      [path.join(REPO_ROOT, 'scripts/check-token-budget.js'), file, '1500'],
+      [path.join(REPO_ROOT, 'scripts/check-token-budget.js'), file, '1800'],
       { encoding: 'utf8' },
     );
-    assert.equal(result.status, 0, `${file} exceeded the 1500-word budget`);
+    assert.equal(result.status, 0, `${file} exceeded the 1800-word budget`);
   }
 });

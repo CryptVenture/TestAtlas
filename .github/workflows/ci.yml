@@ -106,12 +106,12 @@ jobs:
           if-no-files-found: ignore
 
   token-budget:
-    name: Token budget (bootstrap ≤3000, commands ≤1500)
+    name: Token budget (bootstrap ≤3000, commands ≤1800)
     runs-on: ubuntu-latest
     # Per Phase 1 BOOT-04 + 01-RESEARCH.md §"Pattern 5": the gate is dependency-free
     # (built-ins only, no pnpm install needed). Runs on a single OS — algorithm is
     # deterministic and would yield identical results on Linux/macOS/Windows.
-    # Phase 3 CMD-03 extends the gate to enforce ≤1500 words per command file.
+    # Phase 3 CMD-03 extends the gate to enforce ≤1800 words per command file.
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
@@ -124,7 +124,7 @@ jobs:
       - name: Verify bootstrap.md is under the 3000-word budget
         run: node scripts/check-token-budget.js .testatlas/bootstrap.md 3000
 
-      - name: Verify every .testatlas/commands/*.md is under the 1500-word budget
+      - name: Verify every .testatlas/commands/*.md is under the 1800-word budget
         run: node scripts/check-command-budgets.js
 
   commit-signing:

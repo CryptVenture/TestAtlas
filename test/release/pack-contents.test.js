@@ -116,7 +116,7 @@ test('npm pack: compressed tarball size < 1MB (Pitfall 1 — examples not shippe
 });
 
 test('npm pack: unpacked size < 5MB (sanity)', () => {
-  // Even with all 7 adapter trees + 30 commands + 19 schemas + templates the
+  // Even with all 7 adapter trees + 30 commands + 20 schemas + templates the
   // unpacked tree is ~2MB. 5MB is a generous ceiling that catches obvious
   // regressions (e.g. test/ leaking, examples/ leaking, node_modules/ leaking).
   const r = runNpmPack();

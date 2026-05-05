@@ -93,6 +93,10 @@ function inferSchemaId(absPath, parsed, wsDir) {
   if (relPath.startsWith('tests/scenarios/') && /^TEST-/.test(baseName))
     return `${SCHEMA_BASE}/test-scenario.schema.json`;
 
+  // tests/matrix.json
+  if (relPath === 'tests/matrix.json')
+    return `${SCHEMA_BASE}/matrix.schema.json`;
+
   // reports/REPORT-*.json
   if (relPath.startsWith('reports/') && /^REPORT-/.test(baseName))
     return `${SCHEMA_BASE}/report.schema.json`;

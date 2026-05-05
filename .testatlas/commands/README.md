@@ -1,6 +1,6 @@
 # TestAtlas Command Surface
 
-This directory holds the canonical command instruction files agents read before executing any TestAtlas command. Every command file has YAML frontmatter validated against `../schemas/command-instruction.schema.json`, embeds the PRD §38 bootstrap-first preamble, and stays under the 1500-word budget enforced by `scripts/check-command-budgets.js`.
+This directory holds the canonical command instruction files agents read before executing any TestAtlas command. Every command file has YAML frontmatter validated against `../schemas/command-instruction.schema.json`, embeds the PRD §38 bootstrap-first preamble, and stays under the 1800-word budget enforced by `scripts/check-command-budgets.js`.
 
 ## Atlas command surface (post-GA, full roster)
 

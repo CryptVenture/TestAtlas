@@ -96,7 +96,7 @@ All three paths converge on the same install kernel and produce the same `.testa
 - `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer (14 canonical files + 23 subdirs).
 - Auto-detected adapter for your agent across 18 adapter families spanning the major 2026 AI coding agent ecosystems (see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md) for the full roster). `--all-adapters` ships every adapter; `--adapter <name>` picks specific ones.
 - 32 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup.
-- 19 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
+- 20 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
 - Atomic self-update with backup + rollback, signed tarball verification (cosign opt-in), and version pinning for stability-conscious teams.
 
 ## Real browser testing, real evidence
@@ -172,7 +172,7 @@ TestAtlas is built in the open and we actively welcome contributors. Whether you
 
 - **Shape the future of AI-driven testing** — this is a greenfield space. Your ideas directly influence how 18+ agent ecosystems discover and test software.
 - **Adapter work is high-leverage** — adding or improving one adapter (e.g. a new VS Code extension, a new CLI tool) instantly benefits every user of that agent family. See [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md) for current ownership.
-- **Well-tested, well-documented** — 1,000+ tests, 19 JSON Schemas, auto-generated docs, and deterministic example regeneration mean you can refactor with confidence.
+- **Well-tested, well-documented** — 1,000+ tests, 20 JSON Schemas, auto-generated docs, and deterministic example regeneration mean you can refactor with confidence.
 - **Clear contribution paths:**
   - **New adapter?** Copy an existing renderer, add your entry to `adapter-capabilities.json`, run `node scripts/assemble-adapter.js`, and open a PR.
   - **New command?** Add a `.testatlas/commands/<name>.md` file, update schemas if needed, and the parity gate regenerates all 18 adapter families automatically.
@@ -188,7 +188,7 @@ Adapter-specific changes route through [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md).
 TestAtlas is engineered for production use:
 
 - **1,000+ tests** covering install, update, uninstall, workspace init, schema validation, adapter parity, capability degradation, and end-to-end example regeneration — all run on every PR.
-- **19 JSON Schemas (Draft 2020-12)** — every machine-readable artifact is schema-governed. `validate-workspace` rejects malformed data before it pollutes your quality intelligence.
+- **20 JSON Schemas (Draft 2020-12)** — every machine-readable artifact is schema-governed. `validate-workspace` rejects malformed data before it pollutes your quality intelligence.
 - **Atomic updates with rollback** — self-update copies the suite atomically (staging → backup → swap) and can roll back on failure. Version pinning lets stability-conscious teams lock to a known-good release.
 - **Signed release artifacts** — npm provenance + optional cosign signature verification on tarballs.
 - **Capability-aware degradation** — when `browser` or `MCP` is unavailable, the agent falls back to code-reading and marks findings `confidence: needs-validation`. It never fabricates evidence.
