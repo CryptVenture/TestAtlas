@@ -26,7 +26,44 @@
     "apis": { "type": "array", "items": { "type": "string" } },
     "cliCommands": { "type": "array", "items": { "type": "string" } },
     "jobs": { "type": "array", "items": { "type": "string" } },
-    "integrations": { "type": "array", "items": { "type": "string" } },
+    "integrations": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "github-action",
+                  "system-binary",
+                  "network-runtime",
+                  "library",
+                  "service"
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "build-time",
+                  "runtime",
+                  "consumer-outbound",
+                  "suite-outbound",
+                  "inbound"
+                ]
+              },
+              "source": { "type": "string" },
+              "evidence": { "type": "string" }
+            }
+          }
+        ]
+      }
+    },
     "entities": { "type": "array", "items": { "type": "string" } },
     "flows": { "type": "array", "items": { "type": "string" } },
     "tests": { "type": "array", "items": { "type": "string" } },
