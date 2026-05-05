@@ -91,10 +91,11 @@ test('SECURITY.md provides a private reporting channel, SLA, and links to threat
 });
 
 // ---- GOV-04: ADAPTER-OWNERS ----
-test('ADAPTER-OWNERS.md lists all 7 adapter families and bus-factor mitigation', async () => {
+test('ADAPTER-OWNERS.md lists all 18 adapter families and bus-factor mitigation', async () => {
   const owners = await read('ADAPTER-OWNERS.md');
   assert.ok(owners.length > 0, 'ADAPTER-OWNERS.md should not be empty');
-  // All 7 adapter families.
+  // All 18 adapter families shipped in v1 (Quick 260505-quk Task 4 expanded
+  // the original 7-family roster to match `.testatlas/adapters/` reality).
   const requiredFamilies = [
     'Claude Code',
     'OpenCode',
@@ -103,6 +104,17 @@ test('ADAPTER-OWNERS.md lists all 7 adapter families and bus-factor mitigation',
     'Aider',
     'MCP',
     'Generic',
+    'Codex',
+    'Gemini CLI',
+    'Cline',
+    'Windsurf',
+    'Kiro',
+    'Continue.dev',
+    'GitHub Copilot',
+    'Sourcegraph Amp',
+    'Roo Code',
+    'Zed',
+    'Amazon Q',
   ];
   for (const family of requiredFamilies) {
     assert.match(

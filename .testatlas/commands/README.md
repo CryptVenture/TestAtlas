@@ -2,26 +2,17 @@
 
 This directory holds the canonical command instruction files agents read before executing any TestAtlas command. Every command file has YAML frontmatter validated against `../schemas/command-instruction.schema.json`, embeds the PRD §38 bootstrap-first preamble, and stays under the 1500-word budget enforced by `scripts/check-command-budgets.js`.
 
-## Phase 3 dogfood-loop commands (9 of 26)
+## Atlas command surface (post-GA, full roster)
 
-| Command | Purpose |
-|---------|---------|
-| `init.md` | Bootstrap the `_testatlas/` workspace and seed lifecycle artifacts. |
-| `bootstrap.md` | Refresh the agent's constitution and config understanding. |
-| `validate-workspace.md` | Schema-validate workspace state (PRD §33; runtime in Phase 5). |
-| `explore-codebase.md` | Map languages, frameworks, routes, and integrations into the app-map. |
-| `map-domains.md` | Distill the app-map into per-domain artifacts under `domains/`. |
-| `plan.md` | Generate a risk-based test strategy and matrix from domain artifacts. |
-| `test-flow.md` | Execute scenarios; capture evidence; emit `RUN-*` artifacts. |
-| `log-issue.md` | Capture findings under `to_fix/` per PRD §17. |
-| `report.md` | Aggregate runs and issues into `REPORT-latest.md` (PRD §20). |
+The full 31-file `/atlas:*` command surface ships in v1 GA. The dogfood-loop core (the 9 commands that close "map → plan → test → log → report → validate") is supplemented by the 11-file explore family (umbrella + sub-explorers), the 4-file specialized-test family, and the lifecycle/utility commands (triage, retest, consolidate, handoff, cleanup, update, uninstall). The authoritative roster is the on-disk listing of `.testatlas/commands/*.md` (excluding this README); for a one-line-per-command index see `../../docs/COMMANDS.md`, which is regenerated from source by `scripts/generate-commands-doc.js`.
 
-## PRD §35 reconciliation (partial-acceptance posture)
+| Group | Commands |
+|-------|----------|
+| Dogfood loop (9) | `init.md`, `bootstrap.md`, `validate-workspace.md`, `explore-codebase.md`, `map-domains.md`, `plan.md`, `test-flow.md`, `log-issue.md`, `report.md` |
+| Explore family (11) | `explore.md` (umbrella) + `explore-ui.md`, `explore-cli.md`, `explore-api.md`, `explore-data.md`, `explore-runtime.md`, `explore-integrations.md`, `explore-security.md`, `explore-performance.md`, `explore-accessibility.md`, `explore-docs.md` |
+| Specialized testing (4) | `test-domain.md`, `test-regression.md`, `test-performance.md`, `test-accessibility.md` |
+| Lifecycle / utilities (7) | `triage.md`, `retest.md`, `consolidate.md`, `handoff.md`, `cleanup.md`, `update.md`, `uninstall.md` |
 
-PRD §35 (MVP) lists 11 commands. This phase ships **9 of those 11**: the dogfood-loop subset that closes "map → plan → test → log → report → validate" without explorer breadth. The remaining commands — `explore` (umbrella), `explore-ui`, `explore-cli`, and `retest` — ship in Phase 4 alongside the rest of the 26-file CMD-01 surface (per `.planning/REQUIREMENTS.md`).
+Adapter-specific shims (`.claude/commands/atlas-*.md` and equivalents for the 18 supported adapter families) live under `../adapters/` and are regenerated from these canonical files by `scripts/assemble-adapter.js`. CMD-01..CMD-05 are SATISFIED across the full surface.
 
-CMD-01 therefore remains PENDING until Phase 4 closes; CMD-02..05 are SATISFIED for the 9-file subset shipped here. See `../../.planning/phases/03-core-command-surface-minimum-dogfood-loop/03-RESEARCH.md` §"PRD §35 Reconciliation" for the authoritative discrepancy table.
-
-Adapter-specific shims (`.claude/commands/atlas-*.md`, equivalents for OpenCode / KiloCode / Cursor / Aider) ship in Phase 6 and are NOT located here.
-
-This README is intentionally excluded from `listCommandFiles()` enumeration (see `scripts/lib/list-command-files.js`), so it does not count toward the 9-file roster nor the per-command word budget.
+This README is intentionally excluded from `listCommandFiles()` enumeration (see `scripts/lib/list-command-files.js`), so it does not count toward the 31-file roster nor the per-command word budget.

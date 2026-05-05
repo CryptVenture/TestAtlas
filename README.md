@@ -32,7 +32,7 @@ Then in your AI agent of choice:
 /atlas:init
 ```
 
-That's it. The agent now has 30 `/atlas:*` commands, schema-validated workspace artifacts, and a capability-aware degradation rule that keeps it honest when tools (browser/MCP/shell) aren't available.
+That's it. The agent now has 31 `/atlas:*` commands, schema-validated workspace artifacts, and a capability-aware degradation rule that keeps it honest when tools (browser/MCP/shell) aren't available.
 
 ## Installation
 
@@ -50,7 +50,7 @@ All three paths converge on the same install kernel and produce the same `.testa
 
 - `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer (14 canonical files + 23 subdirs).
 - Auto-detected adapter for your agent: Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP, or Generic. `--all-adapters` ships every adapter.
-- 30 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup.
+- 31 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup.
 - 19 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
 - Atomic self-update with backup + rollback, signed tarball verification (cosign opt-in), and version pinning for stability-conscious teams.
 
@@ -114,6 +114,6 @@ MIT — see [LICENSE](LICENSE).
 ## What's Next
 
 - **`/atlas:init`** — bootstrap a TestAtlas workspace in your repo
-- **[Getting Started](docs/GETTING_STARTED.md)** — first-hour walkthrough of the 30 `/atlas:*` commands
+- **[Getting Started](docs/GETTING_STARTED.md)** — first-hour walkthrough of the 31 `/atlas:*` commands
 - **[Install](docs/INSTALL.md)** — three install paths (npx, install.sh, git clone)
 - **[Adapter Owners](ADAPTER-OWNERS.md)** — see who owns each adapter family
