@@ -76,6 +76,15 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 9. Update flow confidence per scenario outcome — flows whose scenarios passed climb in confidence; flows with failures or skips drop and are flagged for the next plan cycle.
 10. Close the lifecycle (next section).
 
+### `--all` mode
+
+When invoked as `/atlas:test-domain --all`:
+
+1. Enumerate domains referenced by ≥1 scenario in the test-scenario matrix (read each per-scenario sidecar `_testatlas/tests/scenarios/TEST-*.json`'s `domain` field — or, equivalently, the bundled `_testatlas/tests/matrix.json` if present — and dedupe). Filter further to scenarios whose `type` is one of the four PRD §26 modes (`negative`, `state`, `integration`, `setup-testability`); other types belong to sister test commands. Domains in `_testatlas/domains/` with zero in-scope scenarios MUST be skipped silently — they have no oracle.
+2. For each in-scope domain, execute the per-domain Required Actions block above (mode disambiguation included) and accumulate per-domain results into a SINGLE merged `_testatlas/runs/RUN-<timestamp>.{md,json}` with `executionMode: 'all-domains'` recorded inside the run-record metadata (run-record metadata only — the `test-run.schema.json` `type` enum is unchanged).
+3. **Capability-blocked scenarios** — `shell` unavailable for the scenario's runner; OR scenario carries `pending: capability-required` per `test-scenario.schema.json`; OR an `integration` scenario whose resolved endpoint is production / live-key (refusal is a skip-with-justification, not a halt) — are recorded as `status: 'skipped'` with `skipReason` populated. `--all` MUST NOT halt on the first capability-required skip; it accumulates skip records and continues through the remaining domains.
+4. Halt only when every in-scope scenario was skipped AND the skip reasons are all non-user-recoverable (e.g., `shell` missing in the adapter + safety flag refusal — the operator cannot proceed in this thread).
+
 ## Outputs
 
 - `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — schema-valid run record with per-scenario results, mode tags, and evidence paths.
@@ -102,6 +111,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
 - Evidence file referenced in a result does not exist on disk after capture → halt; do not record a result citing a non-existent path.
 - `test-run.schema.json` validation fails on the produced JSON → halt; do not commit a malformed run.
+- `--all` mode does NOT halt on a single capability-blocked or `pending: capability-required` scenario — it accumulates skip records and continues; halts only when every in-scope scenario is skipped AND all skip reasons are non-user-recoverable.
 
 ## Completion Criteria
 
