@@ -1,0 +1,39 @@
+# .testatlas/redaction-allowlist.txt
+#
+# Opt-out file for the check-evidence-redaction validate-workspace check
+# (ISSUE-015 fix, Phase 11 Plan 05). Plain-text format:
+#
+#   path[:line]   # optional inline comment
+#
+# - `#` lines are comments; blank lines are ignored.
+# - The `:line` suffix is reserved for future per-line allowlisting.
+# - Glob `*` matches any chars except `/`; `**` matches any number of
+#   path segments (including separators). Other regex metachars are
+#   escaped, so the file format is plain text — not regex.
+# - Paths are matched relative to the workspace root (e.g.
+#   `_testatlas/02_product_overview.md` from the repo root).
+#
+# Entries below cover *known-prose* mentions of credential patterns —
+# documentation that explains the redaction rule itself, planning
+# artefacts that enumerate patterns, and test fixtures that intentionally
+# contain example tokens. None of these are actual leaks.
+
+# The product-overview surface-matrix names the patterns it enforces.
+_testatlas/02_product_overview.md
+
+# This phase's planning artefacts enumerate the locked pattern set as
+# documentation.
+.planning/phases/11-*/11-CONTEXT.md
+.planning/phases/11-*/11-RESEARCH.md
+.planning/phases/11-*/11-*-PLAN.md
+.planning/phases/11-*/11-*-SUMMARY.md
+
+# Test fixtures intentionally contain example tokens (AWS, GitHub, JWT,
+# OpenSSH PEM blocks, etc.) — these match the patterns by design.
+test/**
+
+# Self-reference: this file documents the patterns it allowlists.
+.testatlas/redaction-allowlist.txt
+
+# The check module itself names the patterns it scans for.
+scripts/lib/validate/check-evidence-redaction.js

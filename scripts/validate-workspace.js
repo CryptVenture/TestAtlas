@@ -55,6 +55,7 @@ const CHECK_IDS = [
   'stale-generated-sections',
   'modified-generated-content',
   'status-counts',
+  'evidence-redaction', // ISSUE-015 fix (Phase 11 Plan 05) — secret-scanner backing redacted:true
 ];
 
 /**
