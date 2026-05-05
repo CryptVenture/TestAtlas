@@ -57,3 +57,9 @@ This document captures the structural shape of the codebase: what apps and packa
 <!-- TESTATLAS:GENERATED:START section="source-references" -->
 (no source references collected yet)
 <!-- TESTATLAS:GENERATED:END section="source-references" -->
+
+## Domain Index
+
+<!-- TESTATLAS:GENERATED:START section="domain-index" -->
+(no domains mapped yet)
+<!-- TESTATLAS:GENERATED:END section="domain-index" -->

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-map-domains. Invoke as /atlas-map-domains. Description: Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="e4a284a82ded83928cb87e637ccda78283d808de1377726cb9cdb9c8a20430af" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="ee5e30ddf8aa4fc1d963ec1ab0f763b9956bcb214d894091db0170465e924b6f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -24,6 +24,7 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
    - **Preferred path (if `shell` is available):** for each clustered domain, run `node .testatlas/scripts/create-domain.js --name "<human-readable name>" --purpose "<one-line purpose>" [--workspace <p>]`. The script slugifies the name per PRD §32, AJV-validates against `domain.schema.json`, emits the three required files (`domain.json`, `index.md`, `issues/index.md`), and increments `counts.domains` in the manifest. Skip the manual file-pair authorship in this step; populate ownership claims (routes/APIs/components/jobs/integrations) into the emitted `domain.json` by appending to its arrays. Manual path: hand-author the file pair following `domain.schema.json`.
 5. For every ownership claim (this domain owns this route / API / component / job / integration), cite the originating `12_app_map.json` entry by stable identifier. The app-map entry itself already references an evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`; preserve that chain so `validate-workspace` can verify it.
 6. Update `_testatlas/01_system_map.md` per-domain index: list each domain with its slug, one-line description, and counts (routes / APIs / components / jobs / integrations).
+   - **Preferred path (if `shell` is available):** run `node .testatlas/scripts/sync-system-map.js [--workspace <p>]` to regenerate `01_system_map.md`'s `source-references` + `domain-index` sections from on-disk evidence + `domains/*/domain.json`. The script also refreshes `manifest.generatedSections['01_system_map.md']` hashes in lockstep.
 7. If `12_app_map.json` is sparse — fewer than ~10 entries total, or if `explore-codebase` ran with `confidence: needs-validation` — MUST mark every produced domain `confidence: needs-validation` and surface the gap in `_testatlas/12_gaps.md` so the operator knows to re-run `explore-codebase` with shell available.
 8. Validate every domain JSON against `domain.schema.json` before closing. If any sidecar fails validation, halt — do not partially commit a domain set.
 9. Close the lifecycle (next section).

@@ -28,11 +28,11 @@ This document is the entry point for the workspace. It summarizes what the appli
 
 <!-- TESTATLAS:GENERATED:START section="current-status" -->
 - Status: initialized
-- Domains mapped: 0
-- Flows mapped: 0
+- Domains mapped: 3
+- Flows mapped: 4
 - Flows tested: 0
-- Issues filed: 0
-- Last command: (none)
+- Issues filed: 2
+- Last command: Invoked At
 <!-- TESTATLAS:GENERATED:END section="current-status" -->
 
 ## Highest Risks
