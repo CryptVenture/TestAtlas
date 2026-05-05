@@ -250,3 +250,12 @@ export async function addIssueToFlowIndex(wsDir, flowId, issueId) {
   lines.splice(issuesHeadingIndex + 1, 0, refLine);
   await atomicWrite(flowPath, lines.join('\n'));
 }
+
+// ─── Command-log helpers (re-exported for ergonomic single-source) ───────────
+//
+// Quick 260505-wjp Task 1 (G2): callers that already
+// `import { incrementManifestCount } from './command-lifecycle.js'` can also
+// pull the new code-backed log appenders from the same module:
+//   import { appendCommandLogRow, appendRunLogEntry } from './command-lifecycle.js';
+// The canonical implementation lives in ./command-log.js.
+export { appendCommandLogRow, appendRunLogEntry } from './command-log.js';
