@@ -93,7 +93,13 @@ test('release.yml: GitHub Release attaches tarball + sha256 + sigstore.json', as
 
 test('release.yml: changesets/action@v1 used for versioning + publish', async () => {
   const buf = await readFile(RELEASE_YML, 'utf8');
-  assert.match(buf, /changesets\/action@v1/, 'missing changesets/action@v1');
+  // Phase 11 Plan 01 SHA-pinned the action per ISSUE-010 (G-09); the trailing
+  // `# v1` comment keeps the human-readable tag visible for Dependabot.
+  assert.match(
+    buf,
+    /changesets\/action@[a-f0-9]{40}\s+#\s*v1/,
+    'missing SHA-pinned changesets/action (expected `changesets/action@<sha40> # v1`)',
+  );
 });
 
 test('release.yml: workflow_dispatch dry-run is gated on dry-run != true for real publish', async () => {

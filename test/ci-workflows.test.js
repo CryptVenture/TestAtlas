@@ -88,11 +88,14 @@ test('CI workflow runs validate-workspace.js against the suite-repo meta-workspa
   );
 
   // Must upload the validation report as an artifact on failure (so PR
-  // reviewers see the diagnosis without re-running CI locally).
+  // reviewers see the diagnosis without re-running CI locally). Phase 11
+  // Plan 01 SHA-pinned all marketplace actions per ISSUE-010 (G-09); the
+  // `# v<N>` trailing comment preserves the human-readable tag for
+  // Dependabot's `actions` ecosystem to bump.
   assert.match(
     ci,
-    /actions\/upload-artifact@v4/,
-    'CI workflow must use actions/upload-artifact@v4 to upload validation report on failure',
+    /actions\/upload-artifact@[a-f0-9]{40}\s+#\s*v\d/,
+    'CI workflow must use SHA-pinned actions/upload-artifact (with `# vN` tag comment) to upload validation report on failure',
   );
 });
 
