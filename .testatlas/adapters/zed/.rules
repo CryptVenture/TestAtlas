@@ -25,14 +25,12 @@ Squash issue duplicates per triage groupings; inherit highest severity + lowest-
 
 Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP. Read `.testatlas/commands/explore-accessibility.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-api
 
 Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces; capture contracts, auth, errors, pagination; safely probe sandbox endpoints. Read `.testatlas/commands/explore-api.md` for full instructions.
 - Required capabilities: web-fetch, shell, file-write.
-- DEGRADED: web-fetch unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-cli
@@ -63,14 +61,12 @@ Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target 
 
 Map auth, payments, email, analytics, storage, webhooks, and feature-flag integrations; distinguish sandbox/test/prod endpoints; probe sandbox only when safe. Read `.testatlas/commands/explore-integrations.md` for full instructions.
 - Required capabilities: web-fetch, file-write.
-- DEGRADED: web-fetch unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-performance
 
 Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP. Read `.testatlas/commands/explore-performance.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-runtime
@@ -89,7 +85,6 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 Map routes, components, forms, modals, all PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, and accessibility basics using Chrome DevTools MCP — degrade to code reading when MCP unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore
@@ -144,7 +139,6 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 
 Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. Read `.testatlas/commands/test-accessibility.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-domain
@@ -157,14 +151,12 @@ Execute domain-scoped test scenarios across PRD §26 modes (negative / state / i
 
 Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13. Read `.testatlas/commands/test-flow.md` for full instructions.
 - Required capabilities: shell, browser, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-performance
 
 Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings. Read `.testatlas/commands/test-performance.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
-- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-regression
@@ -189,7 +181,6 @@ Remove the TestAtlas suite tree (`.testatlas/`) per the install manifest; with `
 
 Invoke the suite self-update flow — checks GitHub Releases per UPDATE-01, delegates to Phase 7 update.js for atomic apply with backup, never auto-applies without operator confirmation. Read `.testatlas/commands/update.md` for full instructions.
 - Required capabilities: shell, web-fetch, file-write.
-- DEGRADED: web-fetch unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-validate-workspace

@@ -137,9 +137,9 @@ test('Test 5: adapter capability sets per spec', async () => {
   const aider = byName.aider.capabilities.slice().sort();
   assert.deepEqual(aider, ['file-write', 'shell']);
 
-  // mcp: [shell, web-fetch, MCP, file-write]
+  // mcp: [browser, shell, web-fetch, MCP, file-write]
   const mcp = byName.mcp.capabilities.slice().sort();
-  assert.deepEqual(mcp, ['MCP', 'file-write', 'shell', 'web-fetch']);
+  assert.deepEqual(mcp, ['MCP', 'browser', 'file-write', 'shell', 'web-fetch']);
 });
 
 test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07-01, 19th from Plan 08-01)', async () => {

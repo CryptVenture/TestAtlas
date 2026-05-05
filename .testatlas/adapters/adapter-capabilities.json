@@ -71,7 +71,7 @@
       "outputPattern": "mcp-server-manifest.json",
       "globalOutputPattern": ".config/testatlas/mcp-server-manifest.json",
       "fileExtension": ".json",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "mcp-server",
       "globalNotes": "MCP clients are configured per-app (Claude Desktop, Cursor MCP, etc.). Point them at `node ~/.config/testatlas/scripts/mcp-server.js` after `--global` install."
     },
@@ -82,7 +82,7 @@
       "outputPattern": ".codex/prompts/atlas-{command}.md",
       "globalOutputPattern": ".codex/prompts/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Codex auto-discovers prompts at ~/.codex/prompts/ (set $CODEX_HOME to override). Files invoke as /prompts:atlas-<name>."
     },
@@ -93,7 +93,7 @@
       "outputPattern": ".gemini/commands/atlas-{command}.toml",
       "globalOutputPattern": ".gemini/commands/atlas-{command}.toml",
       "fileExtension": ".toml",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Gemini CLI auto-discovers TOML commands at ~/.gemini/commands/. Run /commands reload (or restart) after install. Files invoke as /atlas-<name>."
     },
@@ -125,7 +125,7 @@
       "outputPattern": ".kiro/skills/atlas-{command}.md",
       "globalOutputPattern": ".kiro/skills/atlas-{command}.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Kiro skills are flat-file `~/.kiro/skills/atlas-<name>.md`. Slash-invoke as /atlas-<name>."
     },
@@ -136,7 +136,7 @@
       "outputPattern": ".continue/prompts/atlas-{command}.prompt.md",
       "globalOutputPattern": ".continue/prompts/atlas-{command}.prompt.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file",
       "globalNotes": "Continue auto-discovers `~/.continue/prompts/`. Slash-invoke as /atlas-<name> in Chat / Plan / Agent modes."
     },
@@ -178,7 +178,7 @@
       "outputDir": ".testatlas/adapters/zed",
       "outputPattern": ".rules",
       "fileExtension": ".md",
-      "capabilities": ["shell", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "concatenated-conventions",
       "globalNotes": "Zed has no file-installable global rules path; --global skips. For machine-wide rules, use Zed's UI Rules Library."
     },
@@ -189,7 +189,7 @@
       "outputPattern": ".amazonq/rules/atlas.md",
       "globalOutputPattern": ".aws/amazonq/prompts/atlas.md",
       "fileExtension": ".md",
-      "capabilities": ["shell", "MCP", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "concatenated-conventions",
       "globalNotes": "Amazon Q project rules live at `.amazonq/rules/`; user prompt library at `~/.aws/amazonq/prompts/`. Q auto-applies rules; not slash-invokable."
     }
