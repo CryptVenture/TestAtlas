@@ -1,6 +1,5 @@
 ---
 id: FLOW-cli-list-todos
-slug: {{slug}}
 name: List Todos
 domain: domain-cli
 persona: todo-author

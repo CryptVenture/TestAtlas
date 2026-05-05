@@ -1,6 +1,5 @@
 ---
 id: FLOW-web-components-submit-item-form
-slug: {{slug}}
 name: Submit Item Form
 domain: domain-web-components
 persona: item-author

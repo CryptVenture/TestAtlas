@@ -1,6 +1,5 @@
 ---
 id: FLOW-items-api-list-items
-slug: {{slug}}
 name: List Items
 domain: domain-items-api
 persona: api-client

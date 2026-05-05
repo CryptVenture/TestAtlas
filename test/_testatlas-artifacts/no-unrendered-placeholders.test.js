@@ -20,9 +20,18 @@ const WORKSPACE = path.join(REPO_ROOT, '_testatlas');
 const TO_FIX_DIR = path.join(WORKSPACE, 'to_fix');
 const EVIDENCE_DIR = path.join(WORKSPACE, 'evidence');
 
-// Matches `{{key}}` exactly (no surrounding whitespace tolerated). Mirrors the
-// canonical placeholder shape used in `.testatlas/templates/{issues,flows,evidence}/*.md`.
-const PLACEHOLDER_RE = /\{\{[a-zA-Z_$][\w-]*\}\}/;
+// Match only the LEAKAGE shapes the emitter could produce — NOT every literal
+// `{{key}}` substring. Two shapes the renderer can leak when a placeholder is
+// missing-but-line-was-not-dropped:
+//
+//   (a) YAML-frontmatter-style:    `^<label>: {{key}}$`
+//   (b) standalone-line-only:      `^{{key}}$` (after trim)
+//
+// Counter-example we deliberately do NOT flag: prose lines that quote the
+// placeholder syntax inline (e.g. an evidence description that says
+// "see {{key}} substitution tokens" — that text is legitimate JSON-sourced
+// content, not a renderer leak).
+const PLACEHOLDER_RE = /^\s*(?:[a-zA-Z_$][\w-]*\s*:\s*)?\{\{[a-zA-Z_$][\w-]*\}\}\s*$/;
 
 async function exists(p) {
   try {

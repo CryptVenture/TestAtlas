@@ -1,6 +1,5 @@
 ---
 id: FLOW-validation-validate-item
-slug: {{slug}}
 name: Validate Item
 domain: domain-validation
 persona: api-client

@@ -1,6 +1,5 @@
 ---
 id: FLOW-cli-add-todo
-slug: {{slug}}
 name: Add Todo
 domain: domain-cli
 persona: todo-author

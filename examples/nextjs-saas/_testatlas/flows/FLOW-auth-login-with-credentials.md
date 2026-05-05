@@ -1,6 +1,5 @@
 ---
 id: FLOW-auth-login-with-credentials
-slug: {{slug}}
 name: Login With Credentials
 domain: domain-auth
 persona: returning-user

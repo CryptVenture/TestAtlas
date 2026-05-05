@@ -1,6 +1,5 @@
 ---
 id: FLOW-auth-signup-new-account
-slug: {{slug}}
 name: Signup New Account
 domain: domain-auth
 persona: new-user

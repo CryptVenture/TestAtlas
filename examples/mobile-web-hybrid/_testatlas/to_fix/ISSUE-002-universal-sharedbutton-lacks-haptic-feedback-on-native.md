@@ -7,9 +7,7 @@ severity: enhancement
 confidence: confirmed
 type: ux
 domain: domain-navigation
-flow: {{flow}}
 environment: local
-persona: 
 foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown

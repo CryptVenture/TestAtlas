@@ -1,6 +1,5 @@
 ---
 id: FLOW-health-health-check
-slug: {{slug}}
 name: Health Check
 domain: domain-health
 persona: ops-engineer

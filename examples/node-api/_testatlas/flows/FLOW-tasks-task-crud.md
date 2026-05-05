@@ -1,6 +1,5 @@
 ---
 id: FLOW-tasks-task-crud
-slug: {{slug}}
 name: Task CRUD
 domain: domain-tasks
 persona: task-owner

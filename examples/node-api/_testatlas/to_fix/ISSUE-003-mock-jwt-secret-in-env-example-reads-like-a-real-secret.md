@@ -7,9 +7,7 @@ severity: low
 confidence: confirmed
 type: documentation
 domain: domain-auth
-flow: {{flow}}
 environment: local
-persona: 
 foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown

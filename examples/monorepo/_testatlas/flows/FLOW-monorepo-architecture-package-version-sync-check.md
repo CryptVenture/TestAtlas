@@ -1,6 +1,5 @@
 ---
 id: FLOW-monorepo-architecture-package-version-sync-check
-slug: {{slug}}
 name: Package Version Sync Check
 domain: domain-monorepo-architecture
 persona: release-engineer

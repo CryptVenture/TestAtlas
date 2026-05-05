@@ -1,6 +1,5 @@
 ---
 id: FLOW-mobile-screens-feed-tab-load
-slug: {{slug}}
 name: Feed Tab Load
 domain: domain-mobile-screens
 persona: returning-user

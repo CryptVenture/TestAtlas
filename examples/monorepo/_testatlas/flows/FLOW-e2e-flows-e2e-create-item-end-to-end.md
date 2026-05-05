@@ -1,6 +1,5 @@
 ---
 id: FLOW-e2e-flows-e2e-create-item-end-to-end
-slug: {{slug}}
 name: E2E Create Item End To End
 domain: domain-e2e-flows
 persona: monorepo-tester

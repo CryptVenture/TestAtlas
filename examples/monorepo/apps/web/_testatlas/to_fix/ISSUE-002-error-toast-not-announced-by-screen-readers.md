@@ -7,9 +7,7 @@ severity: medium
 confidence: confirmed
 type: accessibility
 domain: domain-web-components
-flow: {{flow}}
 environment: local
-persona: 
 foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown

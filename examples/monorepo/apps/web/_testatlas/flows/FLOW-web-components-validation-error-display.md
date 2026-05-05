@@ -1,6 +1,5 @@
 ---
 id: FLOW-web-components-validation-error-display
-slug: {{slug}}
 name: Validation Error Display
 domain: domain-web-components
 persona: item-author

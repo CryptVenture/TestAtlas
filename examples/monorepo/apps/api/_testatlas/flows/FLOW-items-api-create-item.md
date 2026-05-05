@@ -1,6 +1,5 @@
 ---
 id: FLOW-items-api-create-item
-slug: {{slug}}
 name: Create Item
 domain: domain-items-api
 persona: api-client

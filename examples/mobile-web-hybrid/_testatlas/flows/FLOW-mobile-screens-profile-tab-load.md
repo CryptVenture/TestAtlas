@@ -1,6 +1,5 @@
 ---
 id: FLOW-mobile-screens-profile-tab-load
-slug: {{slug}}
 name: Profile Tab Load
 domain: domain-mobile-screens
 persona: returning-user

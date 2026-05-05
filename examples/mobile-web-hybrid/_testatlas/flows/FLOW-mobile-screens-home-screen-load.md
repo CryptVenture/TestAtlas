@@ -1,6 +1,5 @@
 ---
 id: FLOW-mobile-screens-home-screen-load
-slug: {{slug}}
 name: Home Screen Load
 domain: domain-mobile-screens
 persona: first-time-user

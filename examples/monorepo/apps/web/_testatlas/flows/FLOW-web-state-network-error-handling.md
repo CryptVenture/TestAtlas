@@ -1,6 +1,5 @@
 ---
 id: FLOW-web-state-network-error-handling
-slug: {{slug}}
 name: Network Error Handling
 domain: domain-web-state
 persona: item-author

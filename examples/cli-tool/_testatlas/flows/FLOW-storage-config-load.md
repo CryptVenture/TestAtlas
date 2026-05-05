@@ -1,6 +1,5 @@
 ---
 id: FLOW-storage-config-load
-slug: {{slug}}
 name: Config Load
 domain: domain-storage
 persona: todo-author

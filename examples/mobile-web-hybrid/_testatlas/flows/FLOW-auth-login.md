@@ -1,6 +1,5 @@
 ---
 id: FLOW-auth-login
-slug: {{slug}}
 name: Login
 domain: domain-auth
 persona: returning-user

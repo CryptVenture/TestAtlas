@@ -1,6 +1,5 @@
 ---
 id: FLOW-web-routing-landing-page-load
-slug: {{slug}}
 name: Landing Page Load
 domain: domain-web-routing
 persona: first-visit

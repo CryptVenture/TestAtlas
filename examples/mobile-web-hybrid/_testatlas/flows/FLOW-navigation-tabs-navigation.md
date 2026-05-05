@@ -1,6 +1,5 @@
 ---
 id: FLOW-navigation-tabs-navigation
-slug: {{slug}}
 name: Tabs Navigation
 domain: domain-navigation
 persona: returning-user

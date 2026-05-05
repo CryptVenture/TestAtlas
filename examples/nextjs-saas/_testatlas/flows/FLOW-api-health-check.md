@@ -1,6 +1,5 @@
 ---
 id: FLOW-api-health-check
-slug: {{slug}}
 name: Health Check
 domain: domain-api
 persona: ops-engineer

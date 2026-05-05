@@ -21,15 +21,12 @@ evidence/EVIDENCE-001/capture.bin
 
 ## Domain
 
-{{domain}}
 
 ## Flow
 
-{{flow}}
 
 ## Issue
 
-{{issue}}
 
 ## Captured On
 

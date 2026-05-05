@@ -7,9 +7,7 @@ severity: high
 confidence: confirmed
 type: validation
 domain: domain-dashboard
-flow: {{flow}}
 environment: local
-persona: 
 foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown

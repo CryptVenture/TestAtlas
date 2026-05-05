@@ -7,9 +7,7 @@ severity: medium
 confidence: needs-validation
 type: reliability
 domain: domain-storage
-flow: {{flow}}
 environment: local
-persona: 
 foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown

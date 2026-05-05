@@ -1,6 +1,5 @@
 ---
 id: FLOW-dashboard-dashboard-navigation
-slug: {{slug}}
 name: Dashboard Navigation
 domain: domain-dashboard
 persona: returning-user

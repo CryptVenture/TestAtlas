@@ -1,6 +1,5 @@
 ---
 id: FLOW-marketing-view-landing-page
-slug: {{slug}}
 name: View Landing Page
 domain: domain-marketing
 persona: anonymous-visitor
