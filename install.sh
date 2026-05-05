@@ -183,6 +183,53 @@ _main() {
     fi
 }
 
+_print_usage() {
+    cat <<'EOF'
+Usage: install.sh [OPTIONS]
+
+Install the TestAtlas suite into the current repo (or --target <dir>).
+
+Options:
+  -h, --help          Show this help and exit.
+  --dry-run           Print resolved tarball URL + expected SHA, do not install.
+  --global            Install adapter command files into user-home (~/.claude/, etc.).
+  --target <dir>      Target directory (default: $PWD; $HOME with --global).
+  --force             Overwrite an existing .testatlas/ workspace.
+  --verify-signature  Verify cosign attestation (requires cosign on PATH).
+
+Environment variables:
+  TESTATLAS_VERIFY_SIGNATURE=1        Verify cosign attestation (requires cosign).
+  TESTATLAS_SKIP_CHECKSUM=1           Skip SHA-256 checksum verification (NOT recommended).
+  _TESTATLAS_TARBALL_OVERRIDE=<path>  Local tarball override (test hook only).
+
+Examples:
+  curl -fsSL https://raw.githubusercontent.com/CryptVenture/TestAtlas/main/install.sh | sh
+  curl -fsSL https://raw.githubusercontent.com/CryptVenture/TestAtlas/main/install.sh | sh -s -- --global
+  /bin/sh install.sh --dry-run
+EOF
+}
+
+# Short-circuit dispatch — runs BEFORE _main so --help / --dry-run never trigger
+# the installer's network or filesystem side effects.
+#
+# Matching strategy:
+#   - `case "${1:-}"` checks $1 only for -h / --help (matches GNU help convention,
+#     where --help is expected to be the leading or sole argument).
+#   - `case " $* "` scans ALL args (space-padded) for --dry-run so it works with
+#     `sh install.sh --global --dry-run` as well as `sh install.sh --dry-run`.
+case "${1:-}" in
+    -h|--help) _print_usage; exit 0 ;;
+esac
+
+case " $* " in
+    *" --dry-run "*)
+        _log "Dry-run: tarball=${TARBALL_URL} expected_sha=${TARBALL_SHA256}"
+        _log "Dry-run: github_fallback=${GITHUB_RELEASE_URL}"
+        _log "Dry-run: VERSION=${VERSION}"
+        _log "Dry-run: no install performed."
+        exit 0 ;;
+esac
+
 # CRITICAL: this MUST be the LAST line of the file. Partial-pipe protection:
 # if `curl | sh` is interrupted before this point, sh reaches EOF without ever
 # calling _main — nothing runs.

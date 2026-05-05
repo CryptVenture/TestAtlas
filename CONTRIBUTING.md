@@ -68,7 +68,7 @@ For security issues, follow the private disclosure flow described in [SECURITY.m
 
 ## Adapter Ownership
 
-Each adapter (Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP, Generic) has at least one owner; see [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md). New adapter contributions need an owner before merge.
+TestAtlas v1 ships 18 adapter families spanning the major 2026 AI coding agent ecosystems — the canonical roster lives in [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md) and [`.testatlas/adapters/`](.testatlas/adapters/). Per the post-GA bus-factor policy, each family is either assigned to a named maintainer or marked `_unassigned_`; new adapter contributions need either an assigned owner or an explicit `_unassigned_` placeholder before merge. The long-term target remains ≥2 maintainers per adapter family as a SHOULD (not a MUST).
 
 ## Scope
 

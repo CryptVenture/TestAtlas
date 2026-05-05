@@ -15,7 +15,7 @@
 
 ## What is this?
 
-TestAtlas is an installable, agent-agnostic product testing and quality intelligence framework. It turns any capable AI coding agent (Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP-capable, generic) into a persistent product-understanding, exploration, test-planning, user-flow execution, evidence-collection, and issue-management system that produces a durable `_testatlas/` workspace inside any target repository.
+TestAtlas is an installable, agent-agnostic product testing and quality intelligence framework. It turns any capable AI coding agent (Claude Code, Cursor, Aider, KiloCode, OpenCode, MCP-enabled hosts, Codex, Gemini CLI, Cline, Windsurf, Kiro, Continue.dev, GitHub Copilot, Sourcegraph Amp, Roo Code, Zed, Amazon Q, plus a generic paste-prompt fallback — 18 adapter families in total; see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md)) into a persistent product-understanding, exploration, test-planning, user-flow execution, evidence-collection, and issue-management system that produces a durable `_testatlas/` workspace inside any target repository.
 
 **Core value:** A capable AI agent, after running `/atlas:init`, can map an unfamiliar product, test it from a real user's perspective, and leave behind a durable, evidence-backed quality intelligence layer that another agent or engineer can trust and continue — without any prior knowledge of the application stack.
 
@@ -49,7 +49,7 @@ All three paths converge on the same install kernel and produce the same `.testa
 ## What you get
 
 - `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer (14 canonical files + 23 subdirs).
-- Auto-detected adapter for your agent: Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP, or Generic. `--all-adapters` ships every adapter.
+- Auto-detected adapter for your agent across 18 adapter families spanning the major 2026 AI coding agent ecosystems (see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md) for the full roster). `--all-adapters` ships every adapter; `--adapter <name>` picks specific ones.
 - 31 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup.
 - 19 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
 - Atomic self-update with backup + rollback, signed tarball verification (cosign opt-in), and version pinning for stability-conscious teams.
@@ -81,11 +81,11 @@ Five reference projects, each shipping a checked-in `_testatlas/` workspace that
 
 | Example | Kind | Adapter set | Showcase |
 |---------|------|-------------|----------|
-| [nextjs-saas](examples/nextjs-saas/) | Next.js 15 App Router + React 19 | All 7 | UI exploration, page/route/component mapping, auth flow |
-| [node-api](examples/node-api/) | Express 5 ESM API | All 7 | API exploration, endpoint mapping, mock-auth security findings |
+| [nextjs-saas](examples/nextjs-saas/) | Next.js 15 App Router + React 19 | All 18 | UI exploration, page/route/component mapping, auth flow |
+| [node-api](examples/node-api/) | Express 5 ESM API | All 18 | API exploration, endpoint mapping, mock-auth security findings |
 | [cli-tool](examples/cli-tool/) | Commander 14 CLI | **Aider-only** | Capability-aware degradation; `confidence: needs-validation` |
-| [monorepo](examples/monorepo/) | pnpm workspaces (web + api + shared) | All 7 | Per-app workspace orchestration; cross-cut flows in root `_testatlas/` |
-| [mobile-web-hybrid](examples/mobile-web-hybrid/) | Expo SDK 52+ Router | All 7 | Universal RN+web mapping; structure-only (not built in CI) |
+| [monorepo](examples/monorepo/) | pnpm workspaces (web + api + shared) | All 18 | Per-app workspace orchestration; cross-cut flows in root `_testatlas/` |
+| [mobile-web-hybrid](examples/mobile-web-hybrid/) | Expo SDK 52+ Router | All 18 | Universal RN+web mapping; structure-only (not built in CI) |
 
 Regenerate any example deterministically with:
 

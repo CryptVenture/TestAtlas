@@ -413,6 +413,15 @@ export async function assembleAdapter(opts = {}) {
 
 // ─── CLI wrapper ─────────────────────────────────────────────────────────────
 
+const USAGE = `Usage: node scripts/assemble-adapter.js [options]
+
+Options:
+  --adapter <name>    Render one adapter only (e.g. claude-code).
+  --check             Dry-run; exit 1 if any output is stale.
+  --workspace <path>  Workspace root (default: cwd).
+  -h, --help          Show this help.
+`;
+
 const __thisFile = fileURLToPath(import.meta.url);
 if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
   await runCli(process.argv.slice(2));
@@ -463,12 +472,3 @@ async function runCli(argv) {
     process.exit(1);
   }
 }
-
-const USAGE = `Usage: node scripts/assemble-adapter.js [options]
-
-Options:
-  --adapter <name>    Render one adapter only (e.g. claude-code).
-  --check             Dry-run; exit 1 if any output is stale.
-  --workspace <path>  Workspace root (default: cwd).
-  -h, --help          Show this help.
-`;
