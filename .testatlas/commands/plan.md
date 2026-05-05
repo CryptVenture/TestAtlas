@@ -11,6 +11,7 @@ consumes:
   - app-map
   - workspace-manifest
 lifecycle:
+  - 02_test_strategy.md
   - 03_execution_status.md
   - 09_artifact_index.md
   - 10_command_log.md

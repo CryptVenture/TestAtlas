@@ -3,7 +3,7 @@ description: Map the target product across languages, frameworks, monorepo layou
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="2a1ec08bd539514c69098751a9effab978bd51d673d9b8e7ea088ec05958d074" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="b7e5b8a5091326c2db4869537aa1f9ba836e9b18230f55b17bf03bef72b9466d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

@@ -10,6 +10,7 @@ produces:
 consumes:
   - workspace-manifest
 lifecycle:
+  - 12_app_map.json
   - 03_execution_status.md
   - 09_artifact_index.md
   - 10_command_log.md

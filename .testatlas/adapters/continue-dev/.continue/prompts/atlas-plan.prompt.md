@@ -4,7 +4,7 @@ description: Produce a risk-based, domain-based, flow-based, state-aware test st
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="af6baa9a706902fa1033f0bc55036a560b5e61b36cc8598ed60657a84d1181b6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="04e5f118548273f32512b4d7beea130c7aeedaf8239df203b907866fc3bcb27d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
