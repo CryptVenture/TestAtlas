@@ -52,7 +52,7 @@
       "type": "array",
       "uniqueItems": true,
       "minItems": 5,
-      "maxItems": 5,
+      "maxItems": 7,
       "items": {
         "type": "string",
         "enum": [
@@ -60,10 +60,12 @@
           "09_artifact_index.md",
           "10_command_log.md",
           "11_workspace_manifest.json",
-          "history/run_log.md"
+          "history/run_log.md",
+          "02_test_strategy.md",
+          "12_app_map.json"
         ]
       },
-      "description": "All five lifecycle artifacts updated after every command (PRD §40)."
+      "description": "Lifecycle artifacts updated after every command (PRD §40). Always includes the 5 universal entries (03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md). Per Quick 260505-wjp (G3+G4): commands MAY also declare command-specific canonical files they write directly (02_test_strategy.md by /atlas:plan; 12_app_map.json by /atlas:explore-codebase) so the doc-drift gate can prove every Lifecycle-declared canonical has either a code-backed writer OR is hand-authored by the owning command."
     },
     "boundary": {
       "type": "string",
