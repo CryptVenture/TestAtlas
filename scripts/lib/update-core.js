@@ -41,7 +41,10 @@ import { evaluatePin, shouldWarn } from './pinning.js';
 import {
   downloadTarball as tarballDownload,
   extractTarball as tarballExtract,
+  fetchExpectedSha,
+  fetchSigstoreBundle,
   verifyChecksum as tarballVerify,
+  verifyCosignAttestation,
 } from './tarball.js';
 import { checkForUpdate } from './update-check.js';
 
@@ -69,6 +72,25 @@ const DEFAULT_LOGGER = (msg) => info(msg);
  * @property {boolean} [dryRun]              Print plan; don't write.
  * @property {boolean} [noUpdateCheck]       Reserved for Plan 07-04 (TTL cache).
  * @property {string}  [expectedSha]         Optional SHA-256 hex; null/undefined skips with warning.
+ *                                           Plan 12-01: superseded for the npx
+ *                                           CLI path by `verifyChecksum: true`,
+ *                                           which fetches the .sha256 sidecar
+ *                                           from GitHub Releases. Programmatic
+ *                                           callers can still pass expectedSha
+ *                                           directly.
+ * @property {boolean} [verifySignature]     Plan 12-01: when true, fetch the
+ *                                           cosign sigstore bundle and run
+ *                                           `cosign verify-blob-attestation`
+ *                                           against the downloaded tarball.
+ *                                           Halts with TESTATLAS_COSIGN_*
+ *                                           sentinels on failure. Default off
+ *                                           (opt-in per CONTEXT.md).
+ * @property {boolean} [verifyChecksum]      Plan 12-01: when true, fetch the
+ *                                           .sha256 sidecar from the GitHub
+ *                                           Release and verify the downloaded
+ *                                           tarball's SHA-256 matches. Halts
+ *                                           with TESTATLAS_CHECKSUM_MISMATCH
+ *                                           on mismatch. Default off (opt-in).
  * @property {(msg: string) => void} [logger]
  */
 
@@ -317,8 +339,26 @@ export async function runUpdate(opts) {
     log(`Downloading testatlas v${newVersion}…`);
     await tarballDownload(newVersion, tmpTarball);
 
-    // 2. Verify checksum (no-op when expectedSha absent — Plan 07-04 plumbs in).
-    await tarballVerify(tmpTarball, opts.expectedSha);
+    // 2. Verify integrity. Plan 12-01 (ISSUE-016 + ISSUE-017): the npx
+    //    `--verify-signature` and `--verify-checksum` flags now do real work
+    //    on this path (previously silent no-ops). Both are opt-in to preserve
+    //    default behavior. When neither flag is set AND no programmatic
+    //    `expectedSha` was supplied, the legacy stderr-warning path applies
+    //    (downstream tooling that doesn't ship a sidecar).
+    if (opts.verifySignature) {
+      const bundlePath = `${tmpTarball}.sigstore.json`;
+      await fetchSigstoreBundle(newVersion, bundlePath);
+      await verifyCosignAttestation(tmpTarball, bundlePath);
+    }
+    if (opts.verifyChecksum) {
+      const expectedSha = await fetchExpectedSha(newVersion);
+      await tarballVerify(tmpTarball, expectedSha);
+    } else if (opts.expectedSha != null) {
+      await tarballVerify(tmpTarball, opts.expectedSha);
+    } else {
+      // Legacy path (no flag, no programmatic SHA). Existing stderr-warning.
+      await tarballVerify(tmpTarball, opts.expectedSha);
+    }
 
     // 3. Extract.
     await mkdir(stageDir, { recursive: true });
