@@ -90,6 +90,11 @@ export async function atomicWrite(destPath, contents, opts = {}, _injected = {})
     throw lastErr;
   } catch (err) {
     if (fh) await fh.close().catch(() => {});
+    // ISSUE-014: best-effort unlink of the tmp file we ourselves created
+    // (always rooted at `<destPath>.tmp.<pid>.<rand8>`). Capability tag:
+    // assertCapability(_, 'destructive-fs'). The outer caller's intent
+    // gates the original write; we inherit. Soft-fail .catch absorbs any
+    // EBUSY/EACCES so the original error is what propagates to the user.
     await _unlink(tmp).catch(() => {});
     throw err;
   }

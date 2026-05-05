@@ -12,6 +12,7 @@ import { argv, cwd, exit } from 'node:process';
 import { fileURLToPath } from 'node:url';
 
 import { listCommandFiles } from './lib/list-command-files.js';
+import { assertCapability } from './lib/safety.js';
 
 const MAX_WORDS = 1500;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +23,15 @@ const files = await listCommandFiles({ cwd: root });
 if (files.length === 0) {
   console.log(`OK: no command files under .testatlas/commands/ (Phase 3 still in progress).`);
   exit(0);
+}
+
+// ISSUE-014 defense-in-depth: this script is internal CI tooling that fans
+// out child node processes. Capability tag: 'spawn'. Permissive default —
+// budget checking is a developer/CI workflow that has implicitly opted in.
+const __cap = assertCapability({ safeMode: false, allowDestructiveActions: true }, 'spawn');
+if (!__cap.allowed) {
+  console.error(`check-command-budgets: ${__cap.reason}`);
+  exit(2);
 }
 
 let failed = 0;

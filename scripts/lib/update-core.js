@@ -132,6 +132,11 @@ function shouldUpdate(currentVersion, latestVersion) {
  * Best-effort rm of a path. Catches and ignores errors so cleanup never
  * masks the original failure.
  *
+ * ISSUE-014 note: invoked only by `runUpdate` (which is itself a destructive,
+ * user-initiated operation that the caller has already opted into). The
+ * outer flow's intent is the gate; this internal cleanup helper inherits.
+ * Documented capability tag: assertCapability(_, 'destructive-fs').
+ *
  * @param {string} p
  */
 async function rmSilent(p) {

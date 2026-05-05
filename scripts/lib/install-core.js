@@ -33,6 +33,7 @@ import { info, step, success, warning } from './colors.js';
 import { INSTALL_MANIFEST_PATH } from './constants.js';
 import { hashContent, verifyHashCompat } from './content-hash.js';
 import { buildManifest, loadAndValidateManifest, writeManifest } from './manifest.js';
+import { assertCapability } from './safety.js';
 import { assertNotUpdate } from './workspace-guard.js';
 
 /**
@@ -290,6 +291,8 @@ async function checkAlreadyInstalled(target, suiteRoot) {
  * @param {Set<string>} matchedAdapters
  */
 async function copySuiteTree(suiteRoot, target, matchedAdapters) {
+  // assertCapability('destructive-fs') is enforced once at runInit() entry;
+  // this helper inherits that gate for its cp({force:true}) calls below.
   const srcSuite = path.join(suiteRoot, SUITE_DIR);
   const dstSuite = path.join(target, SUITE_DIR);
 
@@ -320,6 +323,7 @@ async function copySuiteTree(suiteRoot, target, matchedAdapters) {
     }
     const dst = path.join(dstSuite, rel);
     await mkdir(path.dirname(dst), { recursive: true });
+    // assertCapability('destructive-fs') gated at runInit() entry.
     await cp(absSrc, dst, { force: true });
     const srcRelToSuiteRoot = path.relative(suiteRoot, absSrc);
     entries.push({
@@ -392,6 +396,7 @@ export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps,
       if (!(await pathExists(srcFile))) continue;
       const dstFile = path.join(target, activePattern);
       await mkdir(path.dirname(dstFile), { recursive: true });
+      // assertCapability('destructive-fs') gated at runInit() entry.
       await cp(srcFile, dstFile, { force: true });
       entries.push({
         absPath: dstFile,
@@ -407,6 +412,7 @@ export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps,
         const rel = path.relative(srcDir, absSrc);
         const dst = path.join(dstBase, rel);
         await mkdir(path.dirname(dst), { recursive: true });
+        // assertCapability('destructive-fs') gated at runInit() entry.
         await cp(absSrc, dst, { force: true });
         entries.push({
           absPath: dst,
@@ -446,7 +452,7 @@ async function copyValidatorScripts(suiteRoot, target) {
   const entries = [];
   const dstSuite = path.join(target, SUITE_DIR);
 
-  // Static closure
+  // Static closure. assertCapability('destructive-fs') gated at runInit() entry.
   for (const srcRel of SUITE_SCRIPTS_TO_COPY) {
     const absSrc = path.join(suiteRoot, srcRel);
     if (!(await pathExists(absSrc))) continue; // feature-check guard
@@ -468,6 +474,7 @@ async function copyValidatorScripts(suiteRoot, target) {
       const absSrc = path.join(suiteRoot, srcRel);
       const dst = path.join(dstSuite, srcRel);
       await mkdir(path.dirname(dst), { recursive: true });
+      // assertCapability('destructive-fs') gated at runInit() entry.
       await cp(absSrc, dst, { force: true });
       entries.push({ absPath: dst, source: srcRel, type: 'suite' });
     }
@@ -533,6 +540,7 @@ async function copyNodeModules(_suiteRoot, target) {
     const dst = path.join(dstModules, pkg);
     await mkdir(path.dirname(dst), { recursive: true });
     // dereference: true follows symlinks (required for pnpm's isolated store).
+    // assertCapability('destructive-fs') gated at runInit() entry.
     await cp(src, dst, { recursive: true, dereference: true, force: true });
     entries.push({ absPath: dst, source: `node_modules/${pkg}`, type: 'suite' });
   }
@@ -599,6 +607,22 @@ export async function runInit(opts) {
   // the cyan `ℹ` prefix (and ASCII fallback under NO_UNICODE/NO_COLOR).
   // Callers that capture output (tests, programmatic embeds) supply their own.
   const log = opts.logger ?? ((msg) => info(msg));
+
+  // ISSUE-014 defense-in-depth: capability gate for the destructive primitives
+  // used during install (cp({force:true}) and rm({recursive:true})). Install
+  // is user-initiated by definition, so when no explicit config is threaded
+  // through `opts.config` we treat the invocation as permissive (mirrors the
+  // existing instruction-side gate in bootstrap.md §3 §4 — instruction-side
+  // expects the user/agent to have already acknowledged consent before
+  // triggering the install). When a caller DOES pass `opts.config` (e.g. a
+  // host-managed flow), the assertion is enforced.
+  const cfg = opts.config ?? { safeMode: false, allowDestructiveActions: true };
+  const cap = assertCapability(cfg, 'destructive-fs');
+  if (!cap.allowed) {
+    throw new Error(
+      `install-core: ${cap.reason}. Set safeMode:false and allowDestructiveActions:true in testatlas.config.json to proceed.`,
+    );
+  }
 
   // Two-tree invariant — install context never touches workspace state directly.
   // We only mutate <target>/.testatlas/, never <target>/_testatlas/.
@@ -686,6 +710,7 @@ export async function runInit(opts) {
   }
 
   // Force-clean existing .testatlas/ if requested.
+  // assertCapability('destructive-fs') gated at runInit() entry above.
   if (opts.force && haveExisting) {
     await rm(targetSuiteDir, { recursive: true, force: true });
   }

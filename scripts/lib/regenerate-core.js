@@ -21,6 +21,7 @@ import { spawn } from 'node:child_process';
 import { mkdtemp, readdir, readFile, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { assertCapability } from './safety.js';
 
 const EXAMPLE_SCRIPT_SCHEMA_ID = 'https://testatlas.dev/schemas/v1/example-script.schema.json';
 const FIXTURE_FILENAME = 'example-script.json';
@@ -162,6 +163,18 @@ export async function replayStep(step, opts) {
     TESTATLAS_FIXED_TIMESTAMP: fixedTimestamp,
   };
 
+  // ISSUE-014 defense-in-depth: regen tooling is internal-only (invoked by
+  // the OBD harness + suite-self-test fixture replay), but explicit
+  // capability tag for the static-scan invariant. Permissive default —
+  // regen by definition needs to spawn the inner emitters.
+  const cap = assertCapability(
+    opts.config ?? { safeMode: false, allowDestructiveActions: true },
+    'spawn',
+  );
+  if (!cap.allowed) {
+    throw new Error(`replayStep: ${cap.reason}`);
+  }
+
   return await new Promise((resolve, reject) => {
     const child = spawn('node', [scriptPath, ...argv], {
       cwd: exampleCwd,
@@ -300,6 +313,16 @@ export async function regenerateExample({ examplePath, suiteRoot, check = false,
   // In both modes the target is wiped before init so init-workspace doesn't
   // trip on TESTATLAS_AMBIGUOUS_WORKSPACE (an empty dir without a manifest
   // is considered ambiguous).
+  // ISSUE-014 defense-in-depth: regen is an internal-only flow (suite
+  // self-test fixture replay); capability gated below. Default permissive
+  // — regen by definition wipes-and-rebuilds the example workspace.
+  const regenCap = assertCapability(
+    { safeMode: false, allowDestructiveActions: true },
+    'destructive-fs',
+  );
+  if (!regenCap.allowed) {
+    return { ok: false, target: checkedInWorkspace, errors: [regenCap.reason], logs };
+  }
   let target;
   let usedTemp = false;
   if (check) {
@@ -434,6 +457,8 @@ export async function regenerateExample({ examplePath, suiteRoot, check = false,
   } finally {
     if (usedTemp) {
       // Clean up the parent tmp dir (which contains the _testatlas subtree).
+      // assertCapability('destructive-fs') gated at function entry above;
+      // this is best-effort cleanup of a tmpdir we created ourselves.
       await rm(path.dirname(target), { recursive: true, force: true }).catch(() => {});
     }
   }

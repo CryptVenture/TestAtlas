@@ -140,6 +140,14 @@ export async function acquireLock(target, { pid, holdReason }) {
  * Release the workspace lock. No-op (and does not throw) if the lockfile is
  * already absent.
  *
+ * ISSUE-014: this is a best-effort cleanup of a lockfile we ourselves wrote.
+ * Capability tag: assertCapability(_, 'destructive-fs'). The unlink is
+ * scoped to a single internal state file (`_testatlas/.lock`) — soft-fail
+ * semantics (log-and-skip on denial) would just leak the lockfile until
+ * stale-detection cleans it up on the next acquireLock. We accept the
+ * implicit gate — releaseLock is only ever called from acquireLock-paired
+ * flows that have themselves been gated upstream.
+ *
  * @param {string} target
  * @returns {Promise<void>}
  */

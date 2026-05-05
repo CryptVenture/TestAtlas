@@ -23,6 +23,7 @@ import path from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { REPO_OWNER_REPO } from './constants.js';
+import { assertCapability } from './safety.js';
 
 /**
  * Test seam — set via `tarball.setTestHooks({...})` before importing modules
@@ -136,6 +137,15 @@ export async function verifyChecksum(file, expectedSha) {
 export async function extractTarball(tarballPath, dstDir) {
   if (_testHooks.extractTarball) return _testHooks.extractTarball(tarballPath, dstDir);
   await mkdir(dstDir, { recursive: true });
+  // ISSUE-014 defense-in-depth: extraction spawns the system `tar` binary.
+  // Invoked only by the user-initiated update flow (runUpdate), so default
+  // permissive when no explicit config threading is available.
+  const cap = assertCapability({ safeMode: false, allowDestructiveActions: true }, 'spawn');
+  if (!cap.allowed) {
+    const err = new Error(`tarball.extractTarball: ${cap.reason}`);
+    err.code = 'CAPABILITY_DENIED';
+    throw err;
+  }
   await new Promise((resolve, reject) => {
     const proc = spawn('tar', ['-xzf', tarballPath, '-C', dstDir], { stdio: 'pipe' });
     let stderr = '';

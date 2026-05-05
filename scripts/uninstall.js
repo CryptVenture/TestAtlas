@@ -28,7 +28,9 @@ import { Command } from 'commander';
 
 import { info, success, warning } from './lib/colors.js';
 import { INSTALL_MANIFEST_PATH } from './lib/constants.js';
+import { loadConfig } from './lib/load-config.js';
 import { loadAndValidateManifest } from './lib/manifest.js';
+import { assertCapability } from './lib/safety.js';
 
 /**
  * @typedef {Object} RunUninstallOptions
@@ -96,6 +98,33 @@ export async function runUninstall(opts = {}) {
   const purge = Boolean(opts.purge);
   const forceUntracked = Boolean(opts.forceUntracked);
 
+  // ISSUE-014 defense-in-depth: code-side capability gate. The
+  // instruction-side gate in bootstrap.md §3 §4 is unchanged; this is
+  // additive. Uninstall is user-initiated by definition (the user/agent has
+  // to explicitly invoke `testatlas uninstall`), so when no explicit config
+  // is loadable from `target` we treat the invocation as permissive — the
+  // user already opted in by running the command. When a caller DOES pass
+  // `opts.config` (host-managed flow) OR the target has a real config with
+  // safeMode:true, the assertion is enforced and we hard-fail.
+  let cfg = opts.config ?? null;
+  if (!cfg) {
+    try {
+      cfg = await loadConfig({ cwd: target });
+    } catch {
+      // Config not loadable (e.g. mid-uninstall the .testatlas/ tree may
+      // already be partially gone). Default permissive — uninstall must
+      // remain runnable without a config file.
+      cfg = { safeMode: false, allowDestructiveActions: true };
+    }
+  }
+  const cap = assertCapability(cfg, 'destructive-fs');
+  if (!cap.allowed) {
+    throw new Error(
+      `Refusing to uninstall: ${cap.reason}. Set safeMode:false and ` +
+        'allowDestructiveActions:true in .testatlas/testatlas.config.json to proceed.',
+    );
+  }
+
   let manifest = null;
   try {
     manifest = await loadAndValidateManifest(target);
@@ -121,6 +150,7 @@ export async function runUninstall(opts = {}) {
   const parentDirs = new Set();
 
   if (manifest) {
+    // assertCapability('destructive-fs') above gates the entire fs.rm loop below.
     for (const entry of manifest.files) {
       const osPath = path.join(target, ...entry.path.split('/'));
       if (dryRun) {
@@ -141,6 +171,7 @@ export async function runUninstall(opts = {}) {
 
     if (!dryRun) {
       // Also remove the manifest file itself (it's not in manifest.files).
+      // Already gated above by assertCapability('destructive-fs').
       const manifestPath = path.join(target, INSTALL_MANIFEST_PATH);
       try {
         await rm(manifestPath, { force: true });
@@ -152,6 +183,7 @@ export async function runUninstall(opts = {}) {
     }
   } else {
     // forceUntracked + missing manifest: nuke .testatlas/ blindly.
+    // Already gated above by assertCapability('destructive-fs').
     const ttDir = path.join(target, '.testatlas');
     if (dryRun) {
       if (opts.logger) log(`[dry-run] rm -r ${ttDir}`);
@@ -163,6 +195,7 @@ export async function runUninstall(opts = {}) {
 
   let purged = false;
   if (purge) {
+    // Already gated above by assertCapability('destructive-fs').
     const wsDir = path.join(target, '_testatlas');
     if (dryRun) {
       if (opts.logger) log(`[dry-run] rm -r ${wsDir}`);

@@ -18,6 +18,11 @@ import { runUninstall } from '../../scripts/uninstall.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const QUIET = () => {};
+// ISSUE-014: tests run runUninstall against installed targets whose
+// `default.config.json` ships safeMode:true. To exercise the destructive
+// happy paths we pass an explicit permissive config that mirrors what a
+// real user would set in `testatlas.config.json` before running uninstall.
+const PERMISSIVE = { safeMode: false, allowDestructiveActions: true };
 
 async function makeTmp() {
   return await mkdtemp(path.join(tmpdir(), 'testatlas-uninstall-'));
@@ -51,7 +56,7 @@ test('uninstall: removes every manifest-tracked file; preserves _testatlas/', as
     const survivor = path.join(target, '_testatlas', 'SURVIVOR.txt');
     await writeFile(survivor, 'should survive\n');
 
-    const result = await runUninstall({ target, logger: QUIET });
+    const result = await runUninstall({ target, logger: QUIET, config: PERMISSIVE });
     assert.equal(result.status, 'uninstalled');
     assert.ok(result.filesRemoved >= 1, `expected files removed, got ${result.filesRemoved}`);
 
@@ -73,7 +78,7 @@ test('uninstall: missing manifest → throws TESTATLAS_MANIFEST_MISSING', async 
   await withTmp(t, async (target) => {
     // Note: no runInit. Target has no .testatlas/.
     await assert.rejects(
-      () => runUninstall({ target, logger: QUIET }),
+      () => runUninstall({ target, logger: QUIET, config: PERMISSIVE }),
       (err) => {
         assert.match(err.message, /Manifest missing or invalid/);
         return true;
@@ -91,7 +96,7 @@ test('uninstall: corrupt manifest JSON → throws (refuses)', async (t) => {
     await writeFile(manifestPath, `${original.slice(0, 5)}@@@${original.slice(5)}`);
 
     await assert.rejects(
-      () => runUninstall({ target, logger: QUIET }),
+      () => runUninstall({ target, logger: QUIET, config: PERMISSIVE }),
       (err) => {
         assert.match(err.message, /Manifest missing or invalid/);
         return true;
@@ -111,6 +116,7 @@ test('uninstall: --dry-run prints plan and writes nothing', async (t) => {
       target,
       dryRun: true,
       logger: (m) => lines.push(m),
+      config: PERMISSIVE,
     });
     assert.equal(result.status, 'dry-run');
     // FS unchanged: manifest still there

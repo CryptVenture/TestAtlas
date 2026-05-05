@@ -14,6 +14,9 @@ import { runUninstall } from '../../scripts/uninstall.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const QUIET = () => {};
+// ISSUE-014: explicit permissive config so the destructive happy-path tests
+// can exercise rm() — default.config.json ships safeMode:true.
+const PERMISSIVE = { safeMode: false, allowDestructiveActions: true };
 
 async function makeTmp() {
   return await mkdtemp(path.join(tmpdir(), 'testatlas-uninstall-purge-'));
@@ -43,7 +46,7 @@ test('uninstall --purge: removes both .testatlas/ AND _testatlas/', async (t) =>
     const survivor = path.join(target, '_testatlas', 'SHOULD_BE_PURGED.txt');
     await writeFile(survivor, 'will be removed\n');
 
-    const result = await runUninstall({ target, purge: true, logger: QUIET });
+    const result = await runUninstall({ target, purge: true, logger: QUIET, config: PERMISSIVE });
     assert.equal(result.status, 'uninstalled');
     assert.ok(result.purged === true, 'result.purged should be true');
 
@@ -62,6 +65,7 @@ test('uninstall --purge --dry-run: prints purge plan, writes nothing', async (t)
       purge: true,
       dryRun: true,
       logger: (m) => lines.push(m),
+      config: PERMISSIVE,
     });
     assert.equal(result.status, 'dry-run');
     assert.ok(await exists(path.join(target, '_testatlas')), '_testatlas/ must remain');
