@@ -8,18 +8,21 @@
 // CLI:
 //   node scripts/sync-status.js [--workspace <p>] [--cwd <p>] [--dry-run] [--help]
 
-import { readFile } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
 const STATUS_FILE = '03_execution_status.md';
+const OVERVIEW_FILE = '00_overview.md';
 const MANIFEST = '11_workspace_manifest.json';
 const COUNTS_SECTION = 'counts';
+const OVERVIEW_SECTIONS = ['current-status', 'latest-report-pointer', 'last-updated'];
 
 async function countDirs(wsDir, sub, prefix) {
   try {
@@ -125,16 +128,146 @@ export async function syncStatus(args = {}, _inject = {}) {
     }
   }
 
+  // ─── Quick 260505-wjp Task 3 (G5): refresh 00_overview.md generated sections ──
+  let overviewUpdated = false;
+  const overviewPath = path.join(wsDir, OVERVIEW_FILE);
+  let overviewText;
+  try {
+    overviewText = await readFile(overviewPath, 'utf8');
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  let nextOverview = overviewText;
+  if (overviewText) {
+    const { sections, errors } = parseMarkers(overviewText);
+    if (errors.length > 0) {
+      const e = new Error(
+        `sync-status: refusing to write — ${OVERVIEW_FILE} has marker errors:\n  ${errors
+          .map((x) => `[${x.code} line ${x.line}] ${x.message}`)
+          .join('\n  ')}`,
+      );
+      e.code = 'TESTATLAS_MARKER_INVALID';
+      e.errors = errors;
+      throw e;
+    }
+
+    let bodyChanged = false;
+    if (sections.has('current-status')) {
+      const lastCommand = await tailLastCommandFromLog(path.join(wsDir, '10_command_log.md'));
+      const csBody = [
+        `- Status: ${manifest.status ?? 'active'}`,
+        `- Domains mapped: ${counts.domains}`,
+        `- Flows mapped: ${counts.flows}`,
+        `- Flows tested: ${counts.testRuns}`,
+        `- Issues filed: ${counts.issues}`,
+        `- Last command: ${lastCommand ?? '(none)'}`,
+      ];
+      const before = nextOverview;
+      nextOverview = renderSection(nextOverview, 'current-status', csBody);
+      if (nextOverview !== before) bodyChanged = true;
+    }
+    if (sections.has('latest-report-pointer')) {
+      const reportLatestPath = path.join(wsDir, 'reports', 'REPORT-latest.md');
+      const reportJsonPath = path.join(wsDir, 'reports', 'REPORT-latest.json');
+      const hasReport = await pathExists(reportLatestPath);
+      const reportJson = hasReport ? await readJsonSafe(reportJsonPath) : null;
+      const lrpBody = [
+        `- Latest report: ${hasReport ? 'reports/REPORT-latest.md' : '(none)'}`,
+        `- Generated at: ${reportJson?.generatedAt ?? '(none)'}`,
+      ];
+      const before = nextOverview;
+      nextOverview = renderSection(nextOverview, 'latest-report-pointer', lrpBody);
+      if (nextOverview !== before) bodyChanged = true;
+    }
+    // Only refresh last-updated when the body changed — otherwise repeated
+    // sync-status calls would churn the timestamp + manifest hash on every run
+    // (breaking the body-driven idempotency contract).
+    if (bodyChanged && sections.has('last-updated')) {
+      nextOverview = renderSection(nextOverview, 'last-updated', [manifest.lastUpdatedAt]);
+    }
+
+    overviewUpdated = nextOverview !== overviewText;
+
+    // Refresh manifest hashes for the 3 overview slugs.
+    if (overviewUpdated) {
+      const fresh = parseMarkers(nextOverview);
+      manifest.generatedSections ??= {};
+      if (!manifest.generatedSections[OVERVIEW_FILE]) {
+        manifest.generatedSections[OVERVIEW_FILE] = {};
+      }
+      const sectionMap = manifest.generatedSections[OVERVIEW_FILE];
+      for (const slug of OVERVIEW_SECTIONS) {
+        const sec = fresh.sections.get(slug);
+        if (!sec) continue;
+        sectionMap[slug] = hashContent(sec.contentLines);
+      }
+    }
+  }
+
+  // If overviewUpdated triggered manifest hash bumps, treat manifest as changed.
+  const manifestNeedsWrite = manifestChanged || overviewUpdated;
+
   if (!dryRun) {
-    if (manifestChanged) {
+    if (manifestNeedsWrite) {
       await _atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     }
     if (statusUpdated) {
       await _atomicWrite(statusPath, nextStatus);
     }
+    if (overviewUpdated) {
+      await _atomicWrite(overviewPath, nextOverview);
+    }
   }
 
-  return { counts, reports, manifestChanged, statusUpdated, dryRun };
+  return {
+    counts,
+    reports,
+    manifestChanged: manifestNeedsWrite,
+    statusUpdated,
+    overviewUpdated,
+    dryRun,
+  };
+}
+
+async function tailLastCommandFromLog(p) {
+  let text;
+  try {
+    text = await readFile(p, 'utf8');
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
+  const lines = text.split('\n');
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i].trim();
+    if (!line.startsWith('|')) continue;
+    // Skip header / separator rows
+    if (/^\|\s*-+\s*\|/.test(line)) continue;
+    if (/timestamp/i.test(line) && /command/i.test(line)) continue;
+    const cells = line.split('|').map((c) => c.trim());
+    // ['', ts, command, status, executionMode, evidenceRef, '']
+    if (cells.length >= 4 && cells[2]) return cells[2];
+  }
+  return null;
+}
+
+async function pathExists(p) {
+  try {
+    await stat(p);
+    return true;
+  } catch (err) {
+    if (err.code === 'ENOENT') return false;
+    throw err;
+  }
+}
+
+async function readJsonSafe(p) {
+  try {
+    return JSON.parse(await readFile(p, 'utf8'));
+  } catch (err) {
+    if (err.code === 'ENOENT') return null;
+    throw err;
+  }
 }
 
 const __thisFile = fileURLToPath(import.meta.url);
@@ -160,7 +293,7 @@ async function runCli(argv) {
   try {
     const r = await syncStatus(opts);
     console.log(
-      `sync-status: ${r.dryRun ? 'would update' : 'updated'} manifest=${r.manifestChanged} status-counts=${r.statusUpdated}`,
+      `sync-status: ${r.dryRun ? 'would update' : 'updated'} manifest=${r.manifestChanged} status-counts=${r.statusUpdated} overview=${r.overviewUpdated}`,
     );
   } catch (e) {
     console.error(`sync-status: ${e.code ?? 'ERROR'} — ${e.message}`);
