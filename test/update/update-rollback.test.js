@@ -16,6 +16,9 @@ import { runUpdate, _testHooks as updateHooks } from '../../scripts/lib/update-c
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const _FIXTURE_DIR = path.resolve(__dirname, '..', 'fixtures', 'migrations-fixture');
+const SUITE_VERSION = (
+  await readFile(path.join(REPO_ROOT, '.testatlas', 'VERSION'), 'utf8')
+).trim();
 const QUIET = () => {};
 
 async function exists(p) {
@@ -75,8 +78,8 @@ test('update-rollback: swap-rename failure reverses the backup-rename and rethro
     () =>
       runUpdate({
         target,
-        currentVersion: '0.1.0',
-        latestVersion: '0.2.0',
+        currentVersion: SUITE_VERSION,
+        latestVersion: '99.0.0',
         logger: QUIET,
       }),
     /EPERM|synthetic/,
@@ -90,7 +93,7 @@ test('update-rollback: swap-rename failure reverses the backup-rename and rethro
   assert.equal(backups.length, 0);
   // The original install's VERSION should still be present (not the staged one).
   const ver = (await readFile(path.join(target, '.testatlas', 'VERSION'), 'utf8')).trim();
-  assert.equal(ver, '0.1.0');
+  assert.equal(ver, SUITE_VERSION);
   // Lock released even on failure.
   const state = await isLocked(target);
   assert.equal(state.held, false);
@@ -125,16 +128,16 @@ test('update-rollback: migration failure leaves suite untouched (abort BEFORE sw
     () =>
       runUpdate({
         target,
-        currentVersion: '0.1.0',
-        latestVersion: '0.2.0',
+        currentVersion: SUITE_VERSION,
+        latestVersion: '99.0.0',
         logger: QUIET,
       }),
     /synthetic up failure/,
   );
 
-  // .testatlas/ untouched — original VERSION 0.1.0.
+  // .testatlas/ untouched — original VERSION.
   const ver = (await readFile(path.join(target, '.testatlas', 'VERSION'), 'utf8')).trim();
-  assert.equal(ver, '0.1.0');
+  assert.equal(ver, SUITE_VERSION);
   // No backup dir (swap never happened).
   const entries = await readdir(target, { withFileTypes: true });
   const backups = entries.filter((e) => e.isDirectory() && e.name.startsWith('.testatlas.backup-'));
@@ -163,8 +166,8 @@ test('update-rollback: download failure releases lock + leaves .testatlas/ intac
     () =>
       runUpdate({
         target,
-        currentVersion: '0.1.0',
-        latestVersion: '0.2.0',
+        currentVersion: SUITE_VERSION,
+        latestVersion: '99.0.0',
         logger: QUIET,
       }),
     /synthetic network failure/,

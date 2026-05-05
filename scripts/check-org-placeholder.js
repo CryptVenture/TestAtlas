@@ -27,6 +27,7 @@ const EXCLUDED_DIRS = new Set([
   'coverage',
   '.next',
   '.expo',
+  '_testatlas',
 ]);
 
 const EXCLUDED_DIR_PREFIXES = ['.testatlas.bak.'];
