@@ -12,7 +12,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
@@ -46,14 +46,51 @@ function cosignOnPath(pathStr) {
   return false;
 }
 
-async function makeCosignShim(dir, exitCode = 0) {
+/**
+ * Build a cosign shim that writes its argv (one invocation per line) to
+ * `recordPath` so tests can assert which subcommands were invoked.
+ *
+ * Plan 12-01: the shim now branches on the first positional arg:
+ *   - `version` → exit 0 with a "cosign version 2.x" stdout line. This is
+ *     what `probeCosignOrExit()` invokes from bin/testatlas.js.
+ *   - `verify-blob-attestation` → exit 0 (signature valid) by default. The
+ *     `failVerify` knob lets a test simulate cosign rejecting the signature
+ *     (exit 1, stderr "verify failed").
+ *   - anything else → exit 0 (forward-compatible).
+ *
+ * The shim records every invocation under `recordPath` (one line per call,
+ * with the full argv joined by spaces). Tests can read this file and assert
+ * cosign was invoked with `verify-blob-attestation` for the GREEN case OR
+ * NOT invoked for the default/no-flag case.
+ */
+async function makeCosignShim(dir, opts = {}) {
+  const failVerify = opts.failVerify ?? false;
+  const recordPath = opts.recordPath ?? path.join(dir, '.cosign-shim-invocations');
   const shim = path.join(dir, 'cosign');
+  const verifyExit = failVerify ? 1 : 0;
+  const verifyStderrTail = failVerify ? 'echo "verify failed" >&2' : '';
   await writeFile(
     shim,
-    `#!/bin/sh\n# Test shim for cosign\necho "cosign-shim invoked: $*" >&2\nexit ${exitCode}\n`,
+    `#!/bin/sh
+# Test shim for cosign — Plan 12-01 contract (handles version + verify-blob-attestation).
+echo "cosign-shim invoked: $*" >> "${recordPath}"
+case "$1" in
+  version)
+    echo "cosign version 2.0.0-shim"
+    exit 0
+    ;;
+  verify-blob-attestation)
+    ${verifyStderrTail}
+    exit ${verifyExit}
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+`,
   );
   await chmod(shim, 0o755);
-  return shim;
+  return { shim, recordPath };
 }
 
 describe('--verify-signature flag (bin/testatlas.js)', skipOnWindows, () => {
@@ -92,32 +129,54 @@ describe('--verify-signature flag (bin/testatlas.js)', skipOnWindows, () => {
     assert.match(result.stderr, /sigstore/i);
   });
 
-  it('accepts the flag when cosign IS on PATH (shim)', async () => {
+  it('Plan 12-01: invokes cosign verify-blob-attestation when cosign IS on PATH (shim)', async () => {
     const shimDir = path.join(tmp, 'bin');
     await mkdir(shimDir, { recursive: true });
-    await makeCosignShim(shimDir, 0);
+    const { recordPath } = await makeCosignShim(shimDir);
 
     const targetDir = path.join(tmp, 'target');
     await mkdir(targetDir, { recursive: true });
+
+    // Provide a fake cached-tarball + sigstore-bundle override so the kernel's
+    // verification chain finds something to run cosign against. The kernel
+    // honors `_TESTATLAS_VERIFY_TARBALL_OVERRIDE` (test-only escape hatch,
+    // mirrors install.sh's `_TESTATLAS_TARBALL_OVERRIDE`).
+    const fakeTarball = path.join(tmp, 'cached-testatlas-1.0.0.tgz');
+    const fakeBundle = path.join(tmp, 'cached-testatlas-1.0.0.tgz.sigstore.json');
+    await writeFile(fakeTarball, 'fake-tarball-bytes');
+    await writeFile(fakeBundle, '{}');
 
     const result = spawnSync(
       'node',
       [BIN, 'init', '--verify-signature', '--target', targetDir, '--dry-run'],
       {
-        env: { ...process.env, PATH: `${shimDir}:${pathWithoutCosign()}` },
+        env: {
+          ...process.env,
+          PATH: `${shimDir}:${pathWithoutCosign()}`,
+          _TESTATLAS_VERIFY_TARBALL_OVERRIDE: fakeTarball,
+          _TESTATLAS_VERIFY_BUNDLE_OVERRIDE: fakeBundle,
+        },
         encoding: 'utf8',
       },
     );
 
     // We expect dry-run to succeed (exit 0) — proving cosign probe accepted
-    // the shim and didn't bail.
+    // the shim AND verify-blob-attestation succeeded.
     assert.equal(
       result.status,
       0,
       `expected exit 0 with shim, got ${result.status}\nstdout: ${result.stdout}\nstderr: ${result.stderr}`,
     );
-    // Should not contain the "cosign not found" error.
     assert.doesNotMatch(result.stderr, /cosign not found/i);
+
+    // Plan 12-01 contract: cosign verify-blob-attestation MUST have been
+    // invoked (not just the version probe). Read the shim's invocation log.
+    const invocations = await readFile(recordPath, 'utf8');
+    assert.match(
+      invocations,
+      /verify-blob-attestation/,
+      `cosign shim was not invoked with verify-blob-attestation. Invocations:\n${invocations}`,
+    );
   });
 
   it('default flow (no --verify-signature) does not run cosign probe', async () => {
