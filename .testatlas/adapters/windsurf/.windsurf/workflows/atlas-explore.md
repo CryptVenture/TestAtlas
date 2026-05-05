@@ -3,7 +3,7 @@ description: Umbrella explorer orchestrator — classifies sub-explorers, spawns
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b1c48a21dd0cd354" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b3a9f9d5624aae1a" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -30,7 +30,8 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
    - `subagent-spawn` unavailable + no sequential mode → `classify-only` (degraded — record on the run, surface as a coverage-gap).
    - 0 non-cached recommended children (all cached or all skip) → `no-op`.
 6. **Spawn children** per the selected mode using the host's invocation pattern from `bootstrap.md` Capability Degradation. Pass each child the 6-slot brief defined in the Sub-Agent Orchestration section below.
-7. **Aggregate** child findings into `_testatlas/02_product_overview.md` with 5 generated sections, each wrapped in `<!-- TESTATLAS:GENERATED:START section="..." -->` / `<!-- TESTATLAS:GENERATED:END section="..." -->` markers per the `00_overview.md` / `01_system_map.md` convention: `executive-summary`, `surface-matrix`, `child-results-table`, `coverage-gaps`, `last-updated`.
+   - **Fallback (Option B):** empty child evidence dir → umbrella materializes inline text to `inline-findings.md` (bootstrap §8).
+7. **Aggregate** child findings into `_testatlas/02_product_overview.md` with 5 generated sections, each wrapped in `<!-- TESTATLAS:GENERATED:START section="..." -->` / `<!-- TESTATLAS:GENERATED:END section="..." -->` markers per the `00_overview.md` / `01_system_map.md` convention: `executive-summary`, `surface-matrix`, `child-results-table`, `coverage-gaps`, `last-updated`. If a child's evidence dir is empty, materialize inline text to `inline-findings.md` (bootstrap §8).
 8. Write the routing record `_testatlas/explore-plan.md` with the classification, recommended invocation order (suggested baseline: codebase → docs → runtime → data → api → ui → integrations → cli → accessibility → performance → security), per-skip rationale, and time-budget estimates (small / medium / large) per recommended sub-explorer.
 9. **Failure handling.** If a spawned child halts, record the halt in the child-results-table with `status:halted` plus the child's error code; surface the child's coverage as a gap under `coverage-gaps`. The umbrella halts ONLY if every spawned child halts. Run `status:ok` when ≥1 child completed; `status:partial` when ≥1 halt + ≥1 ok; `status:failed` only when every child halted.
 10. Close the lifecycle (next section).
