@@ -224,6 +224,15 @@ async function runCli(argv) {
       case '--evidence':
         opts.evidence.push(argv[++i]);
         break;
+      case '--repro-steps':
+        opts.reproductionSteps.push(argv[++i]);
+        break;
+      case '--frequency':
+        opts.frequency = argv[++i];
+        break;
+      case '--acceptance-criteria':
+        opts.acceptanceCriteria.push(argv[++i]);
+        break;
       case '--workspace':
         opts.workspaceDir = argv[++i];
         break;
@@ -239,8 +248,14 @@ async function runCli(argv) {
           'Usage: node scripts/create-issue.js --title <s> --domain <id> --evidence <id> [--evidence <id>...] ' +
             '[--severity <s>] [--confidence <s>] [--type <s>] [--flow <id>] [--summary <s>] ' +
             '[--expected-behavior <s>] [--actual-behavior <s>] [--user-impact <s>] ' +
+            '[--repro-steps <s>] [--frequency <always|intermittent|unknown>] ' +
+            '[--acceptance-criteria <s>] ' +
             '[--environment <s>] [--persona <s>] [--found-by <s>] ' +
-            '[--workspace <path>] [--cwd <path>] [--dry-run]',
+            '[--workspace <path>] [--cwd <path>] [--dry-run]\n\n' +
+            'Schema-field flags (issue.schema.json required fields):\n' +
+            '  --repro-steps <step>           Reproduction step (repeat for multiple). Schema: reproductionSteps[].\n' +
+            '  --frequency <enum>             Reproduction frequency (always|intermittent|unknown). Schema: frequency.\n' +
+            '  --acceptance-criteria <text>   Acceptance criterion (repeat for multiple). Schema: acceptanceCriteria[].',
         );
         process.exit(0);
         break;
