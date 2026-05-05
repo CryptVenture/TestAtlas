@@ -1,6 +1,33 @@
 // scripts/lib/lockfile.js
 //
 // Plan 07-03 Task 1 — workspace lockfile (UPDATE-06).
+// Plan 12-02 — explicit narrow exception to the two-tree invariant + mkdir-parent.
+//
+// =============================================================================
+//  TWO-TREE INVARIANT — EXPLICIT NARROW EXCEPTION
+// =============================================================================
+//
+//  TestAtlas's two-tree invariant (see workspace-guard.js) forbids the
+//  suite-update flow from mutating workspace state at `_testatlas/`. The
+//  workspace lockfile at `_testatlas/.lock` is the SINGLE, DOCUMENTED
+//  exception to that invariant: it is a per-process advisory file used to
+//  coordinate concurrent `runUpdate` invocations, NOT user/workspace data.
+//
+//  We deliberately do NOT call the workspace-guard's `assertNotUpdate` helper
+//  with the update-flow context here. The workspace-guard's existing contract
+//  treats the update-flow context string as the FORBIDDEN context (the helper
+//  is named `assertNotUpdate` precisely because it asserts the caller is NOT
+//  in update context); calling it here would throw
+//  `TESTATLAS_TWO_TREE_VIOLATION` on every legitimate update flow's lock
+//  acquisition. See RESEARCH.md Phase 12 Open Q §1 (Option B — document the
+//  exception, do not bypass the guard).
+//
+//  Mitigation against silent regression: a regression test at
+//  `test/update/lockfile-workspace-guard.test.js` greps `scripts/lib/**/*.js`
+//  for the literal forbidden-context callsite and fails the suite if any
+//  such callsite is added.
+//
+// =============================================================================
 //
 // `_testatlas/.lock` is a JSON file with `{pid, holdReason, acquiredAt}` where
 // `acquiredAt` is an ISO-8601 string. Long-running operations that mutate the
@@ -24,7 +51,7 @@
 // guarantee is needed in v2, switch to `open(file, 'wx')` to fail-fast on
 // EEXIST.
 
-import { readFile, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { WORKSPACE_LOCK_PATH } from './constants.js';
 
@@ -111,6 +138,19 @@ export async function isLocked(target) {
  * Acquire the workspace lock. Throws if a fresh (non-stale) lock is already
  * held; otherwise (re-)writes the lockfile with the supplied identity.
  *
+ * Two-tree invariant: writes to `<target>/_testatlas/.lock`, which is the
+ * single explicit narrow exception to the two-tree invariant (see top-of-file
+ * comment block + workspace-guard.js). DO NOT add the workspace-guard
+ * forbidden-context callsite here — it would throw on every legitimate
+ * update flow.
+ *
+ * Plan 12-02: `mkdir(parent, {recursive:true})` is called BEFORE the
+ * `writeFile` so global installs and fresh `.testatlas/`-only targets that do
+ * not pre-exist `_testatlas/` no longer ENOENT on the lock acquisition. This
+ * is defense-in-depth: even when the caller has resolved a global lock target
+ * via `update-core.js`'s `isGlobal` branch, mkdir-parent guarantees the parent
+ * directory exists at write time.
+ *
  * @param {string} target
  * @param {{ pid: number, holdReason: string }} owner
  * @returns {Promise<void>}
@@ -132,6 +172,9 @@ export async function acquireLock(target, { pid, holdReason }) {
     throw err;
   }
   const file = lockPath(target);
+  // Plan 12-02: mkdir-parent before write. Removes the ENOENT failure path
+  // for both project-local and global-install layouts (defense-in-depth).
+  await mkdir(path.dirname(file), { recursive: true });
   const payload = JSON.stringify({ pid, holdReason, acquiredAt: new Date().toISOString() });
   await writeFile(file, payload, 'utf8');
 }

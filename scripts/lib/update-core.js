@@ -29,7 +29,8 @@
 // Test seam: the module-level `_testHooks` object accepts overrides for ops
 // that are otherwise hard to mock cleanly. See test/update/update-rollback.test.js.
 
-import { rename as fsRename, mkdir, readdir, rm } from 'node:fs/promises';
+import { rename as fsRename, mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import semver from 'semver';
 import { info, success, warning } from './colors.js';
@@ -268,8 +269,28 @@ export async function runUpdate(opts) {
     return { status: 'dry-run', previousVersion: currentVersion, newVersion };
   }
 
+  // Plan 12-02: global-mode detection. Mirrors `install-core.js:786-791` —
+  // when the install manifest declares `mode: "global"` (or, as a fallback
+  // heuristic, `target` is the user's home directory), the lockfile must
+  // resolve to `~/.testatlas/.lock` instead of `<target>/_testatlas/.lock`.
+  // Global installs intentionally never seed `_testatlas/`, so writing the
+  // lock under `<target>` would ENOENT on every `runUpdate` invocation.
+  let isGlobal = false;
+  try {
+    const manifestPath = path.join(target, '.testatlas', '.install-manifest.json');
+    const manifestRaw = await readFile(manifestPath, 'utf8');
+    const manifest = JSON.parse(manifestRaw);
+    isGlobal = manifest.mode === 'global';
+  } catch {
+    // No manifest or unreadable JSON — fall back to homedir heuristic.
+    isGlobal = target === os.homedir();
+  }
+  const lockTarget = isGlobal ? os.homedir() : target;
+
   // Acquire lock BEFORE any disk mutation. Throws TESTATLAS_LOCK_HELD if held.
-  await acquireLock(target, { pid: process.pid, holdReason: 'update' });
+  // `lockTarget` is the resolved global-or-project root; `acquireLock`
+  // mkdirs the parent (`_testatlas/`) under it before writing.
+  await acquireLock(lockTarget, { pid: process.pid, holdReason: 'update' });
 
   // SIGINT handler — best-effort cleanup + lock release before exit(130).
   let sigintHandler = null;
@@ -280,11 +301,15 @@ export async function runUpdate(opts) {
       // Synchronous best-effort: rm staging, release lock, exit. We can't
       // await async work in a SIGINT handler reliably, so we kick off the
       // cleanup without waiting and then exit.
-      Promise.allSettled([rmSilent(stageDir), rmSilent(tmpTarball), releaseLock(target)]).then(
-        () => {
-          process.exit(130);
-        },
-      );
+      // Plan 12-02: release the lock at the SAME `lockTarget` it was
+      // acquired at (global → ~/.testatlas, otherwise <target>/_testatlas).
+      Promise.allSettled([
+        rmSilent(stageDir),
+        rmSilent(tmpTarball),
+        releaseLock(lockTarget),
+      ]).then(() => {
+        process.exit(130);
+      });
     };
     process.once('SIGINT', sigintHandler);
 
@@ -378,6 +403,7 @@ export async function runUpdate(opts) {
     throw err;
   } finally {
     if (sigintHandler) process.removeListener('SIGINT', sigintHandler);
-    await releaseLock(target);
+    // Plan 12-02: release at the SAME lockTarget the acquire used.
+    await releaseLock(lockTarget);
   }
 }
