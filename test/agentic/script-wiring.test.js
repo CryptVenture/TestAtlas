@@ -14,7 +14,8 @@ import { test } from 'node:test';
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const COMMANDS_DIR = path.join(REPO_ROOT, '.testatlas', 'commands');
 
-// 15 agent-facing accelerator scripts (the canonical wiring set).
+// 16 agent-facing accelerator scripts (the canonical wiring set).
+// Quick 260505-wjp added sync-scorecard.js (G1 wiring closure).
 const AGENT_FACING_SCRIPTS = [
   'init-workspace.js',
   'update.js',
@@ -29,6 +30,7 @@ const AGENT_FACING_SCRIPTS = [
   'update-indexes.js',
   'normalize-slugs.js',
   'sync-status.js',
+  'sync-scorecard.js',
   'check-org-placeholder.js',
   'check-stale-docs.js',
 ];
@@ -47,7 +49,7 @@ const WIRING_MAP = {
   'plan.md': ['create-flow.js'],
   'test-flow.md': ['create-evidence-record.js'],
   'map-domains.md': ['create-domain.js'],
-  'report.md': ['generate-report.js'],
+  'report.md': ['generate-report.js', 'sync-scorecard.js'],
   'consolidate.md': ['summarize-run.js', 'update-indexes.js'],
   'cleanup.md': ['update-indexes.js', 'normalize-slugs.js', 'check-stale-docs.js'],
   'handoff.md': ['summarize-run.js', 'normalize-slugs.js'],

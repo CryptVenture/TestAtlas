@@ -68,6 +68,7 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 12. Compute trend vs prior REPORT: issue-velocity (new / resolved / re-opened since prior), severity-shift (critical/high count delta), coverage delta (domains/flows/states/types delta). If no prior REPORT exists, mark this section "baseline".
 13. Write `_testatlas/reports/REPORT-latest.md` (overwrite) and a copy as `_testatlas/reports/REPORT-<timestamp>.md` (append-only history). The JSON sidecar at `_testatlas/reports/REPORT-latest.json` validates against `report.schema.json`.
 14. Refresh `_testatlas/reports/regressions.md`, `_testatlas/reports/readiness.md`, `_testatlas/reports/coverage.md`, `_testatlas/reports/quality_risks.md`, and `_testatlas/13_quality_scorecard.md` to match the new aggregation.
+    - **Preferred path for scorecard refresh (if `shell` is available):** run `node .testatlas/scripts/sync-scorecard.js [--workspace <p>] [--dry-run]` to regenerate the 5 generated sections of `13_quality_scorecard.md` (coverage, severity-weighted-issue-load, confidence-trend, blockers-trend, last-updated) from manifest counts + on-disk `to_fix/ISSUE-*.json` + `tests/runs/`; the script also refreshes `manifest.generatedSections['13_quality_scorecard.md']` hashes in lockstep.
 15. Validate the produced JSON against `report.schema.json` before closing. If validation fails, halt — do not commit a malformed report.
 16. Close the lifecycle (next section).
 
