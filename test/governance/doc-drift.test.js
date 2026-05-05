@@ -113,3 +113,52 @@ test('ADAPTER-OWNERS.md reflects 18 (not 7) adapter families', async () => {
     'ADAPTER-OWNERS.md should either explicitly mention `18 adapter` families or point at `.testatlas/adapters/` as the canonical roster. Today it lists only 7 rows; the true count is 18.',
   );
 });
+
+// Phase 12-03 (ISSUE-019 + ISSUE-020 + residual CONTRIBUTING.md drift)
+// -------------------------------------------------------------------
+// Three additional regressions guarding the post-Quick-260505-quk doc drift:
+//   - README.md must not enumerate the legacy 7-adapter list nor "All 7" tags.
+//   - docs/GETTING_STARTED.md must say "31 /atlas:*" (not "30").
+//   - CONTRIBUTING.md must not claim "≥1 owner" nor enumerate the legacy 7.
+
+const GETTING_STARTED_PATH = path.join(REPO_ROOT, 'docs', 'GETTING_STARTED.md');
+const CONTRIBUTING_PATH = path.join(REPO_ROOT, 'CONTRIBUTING.md');
+
+test('README.md does not name the legacy 7-adapter list', async () => {
+  const src = await readFile(README_PATH, 'utf8');
+  assert.ok(
+    !src.includes('Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP, or Generic'),
+    'README.md must not enumerate the legacy 7-adapter list (post-Phase-6 the canonical roster is 18 — see ADAPTER-OWNERS.md and .testatlas/adapters/).',
+  );
+  assert.ok(
+    !/(\s|\()All 7(\s|\)|\.|,|$)/.test(src),
+    'README.md must not say "All 7" — adapter set is 18 families.',
+  );
+  assert.ok(
+    src.includes('18 adapter'),
+    'README.md must reference 18 adapter families to anchor the canonical count.',
+  );
+});
+
+test('docs/GETTING_STARTED.md command count says 31, not 30', async () => {
+  const src = await readFile(GETTING_STARTED_PATH, 'utf8');
+  assert.ok(!src.includes('30 /atlas:'), 'docs/GETTING_STARTED.md must not say "30 /atlas:"');
+  assert.ok(!src.includes('30 `/atlas'), 'docs/GETTING_STARTED.md must not say "30 `/atlas"');
+  const has31 = src.includes('31 /atlas:') || src.includes('31 `/atlas');
+  assert.ok(
+    has31,
+    'docs/GETTING_STARTED.md must say "31 /atlas:" or "31 `/atlas" (post-Quick-260505-2zr command count).',
+  );
+});
+
+test('CONTRIBUTING.md adapter-ownership statement matches ADAPTER-OWNERS.md reality', async () => {
+  const src = await readFile(CONTRIBUTING_PATH, 'utf8');
+  assert.ok(
+    !src.includes('≥1 owner'),
+    'CONTRIBUTING.md must not claim "≥1 owner" — every row in ADAPTER-OWNERS.md v1 is `_unassigned_`.',
+  );
+  assert.ok(
+    !src.includes('Claude Code, OpenCode, KiloCode, Cursor, Aider, MCP'),
+    'CONTRIBUTING.md must not enumerate the legacy 7-adapter list — point at ADAPTER-OWNERS.md instead.',
+  );
+});
