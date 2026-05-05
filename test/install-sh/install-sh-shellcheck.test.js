@@ -4,7 +4,9 @@
 //   - shellcheck-clean (when shellcheck on PATH; skipped otherwise)
 //   - sentinel last line `_main "$@"` (partial-pipe protection)
 //   - no bashisms (`[[`, `function `, `${...[@]}`, `pipefail`)
-//   - <= 200 line count budget
+//   - <= 250 line count budget (raised from 200 in Plan 12-04 to accommodate
+//     the _print_usage helper + --help/--dry-run short-circuit blocks for
+//     ISSUE-021 — keeps install.sh comfortably under the still-generous budget)
 //   - explicit `set -eu` and `# shellcheck shell=sh` directive
 //   - shebang is /bin/sh (NOT /bin/bash)
 //
@@ -71,10 +73,10 @@ test('install.sh: contains no bashisms', async () => {
   assert.ok(!/pipefail/.test(code), 'must not use pipefail (bash-only)');
 });
 
-test('install.sh: line count <= 200', async () => {
+test('install.sh: line count <= 250', async () => {
   const buf = await readFile(INSTALL_SH, 'utf8');
   const lineCount = buf.split('\n').length;
-  assert.ok(lineCount <= 200, `install.sh has ${lineCount} lines, budget is 200`);
+  assert.ok(lineCount <= 250, `install.sh has ${lineCount} lines, budget is 250`);
 });
 
 test('install.sh: uses set -eu (NOT set -euo pipefail)', async () => {
