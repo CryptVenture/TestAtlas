@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-bootstrap. Paste .testatlas/bootstrap.md first; description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="3e9f59cc349923c0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="7c490fdfe43542d2" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -65,6 +65,27 @@ the single source of truth consumed by umbrella-orchestration commands. Hosts
 marked `sequential` or `no` always take the sequential-fallback path; hosts
 marked `runtime-probe` default to false until the host's runtime confirms
 subagent capability is present.
+
+## Acceleration Scripts
+
+When `shell` is available, the suite ships idempotent, schema-validating accelerators under `.testatlas/scripts/`. Each named command below MAY invoke its accelerator instead of hand-rolling the artifact emission; manual fallback steps in every command remain intact for shell-less hosts (PRD §22).
+
+| Command | Accelerator | Effect |
+|---------|-------------|--------|
+| `/atlas:init` | `init-workspace.js` | Bootstrap `_testatlas/` tree + manifest |
+| `/atlas:log-issue` | `create-issue.js` | Emit `to_fix/ISSUE-*.{md,json}` (refuses empty evidence) |
+| `/atlas:plan` | `create-flow.js` | Emit `flows/FLOW-*.{md,json}` |
+| `/atlas:test-flow` | `create-evidence-record.js` | Emit `evidence/EVIDENCE-*/evidence.{md,json}` |
+| `/atlas:map-domains` | `create-domain.js` | Emit `domains/<slug>/{domain.json,index.md,issues/index.md}` |
+| `/atlas:report` | `generate-report.js` | Emit `reports/REPORT-latest.{md,json}` (17 PRD §20 sections) |
+| `/atlas:consolidate` | `summarize-run.js` + `update-indexes.js` | Distill RUN-*.md; regenerate 09_artifact_index sections |
+| `/atlas:cleanup` | `update-indexes.js` + `normalize-slugs.js` + `check-stale-docs.js` | Reconcile indexes; rename mis-slugged files; flag stale docs |
+| `/atlas:handoff` | `summarize-run.js` + `normalize-slugs.js` | Session summary + slug hygiene before package-up |
+| `/atlas:validate-workspace` | `validate-workspace.js` (+ `check-org-placeholder.js`, `check-stale-docs.js` aux) | Schema validation + auxiliary drift checks |
+| `/atlas:update` | `update.js` | Atomic suite update with backup |
+| `/atlas:uninstall` | `uninstall.js` | Manifest-driven removal (`--purge` for workspace too) |
+
+**Canonical reconciler (cross-cutting):** after any command emits or mutates workspace artifacts, the canonical lifecycle reconciler is `node .testatlas/scripts/sync-status.js` (idempotent; reconciles `11_workspace_manifest.json` counts and the `03_execution_status.md` "## Counts" generated section against on-disk reality). Commands MUST invoke it as the final lifecycle step when `shell` is available; commands MAY skip it when `shell` is unavailable and instead hand-edit the manifest per the per-command Lifecycle section.
 
 ## Outputs
 

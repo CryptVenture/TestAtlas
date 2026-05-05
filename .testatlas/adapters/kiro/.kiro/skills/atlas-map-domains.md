@@ -4,7 +4,7 @@ description: Distill the app-map into per-domain functional models under _testat
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="a6aadab3998e61e8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="e4a284a82ded8392" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -25,6 +25,7 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
 2. Read `_testatlas/12_app_map.json`. Cluster entries (routes, APIs, components, jobs, integrations) into coherent domains based on URL path prefixes, file-system locality, naming conventions, and observed cross-references between handlers and modules. Prefer over-clustering (more, smaller domains) to under-clustering (one mega-domain) — fragmenting later is cheaper than splitting.
 3. For each cluster, propose a kebab-case `domainId` per PRD §32 and the `domainId` pattern in `vocabulary.json`. Names should describe a user-visible capability (`billing`, `account-settings`, `search`) rather than an internal module (`util-helpers`).
 4. For each domain, write the pair `_testatlas/domains/<slug>/domain.md` (markdown narrative) and `_testatlas/domains/<slug>/domain.json` (validates against `domain.schema.json`) per PRD §15. Required content: name, description, owned routes, owned APIs, owned components, owned jobs, owned integrations, related flows (initially empty — populated later by `map-flows`), and per-claim evidence references.
+   - **Preferred path (if `shell` is available):** for each clustered domain, run `node .testatlas/scripts/create-domain.js --name "<human-readable name>" --purpose "<one-line purpose>" [--workspace <p>]`. The script slugifies the name per PRD §32, AJV-validates against `domain.schema.json`, emits the three required files (`domain.json`, `index.md`, `issues/index.md`), and increments `counts.domains` in the manifest. Skip the manual file-pair authorship in this step; populate ownership claims (routes/APIs/components/jobs/integrations) into the emitted `domain.json` by appending to its arrays. Manual path: hand-author the file pair following `domain.schema.json`.
 5. For every ownership claim (this domain owns this route / API / component / job / integration), cite the originating `12_app_map.json` entry by stable identifier. The app-map entry itself already references an evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`; preserve that chain so `validate-workspace` can verify it.
 6. Update `_testatlas/01_system_map.md` per-domain index: list each domain with its slug, one-line description, and counts (routes / APIs / components / jobs / integrations).
 7. If `12_app_map.json` is sparse — fewer than ~10 entries total, or if `explore-codebase` ran with `confidence: needs-validation` — MUST mark every produced domain `confidence: needs-validation` and surface the gap in `_testatlas/12_gaps.md` so the operator knows to re-run `explore-codebase` with shell available.

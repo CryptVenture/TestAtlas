@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report. Invoke as /atlas-report. Description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="ca7612288c6e8b78" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="9835ea978c5956ef" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -18,21 +18,22 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 
 ## Required Actions
 
-1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
-2. Aggregate runs: counts by type (smoke / user-flow / exploratory / regression / negative / state / accessibility / performance / security / data-integrity per PRD §26), pass/fail/skipped/blocked tallies, capabilities used, capabilities unavailable, environment fingerprints. Cite each contributing `RUN-<timestamp>.json` by path.
-3. Aggregate issues: by severity (critical / high / medium / low / enhancement) and by confidence (confirmed / strong-suspect / needs-validation) per PRD §28. Cite each contributing issue id and its evidence chain.
-4. Compute coverage: domains explored (denominator: total domains in `12_app_map.json`); flows tested (denominator: total flows in `_testatlas/flows/`); state coverage (empty / loading / error / success / permission per PRD §13) as exercised by runs; test types run (denominator: PRD §26 ten types). Express each as `<exercised>/<total>` plus a percentage.
-5. Identify blockers: issues whose severity is `critical` AND confidence is in {`confirmed`, `strong-suspect`}. Identify regressions: issues whose `type=regression`. List both with evidence paths.
-6. Produce gaps (untested high-risk areas — domains/flows with zero runs but high route counts or sandbox-vs-production integrations) and assumptions (claims marked `confidence: needs-validation` per `bootstrap.md` §11).
-7. Produce risks: performance regressions (PRD §13.10), security risks (§13.11), state-coverage holes, integration-environment ambiguities, capability-degradation residue.
-8. Capabilities used / unavailable: aggregate from each run's frontmatter and from any `confidence: needs-validation` markers across the workspace.
-9. Generate next actions: for each gap and blocker, propose the next command (`/atlas:retest issue=ISSUE-<id>`, `/atlas:explore-ui domain=<slug>`, `/atlas:test-flow scenario=<id>`). Each next action must cite the gap or blocker it addresses.
-10. Generate readiness assessment: a single-line judgement — `ship-ready`, `needs-work`, or `blocked` — backed by the severity and coverage tallies above. Do not soften the call; cite the specific tallies that drove it.
-11. Compute trend vs prior REPORT: issue-velocity (new / resolved / re-opened since prior), severity-shift (critical/high count delta), coverage delta (domains/flows/states/types delta). If no prior REPORT exists, mark this section "baseline".
-12. Write `_testatlas/reports/REPORT-latest.md` (overwrite) and a copy as `_testatlas/reports/REPORT-<timestamp>.md` (append-only history). The JSON sidecar at `_testatlas/reports/REPORT-latest.json` validates against `report.schema.json`.
-13. Refresh `_testatlas/reports/regressions.md`, `_testatlas/reports/readiness.md`, `_testatlas/reports/coverage.md`, `_testatlas/reports/quality_risks.md`, and `_testatlas/13_quality_scorecard.md` to match the new aggregation.
-14. Validate the produced JSON against `report.schema.json` before closing. If validation fails, halt — do not commit a malformed report.
-15. Close the lifecycle (next section).
+1. **Preferred path (if `shell` is available):** run `node .testatlas/scripts/generate-report.js [--report-path=<custom>] [--workspace <p>] [--dry-run]`. The script aggregates every `tests/runs/RUN-*.json` and `to_fix/ISSUE-*.json` on disk, computes coverage denominators from `12_app_map.json` and `domains/*/domain.json`, AJV-validates the produced JSON against `report.schema.json` BEFORE write, and halts with `TESTATLAS_MISSING_EVIDENCE_REF` if any cited evidence path does not resolve on disk (no-evidence-no-finding enforced at report-generation time). On success, the script writes both `REPORT-latest.{md,json}` and a timestamped historical copy. The four per-area views (`regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md`) and `13_quality_scorecard.md` are still refreshed by the manual steps below — skip step 13 only. **Manual path (no `shell`):** items 2–16 below describe each step the runtime performs.
+2. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
+3. Aggregate runs: counts by type (smoke / user-flow / exploratory / regression / negative / state / accessibility / performance / security / data-integrity per PRD §26), pass/fail/skipped/blocked tallies, capabilities used, capabilities unavailable, environment fingerprints. Cite each contributing `RUN-<timestamp>.json` by path.
+4. Aggregate issues: by severity (critical / high / medium / low / enhancement) and by confidence (confirmed / strong-suspect / needs-validation) per PRD §28. Cite each contributing issue id and its evidence chain.
+5. Compute coverage: domains explored (denominator: total domains in `12_app_map.json`); flows tested (denominator: total flows in `_testatlas/flows/`); state coverage (empty / loading / error / success / permission per PRD §13) as exercised by runs; test types run (denominator: PRD §26 ten types). Express each as `<exercised>/<total>` plus a percentage.
+6. Identify blockers: issues whose severity is `critical` AND confidence is in {`confirmed`, `strong-suspect`}. Identify regressions: issues whose `type=regression`. List both with evidence paths.
+7. Produce gaps (untested high-risk areas — domains/flows with zero runs but high route counts or sandbox-vs-production integrations) and assumptions (claims marked `confidence: needs-validation` per `bootstrap.md` §11).
+8. Produce risks: performance regressions (PRD §13.10), security risks (§13.11), state-coverage holes, integration-environment ambiguities, capability-degradation residue.
+9. Capabilities used / unavailable: aggregate from each run's frontmatter and from any `confidence: needs-validation` markers across the workspace.
+10. Generate next actions: for each gap and blocker, propose the next command (`/atlas:retest issue=ISSUE-<id>`, `/atlas:explore-ui domain=<slug>`, `/atlas:test-flow scenario=<id>`). Each next action must cite the gap or blocker it addresses.
+11. Generate readiness assessment: a single-line judgement — `ship-ready`, `needs-work`, or `blocked` — backed by the severity and coverage tallies above. Do not soften the call; cite the specific tallies that drove it.
+12. Compute trend vs prior REPORT: issue-velocity (new / resolved / re-opened since prior), severity-shift (critical/high count delta), coverage delta (domains/flows/states/types delta). If no prior REPORT exists, mark this section "baseline".
+13. Write `_testatlas/reports/REPORT-latest.md` (overwrite) and a copy as `_testatlas/reports/REPORT-<timestamp>.md` (append-only history). The JSON sidecar at `_testatlas/reports/REPORT-latest.json` validates against `report.schema.json`.
+14. Refresh `_testatlas/reports/regressions.md`, `_testatlas/reports/readiness.md`, `_testatlas/reports/coverage.md`, `_testatlas/reports/quality_risks.md`, and `_testatlas/13_quality_scorecard.md` to match the new aggregation.
+15. Validate the produced JSON against `report.schema.json` before closing. If validation fails, halt — do not commit a malformed report.
+16. Close the lifecycle (next section).
 
 ## Outputs
 

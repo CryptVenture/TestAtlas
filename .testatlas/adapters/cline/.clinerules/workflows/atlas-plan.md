@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-plan. Invoke as /atlas-plan.md. Description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="57a39781223f8b12" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b7e7339f6dc15a16" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -24,6 +24,7 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 3. Each scenario MUST include: a stable scenario id, name, type, target flow and/or domain, preconditions (workspace + product state), steps (numbered, evidence-attaching), expected behaviour, evidence-to-capture (which states, what artifacts), capability requirements (`shell`, `browser`, `web-fetch`, `MCP`), priority (P0/P1/P2), and a per-scenario `confidence` per `bootstrap.md` §11 reflecting how well the underlying domain evidence supports the scenario's premise.
 4. Write `_testatlas/02_test_strategy.md` — a one-page strategy framing: scope, risk model, test-type mix, capability-availability assumptions, success thresholds, and explicit out-of-scope items.
 5. Write `_testatlas/plans/PLAN-master.md` — the prioritized master scenario list (P0 → P1 → P2). Each row links to its `matrix.json` entry by id and notes the next command (`/atlas:test-flow`, etc.) that will execute it.
+   - **Preferred path for flow emission (if `shell` is available):** for each net-new flow surfaced by the strategy, run `node .testatlas/scripts/create-flow.js --name "<name>" --domain domain-<slug> --persona "<persona>" --goal "<goal>" [--priority <priority>] [--status draft] [--confidence <c>] [--workspace <p>]`. The script AJV-validates against `flow.schema.json` and increments `counts.flows` in the manifest. Scenarios in `matrix.{md,json}` are still authored by this command; the script only handles flow record emission.
 6. Write `_testatlas/tests/matrix.md` (human-readable scenario table grouped by domain and type) and `_testatlas/tests/matrix.json` (one entry per scenario, each validating against `test-scenario.schema.json`).
 7. Write `_testatlas/tests/exploratory_charters.md` — time-boxed exploratory testing missions per PRD §26. Each charter names a domain, a duration, a focus area, and an oracle.
 8. For scenarios that target capabilities not declared by the current adapter (e.g. `browser` not declared but the scenario needs it), mark `pending: capability-required` and exclude them from the dogfood-loop run rather than dropping them. Record the unmet capability so the operator can swap adapters.
