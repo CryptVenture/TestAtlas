@@ -31,6 +31,11 @@
 //      paths so callers can log them.
 //
 // Ownership: Plan 05-01 owns this file. Plans 05-02..05-05 do NOT modify it.
+//
+// Phase 10 Plan 01: `applyTemplate` and `flattenSubstitutions` are additionally
+// exposed as named exports so the regression suite can pin the
+// drop-line-on-missing rendering contract introduced in Plan 10-01 directly.
+// The public `emit()` contract is unchanged.
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -43,7 +48,7 @@ import { assertNotUpdate } from './workspace-guard.js';
  * number, boolean) fields are taken — arrays and objects are skipped (callers
  * who want array rendering pass an explicit `substitutions` arg).
  */
-function flattenSubstitutions(record) {
+export function flattenSubstitutions(record) {
   const out = {};
   for (const [k, v] of Object.entries(record)) {
     if (v === null || v === undefined) continue;
@@ -60,7 +65,7 @@ function flattenSubstitutions(record) {
  * left in place (so emitters can leave optional placeholders unbound without
  * the template becoming visibly broken).
  */
-function applyTemplate(template, subs) {
+export function applyTemplate(template, subs) {
   return template.replace(/\{\{\s*([a-zA-Z_$][\w-]*)\s*\}\}/g, (_, key) =>
     Object.hasOwn(subs, key) ? subs[key] : `{{${key}}}`,
   );

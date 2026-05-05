@@ -115,3 +115,21 @@ test(`explore.md orchestration block is spawn-and-aggregate (Quick 260505-hld / 
     );
   }
 });
+
+// Phase 10 Plan 04 / ISSUE-006: Option B sub-agent harness write-block mitigation.
+// When child evidence dirs are empty post-spawn, the umbrella materializes the
+// child's inline-returned text into _testatlas/evidence/<child>/<timestamp>/inline-findings.md
+// so bootstrap §8 (no-evidence-no-finding) holds across diverse host harnesses.
+// Asserts literal-string presence of `inline-findings.md`, `materialize`, and
+// `empty` in explore.md (case-sensitive) — the contract is declared in
+// Required Action 7 (Aggregate) AND in the Sub-Agent Orchestration block.
+test('explore.md declares Option B fallback materialization for empty child evidence dirs (Phase 10 / ISSUE-006)', async () => {
+  const text = await readFile(path.join(COMMANDS, 'explore.md'), 'utf8');
+  const literals = ['inline-findings.md', 'materialize', 'empty'];
+  for (const literal of literals) {
+    assert.ok(
+      text.includes(literal),
+      `explore.md must reference "${literal}" to declare the Option B fallback contract`,
+    );
+  }
+});
