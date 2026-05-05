@@ -101,11 +101,12 @@ jobs:
           shellcheck --version | head -n 3
 
       - name: Install cosign
-        # Quick 260506-07b. Pinned to sigstore/cosign-installer@v3.x; this
-        # action is GitHub-published, signed-tag-managed, and the canonical
-        # path for cosign in CI per sigstore docs.
+        # Quick 260506-07b. SHA-pinned per ISSUE-010 G-09 (tag mutability
+        # mitigation); the trailing `# v3.7.0` comment lets Dependabot's
+        # actions ecosystem bump the tag and lets reviewers eyeball the
+        # human-readable version at a glance.
         if: runner.os != 'Windows'
-        uses: sigstore/cosign-installer@v3.7.0
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da  # v3.7.0
 
       - name: Echo cosign version
         if: runner.os != 'Windows'
