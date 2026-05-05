@@ -68,7 +68,11 @@
       "flow-docs": "9f39251a5380c44a",
       "issue-docs": "cc7afac6054cb123",
       "evidence": "c3269b74cc3f5082",
-      "reports": "7df62e93006bdb54"
+      "reports": "7df62e93006bdb54",
+      "canonical-docs": "c4720f34c70e453a",
+      "json-maps": "15b685212a857a79",
+      "command-outputs": "faae5d1bc4a946c2",
+      "sub-agent-outputs": "7293b483d652313b"
     }
   }
 }

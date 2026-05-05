@@ -7,20 +7,20 @@ This document is the index of every artifact in the workspace. Generated section
 ## Canonical Documents
 
 <!-- TESTATLAS:GENERATED:START section="canonical-docs" -->
-- `00_overview.md`
-- `01_system_map.md`
-- `02_test_strategy.md`
-- `03_execution_status.md`
-- `04_open_questions.md`
-- `05_assumptions.md`
-- `06_risks_and_gaps.md`
-- `07_environment_and_access.md`
-- `08_glossary.md`
-- `09_artifact_index.md`
-- `10_command_log.md`
-- `11_workspace_manifest.json`
-- `12_app_map.json`
-- `13_quality_scorecard.md`
+- 00_overview.md
+- 01_system_map.md
+- 02_test_strategy.md
+- 03_execution_status.md
+- 04_open_questions.md
+- 05_assumptions.md
+- 06_risks_and_gaps.md
+- 07_environment_and_access.md
+- 08_glossary.md
+- 09_artifact_index.md
+- 10_command_log.md
+- 11_workspace_manifest.json
+- 12_app_map.json
+- 13_quality_scorecard.md
 <!-- TESTATLAS:GENERATED:END section="canonical-docs" -->
 
 ## Domain Documents
@@ -66,18 +66,27 @@ This document is the index of every artifact in the workspace. Generated section
 ## JSON Maps
 
 <!-- TESTATLAS:GENERATED:START section="json-maps" -->
-- `11_workspace_manifest.json`
-- `12_app_map.json`
+(no json-maps yet)
 <!-- TESTATLAS:GENERATED:END section="json-maps" -->
 
 ## Command Outputs
 
 <!-- TESTATLAS:GENERATED:START section="command-outputs" -->
-(no commands invoked yet)
+- evidence/accessibility/
+- evidence/api/
+- evidence/console/
+- evidence/db/
+- evidence/files/
+- evidence/logs/
+- evidence/network/
+- evidence/performance/
+- evidence/screenshots/
+- evidence/traces/
+- evidence/videos/
 <!-- TESTATLAS:GENERATED:END section="command-outputs" -->
 
 ## Sub-Agent Outputs
 
 <!-- TESTATLAS:GENERATED:START section="sub-agent-outputs" -->
-(no sub-agent handoffs yet)
+(no sub-agent-outputs yet)
 <!-- TESTATLAS:GENERATED:END section="sub-agent-outputs" -->

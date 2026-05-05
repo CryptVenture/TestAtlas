@@ -3,7 +3,7 @@ mode: agent
 description: Umbrella explorer router — classify which sub-explorers (ui/cli/api/docs/runtime/data/integrations/accessibility/performance/security) apply to the target product and emit a recommendation document.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9aeed0da3834cf67" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="e6d5106ae5f8acbc" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,16 +28,16 @@ Route the agent to the right subset of sub-explorers for the target product. Thi
 
 ## Sub-Agent Orchestration (advisory, classification-only)
 
-This command's contract is to classify and write `_testatlas/explore-plan.md` only. It does NOT spawn or merge sub-explorer results — that's the responsibility of a follow-up `/atlas:explore-<child>` invocation (or a future orchestrator command that explicitly produces a product overview). When the operator chains the recommended explorers, the host's `subagent-spawn` capability (per `bootstrap.md` Capability Degradation) lets them run in parallel; but spawning is not this command's job.
+This command's contract is to classify and write `_testatlas/explore-plan.md` only. It does NOT spawn or merge sub-explorer results — that's the responsibility of a follow-up sub-explorer invocation (e.g. `/atlas:explore-codebase`, `/atlas:explore-ui`, `/atlas:explore-api`) or a future orchestrator command that explicitly produces a product overview. When the operator chains the recommended explorers, the host's `subagent-spawn` capability (per `bootstrap.md` Capability Degradation) lets them run in parallel; but spawning is not this command's job.
 
 Recording for completeness: applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}`, filtered by the classification produced in step 3.
 
-When the operator (or a downstream orchestrator) invokes a recommended sub-explorer, the brief contract that explorer expects is — for reference only:
+When the operator (or a downstream orchestrator) invokes a recommended sub-explorer, the brief contract that explorer expects is — for reference only (the placeholder `[child]` below stands for the chosen sub-explorer name like `codebase`, `ui`, `api`, etc.):
 
-- **objective:** "Map the `<domain>` surface area of the target product."
-- **scope:** "Files and runtime artifacts in scope of the `<child-name>` command."
-- **files-to-read:** ".testatlas/commands/`<child-name>`.md plus the product files relevant to `<domain>` (routes, handlers, manifests, config)."
-- **output-format:** "Structured markdown matching the `explore-<domain>` finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
+- **objective:** "Map the [domain] surface area of the target product."
+- **scope:** "Files and runtime artifacts in scope of the [child] command."
+- **files-to-read:** ".testatlas/commands/explore-[child].md plus the product files relevant to [domain] (routes, handlers, manifests, config)."
+- **output-format:** "Structured markdown matching the explore-[domain] finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
 - **may-write:** the child writes only to the paths its own command file authorizes; this umbrella never grants additional write paths.
 - **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
 

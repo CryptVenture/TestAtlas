@@ -25,16 +25,30 @@ const ARTIFACT_INDEX = '09_artifact_index.md';
 const MANIFEST = '11_workspace_manifest.json';
 
 /**
- * The five sections this script regenerates. Ordered as in the canonical
+ * The nine sections this script regenerates. Ordered as in the canonical
  * template's TOC.
  *
- *   - domain-docs:   list of `<wsDir>/domains/<slug>/index.md`
- *   - flow-docs:     list of `<wsDir>/flows/FLOW-*.md`
- *   - issue-docs:    list of `<wsDir>/to_fix/ISSUE-*.md`
- *   - evidence:      list of `EVIDENCE-<id>` directory names under evidence/
- *   - reports:       list of `<wsDir>/reports/*.md`
+ *   - domain-docs:        list of `<wsDir>/domains/<slug>/index.md`
+ *   - flow-docs:          list of `<wsDir>/flows/FLOW-*.md`
+ *   - issue-docs:         list of `<wsDir>/to_fix/ISSUE-*.md`
+ *   - evidence:           list of `EVIDENCE-<id>` directory names under evidence/
+ *   - reports:            list of `<wsDir>/reports/*.md`
+ *   - canonical-docs:     14 canonical files (00_*.md..13_*.md + 11_*.json + 12_*.json)
+ *   - json-maps:          *.json at root that are NOT canonical (11_/12_ excluded)
+ *   - command-outputs:    directories under evidence/ that are NOT EVIDENCE-<id>
+ *   - sub-agent-outputs:  handoffs/HANDOFF-*.md
  */
-const SECTIONS = ['domain-docs', 'flow-docs', 'issue-docs', 'evidence', 'reports'];
+const SECTIONS = [
+  'domain-docs',
+  'flow-docs',
+  'issue-docs',
+  'evidence',
+  'reports',
+  'canonical-docs',
+  'json-maps',
+  'command-outputs',
+  'sub-agent-outputs',
+];
 
 async function listDomains(wsDir) {
   const out = [];
@@ -108,6 +122,74 @@ async function listReports(wsDir) {
   return out.sort();
 }
 
+// canonical-docs: 00_*.md..13_*.md + 11_workspace_manifest.json + 12_app_map.json.
+async function listCanonicalDocs(wsDir) {
+  const out = [];
+  try {
+    const entries = await sortedReaddir(wsDir, { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isFile()) continue;
+      if (/^\d{2}_.*\.md$/.test(e.name)) out.push(e.name);
+      else if (e.name === '11_workspace_manifest.json') out.push(e.name);
+      else if (e.name === '12_app_map.json') out.push(e.name);
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  return out.sort();
+}
+
+// json-maps: *.json files at workspace root that are NOT the canonical 11_/12_ JSON.
+async function listJsonMaps(wsDir) {
+  const out = [];
+  try {
+    const entries = await sortedReaddir(wsDir, { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isFile() || !e.name.endsWith('.json')) continue;
+      if (e.name === '11_workspace_manifest.json') continue;
+      if (e.name === '12_app_map.json') continue;
+      out.push(e.name);
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  return out.sort();
+}
+
+// command-outputs: directories under evidence/<command>/ — NOT EVIDENCE-<id> records.
+// Distinguishing rule mirrors check-schemas.js isRawEvidenceDump():
+// `^EVIDENCE-\d{3,}` parents are schema-bound sidecar dirs, not command outputs.
+async function listCommandOutputs(wsDir) {
+  const out = [];
+  try {
+    const entries = await sortedReaddir(path.join(wsDir, 'evidence'), { withFileTypes: true });
+    for (const e of entries) {
+      if (!e.isDirectory()) continue;
+      if (/^EVIDENCE-\d{3,}/.test(e.name)) continue; // schema-bound sidecar dir
+      out.push(`evidence/${e.name}/`);
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  return out.sort();
+}
+
+// sub-agent-outputs: handoffs/HANDOFF-*.md
+async function listSubAgentOutputs(wsDir) {
+  const out = [];
+  try {
+    const entries = await sortedReaddir(path.join(wsDir, 'handoffs'), { withFileTypes: true });
+    for (const e of entries) {
+      if (e.isFile() && e.name.endsWith('.md') && e.name.startsWith('HANDOFF-')) {
+        out.push(`handoffs/${e.name}`);
+      }
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  return out.sort();
+}
+
 async function buildSectionBody(section, wsDir) {
   let items;
   switch (section) {
@@ -125,6 +207,18 @@ async function buildSectionBody(section, wsDir) {
       break;
     case 'reports':
       items = await listReports(wsDir);
+      break;
+    case 'canonical-docs':
+      items = await listCanonicalDocs(wsDir);
+      break;
+    case 'json-maps':
+      items = await listJsonMaps(wsDir);
+      break;
+    case 'command-outputs':
+      items = await listCommandOutputs(wsDir);
+      break;
+    case 'sub-agent-outputs':
+      items = await listSubAgentOutputs(wsDir);
       break;
     default:
       throw new Error(`update-indexes: unknown section "${section}"`);
