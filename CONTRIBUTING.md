@@ -29,6 +29,34 @@ pnpm test
 - `pnpm test` — runs `node --test`
 - `pnpm prepare` — sets up `simple-git-hooks` (pre-commit hook runs Biome check)
 
+## Dogfood Test Prerequisites
+
+TestAtlas dogfoods itself: maintainers run `/atlas:test-flow --all` against the suite repo to validate the install / update / uninstall / cosign / sha-sidecar surfaces end-to-end. Before invoking `/atlas:test-flow --all` (or any `_testatlas/` scenario individually), confirm that the dogfood-test environment is provisioned:
+
+```sh
+sh scripts/setup-dogfood-env.sh
+```
+
+The script probes for these binaries (with version floors):
+
+| Binary | Floor | Why |
+|---|---|---|
+| `cosign` | v2+ | Sigstore attestation verification (`FLOW-install-curl-pipe-install` cosign scenarios). |
+| `shellcheck` | any | Lints `install.sh` + `scripts/setup-dogfood-env.sh`. |
+| `gh` | any | GitHub CLI, used by release-asset verification scenarios. |
+| `sha256sum` (or `shasum -a 256` on macOS) | any | Checksum verification. |
+| `tar` | any | Tarball install path. |
+| `git` | any modern | Source-of-truth for everything. |
+| `curl` (or `wget`) | any | `install.sh` HTTP fetch. |
+| `jq` | any | JSON manipulation in fixtures. |
+| `node` | >=20.11 | Runs every TestAtlas script. |
+
+Pass `--install` for a non-interactive `apt` install attempt on Linux. The script refuses on Darwin/Windows and emits `brew`/`winget` hints instead.
+
+CI installs these automatically per `.github/workflows/ci.yml` — the step is named "Install dogfood-test prerequisites (cosign + shellcheck)" and uses `sigstore/cosign-installer` (SHA-pinned) for cosign. Contributors only need to run the script locally.
+
+If a binary is missing, the script exits non-zero and prints a per-binary install hint. Re-run after installing.
+
 ## Commit Style
 
 This project uses [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, etc.). Commits SHOULD be signed-off where possible (`git commit -s`).
