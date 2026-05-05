@@ -104,19 +104,4 @@ Now that the flow run is complete:
 - **`/atlas:log-issue`** — file individual issues for failing scenarios
 - **`/atlas:retest`** — rerun failing scenarios after fixes land
 - **`/atlas:report`** — fold the run into the next aggregate report
-
-## Capability Degradation
-
-Required capabilities for this command: `shell`, `browser`, `file-write`.
-Missing in this adapter: `browser`.
-
-**If browser is unavailable in this environment:**
-
-- Do NOT fabricate screenshots, DOM snapshots, network captures, or console logs.
-- Read source artifacts statically: HTML/JSX/TSX/Vue/Svelte component files, framework routing conventions (React Router / Next.js / Remix), CSS/Tailwind utility usage, ARIA attributes in JSX.
-- Infer route inventory and component tree from code; mark each finding `confidence: needs-validation` per `.testatlas/bootstrap.md` §4 (capability-aware degradation) and §8 (no evidence, no finding).
-- Surface the missing capability in the `RUN-<timestamp>.json`'s `capabilities_observed` field so the next agent run with the missing capability can revisit and upgrade confidence.
-- Issue findings produced under degradation MUST set `confidence: needs-validation` regardless of severity.
-
-This degradation rule is non-negotiable. If you cannot honestly produce a finding, do not produce one — see `.testatlas/bootstrap.md` §8.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

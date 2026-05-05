@@ -29,12 +29,10 @@
 //   - Frontmatter is locked: description / globs:<empty> / alwaysApply: false.
 //     globs is empty because TestAtlas commands aren't file-scoped — users
 //     invoke them via @atlas-<command> mention or manual rule attach.
-//   - Cursor's declared capabilities are [shell, web-fetch, file-write] (no
-//     browser, no MCP — the in-Cursor agent is more limited than Claude Code's
-//     tool surface in 2026). For source commands needing browser/MCP, the
-//     renderer appends the canonical degradation block from
-//     `_capability-degradation.js` so degradation prose is consistent with
-//     Aider's CONVENTIONS.md and the bootstrap-level §4 contract.
+//   - Cursor's declared capabilities are [browser, shell, web-fetch, MCP,
+//     file-write] (Cursor shipped MCP support in 2025; as of May 2026 it
+//     covers all command-required capabilities). No degradation block is
+//     injected for any command.
 //
 // Determinism guarantees (Pitfall 3): no timestamps, no version reads, no
 // absolute paths. Output is a pure function of (sourceText, sourcePath, adapterCaps).

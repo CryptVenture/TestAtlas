@@ -14,9 +14,9 @@
 // Order is locked. Empty `globs:` is correct — TestAtlas commands are not
 // file-scoped; user invokes via mention or manual rule attach.
 //
-// Cursor's declared capabilities are [shell, web-fetch, file-write] — it
-// lacks first-class browser/MCP. For commands needing those, the renderer
-// MUST inject the canonical degradation block.
+// Cursor's declared capabilities are [browser, shell, web-fetch, MCP, file-write]
+// as of May 2026 (Cursor shipped MCP support in 2025). Cursor now covers all
+// command-required capabilities; no degradation block is injected.
 
 import { strict as assert } from 'node:assert';
 import { readdir, readFile } from 'node:fs/promises';
@@ -101,24 +101,16 @@ test('Test 2: each .mdc has locked frontmatter [description, globs:<empty>, alwa
   }
 });
 
-test('Test 3: degradation block injected for browser/MCP-needing commands (atlas-explore-ui.mdc contains canonical prose)', async () => {
+test('Test 3: no degradation block for commands cursor fully supports (atlas-explore-ui.mdc has no gap)', async () => {
   const exploreUiPath = path.join(ADAPTER_DIR, 'atlas-explore-ui.mdc');
   const text = await readFile(exploreUiPath, 'utf8');
-  // Canonical degradation prose markers (from _capability-degradation.js).
-  assert.match(
+  // Cursor now declares [browser, shell, web-fetch, MCP, file-write] — all
+  // capabilities required by explore-ui. No degradation block is injected.
+  assert.doesNotMatch(
     text,
     /## Capability Degradation/,
-    'atlas-explore-ui.mdc must contain "## Capability Degradation" heading',
+    'atlas-explore-ui.mdc must NOT contain "## Capability Degradation" since cursor has all required capabilities',
   );
-  assert.match(
-    text,
-    /Do NOT fabricate/,
-    'atlas-explore-ui.mdc must contain "Do NOT fabricate" canonical phrase',
-  );
-  assert.match(text, /needs-validation/, 'atlas-explore-ui.mdc must reference "needs-validation"');
-  // explore-ui requires `browser` + `MCP` — both are missing in cursor's caps.
-  assert.match(text, /`browser`/, 'atlas-explore-ui.mdc must mention missing `browser` capability');
-  assert.match(text, /`MCP`/, 'atlas-explore-ui.mdc must mention missing `MCP` capability');
 });
 
 test('Test 4: README.md exists with required sections', async () => {

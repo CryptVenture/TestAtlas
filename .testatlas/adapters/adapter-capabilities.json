@@ -50,7 +50,7 @@
       "outputPattern": ".cursor/rules/atlas-{command}.mdc",
       "globalOutputPattern": ".cursor/rules/atlas-{command}.mdc",
       "fileExtension": ".mdc",
-      "capabilities": ["shell", "web-fetch", "file-write"],
+      "capabilities": ["browser", "shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "per-command-file"
     },
     {
@@ -71,7 +71,7 @@
       "outputPattern": "mcp-server-manifest.json",
       "globalOutputPattern": ".config/testatlas/mcp-server-manifest.json",
       "fileExtension": ".json",
-      "capabilities": ["shell", "web-fetch", "file-write"],
+      "capabilities": ["shell", "web-fetch", "MCP", "file-write"],
       "renderStrategy": "mcp-server",
       "globalNotes": "MCP clients are configured per-app (Claude Desktop, Cursor MCP, etc.). Point them at `node ~/.config/testatlas/scripts/mcp-server.js` after `--global` install."
     },
