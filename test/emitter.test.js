@@ -106,10 +106,14 @@ test('emit() applies {{key}} substitutions in markdown template', async (t) => {
   t.after(fx.cleanup);
 
   // Drop in a template with a known {{title}} marker.
+  // Note (Phase 10 Plan 01): the YAML-key-style line `Unknown: {{nope}}` is
+  // now DROPPED by applyTemplate's drop-line-on-missing semantics (fixes
+  // ISSUE-001/002/003). Prose-mode lines like `# Issue: {{title}}` still
+  // retain literal placeholders for missing keys (broken signal preserved).
   const tmplRel = '.testatlas/templates/issues/__TEST_TEMPLATE.md';
   await writeFile(
     path.join(fx.cwd, tmplRel),
-    '# Issue: {{title}}\n\nID: {{id}}\nUnknown: {{nope}}\n',
+    '# Issue: {{title}}\n\nID: {{id}}\nUnknown prose with {{nope}} inline\nUnknown: {{nope}}\n',
     'utf8',
   );
 
@@ -136,7 +140,10 @@ test('emit() applies {{key}} substitutions in markdown template', async (t) => {
   assert.ok(mdEntry, 'markdown file should be written');
   assert.match(mdEntry[1], /# Issue: Test Issue\n/);
   assert.match(mdEntry[1], /ID: ISSUE-009-test\n/);
-  assert.match(mdEntry[1], /Unknown: \{\{nope\}\}/);
+  // Prose-mode line: literal {{nope}} preserved (broken signal stays visible).
+  assert.match(mdEntry[1], /Unknown prose with \{\{nope\}\} inline/);
+  // YAML-key-style line: dropped entirely under Phase 10 Plan 01 contract.
+  assert.doesNotMatch(mdEntry[1], /^Unknown: /m);
 });
 
 test('emit() atomic-writes BOTH md and json files when not dry-run', async (t) => {
