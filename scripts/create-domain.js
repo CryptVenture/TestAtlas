@@ -13,6 +13,7 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
@@ -105,6 +106,7 @@ export async function createDomain(args = {}, _inject = {}) {
       path.join(wsDir, targetDir, 'issues/index.md'),
       `# Issues for ${id}\n\n(no issues filed yet)\n`,
     );
+    await incrementManifestCount(wsDir, 'domains');
   }
 
   return {

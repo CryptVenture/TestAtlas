@@ -1,22 +1,22 @@
 ---
-id: issue-PLACEHOLDER
-slug: placeholder
-title: Placeholder Issue
-status: open
-severity: minor
-confidence: low
-type: bug
-domain: domain-PLACEHOLDER
-flow: flow-PLACEHOLDER
+id: ISSUE-002-todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification
+slug: todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification
+title: todo store JSON file may corrupt under concurrent writes — needs runtime verification
+status: new
+severity: medium
+confidence: needs-validation
+type: reliability
+domain: domain-storage
+flow: {{flow}}
 environment: local
-persona: persona-PLACEHOLDER
-foundOn: 0000-00-00T00:00:00Z
+persona: 
+foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# ISSUE-PLACEHOLDER: Placeholder Issue
+# ISSUE-002-todo-store-json-file-may-corrupt-under-concurrent-writes-needs-runtime-verification: todo store JSON file may corrupt under concurrent writes — needs runtime verification
 
 > Documents one quality finding. PRD §17. Every issue has fields below populated. Empty values are acceptable for "unknown" / "not-applicable" but the heading must remain.
 
@@ -85,11 +85,11 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## History
 
 <!-- TESTATLAS:GENERATED:START section="history" -->
-- 0000-00-00T00:00:00Z — issue filed
+- 2026-05-03T00:00:00.000Z — issue filed
 <!-- TESTATLAS:GENERATED:END section="history" -->
 
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

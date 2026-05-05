@@ -1,30 +1,30 @@
 ---
-id: flow-PLACEHOLDER
-slug: placeholder
-name: Placeholder Flow
-domain: domain-PLACEHOLDER
-persona: persona-PLACEHOLDER
+id: FLOW-mobile-screens-home-screen-load
+slug: {{slug}}
+name: Home Screen Load
+domain: domain-mobile-screens
+persona: first-time-user
 priority: medium
 status: mapped
 confidence: low
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# Flow: Placeholder Flow
+# Flow: Home Screen Load
 
 > One markdown document per user-perspective flow. PRD §16. A flow is a goal-shaped sequence of steps a persona takes to achieve a user-visible outcome.
 
 ## Goal
 
-(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".)
+(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".) Render the universal home screen with sign-in and feed CTAs
 
 ## Persona
 
-(Which persona drives this flow? Link to `personas/<slug>.md`.)
+(Which persona drives this flow? Link to `personas/<slug>.md`.) first-time-user
 
 ## Domain
 
-(Which domain owns this flow? Link to `domains/<slug>/`.)
+(Which domain owns this flow? Link to `domains/<slug>/`.) domain-mobile-screens
 
 ## Preconditions
 
@@ -77,5 +77,5 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

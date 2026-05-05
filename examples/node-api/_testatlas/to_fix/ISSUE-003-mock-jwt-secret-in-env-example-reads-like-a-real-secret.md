@@ -1,22 +1,22 @@
 ---
-id: issue-PLACEHOLDER
-slug: placeholder
-title: Placeholder Issue
-status: open
-severity: minor
-confidence: low
-type: bug
-domain: domain-PLACEHOLDER
-flow: flow-PLACEHOLDER
+id: ISSUE-003-mock-jwt-secret-in-env-example-reads-like-a-real-secret
+slug: mock-jwt-secret-in-env-example-reads-like-a-real-secret
+title: Mock JWT secret in env example reads like a real secret
+status: new
+severity: low
+confidence: confirmed
+type: documentation
+domain: domain-auth
+flow: {{flow}}
 environment: local
-persona: persona-PLACEHOLDER
-foundOn: 0000-00-00T00:00:00Z
+persona: 
+foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# ISSUE-PLACEHOLDER: Placeholder Issue
+# ISSUE-003-mock-jwt-secret-in-env-example-reads-like-a-real-secret: Mock JWT secret in env example reads like a real secret
 
 > Documents one quality finding. PRD §17. Every issue has fields below populated. Empty values are acceptable for "unknown" / "not-applicable" but the heading must remain.
 
@@ -85,11 +85,11 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## History
 
 <!-- TESTATLAS:GENERATED:START section="history" -->
-- 0000-00-00T00:00:00Z — issue filed
+- 2026-05-03T00:00:00.000Z — issue filed
 <!-- TESTATLAS:GENERATED:END section="history" -->
 
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

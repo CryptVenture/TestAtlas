@@ -69,18 +69,6 @@
       "issue-docs": "0e40ebfd516c242b",
       "evidence": "feb4a796c76dba77",
       "reports": "7df62e93006bdb54"
-    },
-    "to_fix/by_domain/domain-shared-package.md": {
-      "entries": "3e21c5b5e2dc7d1a"
-    },
-    "to_fix/by_severity/medium.md": {
-      "entries": "3e21c5b5e2dc7d1a"
-    },
-    "to_fix/by_status/new.md": {
-      "entries": "3e21c5b5e2dc7d1a"
-    },
-    "to_fix/by_type/reliability.md": {
-      "entries": "3e21c5b5e2dc7d1a"
     }
   }
 }

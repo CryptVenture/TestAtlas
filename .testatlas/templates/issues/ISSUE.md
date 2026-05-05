@@ -1,22 +1,22 @@
 ---
-id: issue-PLACEHOLDER
-slug: placeholder
-title: Placeholder Issue
-status: open
-severity: minor
-confidence: low
-type: bug
-domain: domain-PLACEHOLDER
-flow: flow-PLACEHOLDER
-environment: local
-persona: persona-PLACEHOLDER
-foundOn: 0000-00-00T00:00:00Z
-foundBy: agent
-frequency: unknown
-lastUpdatedAt: 0000-00-00T00:00:00Z
+id: {{id}}
+slug: {{slug}}
+title: {{title}}
+status: {{status}}
+severity: {{severity}}
+confidence: {{confidence}}
+type: {{type}}
+domain: {{domain}}
+flow: {{flow}}
+environment: {{environment}}
+persona: {{persona}}
+foundOn: {{foundOn}}
+foundBy: {{foundBy}}
+frequency: {{frequency}}
+lastUpdatedAt: {{lastUpdatedAt}}
 ---
 
-# ISSUE-PLACEHOLDER: Placeholder Issue
+# {{id}}: {{title}}
 
 > Documents one quality finding. PRD §17. Every issue has fields below populated. Empty values are acceptable for "unknown" / "not-applicable" but the heading must remain.
 
@@ -85,11 +85,11 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## History
 
 <!-- TESTATLAS:GENERATED:START section="history" -->
-- 0000-00-00T00:00:00Z — issue filed
+- {{foundOn}} — issue filed
 <!-- TESTATLAS:GENERATED:END section="history" -->
 
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+{{lastUpdatedAt}}
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

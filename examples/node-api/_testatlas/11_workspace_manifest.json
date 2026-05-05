@@ -69,33 +69,6 @@
       "issue-docs": "cc7afac6054cb123",
       "evidence": "c3269b74cc3f5082",
       "reports": "7df62e93006bdb54"
-    },
-    "to_fix/by_domain/domain-tasks.md": {
-      "entries": "0e23e32c078f9b3b"
-    },
-    "to_fix/by_severity/medium.md": {
-      "entries": "f0fd38548d4986e3"
-    },
-    "to_fix/by_status/new.md": {
-      "entries": "0d7a16df1cbd0d20"
-    },
-    "to_fix/by_type/validation.md": {
-      "entries": "f0fd38548d4986e3"
-    },
-    "to_fix/by_severity/enhancement.md": {
-      "entries": "fc33030b86d0e7f8"
-    },
-    "to_fix/by_type/reliability.md": {
-      "entries": "fc33030b86d0e7f8"
-    },
-    "to_fix/by_domain/domain-auth.md": {
-      "entries": "e3e7662ba05bb5f3"
-    },
-    "to_fix/by_severity/low.md": {
-      "entries": "e3e7662ba05bb5f3"
-    },
-    "to_fix/by_type/documentation.md": {
-      "entries": "e3e7662ba05bb5f3"
     }
   }
 }

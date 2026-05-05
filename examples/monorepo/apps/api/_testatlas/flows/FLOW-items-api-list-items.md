@@ -1,30 +1,30 @@
 ---
-id: flow-PLACEHOLDER
-slug: placeholder
-name: Placeholder Flow
-domain: domain-PLACEHOLDER
-persona: persona-PLACEHOLDER
+id: FLOW-items-api-list-items
+slug: {{slug}}
+name: List Items
+domain: domain-items-api
+persona: api-client
 priority: medium
 status: mapped
 confidence: low
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# Flow: Placeholder Flow
+# Flow: List Items
 
 > One markdown document per user-perspective flow. PRD §16. A flow is a goal-shaped sequence of steps a persona takes to achieve a user-visible outcome.
 
 ## Goal
 
-(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".)
+(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".) GET /api/items, expect 200 with an items array (possibly empty)
 
 ## Persona
 
-(Which persona drives this flow? Link to `personas/<slug>.md`.)
+(Which persona drives this flow? Link to `personas/<slug>.md`.) api-client
 
 ## Domain
 
-(Which domain owns this flow? Link to `domains/<slug>/`.)
+(Which domain owns this flow? Link to `domains/<slug>/`.) domain-items-api
 
 ## Preconditions
 
@@ -77,5 +77,5 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

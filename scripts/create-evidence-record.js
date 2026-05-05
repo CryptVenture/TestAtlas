@@ -9,6 +9,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
@@ -96,7 +97,7 @@ export async function createEvidenceRecord(args = {}, _inject = {}) {
     await mkdir(path.join(wsDir, targetDir), { recursive: true });
   }
 
-  return emit(
+  const result = await emit(
     {
       schemaId: EVIDENCE_SCHEMA,
       templateMdPath: EVIDENCE_TEMPLATE,
@@ -110,6 +111,12 @@ export async function createEvidenceRecord(args = {}, _inject = {}) {
     },
     _inject,
   );
+
+  if (!args.dryRun) {
+    await incrementManifestCount(wsDir, 'evidenceRecords');
+  }
+
+  return result;
 }
 
 function err(code, msg) {

@@ -1,30 +1,30 @@
 ---
-id: flow-PLACEHOLDER
-slug: placeholder
-name: Placeholder Flow
-domain: domain-PLACEHOLDER
-persona: persona-PLACEHOLDER
-priority: medium
-status: mapped
-confidence: low
-lastUpdatedAt: 0000-00-00T00:00:00Z
+id: {{id}}
+slug: {{slug}}
+name: {{name}}
+domain: {{domain}}
+persona: {{persona}}
+priority: {{priority}}
+status: {{status}}
+confidence: {{confidence}}
+lastUpdatedAt: {{lastUpdatedAt}}
 ---
 
-# Flow: Placeholder Flow
+# Flow: {{name}}
 
 > One markdown document per user-perspective flow. PRD §16. A flow is a goal-shaped sequence of steps a persona takes to achieve a user-visible outcome.
 
 ## Goal
 
-(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".)
+(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".) {{goal}}
 
 ## Persona
 
-(Which persona drives this flow? Link to `personas/<slug>.md`.)
+(Which persona drives this flow? Link to `personas/<slug>.md`.) {{persona}}
 
 ## Domain
 
-(Which domain owns this flow? Link to `domains/<slug>/`.)
+(Which domain owns this flow? Link to `domains/<slug>/`.) {{domain}}
 
 ## Preconditions
 
@@ -77,5 +77,5 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+{{lastUpdatedAt}}
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

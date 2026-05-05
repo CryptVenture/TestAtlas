@@ -1,30 +1,30 @@
 ---
-id: flow-PLACEHOLDER
-slug: placeholder
-name: Placeholder Flow
-domain: domain-PLACEHOLDER
-persona: persona-PLACEHOLDER
+id: FLOW-monorepo-architecture-package-version-sync-check
+slug: {{slug}}
+name: Package Version Sync Check
+domain: domain-monorepo-architecture
+persona: release-engineer
 priority: medium
 status: mapped
 confidence: low
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# Flow: Placeholder Flow
+# Flow: Package Version Sync Check
 
 > One markdown document per user-perspective flow. PRD §16. A flow is a goal-shaped sequence of steps a persona takes to achieve a user-visible outcome.
 
 ## Goal
 
-(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".)
+(What does the persona accomplish? Stated as a verb phrase: "checkout a cart", "reset a password", "invite a teammate".) Verify @repo/shared workspace:* protocol resolves to a single version across apps/web and apps/api after pnpm install
 
 ## Persona
 
-(Which persona drives this flow? Link to `personas/<slug>.md`.)
+(Which persona drives this flow? Link to `personas/<slug>.md`.) release-engineer
 
 ## Domain
 
-(Which domain owns this flow? Link to `domains/<slug>/`.)
+(Which domain owns this flow? Link to `domains/<slug>/`.) domain-monorepo-architecture
 
 ## Preconditions
 
@@ -77,5 +77,5 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->

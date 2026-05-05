@@ -13,6 +13,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  addIssueToCrossCutIndexes,
+  addIssueToDomainIndex,
+  addIssueToFlowIndex,
+  incrementManifestCount,
+} from './lib/command-lifecycle.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
@@ -118,7 +124,10 @@ export async function createIssue(args = {}, _inject = {}) {
     type: args.type ?? 'functional',
     domain: args.domain,
     flow: args.flow ?? null,
+    environment: args.environment ?? config.defaultEnvironment ?? 'local',
+    persona: args.persona ?? '',
     foundOn: nowIso,
+    foundBy: args.foundBy ?? 'agent',
     summary: args.summary ?? args.title,
     expectedBehavior: args.expectedBehavior ?? '(to be filled)',
     actualBehavior: args.actualBehavior ?? '(to be filled)',
@@ -133,7 +142,7 @@ export async function createIssue(args = {}, _inject = {}) {
     lastUpdatedAt: nowIso,
   };
 
-  return emit(
+  const result = await emit(
     {
       schemaId: ISSUE_SCHEMA,
       templateMdPath: ISSUE_TEMPLATE,
@@ -147,6 +156,18 @@ export async function createIssue(args = {}, _inject = {}) {
     },
     _inject,
   );
+
+  // Post-creation: maintain derived state per log-issue command spec.
+  if (!args.dryRun) {
+    await incrementManifestCount(wsDir, 'issues');
+    await addIssueToCrossCutIndexes(wsDir, record);
+    await addIssueToDomainIndex(wsDir, record.domain, record.id);
+    if (record.flow) {
+      await addIssueToFlowIndex(wsDir, record.flow, record.id);
+    }
+  }
+
+  return result;
 }
 
 // ─────────────────────────────── CLI wrapper ───────────────────────────────
@@ -182,6 +203,24 @@ async function runCli(argv) {
       case '--summary':
         opts.summary = argv[++i];
         break;
+      case '--expected-behavior':
+        opts.expectedBehavior = argv[++i];
+        break;
+      case '--actual-behavior':
+        opts.actualBehavior = argv[++i];
+        break;
+      case '--user-impact':
+        opts.userImpact = argv[++i];
+        break;
+      case '--environment':
+        opts.environment = argv[++i];
+        break;
+      case '--persona':
+        opts.persona = argv[++i];
+        break;
+      case '--found-by':
+        opts.foundBy = argv[++i];
+        break;
       case '--evidence':
         opts.evidence.push(argv[++i]);
         break;
@@ -199,6 +238,8 @@ async function runCli(argv) {
         console.log(
           'Usage: node scripts/create-issue.js --title <s> --domain <id> --evidence <id> [--evidence <id>...] ' +
             '[--severity <s>] [--confidence <s>] [--type <s>] [--flow <id>] [--summary <s>] ' +
+            '[--expected-behavior <s>] [--actual-behavior <s>] [--user-impact <s>] ' +
+            '[--environment <s>] [--persona <s>] [--found-by <s>] ' +
             '[--workspace <path>] [--cwd <path>] [--dry-run]',
         );
         process.exit(0);

@@ -1,48 +1,48 @@
 ---
-id: evidence-PLACEHOLDER
-type: screenshot
-path: evidence/screenshots/placeholder.png
-capturedOn: 0000-00-00T00:00:00Z
+id: EVIDENCE-002
+type: log
+path: evidence/EVIDENCE-002/capture.bin
+capturedOn: 2026-05-03T00:00:00.000Z
 environment: local
 redacted: false
 ---
 
-# Evidence Record: PLACEHOLDER
+# Evidence Record: EVIDENCE-002
 
 > Documents one captured evidence artifact. PRD §18. Evidence is the durable proof that supports an assertion in a flow, scenario, or issue.
 
 ## Type
 
-(One of: screenshot / video / network / log / trace / dom / accessibility / performance / other.)
+log
 
 ## Path
 
-(Workspace-relative path to the captured artifact under `evidence/<subdir>/`.)
+evidence/EVIDENCE-002/capture.bin
 
 ## Domain
 
-(Which domain does this evidence belong to?)
+{{domain}}
 
 ## Flow
 
-(Which flow does this evidence support?)
+{{flow}}
 
 ## Issue
 
-(Which issue does this evidence support, if any?)
+{{issue}}
 
 ## Captured On
 
-(ISO-8601 UTC timestamp of capture.)
+2026-05-03T00:00:00.000Z
 
 ## Environment
 
-(Environment in which the capture happened.)
+local
 
 ## Description
 
-(Plain-language description of what the evidence shows.)
+GET /api/items response showing the entire array with no offset/limit support
 
 ## Redacted
 
-(One of: true / false. If redactions were applied, note what fields and why.)
+false

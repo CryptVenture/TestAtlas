@@ -5,6 +5,7 @@
 
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
 import { loadConfig } from './lib/load-config.js';
@@ -75,7 +76,7 @@ export async function createFlow(args = {}, _inject = {}) {
     lastUpdatedAt: nowIso,
   };
 
-  return emit(
+  const result = await emit(
     {
       schemaId: FLOW_SCHEMA,
       templateMdPath: FLOW_TEMPLATE,
@@ -89,6 +90,12 @@ export async function createFlow(args = {}, _inject = {}) {
     },
     _inject,
   );
+
+  if (!args.dryRun) {
+    await incrementManifestCount(wsDir, 'flows');
+  }
+
+  return result;
 }
 
 function err(code, msg) {

@@ -1,22 +1,22 @@
 ---
-id: issue-PLACEHOLDER
-slug: placeholder
-title: Placeholder Issue
-status: open
-severity: minor
-confidence: low
-type: bug
-domain: domain-PLACEHOLDER
-flow: flow-PLACEHOLDER
+id: ISSUE-002-dashboard-layout-does-not-handle-expired-sessions
+slug: dashboard-layout-does-not-handle-expired-sessions
+title: Dashboard layout does not handle expired sessions
+status: new
+severity: high
+confidence: confirmed
+type: validation
+domain: domain-dashboard
+flow: {{flow}}
 environment: local
-persona: persona-PLACEHOLDER
-foundOn: 0000-00-00T00:00:00Z
+persona: 
+foundOn: 2026-05-03T00:00:00.000Z
 foundBy: agent
 frequency: unknown
-lastUpdatedAt: 0000-00-00T00:00:00Z
+lastUpdatedAt: 2026-05-03T00:00:00.000Z
 ---
 
-# ISSUE-PLACEHOLDER: Placeholder Issue
+# ISSUE-002-dashboard-layout-does-not-handle-expired-sessions: Dashboard layout does not handle expired sessions
 
 > Documents one quality finding. PRD §17. Every issue has fields below populated. Empty values are acceptable for "unknown" / "not-applicable" but the heading must remain.
 
@@ -85,11 +85,11 @@ lastUpdatedAt: 0000-00-00T00:00:00Z
 ## History
 
 <!-- TESTATLAS:GENERATED:START section="history" -->
-- 0000-00-00T00:00:00Z — issue filed
+- 2026-05-03T00:00:00.000Z — issue filed
 <!-- TESTATLAS:GENERATED:END section="history" -->
 
 ## Last Updated
 
 <!-- TESTATLAS:GENERATED:START section="last-updated" -->
-0000-00-00T00:00:00Z
+2026-05-03T00:00:00.000Z
 <!-- TESTATLAS:GENERATED:END section="last-updated" -->
