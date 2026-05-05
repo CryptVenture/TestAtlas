@@ -3,7 +3,7 @@ description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="9835ea978c5956ef" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="9835ea978c5956efd4eb461b2f470caf82333c5265b58c5214e9f17e335ef451" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

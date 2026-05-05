@@ -31,7 +31,7 @@ import path from 'node:path';
 import { detectAdapters } from './adapter-detect.js';
 import { info, step, success, warning } from './colors.js';
 import { INSTALL_MANIFEST_PATH } from './constants.js';
-import { hashContent } from './content-hash.js';
+import { hashContent, verifyHashCompat } from './content-hash.js';
 import { buildManifest, loadAndValidateManifest, writeManifest } from './manifest.js';
 import { assertNotUpdate } from './workspace-guard.js';
 
@@ -265,8 +265,12 @@ async function checkAlreadyInstalled(target, suiteRoot) {
     const s = await stat(abs);
     if (s.isDirectory()) continue; // directories (vendored node_modules) skipped
     const buf = await readFile(abs);
-    const fresh = hashContent(buf.toString('utf8'));
-    if (fresh !== entry.hash) return null; // drift
+    // Phase 11 (ISSUE-013): hashContent widened from 16 to 64 hex chars.
+    // verifyHashCompat handles both legacy 16-char manifests (pre-Phase-11)
+    // and modern 64-char manifests, returning true iff the fresh content's
+    // SHA-256 matches the stored hash under the appropriate length-detection
+    // path. Returns false on drift OR malformed hashes.
+    if (!verifyHashCompat(buf.toString('utf8'), entry.hash)) return null; // drift
   }
   return {
     status: 'already-installed',

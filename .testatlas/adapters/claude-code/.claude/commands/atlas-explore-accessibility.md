@@ -3,7 +3,7 @@ description: Evaluate keyboard nav, focus, labels, semantics, contrast, and dyna
 allowed-tools: Read, Write, Edit, Glob, Grep, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="9b39eff6a62b36dd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="9b39eff6a62b36ddeac9f42cd44641ef938b51eb2b8f13a6b0518e1140b346b3" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

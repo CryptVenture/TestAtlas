@@ -138,11 +138,11 @@ test('WORK-03: normalizes CRLF input (disk fixture)', async () => {
   assert.deepEqual(sections.get('counts').contentLines, ['0']);
 });
 
-test('WORK-03: assigns a 16-hex hash to each parsed section', async () => {
+test('WORK-03 + Phase-11: assigns a 64-hex hash to each parsed section (widened from 16)', async () => {
   const text = await loadFixture('valid-single-section.md');
   const { sections } = parseMarkers(text);
   const hash = sections.get('counts').hash;
-  assert.match(hash, /^[0-9a-f]{16}$/);
+  assert.match(hash, /^[0-9a-f]{64}$/);
 });
 
 test('WORK-03: section content excludes marker lines', async () => {

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-performance. Invoke as /prompts:atlas-explore-performance. Description: Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="910a2b6c57d28137" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="910a2b6c57d28137f7d173399c692bf8d3eda4bb5237a7295b95b0bd4a24d788" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

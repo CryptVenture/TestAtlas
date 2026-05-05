@@ -239,9 +239,10 @@ test('WORK-07: manifest records section hashes for marker-bearing canonicals', a
   const slugs = Object.keys(sections);
   assert.ok(slugs.length > 0, '03_execution_status.md must have at least one section hash');
 
-  // Each hash is a 16-char hex string.
+  // Each hash is a 64-char hex string (Phase 11 widened from 16; first 16
+  // chars equal pre-Phase-11 output for legacy-manifest compat).
   for (const [slug, hash] of Object.entries(sections)) {
-    assert.match(hash, /^[0-9a-f]{16}$/, `${slug} hash must be 16-hex`);
+    assert.match(hash, /^[0-9a-f]{64}$/, `${slug} hash must be 64-hex`);
   }
 });
 

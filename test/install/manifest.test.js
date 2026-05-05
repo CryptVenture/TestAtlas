@@ -60,7 +60,9 @@ test('manifest: writeManifest writes a valid JSON file at .testatlas/.install-ma
     assert.equal(written.files.length, 1);
     assert.equal(written.files[0].path, '.testatlas/bootstrap.md');
     assert.equal(written.files[0].type, 'suite');
-    assert.match(written.files[0].hash, /^[0-9a-f]{16}$/);
+    // Phase 11: hash widened to 64 hex chars (full SHA-256, ISSUE-013).
+    // Schema accepts 16 OR 64; new writes always emit 64.
+    assert.match(written.files[0].hash, /^[0-9a-f]{64}$/);
   });
 });
 

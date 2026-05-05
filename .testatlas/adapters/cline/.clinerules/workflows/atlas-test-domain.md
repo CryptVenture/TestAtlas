@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-domain. Invoke as /atlas-test-domain.md. Description: Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="98681c1f2c100f6a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="98681c1f2c100f6a2e665529e31bf8c48fa69c00062f8a2454d1b7dc6a8755ec" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

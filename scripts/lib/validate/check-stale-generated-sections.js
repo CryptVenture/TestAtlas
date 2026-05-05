@@ -72,6 +72,28 @@ function canonicalizeWhitespace(body) {
 }
 
 /**
+ * Compare two `hashContent` outputs with Phase-11 legacy-compat semantics.
+ *
+ * Pre-Phase-11 manifests stored 16-hex-char (64-bit) prefixes in
+ * `generatedSections`. Phase 11 widened `hashContent` to emit full 64-hex
+ * SHA-256 (ISSUE-013). When comparing a freshly-computed (64-char) hash
+ * against a stored (potentially 16-char legacy) hash, we compare on the
+ * SHORTER length so legacy manifests still validate. Manifests refresh to
+ * 64-char organically when their generator script next runs.
+ *
+ * @param {string} fresh   Newly computed hash from current content (64 chars).
+ * @param {string} stored  Hash from manifest (either 16 or 64 chars).
+ * @returns {boolean}
+ */
+function hashesMatch(fresh, stored) {
+  if (typeof fresh !== 'string' || typeof stored !== 'string') return false;
+  if (fresh.length === stored.length) return fresh === stored;
+  if (stored.length === 16 && fresh.length === 64) return fresh.slice(0, 16) === stored;
+  if (fresh.length === 16 && stored.length === 64) return stored.slice(0, 16) === fresh;
+  return false;
+}
+
+/**
  * @param {{wsDir:string, files:object, manifest:object|null}} ctx
  * @returns {Promise<{id:string, prdRule:number, status:string, findings:object[]}>}
  */
@@ -146,14 +168,19 @@ export async function check(ctx) {
       }
 
       // sec.hash is computed by parseMarkers via hashContent(contentLines).
-      if (sec.hash === storedHash) continue; // pass — bytes-match.
+      // Phase 11 (ISSUE-013): hashContent now returns 64 hex chars (was 16).
+      // Pre-Phase-11 manifests stored 16-char prefixes; we honor those by
+      // comparing the first 16 chars when storedHash is 16-long. This is the
+      // organic-upgrade path — manifests refresh to 64-char hashes the next
+      // time their generator script runs.
+      if (hashesMatch(sec.hash, storedHash)) continue; // pass — bytes-match.
 
       // Hash drift detected. Apply the whitespace-only heuristic.
       const body = sec.contentLines.join('\n');
       const canonical = canonicalizeWhitespace(body);
       const canonicalHash = hashContent(canonical);
 
-      if (canonicalHash === storedHash) {
+      if (hashesMatch(canonicalHash, storedHash)) {
         findings.push({
           severity: 'warning',
           path: filename,

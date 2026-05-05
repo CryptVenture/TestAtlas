@@ -4,7 +4,7 @@ description: Refresh the agent's understanding of the TestAtlas constitution and
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="7c490fdfe43542d2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="7c490fdfe43542d2fe0b042977e127d91deed1420bdba13c45ad6b6740d36b6d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

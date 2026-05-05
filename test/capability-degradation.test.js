@@ -43,8 +43,10 @@ test('Test 2: wrapInAdapterEnvelope emits canonical START/END with hash(sourceTe
     /<!-- TESTATLAS:GENERATED:END section="adapter-body" -->/,
     'envelope must contain END marker',
   );
-  // 16-hex hash
-  assert.match(expectedHash, /^[0-9a-f]{16}$/);
+  // Phase 11: hash widened from 16 to 64 hex chars (full SHA-256). Closes
+  // ISSUE-013; first 16 chars unchanged so legacy manifests stay verifiable
+  // via verifyHashCompat.
+  assert.match(expectedHash, /^[0-9a-f]{64}$/);
 });
 
 test('Test 3: parseAdapterMarker round-trips the envelope', () => {

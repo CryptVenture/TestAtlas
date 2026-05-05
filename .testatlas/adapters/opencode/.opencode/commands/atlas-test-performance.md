@@ -2,7 +2,7 @@
 description: Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="5d7fae6fdde46df3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="5d7fae6fdde46df3ae18aa2846a5a70bf755a332c876caf5127203b6d83abbe4" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

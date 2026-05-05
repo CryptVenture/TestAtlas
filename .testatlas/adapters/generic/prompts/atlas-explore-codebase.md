@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-codebase. Paste .testatlas/bootstrap.md first; description: Map the target product across languages, frameworks, monorepo layout, apps/services/workers, routes, handlers, jobs, integrations, and data flows; produce 12_app_map.json plus a domain inventory. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="2a1ec08bd539514c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="2a1ec08bd539514c69098751a9effab978bd51d673d9b8e7ea088ec05958d074" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

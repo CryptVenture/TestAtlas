@@ -3,7 +3,7 @@ description: Execute accessibility-typed scenarios using Chrome DevTools MCP lig
 allowed-tools: Read, Write, Edit, Glob, Grep, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="31e2d9295444c08d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="31e2d9295444c08ddc98b41416bf0b177605365c0752264749253455667544d5" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

@@ -4,7 +4,7 @@ description: Re-execute the original repro for issues with status=fixed_pending_
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf89e6a0652ef599a63c715d8a795c6d2d315ea097b1cb882d" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

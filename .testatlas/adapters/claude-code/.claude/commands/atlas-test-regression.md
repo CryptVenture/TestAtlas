@@ -3,7 +3,7 @@ description: Re-run previously-failed scenarios from prior RUN-<timestamp>.json 
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="bdae51dbd2cdc788" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="bdae51dbd2cdc7889b52a660d89ceb0bbac9028e6fba3746efab56939a9cb9aa" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

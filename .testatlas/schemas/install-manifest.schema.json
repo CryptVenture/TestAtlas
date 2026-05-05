@@ -76,8 +76,8 @@
           },
           "hash": {
             "type": "string",
-            "pattern": "^[0-9a-f]{16}$",
-            "description": "16-hex SHA-256 of file content (CRLF-normalized via content-hash.js)."
+            "pattern": "^([0-9a-f]{16}|[0-9a-f]{64})$",
+            "description": "SHA-256 of file content (CRLF-normalized via content-hash.js). Accepts either 16-hex (legacy, pre-Phase-11) or 64-hex (Phase-11+ widened, full SHA-256). Manifests upgrade organically when users re-run `testatlas update` or `testatlas init --force`; verifyHashCompat in content-hash.js handles both lengths."
           },
           "source": {
             "type": "string",

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-triage. Invoke as /atlas-triage. Description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="3d0d3a517c28e732" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="3d0d3a517c28e732e82d543ea089791c274e7b3316155e8213c450389502a683" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

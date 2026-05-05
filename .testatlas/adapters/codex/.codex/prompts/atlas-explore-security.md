@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-security. Invoke as /prompts:atlas-explore-security. Description: Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD §6.5 — read-only defensive audit; never attempts exploitation; never persists secret values. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="f41d26573a2123db" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="f41d26573a2123dba1456646ea846bff844d2e8a6d01d4002f4b5f405745428f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

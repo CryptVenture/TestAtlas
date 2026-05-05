@@ -4,7 +4,7 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="153c48a1368e5697" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="153c48a1368e5697556ff671f062e2cf2276eb75573a0d3cc468aff8a18ff870" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

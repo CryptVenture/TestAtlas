@@ -9,7 +9,7 @@ permission:
   bash: deny
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b7e7339f6dc15a16" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="b7e7339f6dc15a16e2b45aa7016c88db6a84ee89c70dd480b1f3ba5044113ba6" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

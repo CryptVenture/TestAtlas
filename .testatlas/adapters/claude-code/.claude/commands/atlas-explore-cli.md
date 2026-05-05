@@ -3,7 +3,7 @@ description: Map package scripts, binaries, and task runners for the target prod
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="6b7ef74be192a057" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="6b7ef74be192a057d578da9fb9168644d4b24631cfd1a0fd59f5f3c4a6d0e8a0" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

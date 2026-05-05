@@ -26,8 +26,13 @@ export const BOOTSTRAP_PREAMBLE =
   'First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. ' +
   'If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.';
 
+// Hash group accepts EITHER 16 hex chars (legacy, pre-Phase-11) OR 64 hex
+// chars (Phase-11+ widened, full SHA-256 — closes ISSUE-013). Phase 11
+// widened content-hash.js's `hashContent` from 16-hex to 64-hex; existing
+// rendered command files retain the 16-hex format until they're regenerated
+// (organic upgrade), so the parser must accept both.
 const ADAPTER_START_RE =
-  /<!--\s*TESTATLAS:GENERATED:START\s+section="([^"]+)"\s+source="([^"]+)"\s+hash="([0-9a-f]{16})"\s*-->/;
+  /<!--\s*TESTATLAS:GENERATED:START\s+section="([^"]+)"\s+source="([^"]+)"\s+hash="([0-9a-f]{16}|[0-9a-f]{64})"\s*-->/;
 
 /**
  * Compute the relative source path used inside the marker (e.g.
