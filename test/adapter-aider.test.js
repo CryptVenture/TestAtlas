@@ -4,15 +4,15 @@
 // `.testatlas/adapters/aider/CONVENTIONS.md` plus `.aider.conf.yml` snippet.
 //
 // Aider's contract (06-RESEARCH.md §Q1.5 + Pitfall 5):
-//   - ONE concatenated CONVENTIONS.md (NOT 31 files) with 31 H2 sections.
+//   - ONE concatenated CONVENTIONS.md (NOT 32 files) with 32 H2 sections.
 //   - Each H2 section ≤7 lines (heading + body); whole file ≤200 lines.
 //   - Renderer hard-fails (throw) if any section exceeds 7 lines — this is
 //     a build-time guardrail so future command-source growth doesn't silently
 //     break Aider's prompt-cache budget.
 //   - The body is wrapped in a SINGLE adapter envelope whose hash is
-//     computed deterministically over the concatenation of all 31 source
+//     computed deterministically over the concatenation of all 32 source
 //     hashes (so a change to ANY source command bumps the aggregate hash).
-//   - Aider declares only [shell, file-write] — 13 of 31 commands need
+//   - Aider declares only [shell, file-write] — 13 of 32 commands need
 //     browser/MCP/web-fetch which Aider lacks. Those sections embed a
 //     condensed degradation note within the 7-line cap.
 
@@ -38,13 +38,13 @@ test('Test 1: CONVENTIONS.md exists and total line count ≤ 210', async () => {
   assert.ok(lines.length <= 210, `CONVENTIONS.md must be ≤210 lines; got ${lines.length}`);
 });
 
-test('Test 2: 31 H2 sections matching source command set', async () => {
+test('Test 2: 32 H2 sections matching source command set', async () => {
   const text = await readFile(CONVENTIONS_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 31, `expected 31 H2 atlas-* headings; got ${headings.length}`);
+  assert.equal(headings.length, 32, `expected 32 H2 atlas-* headings; got ${headings.length}`);
 
   const sources = await listCommandFiles({ cwd: repoRoot });
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));

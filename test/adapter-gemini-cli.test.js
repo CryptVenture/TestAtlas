@@ -1,6 +1,6 @@
 // test/adapter-gemini-cli.test.js
 //
-// Structural assertions on the 31 generated Gemini CLI adapter commands.
+// Structural assertions on the 32 generated Gemini CLI adapter commands.
 // Gemini CLI commands are TOML files with `description` and `prompt` keys
 // (per geminicli.com/docs/cli/custom-commands). The marker envelope sits
 // inside the triple-quoted `prompt` value.
@@ -25,13 +25,13 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 31 derived atlas-*.toml files exist (one per source command)', async () => {
+test('Test 1: 32 derived atlas-*.toml files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 31, `expected 31 source commands; got ${sources.length}`);
+  assert.equal(sources.length, 32, `expected 32 source commands; got ${sources.length}`);
 
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.toml'));
-  assert.equal(derived.length, 31, `expected 31 derived TOML files; got ${derived.length}`);
+  assert.equal(derived.length, 32, `expected 32 derived TOML files; got ${derived.length}`);
 
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.toml`));
   for (const name of derived) {

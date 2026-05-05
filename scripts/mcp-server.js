@@ -7,7 +7,7 @@
 // Runnable JSON-RPC stdio server implementing MCP spec 2025-11-25. Exposes
 // each `.testatlas/commands/<name>.md` file as an MCP Prompt named
 // `atlas-<name>`. Reads command sources at request time — no per-command
-// files are pre-rendered, no static index is built, adding a 31st command
+// files are pre-rendered, no static index is built, adding a 32nd command
 // to `.testatlas/commands/` makes it instantly discoverable.
 //
 // Why prompts/, not tools/: per the MCP spec, prompts are user-controlled

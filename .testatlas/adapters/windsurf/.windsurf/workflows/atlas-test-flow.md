@@ -3,7 +3,7 @@ description: Execute scenarios from tests/matrix.json against the running target
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="f2fd11a77c0658dfbb47d09a1598518f4390c8bfeaab0f6db593becd939ca36b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="e5e940ca26068f4bf7fc6ac5b879ecabae031ab639306d0bfb4ad7371922ba41" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -32,6 +32,10 @@ Execute one or more test scenarios from `_testatlas/tests/matrix.json` against t
 8. Update flow confidence per scenario outcomes — flows whose scenarios passed climb in confidence; flows with failures or skips drop and are marked for re-test in the next plan cycle.
 9. Validate the produced RUN JSON against `test-run.schema.json` before closing. If validation fails, halt — do not commit a malformed run record.
 10. Close the lifecycle (next section).
+
+### `--all` mode
+
+`/atlas:test-flow --all` walks flows referenced by ≥1 scenario in the matrix (`_testatlas/tests/scenarios/TEST-*.json`'s `flow` field; flows with zero scenarios are skipped silently — no oracle), executes the per-flow procedure for each, and accumulates results into ONE merged RUN with `executionMode: 'all-flows'` in run metadata (`test-run.schema.json` `type` enum unchanged). **Capability-blocked** or `pending: capability-required` scenarios are recorded `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Sub-Agent Orchestration
 
@@ -86,6 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
 - Evidence file referenced in a result does not exist on disk after capture (write failure, race) → halt; do not record a result citing a non-existent evidence path.
 - `test-run.schema.json` validation fails on the produced JSON → halt; do not commit a malformed run.
+- `--all` mode never halts on a single capability-blocked skip; halts only when every in-scope scenario is skipped with non-user-recoverable reasons.
 
 ## Completion Criteria
 

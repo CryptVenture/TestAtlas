@@ -46,11 +46,11 @@ test('README.md does not contain stale `30 \\`/atlas:*\\`` count claim', async (
   const text = await readFile(README_PATH, 'utf8');
   assert.ok(
     !text.includes('30 `/atlas:*`'),
-    'README.md still claims `30 /atlas:*` commands. Update to the live count (currently 31; verifiable via ls .testatlas/commands/*.md | grep -v README | wc -l).',
+    'README.md still claims `30 /atlas:*` commands. Update to the live count (currently 32; verifiable via ls .testatlas/commands/*.md | grep -v README | wc -l).',
   );
 });
 
-test('README.md reports the live atlas command count (currently 31)', async () => {
+test('README.md reports the live atlas command count (currently 32)', async () => {
   const [text, n] = await Promise.all([readFile(README_PATH, 'utf8'), countCommands()]);
   const expected = `${n} \`/atlas:*\``;
   assert.ok(
@@ -118,7 +118,7 @@ test('ADAPTER-OWNERS.md reflects 18 (not 7) adapter families', async () => {
 // -------------------------------------------------------------------
 // Three additional regressions guarding the post-Quick-260505-quk doc drift:
 //   - README.md must not enumerate the legacy 7-adapter list nor "All 7" tags.
-//   - docs/GETTING_STARTED.md must say "31 /atlas:*" (not "30").
+//   - docs/GETTING_STARTED.md must say "32 /atlas:*" (not "30" or "31").
 //   - CONTRIBUTING.md must not claim "≥1 owner" nor enumerate the legacy 7.
 
 const GETTING_STARTED_PATH = path.join(REPO_ROOT, 'docs', 'GETTING_STARTED.md');
@@ -140,14 +140,16 @@ test('README.md does not name the legacy 7-adapter list', async () => {
   );
 });
 
-test('docs/GETTING_STARTED.md command count says 31, not 30', async () => {
+test('docs/GETTING_STARTED.md command count says 32, not 30 or 31', async () => {
   const src = await readFile(GETTING_STARTED_PATH, 'utf8');
   assert.ok(!src.includes('30 /atlas:'), 'docs/GETTING_STARTED.md must not say "30 /atlas:"');
   assert.ok(!src.includes('30 `/atlas'), 'docs/GETTING_STARTED.md must not say "30 `/atlas"');
-  const has31 = src.includes('31 /atlas:') || src.includes('31 `/atlas');
+  assert.ok(!src.includes('31 /atlas:'), 'docs/GETTING_STARTED.md must not say "31 /atlas:"');
+  assert.ok(!src.includes('31 `/atlas'), 'docs/GETTING_STARTED.md must not say "31 `/atlas"');
+  const has32 = src.includes('32 /atlas:') || src.includes('32 `/atlas');
   assert.ok(
-    has31,
-    'docs/GETTING_STARTED.md must say "31 /atlas:" or "31 `/atlas" (post-Quick-260505-2zr command count).',
+    has32,
+    'docs/GETTING_STARTED.md must say "32 /atlas:" or "32 `/atlas" (post-Quick-260505-vj4 command count after adding test-all).',
   );
 });
 

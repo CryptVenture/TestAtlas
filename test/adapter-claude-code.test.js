@@ -1,6 +1,6 @@
 // test/adapter-claude-code.test.js
 //
-// Plan 06-01 Task 3: structural assertions on the 31 generated Claude Code
+// Plan 06-01 Task 3: structural assertions on the 32 generated Claude Code
 // adapter files. Idempotency and version-invariance live in their own
 // dedicated test files; this one focuses on the SHAPE of every file.
 
@@ -25,13 +25,13 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 31 derived atlas-*.md files exist (one per source command)', async () => {
+test('Test 1: 32 derived atlas-*.md files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 31, `expected 31 source commands; got ${sources.length}`);
+  assert.equal(sources.length, 32, `expected 32 source commands; got ${sources.length}`);
 
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 31, `expected 31 derived files; got ${derived.length}`);
+  assert.equal(derived.length, 32, `expected 32 derived files; got ${derived.length}`);
 
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) {

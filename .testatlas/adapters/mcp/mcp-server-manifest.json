@@ -123,6 +123,11 @@
       "arguments": []
     },
     {
+      "name": "atlas-test-all",
+      "description": "Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-domain --all` and aggregates per-child run records into a single merged RUN-<timestamp>.{md,json}.",
+      "arguments": []
+    },
+    {
       "name": "atlas-test-domain",
       "description": "Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode.",
       "arguments": []

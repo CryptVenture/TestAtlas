@@ -1,6 +1,6 @@
 // test/adapter-kiro.test.js
 //
-// Structural assertions on the 31 generated Kiro adapter skill files.
+// Structural assertions on the 32 generated Kiro adapter skill files.
 // Kiro skills at `.kiro/skills/atlas-<name>.md` are markdown with YAML
 // frontmatter (name, description, inclusion: manual). Slash-invoke is
 // `/atlas-<name>`.
@@ -19,12 +19,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const ADAPTER_DIR = path.join(repoRoot, '.testatlas', 'adapters', 'kiro', '.kiro', 'skills');
 
-test('Test 1: 31 derived atlas-*.md skill files exist', async () => {
+test('Test 1: 32 derived atlas-*.md skill files exist', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 31);
+  assert.equal(sources.length, 32);
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 31, `expected 31 derived skill files; got ${derived.length}`);
+  assert.equal(derived.length, 32, `expected 32 derived skill files; got ${derived.length}`);
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);

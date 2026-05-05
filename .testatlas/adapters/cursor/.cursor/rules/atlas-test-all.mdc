@@ -1,41 +1,11 @@
 ---
-command: test-all
-version: 1.0.0
 description: Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-domain --all` and aggregates per-child run records into a single merged RUN-<timestamp>.{md,json}.
-capabilities: [shell, browser, file-write]
-produces:
-  - test-run
-  - evidence
-  - command-result
-consumes:
-  - test-scenario
-  - flow
-  - workspace-manifest
-lifecycle:
-  - 03_execution_status.md
-  - 09_artifact_index.md
-  - 10_command_log.md
-  - 11_workspace_manifest.json
-  - history/run_log.md
-boundary: Does NOT run destructive scenarios when allowDestructiveActions=false. Does NOT run against production when allowProductionTesting=false. Does NOT fabricate results — every per-scenario claim cites evidence captured by the executing child. Does NOT halt on a single capability-blocked scenario; aggregates skip records and continues.
+globs:
+alwaysApply: false
 ---
 
-# TestAtlas Command: test-all
-
-Before doing anything else:
-
-1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
-3. Inspect `./_testatlas/11_workspace_manifest.json` if it exists.
-4. Inspect the canonical files required by this command.
-5. Follow bootstrap and this command exactly.
-
-If there is a conflict:
-
-1. Higher-priority runtime/system/developer instructions win.
-2. Safety rules win over task ambition.
-3. Bootstrap persistence and workspace rules win unless this command is more specific and not less safe.
-4. Verified repository truth wins over stale documentation.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="51dcb1f2467020002fd11d093f1eac6906c81df59dc594d2e906cf8f84e4f1f0" -->
+First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -136,3 +106,4 @@ Now that the full-coverage test run is complete:
 - **`/atlas:log-issue`** — file individual issues for failing scenarios across both children
 - **`/atlas:retest`** — rerun failing or unverified scenarios under cleaner conditions
 - **`/atlas:report`** — fold the merged run into the next aggregate report
+<!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -3,12 +3,12 @@
 // Plan 06-04 Task 3: MCP adapter renderer (mcp-server strategy).
 //
 // Output: a single declarative manifest at
-// `.testatlas/adapters/mcp/mcp-server-manifest.json` enumerating all 30
+// `.testatlas/adapters/mcp/mcp-server-manifest.json` enumerating all 32
 // TestAtlas commands as MCP `prompts[]` per spec 2025-11-25.
 //
 // IMPORTANT: this adapter does NOT emit per-command files. The runnable
 // server (`scripts/mcp-server.js`) reads `.testatlas/commands/*.md` directly
-// at request time — adding a 31st source command is automatic; the manifest
+// at request time — adding a 32nd source command is automatic; the manifest
 // is the only declarative artifact and exists primarily for clients that
 // want to discover the contract without spawning the server.
 //

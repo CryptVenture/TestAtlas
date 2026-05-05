@@ -1,6 +1,6 @@
 // test/adapter-cline.test.js
 //
-// Structural assertions on the 31 generated Cline adapter workflow files.
+// Structural assertions on the 32 generated Cline adapter workflow files.
 // Cline workflows at `.clinerules/workflows/<name>.md` are plain markdown
 // with NO YAML frontmatter. Slash-invoke is `/atlas-<name>.md` (with the
 // .md extension — Cline's contract).
@@ -25,12 +25,12 @@ const ADAPTER_DIR = path.join(
   'workflows',
 );
 
-test('Test 1: 31 derived atlas-*.md workflow files exist', async () => {
+test('Test 1: 32 derived atlas-*.md workflow files exist', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 31);
+  assert.equal(sources.length, 32);
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 31, `expected 31 derived workflow files; got ${derived.length}`);
+  assert.equal(derived.length, 32, `expected 32 derived workflow files; got ${derived.length}`);
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);

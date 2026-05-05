@@ -24,13 +24,13 @@ test('Test 1: .rules exists and total line count ≤ 210', async () => {
   assert.ok(lines.length <= 210, `.rules must be ≤210 lines; got ${lines.length}`);
 });
 
-test('Test 2: 31 H2 sections matching source command set', async () => {
+test('Test 2: 32 H2 sections matching source command set', async () => {
   const text = await readFile(RULES_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 31, `expected 31 H2 atlas-* headings; got ${headings.length}`);
+  assert.equal(headings.length, 32, `expected 32 H2 atlas-* headings; got ${headings.length}`);
   const sources = await listCommandFiles({ cwd: repoRoot });
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
   for (const h of headings) assert.ok(expectedNames.has(h), `unexpected H2: /${h}`);

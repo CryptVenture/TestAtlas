@@ -66,12 +66,7 @@ Execute one or more test scenarios from `_testatlas/tests/matrix.json` against t
 
 ### `--all` mode
 
-When invoked as `/atlas:test-flow --all`:
-
-1. Enumerate flows referenced by ≥1 scenario in the test-scenario matrix (read each per-scenario sidecar `_testatlas/tests/scenarios/TEST-*.json`'s `flow` field — or, equivalently, the bundled `_testatlas/tests/matrix.json` if present — and dedupe). Flows on disk with zero scenarios MUST be skipped silently — they have no oracle.
-2. For each in-scope flow, execute the per-flow Required Actions block above and accumulate per-flow results into a SINGLE merged `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` with `executionMode: 'all-flows'` recorded inside the run-record metadata (run-record metadata only — the `test-run.schema.json` `type` enum is unchanged).
-3. **Capability-blocked scenarios** — `shell` unavailable for the scenario's runner; `browser` unavailable for a UI scenario; OR scenario carries `pending: capability-required` per `test-scenario.schema.json` — are recorded as `status: 'skipped'` with `skipReason` populated. `--all` MUST NOT halt on the first capability-required skip; it accumulates skip records and continues through the remaining flows.
-4. Halt only when every in-scope scenario was skipped AND the skip reasons are all non-user-recoverable (e.g., the safety flag block + the capability missing in the adapter — the operator cannot proceed in this thread).
+`/atlas:test-flow --all` walks flows referenced by ≥1 scenario in the matrix (`_testatlas/tests/scenarios/TEST-*.json`'s `flow` field; flows with zero scenarios are skipped silently — no oracle), executes the per-flow procedure for each, and accumulates results into ONE merged RUN with `executionMode: 'all-flows'` in run metadata (`test-run.schema.json` `type` enum unchanged). **Capability-blocked** or `pending: capability-required` scenarios are recorded `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Sub-Agent Orchestration
 
@@ -126,7 +121,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
 - Evidence file referenced in a result does not exist on disk after capture (write failure, race) → halt; do not record a result citing a non-existent evidence path.
 - `test-run.schema.json` validation fails on the produced JSON → halt; do not commit a malformed run.
-- `--all` mode does NOT halt on a single capability-blocked or `pending: capability-required` scenario — it accumulates skip records and continues; halts only when every in-scope scenario is skipped AND all skip reasons are non-user-recoverable.
+- `--all` mode never halts on a single capability-blocked skip; halts only when every in-scope scenario is skipped with non-user-recoverable reasons.
 
 ## Completion Criteria
 

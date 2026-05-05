@@ -20,7 +20,7 @@ const repoRoot = path.resolve(__dirname, '..');
  * Build a minimal workspace mirror containing the bits assembleAdapter needs:
  *   - .testatlas/vocabulary.json (schema-loader prereq)
  *   - .testatlas/schemas/*.schema.json (all 17)
- *   - .testatlas/commands/*.md (the 31 sources)
+ *   - .testatlas/commands/*.md (the 32 sources)
  *   - .testatlas/adapters/adapter-capabilities.json
  *
  * Returns the temp workspace dir.
@@ -97,9 +97,9 @@ test('Test 6b: re-running into the same workspace writes nothing on second pass'
   try {
     const first = await assembleAdapter({ adapter: 'claude-code', workspace: ws });
     const second = await assembleAdapter({ adapter: 'claude-code', workspace: ws });
-    assert.equal(first.adapters[0].written.length, 31, 'first run writes 31 files');
+    assert.equal(first.adapters[0].written.length, 32, 'first run writes 32 files');
     assert.equal(second.adapters[0].written.length, 0, 'second run writes nothing');
-    assert.equal(second.adapters[0].unchanged.length, 31, 'second run reports 31 unchanged');
+    assert.equal(second.adapters[0].unchanged.length, 32, 'second run reports 32 unchanged');
   } finally {
     await rm(ws, { recursive: true, force: true });
   }

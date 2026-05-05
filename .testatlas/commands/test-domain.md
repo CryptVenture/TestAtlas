@@ -62,8 +62,8 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` that exists on disk. Fabricated paths fail `validate-workspace`.
-2. Verify capabilities. **If `shell` is unavailable, MUST NOT execute scenarios that require running test runners, dev servers, fixtures, migrations, or seed scripts — mark them `skipped: shell unavailable` per `bootstrap.md` §4 and emit a partial RUN containing only the skipped entries. Add `tool_unavailable: shell` to each affected result. Never simulate command output, exit codes, or side-effects from training-data priors.**
-3. Verify safety flags. If `allowDestructiveActions=false`, refuse scenarios whose steps mutate, delete, or otherwise irreversibly affect data — including any setup-testability scenario that calls `db:reset`, `migrate down`, fixture wipes, or destructive seed operations. If `allowProductionTesting=false`, inspect the resolved target URL/env name (do not trust scenario-author claims) and refuse production targets. Halt the run rather than degrade silently.
+2. Verify capabilities. **If `shell` is unavailable, MUST NOT execute scenarios that need test runners, dev servers, fixtures, migrations, or seed scripts — mark them `skipped: shell unavailable` per `bootstrap.md` §4, emit a partial RUN of only the skipped entries, and tag each `tool_unavailable: shell`. Never simulate command output or side-effects from training-data priors.**
+3. Verify safety flags. If `allowDestructiveActions=false`, refuse scenarios whose steps mutate or delete data — including setup-testability scenarios calling `db:reset`, `migrate down`, fixture wipes, or destructive seed operations. If `allowProductionTesting=false`, inspect the resolved target URL/env (do not trust scenario-author claims) and refuse production. Halt rather than degrade silently.
 4. **Mode disambiguation.** For each scenario in scope (filter `tests/matrix.json` by the four supported `type` values; ignore others — they belong to other test commands), branch on `scenario.type`:
    - **`negative`** — exercise invalid input, permission denial, missing-resource access, malformed payloads, expired sessions, rate-limit triggers. Assert that the target returns the expected error response (status code, error code, message shape) without leaking secrets, stack traces, or internal IDs. Capture request, response, and any rendered error UI as evidence.
    - **`state`** — exercise the canonical lifecycle states from PRD §13: empty, loading, error, success, permission-denied, long-list, partial-data, stale-cache. Capture per-state evidence (one screenshot or DOM snapshot or log file per state observed). A scenario need not exercise every state, but every state it claims to cover MUST have its own evidence file.
@@ -78,12 +78,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 
 ### `--all` mode
 
-When invoked as `/atlas:test-domain --all`:
-
-1. Enumerate domains referenced by ≥1 scenario in the test-scenario matrix (read each per-scenario sidecar `_testatlas/tests/scenarios/TEST-*.json`'s `domain` field — or, equivalently, the bundled `_testatlas/tests/matrix.json` if present — and dedupe). Filter further to scenarios whose `type` is one of the four PRD §26 modes (`negative`, `state`, `integration`, `setup-testability`); other types belong to sister test commands. Domains in `_testatlas/domains/` with zero in-scope scenarios MUST be skipped silently — they have no oracle.
-2. For each in-scope domain, execute the per-domain Required Actions block above (mode disambiguation included) and accumulate per-domain results into a SINGLE merged `_testatlas/runs/RUN-<timestamp>.{md,json}` with `executionMode: 'all-domains'` recorded inside the run-record metadata (run-record metadata only — the `test-run.schema.json` `type` enum is unchanged).
-3. **Capability-blocked scenarios** — `shell` unavailable for the scenario's runner; OR scenario carries `pending: capability-required` per `test-scenario.schema.json`; OR an `integration` scenario whose resolved endpoint is production / live-key (refusal is a skip-with-justification, not a halt) — are recorded as `status: 'skipped'` with `skipReason` populated. `--all` MUST NOT halt on the first capability-required skip; it accumulates skip records and continues through the remaining domains.
-4. Halt only when every in-scope scenario was skipped AND the skip reasons are all non-user-recoverable (e.g., `shell` missing in the adapter + safety flag refusal — the operator cannot proceed in this thread).
+`/atlas:test-domain --all` walks domains with ≥1 scenario in the matrix (filtered to the four PRD §26 modes); domains with zero in-scope scenarios are skipped silently. Accumulates per-domain results into ONE merged RUN with `executionMode: 'all-domains'` (run metadata; `type` enum unchanged). **Capability-blocked** or `pending: capability-required` scenarios — including `integration` resolved to production — are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Outputs
 
@@ -99,7 +94,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence` against the new evidence files.
-- `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-domain) executed `<n>` scenarios across `<m>` modes — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
+- `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
 
 ## Stop Conditions
 
@@ -111,7 +106,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
 - Evidence file referenced in a result does not exist on disk after capture → halt; do not record a result citing a non-existent path.
 - `test-run.schema.json` validation fails on the produced JSON → halt; do not commit a malformed run.
-- `--all` mode does NOT halt on a single capability-blocked or `pending: capability-required` scenario — it accumulates skip records and continues; halts only when every in-scope scenario is skipped AND all skip reasons are non-user-recoverable.
+- `--all` mode never halts on a single capability-blocked skip; halts only when every in-scope scenario is skipped with non-user-recoverable reasons.
 
 ## Completion Criteria
 

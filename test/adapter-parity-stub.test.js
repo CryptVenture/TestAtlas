@@ -33,7 +33,7 @@
 //     adapter is populated; the parity gate requires `coverage === 1.0` AND
 //     `drift.length === 0` against the live tree.
 //
-// The matrix is 31 commands × N adapters expected obligations, where N is
+// The matrix is 32 commands × N adapters expected obligations, where N is
 // the count declared in adapter-capabilities.json. The expected count is
 // computed dynamically from the live result (not hard-coded) so adding a
 // new adapter doesn't require updating this assertion. Tests 2–6 below
@@ -66,14 +66,14 @@ async function makeTmpRepo() {
 
 test('Test 1: live tree — strict mode: coverage === 1.0 AND drift.length === 0', async () => {
   // Strict mode active as of Plan 06-05. Every shipped adapter must be
-  // populated; every 31 commands × N adapters obligation must be satisfied;
+  // populated; every 32 commands × N adapters obligation must be satisfied;
   // drift of any kind (missing / no-marker / hash-mismatch / hand-edit)
   // fails the gate.
   const result = await enumerate({ repoRoot });
-  // expected = 31 × adapter count; with 18 shipped adapters today this is 558.
+  // expected = 32 × adapter count; with 18 shipped adapters today this is 576.
   assert.ok(
-    result.expected > 0 && result.expected % 31 === 0,
-    `expected obligations must be a positive multiple of 31; got ${result.expected}`,
+    result.expected > 0 && result.expected % 32 === 0,
+    `expected obligations must be a positive multiple of 32; got ${result.expected}`,
   );
   assert.strictEqual(
     result.found,

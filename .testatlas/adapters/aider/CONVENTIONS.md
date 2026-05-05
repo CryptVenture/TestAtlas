@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="27c190454c076a355c54a390ab58b8338c1d7f5a9108dab7f4e3800bfd839859" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="78ea2885904c9d3eac6e734d86849deec8974d9f874389ca0fd1abe2dd914a19" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Aider. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -145,6 +145,13 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. Read `.testatlas/commands/test-accessibility.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
 - DEGRADED: browser/MCP unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-test-all
+
+Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-domain --all` and aggregates per-child run records into a single merged RUN-<timestamp>.{md,json}. Read `.testatlas/commands/test-all.md` for full instructions.
+- Required capabilities: shell, browser, file-write.
+- DEGRADED: browser unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-domain
