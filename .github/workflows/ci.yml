@@ -76,6 +76,44 @@ jobs:
           echo "package.json engines.node: $REQUIRED (expect >=20.11.0)"
           test "$REQUIRED" = ">=20.11.0"
 
+      - name: Install dogfood-test prerequisites (cosign + shellcheck)
+        # Quick 260506-07b. /atlas:test-flow --all (Quick B) exercises
+        # FLOW-install-curl-pipe-install scenarios that opt-in to cosign
+        # attestation verification (TESTATLAS_VERIFY_SIGNATURE=1). Without
+        # cosign on PATH the dogfood would silently miss that surface; install
+        # it on every test runner. shellcheck is independently provisioned by
+        # the dedicated `shellcheck` job below for install.sh, but tests in
+        # `test/install-sh/` shell out to it too — install on Linux runners
+        # here as well. macOS gets shellcheck via Homebrew preinstall.
+        # Windows skips both (no POSIX shell installer there).
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -eu
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq shellcheck
+          else
+            # macOS: brew preinstall ships shellcheck on github-hosted runners.
+            shellcheck --version >/dev/null
+          fi
+          echo "shellcheck version:"
+          shellcheck --version | head -n 3
+
+      - name: Install cosign
+        # Quick 260506-07b. Pinned to sigstore/cosign-installer@v3.x; this
+        # action is GitHub-published, signed-tag-managed, and the canonical
+        # path for cosign in CI per sigstore docs.
+        if: runner.os != 'Windows'
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Echo cosign version
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          echo "cosign version:"
+          cosign version
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile=false
 
