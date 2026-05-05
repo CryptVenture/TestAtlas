@@ -574,8 +574,14 @@ test('orchestrator: --auto-heal without --apply: read-only; healed is recorded',
   assert.equal(after.mtimeMs, before.mtimeMs);
 
   // Markdown report includes Auto-heal section.
+  // Plan 12-05 (ISSUE-023): preview-mode header is "Would apply", not
+  // "Applied" — the original assertion below was pinning the bug.
   assert.match(r.reportMarkdown, /## Auto-heal/);
-  assert.match(r.reportMarkdown, /### Applied/);
+  assert.match(r.reportMarkdown, /### Would apply/);
+  assert.ok(
+    !/### Applied \(/.test(r.reportMarkdown),
+    'preview-mode must NOT print "### Applied (" (ISSUE-023)',
+  );
 });
 
 test('orchestrator: --auto-heal --apply against broken-count-mismatch: writes + post-heal exit 0', async (t) => {

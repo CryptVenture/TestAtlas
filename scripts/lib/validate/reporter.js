@@ -43,11 +43,12 @@ import path from 'node:path';
  * @param {{
  *   healed?: {applied: object[], skipped: object[]},
  *   postHealResults?: CheckResult[],
+ *   apply?: boolean,
  * }} [extras]
  * @returns {string}
  */
 export function renderMarkdownReport(results, ctx, extras = {}) {
-  const { healed, postHealResults } = extras;
+  const { healed, postHealResults, apply = false } = extras;
   const generatedAt = new Date().toISOString();
   const wsDirRel = ctx.wsDir;
 
@@ -109,7 +110,12 @@ export function renderMarkdownReport(results, ctx, extras = {}) {
   lines.push('');
   if (healed) {
     const { applied = [], skipped = [] } = healed;
-    lines.push(`### Applied (${applied.length})`);
+    // Plan 12-05 (ISSUE-023): branch the header on the `apply` flag so
+    // preview-mode (`--auto-heal` without `--apply`) renders "Would apply (N)"
+    // — making it unambiguous that no on-disk writes happened. The previous
+    // unconditional "Applied (N)" label caused ISSUE-023.
+    const verb = apply ? 'Applied' : 'Would apply';
+    lines.push(`### ${verb} (${applied.length})`);
     lines.push('');
     if (applied.length > 0) {
       lines.push('| HEAL | Path | Summary |');
@@ -117,8 +123,12 @@ export function renderMarkdownReport(results, ctx, extras = {}) {
       for (const a of applied) {
         lines.push(`| ${a.healId} | \`${a.path}\` | ${a.summary} |`);
       }
+      if (!apply) {
+        lines.push('');
+        lines.push('_Preview only — re-run with `--apply` to persist these changes._');
+      }
     } else {
-      lines.push('_No heals applied._');
+      lines.push(apply ? '_No heals applied._' : '_No heals to apply._');
     }
     lines.push('');
     lines.push(`### Skipped (${skipped.length})`);

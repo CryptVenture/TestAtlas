@@ -113,7 +113,11 @@ async function applyHeal01(ctx, _finding, { apply, dryRun }) {
   const summary =
     diffParts.length > 0 ? `counts updated: ${diffParts.join(', ')}` : 'counts already in sync';
 
-  if (apply && !dryRun) {
+  // Plan 12-05 (ISSUE-023): wrote is true only when an atomicWrite actually
+  // happened, so the reporter can branch "Applied" vs "Would apply" without
+  // re-deriving from the apply flag.
+  const wrote = apply && !dryRun;
+  if (wrote) {
     const updated = {
       ...manifest,
       counts: { ...(manifest?.counts ?? {}), ...actual },
@@ -131,6 +135,7 @@ async function applyHeal01(ctx, _finding, { apply, dryRun }) {
   return {
     healId: 'HEAL-01',
     path: '11_workspace_manifest.json',
+    wrote,
     summary,
   };
 }
@@ -182,7 +187,9 @@ async function applyHeal04(ctx, finding, { apply, dryRun }) {
   const newHash = hashContent(sec.contentLines);
   const summary = `hash refreshed for ${filename}/${sectionSlug}`;
 
-  if (apply && !dryRun) {
+  // Plan 12-05 (ISSUE-023): track wrote so reporter can branch on it.
+  const wrote = apply && !dryRun;
+  if (wrote) {
     const updated = JSON.parse(JSON.stringify(manifest ?? {}));
     if (!updated.generatedSections) updated.generatedSections = {};
     if (!updated.generatedSections[filename]) updated.generatedSections[filename] = {};
@@ -196,6 +203,7 @@ async function applyHeal04(ctx, finding, { apply, dryRun }) {
   return {
     healId: 'HEAL-04',
     path: '11_workspace_manifest.json',
+    wrote,
     summary,
   };
 }
@@ -351,7 +359,9 @@ async function applyHeal02(ctx, _finding, { apply, dryRun }) {
     ARTIFACT_INDEX_SECTIONS.map((s) => [s, hashContent(bodies[s])]),
   );
 
-  if (apply && !dryRun) {
+  // Plan 12-05 (ISSUE-023): wrote=true only when atomicWrite actually fires.
+  const wrote = apply && !dryRun;
+  if (wrote) {
     await atomicWrite(targetAbs, updated);
 
     // Refresh manifest hashes in a single atomicWrite.
@@ -369,6 +379,7 @@ async function applyHeal02(ctx, _finding, { apply, dryRun }) {
   return {
     healId: 'HEAL-02',
     path: filename,
+    wrote,
     summary: `regenerated ${ARTIFACT_INDEX_SECTIONS.length} sections; preserved human prose outside markers`,
   };
 }
@@ -557,7 +568,11 @@ async function applyHeal03(ctx, finding, { apply, dryRun }) {
 
   const newHash = hashContent(body);
 
-  if (apply && !dryRun) {
+  // Plan 12-05 (ISSUE-023): wrote=true only when atomicWrite actually fires.
+  // The reporter relies on this flag (not the apply CLI flag alone) to branch
+  // its "Applied" / "Would apply" header.
+  const wrote = apply && !dryRun;
+  if (wrote) {
     // Ensure parent dir exists (cross-cut by_*/ dirs may be absent in fresh
     // workspaces with no issues of that facet value yet).
     await ensureParentDir(absPath);
@@ -579,6 +594,7 @@ async function applyHeal03(ctx, finding, { apply, dryRun }) {
   return {
     healId: 'HEAL-03',
     path: relPath,
+    wrote,
     summary: `regenerated ${relPath}; preserved human prose outside markers`,
   };
 }

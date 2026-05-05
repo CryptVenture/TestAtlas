@@ -203,7 +203,13 @@ export async function validateWorkspace(
     }
   }
 
-  const reportMarkdown = renderMarkdownReport(results, ctx, { healed, postHealResults });
+  // Plan 12-05 (ISSUE-023): thread `apply` to the markdown reporter so its
+  // header reads "Applied" only when --apply was set, "Would apply" otherwise.
+  const reportMarkdown = renderMarkdownReport(results, ctx, {
+    healed,
+    postHealResults,
+    apply,
+  });
   const reportJson = renderJsonReport(results, ctx, { healed, postHealResults });
 
   // Optional report-to-disk.
