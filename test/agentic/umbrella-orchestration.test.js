@@ -3,17 +3,17 @@
 // orchestration block must contain all 5 brief slots from 09-RESEARCH.md
 // Pattern 1 (objective, scope, files-to-read, output-format, exit-criteria).
 //
-// Quick 260505-ge3 / F-11 update: explore.md was reclassified as
-// "advisory, classification-only" — the umbrella explore router does NOT
-// spawn sub-explorers (that's the operator's or a downstream orchestrator's
-// job). So:
-//   - All 4 umbrellas keep the H2 + the 5 brief slots (advisory contract).
-//   - explore.md uses the suffix `(advisory, classification-only)` and
-//     marks `executionMode: 'classify-only'` instead of the parallel/
-//     sequential-fallback pair.
-//   - plan.md, test-flow.md, consolidate.md retain the
-//     parallel + sequential-fallback contract — they ARE spawning
-//     orchestrators that aggregate child output.
+// Quick 260505-hld / F-11 Option A: explore.md is now a SPAWNING umbrella —
+// it spawns recommended sub-explorers in parallel via the host's
+// subagent-spawn capability and aggregates their structured findings into
+// _testatlas/02_product_overview.md alongside the routing-decision record at
+// _testatlas/explore-plan.md. The `classify-only` path is retained as a
+// degraded executionMode (host without subagent-spawn AND without sequential
+// capability), but the umbrella's contract is no longer "advisory only".
+//
+// All 4 umbrellas (plan.md, test-flow.md, consolidate.md, explore.md) now
+// share the SPAWNING contract: parallel + sequential-fallback paths, plus
+// the 5 brief slots and the `executionMode` literal.
 
 import { strict as assert } from 'node:assert';
 import { readFile } from 'node:fs/promises';
@@ -24,9 +24,12 @@ const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const COMMANDS = path.join(REPO_ROOT, '.testatlas', 'commands');
 
 // Umbrellas that DO spawn + merge sub-agent output: parallel + fallback contract.
-const SPAWNING_UMBRELLAS = ['plan.md', 'test-flow.md', 'consolidate.md'];
+const SPAWNING_UMBRELLAS = ['plan.md', 'test-flow.md', 'consolidate.md', 'explore.md'];
 // Umbrellas with the H2 but a different runtime contract (classify-only, etc.).
-const NON_SPAWNING_UMBRELLAS = ['explore.md'];
+// Empty after Quick 260505-hld / F-11 Option A — explore.md flipped to spawning.
+// Constant kept so ALL_UMBRELLAS spread + future asymmetric umbrellas don't
+// require a new shape.
+const NON_SPAWNING_UMBRELLAS = [];
 const ALL_UMBRELLAS = [...SPAWNING_UMBRELLAS, ...NON_SPAWNING_UMBRELLAS];
 
 const BRIEF_SLOTS = ['objective', 'scope', 'files-to-read', 'output-format', 'exit-criteria'];
@@ -89,24 +92,26 @@ for (const fileName of SPAWNING_UMBRELLAS) {
   });
 }
 
-// F-11: explore.md is classify-only — its block must reference the
-// `subagent-spawn` capability (so reading agents know how to chain into a
-// spawning host) but uses `executionMode: 'classify-only'` instead of the
-// parallel/sequential-fallback pair.
-test(`explore.md orchestration block is classify-only (Quick 260505-ge3 / F-11)`, async () => {
+// F-11 Option A: explore.md is a spawn-and-aggregate orchestrator — its
+// block must declare the spawn-and-aggregate contract literally
+// (spawn / parallel / aggregate / 02_product_overview.md / parallel-subagents).
+// The classify-only literal still appears in the block as one of the 5
+// executionMode enum values, but no longer as the umbrella's primary contract.
+test(`explore.md orchestration block is spawn-and-aggregate (Quick 260505-hld / F-11 Option A)`, async () => {
   const text = await readFile(path.join(COMMANDS, 'explore.md'), 'utf8');
   const block = extractSection(text, 'Sub-Agent Orchestration');
   assert.ok(block, 'explore.md: could not locate "## Sub-Agent Orchestration" section');
-  assert.ok(
-    block.includes('classify-only'),
-    'explore.md orchestration block must declare classify-only contract',
-  );
-  assert.ok(
-    block.includes('subagent-spawn'),
-    'explore.md orchestration block must still reference the "subagent-spawn" capability for downstream chaining',
-  );
-  assert.ok(
-    block.includes('executionMode'),
-    'explore.md orchestration block must mention "executionMode"',
-  );
+  const lower = block.toLowerCase();
+  for (const literal of [
+    'spawn',
+    'parallel',
+    'aggregate',
+    '02_product_overview.md',
+    'parallel-subagents',
+  ]) {
+    assert.ok(
+      lower.includes(literal.toLowerCase()),
+      `explore.md orchestration block must reference "${literal}" for Option A spawn-and-aggregate contract`,
+    );
+  }
 });
