@@ -21,6 +21,30 @@ export const prdRule = 2;
 const SCHEMA_BASE = 'https://testatlas.dev/schemas/v1';
 
 /**
+ * Returns true for raw evidence dumps under `evidence/<command>/<timestamp>/...`.
+ * These are non-schema-bound captures (per create-evidence-record.js, only
+ * `evidence/EVIDENCE-<digit>+(-<slug>)?/evidence.json` sidecars carry a schema).
+ *
+ * Distinguishing rule (F-7, Quick 260505-ge3):
+ *   - Path has ≥3 segments under `evidence/`
+ *     (i.e. evidence/<seg1>/<seg2>/file.json or deeper)
+ *   - The first segment after `evidence/` is NOT of the form `EVIDENCE-<digit>+`
+ *
+ * @param {string} relPath  Workspace-relative POSIX path
+ * @returns {boolean}
+ */
+function isRawEvidenceDump(relPath) {
+  if (!relPath.startsWith('evidence/')) return false;
+  const parts = relPath.split('/');
+  // ['evidence', '<seg1>', '<seg2>', ...]
+  // Sidecars live at evidence/EVIDENCE-<id>/evidence.json (3 parts).
+  // Raw dumps live under evidence/<command>/<timestamp>/file.json (4+ parts).
+  if (parts.length < 4) return false;
+  const firstSeg = parts[1];
+  return !/^EVIDENCE-\d{3,}/.test(firstSeg);
+}
+
+/**
  * Infer the schema $id for a given JSON file. Strategy:
  *   1. If the parsed object has a `$schema` field, trust that.
  *   2. Otherwise, infer from path patterns relative to the workspace dir.
@@ -87,6 +111,15 @@ export async function check(ctx) {
 
   for (const f of files.allJsonFiles) {
     const relPath = path.relative(wsDir, f.path);
+
+    // F-7 (Quick 260505-ge3): raw evidence captures under
+    // `evidence/<command>/<timestamp>/*.json` are NOT schema-bound. Skip
+    // them silently — no finding emitted (not even TESTATLAS_JSON_PARSE_ERROR;
+    // a malformed raw dump is a non-finding by contract).
+    const relPathPosix = relPath.split(path.sep).join('/');
+    if (isRawEvidenceDump(relPathPosix)) {
+      continue;
+    }
 
     // Parse error → JSON-parse-error finding; skip schema validation.
     if (f.parseError) {
