@@ -4,7 +4,7 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="0129942a1964ca08" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="ca292497cccedff2" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -36,8 +36,11 @@ Use the manual fallback below only when shell capability is unavailable. `--auto
 9. **Stale generated sections (PRD §33 condition 8):** sections wrapped in `<!-- TESTATLAS:GENERATED:START section="..." -->` markers have content hashes matching the manifest's recorded `generatedSections` hash (PRD §14.11 + WORK-07). Do not overwrite when hashes diverge — WARN only.
 10. **Modified-generated-content (PRD §33 condition 9):** WARN on hash mismatch and surface the specific file + section. Per WORK-07, hash-based detection is preferred over textual diffs.
 11. **Status / count mismatches:** the manifest's `counts.{domains,flows,issues,evidence,runs,reports}` equal the on-disk counts. Re-derive from disk and surface deltas.
-12. Append the validation findings as a markdown report under `_testatlas/reports/validation-report-<timestamp>.md`, grouped by PRD §33 rule number.
-13. Close the lifecycle (next section).
+12. **Auxiliary drift checks (if `shell` is available — preferred path).** Run two complementary scripts whose findings fold into the validation report:
+    - `node .testatlas/scripts/check-org-placeholder.js` — exits non-zero if the literal `<org>` placeholder is found anywhere in active repo files (excludes node_modules, .git, .planning, dist, coverage, .testatlas.bak.*). Surface each match as a finding under "drift: pre-publish placeholder leak" in the validation report.
+    - `node .testatlas/scripts/check-stale-docs.js [--threshold-days 90]` — flags workspace markdown files older than threshold (honors `archival: true` frontmatter and `config.staleDocs.archivalDirs`). Surface flagged paths as `confidence: needs-validation` findings under PRD §33 condition 8 (stale generated content adjacent rule).
+13. Append the validation findings as a markdown report under `_testatlas/reports/validation-report-<timestamp>.md`, grouped by PRD §33 rule number.
+14. Close the lifecycle (next section).
 
 ## Outputs
 

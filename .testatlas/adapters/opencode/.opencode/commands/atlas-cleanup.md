@@ -2,7 +2,7 @@
 description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="2f5c9a216ec81814" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="709abfbe8aef29a0" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -18,20 +18,26 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 
 ## Required Actions
 
-1. Verify `file-write` capability is available. Halt cleanly and report if absent.
-2. **Two-tree invariant check (verbatim)**: this command operates exclusively on `_testatlas/`. NEVER touches `.testatlas/`. Halt immediately if any planned operation would write to `.testatlas/`. The suite layer is owned by the installer; the workspace layer is owned by the agent.
-3. **Enumerate orphan artifacts.** Walk `_testatlas/` and identify files not referenced by any index: an issue under `to_fix/` not listed in any per-severity / per-status / per-domain index; an evidence file under `evidence/` not referenced by any issue or run; a run record under `runs/` not present in the artifact index. Record each orphan with its path and the index it should appear in.
-4. **Enumerate broken links.** Read every markdown file under `_testatlas/` and resolve each repository-relative cross-reference. A link whose target does not exist on disk is a broken link. Record the source file, line number, and dangling path.
-5. **Enumerate stale generated-section markers.** For each pair of `<!-- TESTATLAS:GENERATED:START id="..." hash="..." -->` and `<!-- TESTATLAS:GENERATED:END id="..." -->` markers (per the Phase 2 markers parser), verify that the START/END pair is well-formed and that the recorded `hash` matches the current content. Record orphan starts, orphan ends, mismatched IDs, and hash mismatches separately.
-6. **Repair mode (default safe).** Apply only operations that cannot lose user content:
+1. **Preferred path (if `shell` is available):** the cleanup workflow ships three composable accelerators:
+   - `node .testatlas/scripts/update-indexes.js [--only=...]` — regenerates the on-disk-derived sections of `09_artifact_index.md` from live workspace truth, preserving human prose outside `<!-- TESTATLAS:GENERATED -->` markers (refuses on malformed markers — `TESTATLAS_MARKER_INVALID`).
+   - `node .testatlas/scripts/normalize-slugs.js [--apply]` — without `--apply` prints a rename plan for mis-slugged artifacts under `to_fix/`, `flows/`, `domains/`, `evidence/`, `reports/`, `tests/runs/`. With `--apply` performs the renames AND updates index references via the same markers parser. Run without `--apply` first; only `--apply` after operator confirms.
+   - `node .testatlas/scripts/check-stale-docs.js [--threshold-days <n>] [--report <path>]` — flags markdown files older than threshold (default 90 days). Honors `archival: true` frontmatter and `config.staleDocs.archivalDirs` (default `['history']`). Output is informational; cleanup never auto-archives stale docs.
+
+   Capture stdout from each invocation into the cleanup-report. Skip steps 4–8 below for items the scripts handled. **Manual path (no `shell`):** items 2–11 below describe each step the runtime performs.
+2. Verify `file-write` capability is available. Halt cleanly and report if absent.
+3. **Two-tree invariant check (verbatim)**: this command operates exclusively on `_testatlas/`. NEVER touches `.testatlas/`. Halt immediately if any planned operation would write to `.testatlas/`. The suite layer is owned by the installer; the workspace layer is owned by the agent.
+4. **Enumerate orphan artifacts.** Walk `_testatlas/` and identify files not referenced by any index: an issue under `to_fix/` not listed in any per-severity / per-status / per-domain index; an evidence file under `evidence/` not referenced by any issue or run; a run record under `runs/` not present in the artifact index. Record each orphan with its path and the index it should appear in.
+5. **Enumerate broken links.** Read every markdown file under `_testatlas/` and resolve each repository-relative cross-reference. A link whose target does not exist on disk is a broken link. Record the source file, line number, and dangling path.
+6. **Enumerate stale generated-section markers.** For each pair of `<!-- TESTATLAS:GENERATED:START id="..." hash="..." -->` and `<!-- TESTATLAS:GENERATED:END id="..." -->` markers (per the Phase 2 markers parser), verify that the START/END pair is well-formed and that the recorded `hash` matches the current content. Record orphan starts, orphan ends, mismatched IDs, and hash mismatches separately.
+7. **Repair mode (default safe).** Apply only operations that cannot lose user content:
    - Orphan artifact → re-link from the appropriate index if a logical home exists; otherwise list the artifact for operator review. Never delete the file.
    - Broken link → list in the cleanup report for operator review. Never auto-fix without operator confirmation; the correct target may be elsewhere or the link may indicate a missing artifact that should be authored.
    - Stale generated-section marker pair with valid hash → re-render the generated content while preserving the human-authored content outside markers (per the markers parser semantics). On hash mismatch (which signals a human edit inside the generated block), warn and skip — do NOT overwrite human edits.
    - Orphan markers → list for operator review; do not synthesize a missing partner.
-7. **Re-derive `_testatlas/09_artifact_index.md`** from disk truth. The artifact index must reflect what exists on disk, not what was previously recorded.
-8. **Reconcile `_testatlas/11_workspace_manifest.json` counts** to match the re-derived index. Bump `lastUpdatedAt`. If counts cannot be reconciled (e.g., the manifest claims more issues than exist on disk and the discrepancy cannot be explained by orphaned artifacts), halt and surface for operator review rather than silently rewrite.
-9. **Write `_testatlas/cleanup-report-<ts>.md`** listing each enumerated item, the action taken (or `requires-review`), and the resulting state. The report is the durable record of this run.
-10. Close the lifecycle (next section).
+8. **Re-derive `_testatlas/09_artifact_index.md`** from disk truth. The artifact index must reflect what exists on disk, not what was previously recorded.
+9. **Reconcile `_testatlas/11_workspace_manifest.json` counts** to match the re-derived index. Bump `lastUpdatedAt`. If counts cannot be reconciled (e.g., the manifest claims more issues than exist on disk and the discrepancy cannot be explained by orphaned artifacts), halt and surface for operator review rather than silently rewrite.
+10. **Write `_testatlas/cleanup-report-<ts>.md`** listing each enumerated item, the action taken (or `requires-review`), and the resulting state. The report is the durable record of this run.
+11. Close the lifecycle (next section).
 
 ## Outputs
 

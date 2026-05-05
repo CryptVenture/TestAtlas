@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-handoff. Invoke as /prompts:atlas-handoff. Description: Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="3228fe0dd19886fd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="6b5bbedb2eb9c4bc" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -16,10 +16,15 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
 
 ## Required Actions
 
-1. Verify `file-write` capability is available. The handoff record cannot be persisted without it; halt cleanly if absent and surface the missing capability per `bootstrap.md`.
-2. Determine the handoff scope precisely. Identify which flows, domains, issues, runs, and evidence files are in scope for the receiving sub-agent and which are explicitly excluded. Vague scope produces context drift; the schema's `scope` and `nonScope` arrays are mandatory and must be populated with concrete repository-relative paths.
-3. Allocate the handoff ID per PRD §32 — zero-padded format `HANDOFF-<ts>` where `<ts>` is the ISO-8601 UTC timestamp compressed to filesystem-safe form (e.g., `HANDOFF-20260503T141522Z`). Verify no on-disk file at that ID already exists.
-4. Capture the 15 required fields verbatim per `sub-agent-handoff.schema.json`:
+1. **Preferred path (if `shell` is available):** before authoring the handoff record, run two pre-flight accelerators so the receiving agent inherits a clean tree:
+   - `node .testatlas/scripts/summarize-run.js [--since=<ISO>]` — distills recent RUN-*.md frontmatter into `tests/runs/SESSION-SUMMARY-<ts>.md`. Cite this summary in the handoff's `filesToRead` array so the receiver gets the situational read-out without re-reading every run.
+   - `node .testatlas/scripts/normalize-slugs.js` (read-only, no `--apply`) — surfaces any mis-slugged artifacts the receiver would inherit. If the rename plan is non-empty, decide: (a) run `--apply` now (operator confirmation required) and capture the rename log into the handoff, or (b) record the dirty-slug list in the handoff's `questions` array.
+
+   **Manual path (no `shell`):** items 2–9 below describe each step the runtime performs.
+2. Verify `file-write` capability is available. The handoff record cannot be persisted without it; halt cleanly if absent and surface the missing capability per `bootstrap.md`.
+3. Determine the handoff scope precisely. Identify which flows, domains, issues, runs, and evidence files are in scope for the receiving sub-agent and which are explicitly excluded. Vague scope produces context drift; the schema's `scope` and `nonScope` arrays are mandatory and must be populated with concrete repository-relative paths.
+4. Allocate the handoff ID per PRD §32 — zero-padded format `HANDOFF-<ts>` where `<ts>` is the ISO-8601 UTC timestamp compressed to filesystem-safe form (e.g., `HANDOFF-20260503T141522Z`). Verify no on-disk file at that ID already exists.
+5. Capture the 15 required fields verbatim per `sub-agent-handoff.schema.json`:
    - `id` — the allocated handoff ID.
    - `assignedRole` — the receiving sub-agent's role label (e.g., `ui-explorer`, `test-runner`).
    - `createdOn` — ISO-8601 UTC timestamp.
@@ -36,10 +41,10 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
    - `outputLocation` — where the receiving agent's output lands.
    - `outputStructure` — the artifact layout expected of the receiving agent.
    - `completionCriteria` — explicit, verifiable acceptance signals.
-5. Write the JSON sidecar to `_testatlas/handoffs/HANDOFF-<ts>.json`. Validate it against `sub-agent-handoff.schema.json` using AJV before commit; halt on validation failure and surface AJV errors verbatim.
-6. Write the human-readable narrative to `_testatlas/handoffs/HANDOFF-<ts>.md`. The narrative restates the JSON in prose, includes the cross-references to flows/domains/issues, and ends with a checklist matching `completionCriteria`.
-7. Add a back-reference entry in `_testatlas/handoffs/index.md` (create the index file if absent).
-8. Close the lifecycle (next section).
+6. Write the JSON sidecar to `_testatlas/handoffs/HANDOFF-<ts>.json`. Validate it against `sub-agent-handoff.schema.json` using AJV before commit; halt on validation failure and surface AJV errors verbatim.
+7. Write the human-readable narrative to `_testatlas/handoffs/HANDOFF-<ts>.md`. The narrative restates the JSON in prose, includes the cross-references to flows/domains/issues, and ends with a checklist matching `completionCriteria`.
+8. Add a back-reference entry in `_testatlas/handoffs/index.md` (create the index file if absent).
+9. Close the lifecycle (next section).
 
 ## Outputs
 

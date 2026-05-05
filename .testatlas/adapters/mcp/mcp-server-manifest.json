@@ -148,6 +148,11 @@
       "arguments": []
     },
     {
+      "name": "atlas-uninstall",
+      "description": "Remove the TestAtlas suite tree (`.testatlas/`) per the install manifest; with `--purge`, also remove the `_testatlas/` workspace. Operator-confirmed; never runs without explicit invocation.",
+      "arguments": []
+    },
+    {
       "name": "atlas-update",
       "description": "Invoke the suite self-update flow — checks GitHub Releases per UPDATE-01, delegates to Phase 7 update.js for atomic apply with backup, never auto-applies without operator confirmation.",
       "arguments": []
