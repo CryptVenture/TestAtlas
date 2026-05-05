@@ -3,7 +3,7 @@ description: Remove the TestAtlas suite tree (`.testatlas/`) per the install man
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/uninstall.md" hash="a2d800da13c9c689" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/uninstall.md" hash="612b4b186a27d69b" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -59,8 +59,9 @@ When `--purge` IS used, no lifecycle updates are possible (workspace is gone). T
 
 ## What's Next
 
-The repo no longer contains TestAtlas. To reinstall:
+The repo no longer contains TestAtlas. After re-running `npx @webventures/testatlas init`:
 
-- **`npx @webventures/testatlas init`** — recreate the suite + workspace
-- **`/atlas:bootstrap`** (after reinstall) — reload the constitution
+- **`/atlas:init`** — recreate the `_testatlas/` workspace tree
+- **`/atlas:bootstrap`** — reload the constitution after reinstall
+- **`/atlas:validate-workspace`** — confirm the freshly reinstalled tree is clean
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -18,19 +18,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const RULES_PATH = path.join(repoRoot, '.testatlas', 'adapters', 'zed', '.rules');
 
-test('Test 1: .rules exists and total line count ≤ 200', async () => {
+test('Test 1: .rules exists and total line count ≤ 210', async () => {
   const text = await readFile(RULES_PATH, 'utf8');
   const lines = text.split('\n');
-  assert.ok(lines.length <= 200, `.rules must be ≤200 lines; got ${lines.length}`);
+  assert.ok(lines.length <= 210, `.rules must be ≤210 lines; got ${lines.length}`);
 });
 
-test('Test 2: 30 H2 sections matching source command set', async () => {
+test('Test 2: 31 H2 sections matching source command set', async () => {
   const text = await readFile(RULES_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 30, `expected 30 H2 atlas-* headings; got ${headings.length}`);
+  assert.equal(headings.length, 31, `expected 31 H2 atlas-* headings; got ${headings.length}`);
   const sources = await listCommandFiles({ cwd: repoRoot });
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
   for (const h of headings) assert.ok(expectedNames.has(h), `unexpected H2: /${h}`);

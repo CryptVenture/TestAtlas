@@ -1,10 +1,11 @@
 // test/commands/dogfood-loop.test.js
 //
-// CMD-01: structural test asserting the EXACT 30-file Phase 4 closure roster
-// (Phase 3 shipped 9; Phase 4 ships 21 NEW = 30 total). Cannot live in any
-// single plan because the roster is only complete after Wave 1 + Wave 2 of
-// Phase 4 lands. Acts as a drift detector: adding or removing a command
-// without updating EXPECTED_ROSTER fails the test with a clear diff.
+// CMD-01: structural test asserting the EXACT 31-file command roster
+// (Phase 3 shipped 9; Phase 4 ships 21 NEW; quick-260505-2zr adds uninstall.md
+// = 31 total). Cannot live in any single plan because the roster is only
+// complete after Wave 1 + Wave 2 of Phase 4 lands. Acts as a drift detector:
+// adding or removing a command without updating EXPECTED_ROSTER fails the
+// test with a clear diff.
 //
 // Build-up history:
 //   - Phase 3 (9):  init, bootstrap, validate-workspace, log-issue,
@@ -13,6 +14,7 @@
 //                   data,integrations,accessibility,performance,security},
 //                   test-{domain,regression,accessibility,performance},
 //                   triage, retest, consolidate, handoff, cleanup, update
+//   - quick-260505-2zr (+1): uninstall (lifecycle parity with init/update)
 //
 // README.md is filtered out — it is an index page, not a command file.
 
@@ -52,11 +54,12 @@ const EXPECTED_ROSTER = [
   'test-performance.md',
   'test-regression.md',
   'triage.md',
+  'uninstall.md',
   'update.md',
   'validate-workspace.md',
 ];
 
-test('CMD-01: dogfood loop ships exactly 30 command files', async () => {
+test('CMD-01: dogfood loop ships exactly 31 command files', async () => {
   const files = await listCommandFiles();
   const basenames = files.map((f) => path.basename(f)).filter((name) => name !== 'README.md');
   assert.equal(

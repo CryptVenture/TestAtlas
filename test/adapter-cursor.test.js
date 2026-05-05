@@ -1,6 +1,6 @@
 // test/adapter-cursor.test.js
 //
-// Plan 06-04 Task 1: structural assertions on the 30 generated Cursor adapter
+// Plan 06-04 Task 1: structural assertions on the 31 generated Cursor adapter
 // rule files. Cursor 2026 uses flat `.mdc` files per `.cursor/rules/<name>.mdc`
 // (per RESEARCH §1; the folder form announced in Cursor 2.2 mid-2026 is non-
 // functional, so we ship flat MDC).
@@ -32,13 +32,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const ADAPTER_DIR = path.join(repoRoot, '.testatlas', 'adapters', 'cursor', '.cursor', 'rules');
 
-test('Test 1: 30 derived atlas-*.mdc rule files exist (one per source command)', async () => {
+test('Test 1: 31 derived atlas-*.mdc rule files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 30, `expected 30 source commands; got ${sources.length}`);
+  assert.equal(sources.length, 31, `expected 31 source commands; got ${sources.length}`);
 
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.mdc'));
-  assert.equal(derived.length, 30, `expected 30 derived .mdc files; got ${derived.length}`);
+  assert.equal(derived.length, 31, `expected 31 derived .mdc files; got ${derived.length}`);
 
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.mdc`));
   for (const name of derived) {

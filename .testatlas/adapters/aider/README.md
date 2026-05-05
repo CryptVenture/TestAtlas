@@ -30,15 +30,15 @@ This adapter declares only `[shell, file-write]`. As of mid-2026, Aider does **n
 
 The full canonical degradation prose lives in `.testatlas/bootstrap.md` §4 (which Aider reads first per the `read:` ordering above) — the in-CONVENTIONS line is a reference, not the full block, because the per-section line cap forbids it.
 
-## Why one file, not 30
+## Why one file, not 31
 
-Aider's prompt-injection model concatenates every file in `read:` into every request. Shipping 30 separate command files would 30× the prompt-cache invalidation surface — any single edit to any source command would invalidate the cache for all chats. A single `CONVENTIONS.md` keeps the cache stable and the chat economics healthy.
+Aider's prompt-injection model concatenates every file in `read:` into every request. Shipping 31 separate command files would 31× the prompt-cache invalidation surface — any single edit to any source command would invalidate the cache for all chats. A single `CONVENTIONS.md` keeps the cache stable and the chat economics healthy.
 
 ## Per-section line cap
 
 Each H2 section in `CONVENTIONS.md` is capped at **7 lines** (heading + body, including a trailing blank separator). The renderer hard-fails (throws) if any section's render would exceed this budget — that's the build-time guardrail preventing future command-source growth from silently breaking Aider's prompt budget.
 
-The whole CONVENTIONS.md file is capped at **200 lines** (~30 sections × 7 lines − some shared header). If a future TestAtlas command requires more than the budget allows, it must either trim its description or be refactored into multiple commands.
+The whole CONVENTIONS.md file is capped at **210 lines** (~31 sections × 7 lines − some shared header). If a future TestAtlas command requires more than the budget allows, it must either trim its description or be refactored into multiple commands.
 
 ## Regeneration
 

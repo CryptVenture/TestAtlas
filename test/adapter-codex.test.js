@@ -1,6 +1,6 @@
 // test/adapter-codex.test.js
 //
-// Structural assertions on the 30 generated Codex CLI adapter prompts.
+// Structural assertions on the 31 generated Codex CLI adapter prompts.
 // Codex prompts at ~/.codex/prompts/<name>.md are plain markdown with NO
 // YAML frontmatter (Codex ignores it). Each rendered file carries an
 // HTML-comment header describing the prompt + the standard
@@ -19,13 +19,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const ADAPTER_DIR = path.join(repoRoot, '.testatlas', 'adapters', 'codex', '.codex', 'prompts');
 
-test('Test 1: 30 derived atlas-*.md prompt files exist (one per source command)', async () => {
+test('Test 1: 31 derived atlas-*.md prompt files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 30, `expected 30 source commands; got ${sources.length}`);
+  assert.equal(sources.length, 31, `expected 31 source commands; got ${sources.length}`);
 
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 30, `expected 30 derived prompt files; got ${derived.length}`);
+  assert.equal(derived.length, 31, `expected 31 derived prompt files; got ${derived.length}`);
 
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) {

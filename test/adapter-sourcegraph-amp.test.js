@@ -1,6 +1,6 @@
 // test/adapter-sourcegraph-amp.test.js
 //
-// Structural assertions on the 30 generated Sourcegraph Amp adapter command
+// Structural assertions on the 31 generated Sourcegraph Amp adapter command
 // files. Amp commands at `.agents/commands/<name>.md` are plain markdown
 // with NO YAML frontmatter; an HTML-comment header carries the description.
 
@@ -24,12 +24,12 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 30 derived atlas-*.md command files exist', async () => {
+test('Test 1: 31 derived atlas-*.md command files exist', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 30);
+  assert.equal(sources.length, 31);
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 30, `expected 30 derived command files; got ${derived.length}`);
+  assert.equal(derived.length, 31, `expected 31 derived command files; got ${derived.length}`);
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);

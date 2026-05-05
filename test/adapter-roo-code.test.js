@@ -2,8 +2,8 @@
 //
 // Structural assertions on the SINGLE concatenated
 // `.testatlas/adapters/roo-code/.roo/rules/atlas.md` file. Same shape as
-// Aider's CONVENTIONS.md: 30 H2 atlas-* sections, ≤7 lines each, single
-// adapter envelope wrapping the whole body, aggregate hash over all 30
+// Aider's CONVENTIONS.md: 31 H2 atlas-* sections, ≤7 lines each, single
+// adapter envelope wrapping the whole body, aggregate hash over all 31
 // per-source hashes.
 
 import { strict as assert } from 'node:assert';
@@ -34,13 +34,13 @@ test('Test 1: atlas.md exists and total line count ≤ 200', async () => {
   assert.ok(lines.length <= 200, `atlas.md must be ≤200 lines; got ${lines.length}`);
 });
 
-test('Test 2: 30 H2 sections matching source command set', async () => {
+test('Test 2: 31 H2 sections matching source command set', async () => {
   const text = await readFile(ATLAS_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 30, `expected 30 H2 atlas-* headings; got ${headings.length}`);
+  assert.equal(headings.length, 31, `expected 31 H2 atlas-* headings; got ${headings.length}`);
   const sources = await listCommandFiles({ cwd: repoRoot });
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
   for (const h of headings) assert.ok(expectedNames.has(h), `unexpected H2: /${h}`);
@@ -91,6 +91,6 @@ test('Test 5: README.md exists with required sections', async () => {
   for (const heading of ['Install', 'Capabilities', 'Regeneration']) {
     assert.match(text, new RegExp(`#+\\s+${heading}`, 'i'), `README missing section: ${heading}`);
   }
-  assert.match(text, /one file/i, 'README must explain why one file, not 30');
+  assert.match(text, /one file/i, 'README must explain why one file, not 31');
   assert.match(text, /atlas\.md/, 'README must reference atlas.md');
 });

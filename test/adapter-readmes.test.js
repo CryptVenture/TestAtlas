@@ -58,7 +58,7 @@ const ADAPTERS = [
 // heading is always accepted; specific adapters use a contextual variant
 // because rendering-strategy quirks are clearer than a generic header.
 const LIMITATIONS_ALTERNATIVES = {
-  aider: [/^##\s+Why one file,? not 30/im, /^##\s+Limitations/im],
+  aider: [/^##\s+Why one file,? not 3\d/im, /^##\s+Limitations/im],
   cursor: [/^##\s+Note on flat-MDC/im, /^##\s+Limitations/im],
   generic: [/^##\s+How to use/im, /^##\s+Limitations/im],
   opencode: [/^##\s+Note on the `agent:` field/im, /^##\s+Limitations/im],

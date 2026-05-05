@@ -1,6 +1,6 @@
 // test/adapter-github-copilot.test.js
 //
-// Structural assertions on the 30 generated GitHub Copilot adapter prompt
+// Structural assertions on the 31 generated GitHub Copilot adapter prompt
 // files. Copilot prompts at `.github/prompts/<name>.prompt.md` are markdown
 // with YAML frontmatter (mode: agent, description).
 
@@ -25,12 +25,12 @@ const ADAPTER_DIR = path.join(
   'prompts',
 );
 
-test('Test 1: 30 derived atlas-*.prompt.md prompt files exist', async () => {
+test('Test 1: 31 derived atlas-*.prompt.md prompt files exist', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 30);
+  assert.equal(sources.length, 31);
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.prompt.md'));
-  assert.equal(derived.length, 30, `expected 30 derived prompt files; got ${derived.length}`);
+  assert.equal(derived.length, 31, `expected 31 derived prompt files; got ${derived.length}`);
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.prompt.md`));
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);

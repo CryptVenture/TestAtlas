@@ -26,19 +26,19 @@ const ATLAS_PATH = path.join(
   'atlas.md',
 );
 
-test('Test 1: atlas.md exists and total line count ≤ 200', async () => {
+test('Test 1: atlas.md exists and total line count ≤ 210', async () => {
   const text = await readFile(ATLAS_PATH, 'utf8');
   const lines = text.split('\n');
-  assert.ok(lines.length <= 200, `atlas.md must be ≤200 lines; got ${lines.length}`);
+  assert.ok(lines.length <= 210, `atlas.md must be ≤210 lines; got ${lines.length}`);
 });
 
-test('Test 2: 30 H2 sections matching source command set', async () => {
+test('Test 2: 31 H2 sections matching source command set', async () => {
   const text = await readFile(ATLAS_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 30, `expected 30 H2 atlas-* headings; got ${headings.length}`);
+  assert.equal(headings.length, 31, `expected 31 H2 atlas-* headings; got ${headings.length}`);
   const sources = await listCommandFiles({ cwd: repoRoot });
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
   for (const h of headings) assert.ok(expectedNames.has(h), `unexpected H2: /${h}`);

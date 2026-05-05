@@ -126,7 +126,7 @@ test('Test 1 (initialize): returns capabilities.prompts.listChanged === false + 
   assert.ok(resp.result.serverInfo?.version);
 });
 
-test('Test 2 (prompts/list): returns 30 entries with shape { name: "atlas-<cmd>", description: <non-empty> }', async () => {
+test('Test 2 (prompts/list): returns 31 entries with shape { name: "atlas-<cmd>", description: <non-empty> }', async () => {
   const responses = await rpc([
     {
       jsonrpc: '2.0',
@@ -143,7 +143,7 @@ test('Test 2 (prompts/list): returns 30 entries with shape { name: "atlas-<cmd>"
   const listResp = responses.find((r) => r.id === 2);
   assert.ok(listResp, `expected response with id=2; got: ${JSON.stringify(responses)}`);
   assert.ok(Array.isArray(listResp.result?.prompts), 'result.prompts must be an array');
-  assert.equal(listResp.result.prompts.length, 30, 'must return exactly 30 prompts');
+  assert.equal(listResp.result.prompts.length, 31, 'must return exactly 31 prompts');
   for (const p of listResp.result.prompts) {
     assert.match(p.name, /^atlas-/, `each prompt name must begin with "atlas-": got ${p.name}`);
     assert.ok(
@@ -183,12 +183,12 @@ test('Test 3 (prompts/get atlas-init): returns description + messages[0].content
   );
 });
 
-test('Test 4 (manifest matches server): manifest.prompts.length === 30 and every name matches a prompts/list entry', async () => {
+test('Test 4 (manifest matches server): manifest.prompts.length === 31 and every name matches a prompts/list entry', async () => {
   const manifest = JSON.parse(await readFile(MANIFEST_PATH, 'utf8'));
   assert.equal(manifest.name, 'testatlas');
   assert.equal(manifest.capabilities?.prompts?.listChanged, false);
   assert.ok(Array.isArray(manifest.prompts));
-  assert.equal(manifest.prompts.length, 30, 'manifest must declare 30 prompts');
+  assert.equal(manifest.prompts.length, 31, 'manifest must declare 31 prompts');
 
   const responses = await rpc([
     {

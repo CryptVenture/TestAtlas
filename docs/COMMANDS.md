@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/commands/*.md` by `scripts/generate-commands-doc.js`. Do not edit by hand._
 
-This index covers every `/atlas:*` command shipped with TestAtlas (30 commands). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
+This index covers every `/atlas:*` command shipped with TestAtlas (31 commands). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
 
 See [docs/SCHEMAS.md](./SCHEMAS.md) for the JSON Schemas these commands consume and produce.
 
@@ -285,6 +285,16 @@ Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/t
 **Capabilities:** `file-write`
 
 [Source](../.testatlas/commands/triage.md)
+
+---
+
+## /atlas:uninstall
+
+Remove the TestAtlas suite tree (`.testatlas/`) per the install manifest; with `--purge`, also remove the `_testatlas/` workspace.
+
+**Capabilities:** `shell`, `file-write`
+
+[Source](../.testatlas/commands/uninstall.md)
 
 ---
 

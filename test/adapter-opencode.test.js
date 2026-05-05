@@ -1,6 +1,6 @@
 // test/adapter-opencode.test.js
 //
-// Plan 06-03 Task 2: structural assertions on the 30 generated OpenCode
+// Plan 06-03 Task 2: structural assertions on the 31 generated OpenCode
 // adapter command files. OpenCode's slash-command surface lives at
 // `.opencode/commands/<name>.md` per opencode.ai/docs/commands. TestAtlas
 // emits the minimal frontmatter (`description` only) and leaves `agent:`
@@ -27,13 +27,13 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 30 derived atlas-*.md command files exist (one per source command)', async () => {
+test('Test 1: 31 derived atlas-*.md command files exist (one per source command)', async () => {
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 30, `expected 30 source commands; got ${sources.length}`);
+  assert.equal(sources.length, 31, `expected 31 source commands; got ${sources.length}`);
 
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 30, `expected 30 derived files; got ${derived.length}`);
+  assert.equal(derived.length, 31, `expected 31 derived files; got ${derived.length}`);
 
   const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) {
