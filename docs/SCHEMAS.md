@@ -70,11 +70,11 @@ Schema for the YAML frontmatter of every .testatlas/commands/*.md file (PRD §11
 
 ## TestAtlas Command Result
 
-Schema for history/command_history.jsonl entries and 10_command_log.md table rows (PRD §30). Required: command, invokedAt, completedAt, status, outputs, errors, artifactsCreated, artifactsUpdated, manifestUpdated — exactly 9 fields, matching Plan 02-02's command-log template.
+Schema for history/command_history.jsonl entries and 10_command_log.md table rows (PRD §30). 9 required fields (command, invokedAt, completedAt, status, outputs, errors, artifactsCreated, artifactsUpdated, manifestUpdated) plus 1 optional `executionMode` enum populated by orchestrator commands (Quick 260505-hld / F-11 Option A). Existing rows without `executionMode` continue to validate.
 
 **`$id`:** `https://testatlas.dev/schemas/v1/command-result.schema.json`
 
-**Top-level properties:** `command`, `invokedAt`, `completedAt`, `status`, `outputs`, `errors`, `artifactsCreated`, `artifactsUpdated`, `manifestUpdated`
+**Top-level properties:** `command`, `invokedAt`, `completedAt`, `status`, `outputs`, `errors`, `artifactsCreated`, `artifactsUpdated`, `manifestUpdated`, `executionMode`
 
 [Source](../.testatlas/schemas/command-result.schema.json)
 

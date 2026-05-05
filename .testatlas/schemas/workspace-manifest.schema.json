@@ -50,7 +50,7 @@
     "generatedSections": {
       "type": "object",
       "additionalProperties": true,
-      "description": "Map of canonical-file → {sectionSlug → contentHash}; populated by Phase 2 atomic-write hash-detection (WORK-07)."
+      "description": "Map of canonical-file → {sectionSlug → contentHash}; populated by Phase 2 atomic-write hash-detection (WORK-07). Canonical entries include 00_overview.md (written by /atlas:init), 01_system_map.md (written by /atlas:explore-codebase), and 02_product_overview.md (written by the /atlas:explore umbrella in spawn-and-aggregate mode per Quick 260505-hld / F-11 Option A)."
     }
   }
 }
