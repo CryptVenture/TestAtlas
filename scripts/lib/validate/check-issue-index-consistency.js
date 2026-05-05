@@ -12,6 +12,13 @@
 //
 // Findings:
 //   TESTATLAS_INDEX_MISMATCH — severity 'error', fixable 'auto'.
+//     Forward miss: issue's facet value has no matching index entry.
+//     Reverse dangling: index lists ISSUE-N where ISSUE-N has no on-disk file.
+//   TESTATLAS_INDEX_STALE — severity 'error', fixable 'auto' (Plan 11-06 / F-23).
+//     Stale-direction: index entry lists a real issue, but the issue's actual
+//     facet value disagrees with the index's category (e.g., issue is
+//     severity:medium but appears in by_severity/high.md). Common after
+//     status transitions (triaged → closed) leave old indexes uncleaned.
 //
 // Why fixable='auto': the cross-cut indexes are pure derivations of issue
 // metadata (no human authorship inside the index — only generated bullet
@@ -108,6 +115,7 @@ export async function check(ctx) {
   // We re-scan each by_* index for ISSUE-* tokens and ensure each token
   // matches a known issue id.
   const knownIssueIds = new Set(files.issues.map((i) => i.id));
+  const issuesById = new Map(files.issues.map((i) => [i.id, i]));
   for (const idx of files.indexes) {
     const rel = path.relative(wsDir, idx.path).split(path.sep).join('/');
     if (!rel.startsWith('to_fix/by_')) continue;
@@ -125,6 +133,51 @@ export async function check(ctx) {
           path: rel,
           code: 'TESTATLAS_INDEX_MISMATCH',
           message: `Index ${rel} references ${ref} but no matching issue file exists in to_fix/`,
+          fixable: 'auto',
+          fixDescription: 'Regenerate cross-cut indexes from on-disk issue metadata (HEAL-03)',
+        });
+      }
+    }
+  }
+
+  // ── Stale-detection: each index entry's referenced issue has matching ──
+  // ── facet value (Plan 11-06 / F-23).                                  ──
+  //
+  // Forward direction catches "issue's facet value has no index entry".
+  // Reverse direction catches "index entry resolves to a phantom issue".
+  // Neither catches "index lists a real issue but with the WRONG facet
+  // value" — which happens after status transitions when the old index
+  // file isn't regenerated. This third pass closes that gap.
+  for (const idx of files.indexes) {
+    const rel = path.relative(wsDir, idx.path).split(path.sep).join('/');
+    // Match "to_fix/by_<facet>/<value>.md" exactly (skip 09_artifact_index
+    // and domains/<slug>/index.md — they aren't faceted cross-cuts).
+    const m = rel.match(/^to_fix\/by_([^/]+)\/([^/]+)\.md$/);
+    if (!m) continue;
+    const facetDir = `by_${m[1]}`;
+    const indexValue = m[2];
+    const facet = FACETS.find((f) => f.dir === facetDir);
+    if (!facet) continue;
+
+    const tokens = idx.content.match(/ISSUE-[A-Za-z0-9-]+/g) ?? [];
+    const seen = new Set();
+    for (const tok of tokens) {
+      const idMatch = tok.match(/^(ISSUE-[0-9]+)/);
+      const ref = idMatch ? idMatch[1] : tok;
+      if (seen.has(ref)) continue;
+      seen.add(ref);
+      const issue = issuesById.get(ref);
+      // Skip phantom refs (already covered by the reverse-direction MISMATCH
+      // emitter above) and parse-error issues (covered by check-schemas).
+      if (!issue?.parsed) continue;
+      const actual = issue.parsed[facet.field];
+      if (typeof actual !== 'string' || !actual) continue;
+      if (actual !== indexValue) {
+        findings.push({
+          severity: 'error',
+          path: rel,
+          code: 'TESTATLAS_INDEX_STALE',
+          message: `Index ${rel} lists ${ref} but issue.${facet.field} = "${actual}", not "${indexValue}" — index entry is stale`,
           fixable: 'auto',
           fixDescription: 'Regenerate cross-cut indexes from on-disk issue metadata (HEAL-03)',
         });

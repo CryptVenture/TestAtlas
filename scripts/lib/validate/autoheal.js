@@ -11,6 +11,7 @@
 //            ← TESTATLAS_MISSING_INDEX or TESTATLAS_INDEX_MISMATCH for that path
 //   HEAL-03  Regenerate cross-cut and per-domain indexes
 //            ← TESTATLAS_INDEX_MISMATCH or TESTATLAS_MISSING_INDEX (cross-cut)
+//            ← TESTATLAS_INDEX_STALE (Plan 11-06 / F-23 — same regenerate path)
 //   HEAL-04  Refresh stale generated-section hash (whitespace-only diffs only)
 //            ← TESTATLAS_STALE_GENERATED_HASH (fixable='auto')
 //
@@ -599,6 +600,12 @@ function dispatch(finding) {
       return finding.path === '09_artifact_index.md' ? applyHeal02 : applyHeal03;
     case 'TESTATLAS_INDEX_MISMATCH':
       return finding.path === '09_artifact_index.md' ? applyHeal02 : applyHeal03;
+    case 'TESTATLAS_INDEX_STALE':
+      // Plan 11-06 / F-23. Stale-direction findings are exclusively cross-cut
+      // indexes (the new third pass in check-issue-index-consistency only
+      // emits for `to_fix/by_*/<value>.md` paths), so HEAL-03 always handles
+      // them — same regenerate-from-on-disk-issue-truth path as MISMATCH.
+      return applyHeal03;
     default:
       return null;
   }
