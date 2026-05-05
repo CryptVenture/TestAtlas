@@ -150,7 +150,7 @@ Map routes, components, forms, modals, all PRD §13.1 UI states (empty/loading/e
 
 ## /atlas:explore
 
-Umbrella explorer router — classify which sub-explorers (ui/cli/api/docs/runtime/data/integrations/accessibility/performance/security) apply to the target product and emit a recommendation document.
+Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.
 
 **Capabilities:** `file-write`
 
