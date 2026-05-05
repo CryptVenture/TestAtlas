@@ -16,7 +16,7 @@ import path from 'node:path';
 import { program } from 'commander';
 
 import { palette, symbol } from './scripts/lib/colors.js';
-import { runInit } from './scripts/lib/install-core.js';
+import { ALL_ADAPTERS, runInit } from './scripts/lib/install-core.js';
 
 // Suite root is the directory this file lives in.
 const SUITE_ROOT = import.meta.dirname;
@@ -25,7 +25,7 @@ program
   .name('install.js')
   .description('Install TestAtlas (git-clone path).')
   .argument('[target]', 'Target repo directory (default: cwd, or $HOME with --global)')
-  .option('--all-adapters', 'Install all 7 adapters regardless of detection')
+  .option('--all-adapters', `Install all ${ALL_ADAPTERS.length} adapters regardless of detection`)
   .option('--force', 'Overwrite existing .testatlas/ (preserves _testatlas/)')
   .option('--dry-run', 'Print planned actions without writing')
   .option(

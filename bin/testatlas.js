@@ -14,7 +14,7 @@ import { program } from 'commander';
 import { runAddAdapter } from '../scripts/lib/add-adapter-core.js';
 import { renderBanner } from '../scripts/lib/banner.js';
 import { palette, symbol } from '../scripts/lib/colors.js';
-import { runInit } from '../scripts/lib/install-core.js';
+import { ALL_ADAPTERS, runInit } from '../scripts/lib/install-core.js';
 import { runUpdate } from '../scripts/lib/update-core.js';
 import { runUninstall } from '../scripts/uninstall.js';
 import { validateWorkspace } from '../scripts/validate-workspace.js';
@@ -60,7 +60,7 @@ program
     (val, prev) => [...prev, val],
     [],
   )
-  .option('--all-adapters', 'Install all 18 adapters regardless of detection')
+  .option('--all-adapters', `Install all ${ALL_ADAPTERS.length} adapters regardless of detection`)
   .option('--force', 'Overwrite existing .testatlas/ (preserves _testatlas/)')
   .option('--no-update-check', 'Skip the GitHub Releases version check')
   .option('--target <dir>', 'Target repo directory (default: cwd)')
