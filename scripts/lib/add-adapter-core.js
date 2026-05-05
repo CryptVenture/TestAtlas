@@ -22,6 +22,7 @@
 //      writeManifest.
 //   8. Return { status: 'added', added, adapters, filesWritten, skipped, ... }.
 
+import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { info, success, warning } from './colors.js';
@@ -31,6 +32,20 @@ import {
   validateAdapterNames,
 } from './install-core.js';
 import { loadAndValidateManifest, writeManifest } from './manifest.js';
+import { verifyCachedPackage } from './verify-package.js';
+
+/**
+ * Test seam — set via `addAdapterCore._testHooks.<name> = ...` in tests.
+ * Plan 12-01 (ISSUE-016): forwarded into `verifyCachedPackage` so unit
+ * tests can inject probeCosign + resolveCachedTarball without mutating
+ * process state. Mirrors install-core.js's _testHooks contract.
+ *
+ * @type {{
+ *   probeCosign?: () => Promise<boolean>,
+ *   resolveCachedTarball?: () => Promise<string|null>,
+ * }}
+ */
+export const _testHooks = {};
 
 /**
  * @typedef {Object} RunAddAdapterOptions
@@ -71,6 +86,22 @@ export async function runAddAdapter(opts) {
 
   if (!Array.isArray(opts.adapters) || opts.adapters.length === 0) {
     throw new Error('add-adapter: at least one adapter name is required.');
+  }
+
+  // Plan 12-01 (ISSUE-016 + ISSUE-017): npx-path integrity verification.
+  // Runs FIRST — before adapter-name validation or manifest load — so a
+  // verification failure halts cleanly without touching disk. Mirrors
+  // runInit's wiring. Default-opt-in: no-op when neither flag is set.
+  if (opts.verifySignature || opts.verifyChecksum) {
+    const suiteVersion = JSON.parse(
+      await readFile(path.join(suiteRoot, 'package.json'), 'utf8'),
+    ).version;
+    await verifyCachedPackage({
+      verifySignature: Boolean(opts.verifySignature),
+      verifyChecksum: Boolean(opts.verifyChecksum),
+      version: suiteVersion,
+      hooks: _testHooks,
+    });
   }
 
   // Validate first so the user sees the canonical error before we touch disk.

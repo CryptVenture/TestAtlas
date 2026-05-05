@@ -34,7 +34,21 @@ import { INSTALL_MANIFEST_PATH } from './constants.js';
 import { hashContent, verifyHashCompat } from './content-hash.js';
 import { buildManifest, loadAndValidateManifest, writeManifest } from './manifest.js';
 import { assertCapability } from './safety.js';
+import { verifyCachedPackage } from './verify-package.js';
 import { assertNotUpdate } from './workspace-guard.js';
+
+/**
+ * Test seam — set via `installCore._testHooks.<name> = ...` in tests.
+ * Plan 12-01 (ISSUE-016): forwarded into `verifyCachedPackage` so unit
+ * tests can inject probeCosign + resolveCachedTarball without mutating
+ * process state.
+ *
+ * @type {{
+ *   probeCosign?: () => Promise<boolean>,
+ *   resolveCachedTarball?: () => Promise<string|null>,
+ * }}
+ */
+export const _testHooks = {};
 
 /**
  * @typedef {Object} RunInitOptions
@@ -607,6 +621,29 @@ export async function runInit(opts) {
   // the cyan `ℹ` prefix (and ASCII fallback under NO_UNICODE/NO_COLOR).
   // Callers that capture output (tests, programmatic embeds) supply their own.
   const log = opts.logger ?? ((msg) => info(msg));
+
+  // Plan 12-01 (ISSUE-016 + ISSUE-017): npx-path integrity verification.
+  // Runs BEFORE any destructive disk writes so a verification failure
+  // halts cleanly without touching `<target>/.testatlas/`. The chain
+  // mirrors install.sh:79-104 and runUpdate's post-download chain.
+  // Default-opt-in: when neither flag is set, verifyCachedPackage is a
+  // no-op (zero subprocess cost on the default install path).
+  //
+  // Halt sentinels surfaced by verifyCachedPackage:
+  //   - TESTATLAS_COSIGN_NOT_FOUND          (probeCosign returned false)
+  //   - TESTATLAS_INIT_TARBALL_UNAVAILABLE  (resolveCachedTarball returned null)
+  //   - TESTATLAS_COSIGN_VERIFY_FAILED      (cosign rejected the bundle)
+  //   - TESTATLAS_CHECKSUM_MISMATCH         (sha sidecar disagreed)
+  //   - TESTATLAS_SHA_SIDECAR_UNAVAILABLE   (.sha256 fetch 4xx/5xx)
+  if (opts.verifySignature || opts.verifyChecksum) {
+    const suiteVersion = await readSuiteVersion(suiteRoot);
+    await verifyCachedPackage({
+      verifySignature: Boolean(opts.verifySignature),
+      verifyChecksum: Boolean(opts.verifyChecksum),
+      version: suiteVersion,
+      hooks: _testHooks,
+    });
+  }
 
   // ISSUE-014 defense-in-depth: capability gate for the destructive primitives
   // used during install (cp({force:true}) and rm({recursive:true})). Install
