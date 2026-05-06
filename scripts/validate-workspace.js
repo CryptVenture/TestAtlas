@@ -289,9 +289,9 @@ async function runCli(argv) {
           '                         in turn. Mutually exclusive with --workspace. Exit code is',
           '                         0 only if every workspace passes.',
           '  --cwd <path>           Working directory (default: process.cwd())',
-          '  --dry-run              Do not write any reports or autoheal changes',
-          '  --auto-heal            Apply safe auto-heals (HEAL-01..04, Plan 05-04)',
-          '  --apply                With --auto-heal, persist changes (else preview)',
+          '  --auto-heal            Apply safe auto-heals (HEAL-01..04). Writes by default.',
+          '  --dry-run              Preview mode: do not write reports or autoheal changes.',
+          '  --apply                (deprecated: redundant when --auto-heal is set; will be removed in v2)',
           '  --only=<id[,id...]>    Run only the listed checks (e.g. check-schemas)',
           '  --report=<path>        Write markdown report to <path> + JSON to <path>.json',
           '  --help                 Show this message',
@@ -302,6 +302,20 @@ async function runCli(argv) {
       console.error(`validate-workspace: unknown argument "${a}"`);
       process.exit(2);
     }
+  }
+
+  // GAP-1: --auto-heal applies by default. --dry-run inverts to preview.
+  // --apply remains parseable for back-compat but is now redundant when
+  // --auto-heal is set; emit a one-time stderr deprecation note. The
+  // orchestrator API (validateWorkspace) is unchanged — this default-flip
+  // lives ONLY in runCli.
+  if (opts.autoHeal && opts.dryRun !== true && opts.apply === undefined) {
+    opts.apply = true;
+  }
+  if (opts.autoHeal && opts.apply === true && argv.includes('--apply')) {
+    process.stderr.write(
+      'validate-workspace: --apply is now redundant when --auto-heal is set; remove it from your invocation.\n',
+    );
   }
 
   // Mutual-exclusion guard: --workspace and --all-workspaces are different
