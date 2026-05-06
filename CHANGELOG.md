@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
+### Changed
+
+### Removed
+
+## [1.1.0] - 2026-05-06
+
+### Added
+
 - **Cosign + dogfood-test infrastructure** (Quick 260506-07b). `sigstore/cosign-installer@v3` (SHA-pinned) wired into `.github/workflows/ci.yml` so dogfood scenarios run against a real cosign install. New `scripts/setup-dogfood-env.sh` POSIX pre-flight probes for cosign + shellcheck + gh + sha256sum + tar + git + curl + jq + node ≥ 20; copy-paste install hints per missing binary; optional `--install` flag attempts non-interactive install on Linux.
 - **`CONTRIBUTING.md` Dogfood Test Prerequisites section** (Quick 260506-07b). Documents required binaries with version floors; tells contributors to run `sh scripts/setup-dogfood-env.sh` before `/atlas:test-flow --all`; notes CI installs these automatically.
 - **NEW scenario `TEST-install-cosign-absent-degrade`** (Quick 260506-07b). Verifies install.sh's fail-open default path: when `TESTATLAS_VERIFY_SIGNATURE` is unset and cosign is not on PATH, installer proceeds with sha256-only verification (exit 0). Sibling to `TEST-install-cosign-verification-smoke` (tamper-fail focus). Scenario count 25→26.
