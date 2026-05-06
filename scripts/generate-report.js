@@ -152,12 +152,20 @@ async function listEvidenceDirs(wsDir) {
   return subs.filter((s) => /^(EVIDENCE|EVID)-/.test(s));
 }
 
+/**
+ * Group test-run records by RUN-<stem>. For each stem, prefer the structured
+ * .json sidecar (schema-validated) and treat the .md frontmatter as
+ * supplementary. Return ONE entry per run-id stem so a paired md+json file is
+ * not double-counted (Quick 260506-dyb Gap 1).
+ */
 async function readTestRuns(wsDir) {
   const dir = path.join(wsDir, 'tests', 'runs');
-  const out = [];
-  // .md frontmatter (used by summarize-run.js + the runtime)
+  const byStem = new Map();
+
+  // .md frontmatter pass — keyed by stem (basename without .md).
   const mdNames = await listFilesByPredicate(dir, (n) => n.endsWith('.md') && n.startsWith('RUN-'));
   for (const name of mdNames) {
+    const stem = name.slice(0, -'.md'.length);
     const text = await readTextSafe(path.join(dir, name));
     if (!text) continue;
     let fm = null;
@@ -166,18 +174,29 @@ async function readTestRuns(wsDir) {
     } catch {
       // continue without frontmatter — run still counts
     }
-    out.push({ file: name, frontmatter: fm });
+    const existing = byStem.get(stem) ?? { stem, file: name };
+    existing.frontmatter = fm;
+    if (!existing.file) existing.file = name;
+    byStem.set(stem, existing);
   }
-  // .json sidecars
+
+  // .json sidecar pass — JSON wins on conflicts; supplements existing .md.
   const jsonNames = await listFilesByPredicate(
     dir,
     (n) => n.endsWith('.json') && n.startsWith('RUN-'),
   );
   for (const name of jsonNames) {
+    const stem = name.slice(0, -'.json'.length);
     const parsed = await readJsonSafe(path.join(dir, name));
-    if (parsed) out.push({ file: name, parsed });
+    if (!parsed) continue;
+    const existing = byStem.get(stem) ?? { stem, file: name };
+    existing.parsed = parsed;
+    // Prefer json filename for the canonical record entry.
+    existing.file = name;
+    byStem.set(stem, existing);
   }
-  return out;
+
+  return Array.from(byStem.values());
 }
 
 /**
