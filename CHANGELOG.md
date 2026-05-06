@@ -4,11 +4,17 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
-### Added
-
 ### Changed
 
-### Removed
+- **BREAKING — `validate-workspace --auto-heal` now applies by default** (Quick 260506-nj2). The CLI flag previously required pairing with `--apply` to actually persist heals; users who ran `--auto-heal` alone saw "Would apply (N)" and (correctly) concluded nothing changed. The dual-flag UX caused real-world reports to be filed as "autoheal not working." With v1.2.0, bare `--auto-heal` writes to disk; pass `--dry-run` for preview. The `--apply` flag is now a documented no-op (kept parseable for back-compat) and emits a one-time stderr note when paired with `--auto-heal`. **Migration:** if you have CI / scripts that ran `validate-workspace --auto-heal` expecting preview-only behavior, add `--dry-run` to keep the old semantics. The programmatic `validateWorkspace({autoHeal, apply, dryRun})` API is unchanged — only the CLI default flipped.
+- **`scripts/lib/adapters/render-mcp.js` requires explicit `version` parameter** (Quick 260506-nj2). The renderer previously hardcoded `version: '1.0.0'` regardless of project version, so every release shipped an mcp manifest claiming v1.0.0 (the parity-check refresh masked it locally per release). The renderer now `throw new TypeError`s if `version` is omitted; `scripts/assemble-adapter.js` reads `<workspace>/package.json#version` and injects it, so the published mcp manifest correctly tracks the suite version (v1.2.0 ships `"version": "1.2.0"`).
+
+### Fixed
+
+- **High-severity — `runUpdate` now executes full adapter upgrade lifecycle for all 7 adapters** (ISSUE-030; Quick 260506-mgr). Atomic-swap previously only renamed `.testatlas/`. Adapter outputs that live OUTSIDE the suite tree (`.claude/commands/atlas-*.md` for claude-code, `.cursor/rules/*.mdc` for cursor, `AGENTS.md` for opencode/generic, `.aider/CONVENTIONS.md` for aider, mcp-server config, kilo equivalents) were never re-emitted on update — every consumer-side update from v1.0.0 onward left those files at install-time bodies forever. `regenerateInstallManifest` walked only `.testatlas/`, dropping adapter files from the regenerated manifest and silently disabling drift detection + clean uninstall for them. v1.2.0 adds a `restageAdapters` helper invoked between tarball cleanup and manifest regen: re-emits all adapter command files from the new tarball via `copyAdapterCommandFiles`, prunes orphaned entries (files removed in vNext), honors `manifest.mode === 'global'`, and includes the re-emitted entries in the regenerated manifest with correct `type`. Per-adapter try/catch — one bad adapter does not abort the rest. **Action required for users on v1.0.0–v1.1.5:** run `npx @webventures/testatlas update --force-reinstall` once after updating to v1.2.0 to refresh the adapter command files in your repo. Subsequent updates will refresh them automatically.
+- **Reporter preview subtitle now appears under the section header** (Quick 260506-nj2). When `--auto-heal --dry-run` is used (preview mode), the report previously only showed a per-row footer "Preview only" note. Users skimming the section header could miss the indicator. v1.2.0 adds a section-header subtitle directly under `### Would apply (N)` so the preview-only state is unmissable. Footer wording updated from "re-run with `--apply`" to "re-run without `--dry-run`" to match the new flag semantics. No change when `applied.length === 0` (nothing to preview).
+
+### Added
 
 ## [1.1.5] - 2026-05-06
 
