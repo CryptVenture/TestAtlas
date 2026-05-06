@@ -101,6 +101,10 @@ async function applyHeal01(ctx, _finding, { apply, dryRun }) {
     issues: (files.issues ?? []).length,
     evidenceRecords: evidIds.size,
     testRuns: (files.testRuns ?? []).length,
+    // Quick 260506-esm: parity with check-status-counts which validates the
+    // optional `reports` count. Without this entry HEAL-01 silently leaves a
+    // reports-count drift unrepaired (always reports "counts already in sync").
+    reports: (files.reports ?? []).length,
   };
 
   const oldCounts = manifest?.counts ?? {};
