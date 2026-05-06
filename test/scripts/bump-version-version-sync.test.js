@@ -42,7 +42,7 @@ test('bump-version --patch --dry-run lists install.sh in the change set', async 
 
   await writeFile(path.join(fx.cwd, 'install.sh'), SAMPLE_INSTALL_SH, 'utf8');
 
-  const r = runBump(fx.cwd, ['--patch', '--dry-run', '--skip-gates']);
+  const r = runBump(fx.cwd, ['--patch', '--dry-run', '--skip-gates', '--force-dirty']);
   assert.equal(r.status, 0, `bump-version dry-run failed:\n${r.stderr}`);
 
   const out = `${r.stdout}\n${r.stderr}`;
@@ -59,7 +59,13 @@ test('bump-version --patch (real run) rewrites install.sh VERSION line and leave
 
   await writeFile(path.join(fx.cwd, 'install.sh'), SAMPLE_INSTALL_SH, 'utf8');
 
-  const r = runBump(fx.cwd, ['--patch', '--no-tag', '--no-commit', '--skip-gates']);
+  const r = runBump(fx.cwd, [
+    '--patch',
+    '--no-tag',
+    '--no-commit',
+    '--skip-gates',
+    '--force-dirty',
+  ]);
   assert.equal(r.status, 0, `bump-version failed:\n${r.stdout}\n${r.stderr}`);
 
   const updated = await readFile(path.join(fx.cwd, 'install.sh'), 'utf8');

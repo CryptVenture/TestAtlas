@@ -80,6 +80,13 @@ const MCP_MANIFEST_PATH = path.join(
   'mcp-server-manifest.json',
 );
 const CHANGELOG_PATH = path.join(REPO_ROOT, 'CHANGELOG.md');
+// install.sh's VERSION="X.Y.Z" line. TARBALL_SHA256 is intentionally NOT in
+// scope — release.yml owns that sync at publish time. Pre-Quick-260506-jsc,
+// install.sh wasn't in the version-sync list at all, which led to a v1.0.0/
+// v1.1.0 mismatch on main after the v1.1.0 bootstrap-publish (manual follow-up
+// commit 3872428 was required). Now bump-version owns VERSION; release owns SHA.
+const INSTALL_SH_PATH = path.join(REPO_ROOT, 'install.sh');
+const INSTALL_SH_VERSION_RE = /^VERSION="[^"]*"$/m;
 
 // ─── CLI ────────────────────────────────────────────────────────────────────
 
@@ -854,7 +861,29 @@ async function main() {
     }
   }
 
-  // 6e. CHANGELOG.md migration
+  // 6e. install.sh — rewrite the `VERSION="..."` line. SKIPPED if install.sh
+  // isn't in REPO_ROOT (consumer fixture / non-suite cwd). TARBALL_SHA256 is
+  // intentionally NOT touched — release.yml owns that.
+  const installShText = await readText(INSTALL_SH_PATH);
+  let nextInstallShText = null;
+  if (installShText !== null) {
+    const m = installShText.match(INSTALL_SH_VERSION_RE);
+    if (m) {
+      const oldVer = m[0].slice('VERSION="'.length, -1);
+      if (oldVer !== target) {
+        nextInstallShText = installShText.replace(INSTALL_SH_VERSION_RE, `VERSION="${target}"`);
+        changes.push({
+          path: 'install.sh',
+          desc: `VERSION: ${oldVer} → ${target}`,
+        });
+      }
+    }
+    // If the file exists but has no matching line, leave it alone — this is
+    // a malformed install.sh state worth surfacing as a noop rather than
+    // silently rewriting.
+  }
+
+  // 6f. CHANGELOG.md migration
   const changelogText = await readText(CHANGELOG_PATH);
   const dateStr = new Date().toISOString().slice(0, 10);
   const migration = changelogText ? planChangelogMigration(changelogText, target, dateStr) : null;
@@ -919,6 +948,9 @@ async function main() {
   await writeFile(VERSION_FILE, `${target}\n`, 'utf8');
   if (nextCaps) await writeJson(ADAPTER_CAPS_PATH, nextCaps);
   if (nextMcp) await writeJson(MCP_MANIFEST_PATH, nextMcp);
+  if (nextInstallShText !== null) {
+    await writeFile(INSTALL_SH_PATH, nextInstallShText, 'utf8');
+  }
   if (migration && migration.rebuiltText !== changelogText) {
     await writeFile(CHANGELOG_PATH, migration.rebuiltText, 'utf8');
   }
