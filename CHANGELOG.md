@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Removed
+
+## [1.2.0] - 2026-05-06
+
 ### Changed
 
 - **BREAKING — `validate-workspace --auto-heal` now applies by default** (Quick 260506-nj2). The CLI flag previously required pairing with `--apply` to actually persist heals; users who ran `--auto-heal` alone saw "Would apply (N)" and (correctly) concluded nothing changed. The dual-flag UX caused real-world reports to be filed as "autoheal not working." With v1.2.0, bare `--auto-heal` writes to disk; pass `--dry-run` for preview. The `--apply` flag is now a documented no-op (kept parseable for back-compat) and emits a one-time stderr note when paired with `--auto-heal`. **Migration:** if you have CI / scripts that ran `validate-workspace --auto-heal` expecting preview-only behavior, add `--dry-run` to keep the old semantics. The programmatic `validateWorkspace({autoHeal, apply, dryRun})` API is unchanged — only the CLI default flipped.
