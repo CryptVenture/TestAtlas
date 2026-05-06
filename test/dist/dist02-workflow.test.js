@@ -99,7 +99,15 @@ test('release.yml: direct npm publish path with required OIDC pre-conditions', a
   //   4. Direct `npm publish` (not via lerna/pnpm -r/changesets wrappers)
   // Each pre-condition has a dedicated step we assert here.
   const buf = await readFile(RELEASE_YML, 'utf8');
-  assert.match(buf, /npm install -g --force npm@11/, 'missing npm@11 pin step');
+  // npm@11 install via isolated tarball-extract path (the in-place
+  // `npm i -g npm@11` self-upgrade hits MODULE_NOT_FOUND: 'promise-retry'
+  // on the GH Actions ubuntu runner — known npm bug).
+  assert.match(buf, /npm pack npm@11/, 'missing npm@11 isolated install (npm pack approach)');
+  assert.match(
+    buf,
+    /\$GITHUB_PATH/,
+    'isolated npm@11 must be added to GITHUB_PATH so next step picks it up',
+  );
   assert.match(
     buf,
     /Delete any auto-written \.npmrc files/,
