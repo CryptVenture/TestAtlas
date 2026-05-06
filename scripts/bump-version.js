@@ -428,7 +428,7 @@ async function probeNpmRegistryStatus(pkgName, version) {
 // --limit 1` returned the previous v1.0.0 failed run because the new run
 // took ~3-5sec to appear in the API after `release:published` fired.
 //
-// Fix: filter run-list by `--head-sha <sha>` AND retry every 1sec for up to
+// Fix: filter run-list by `--commit <sha>` AND retry every 1sec for up to
 // `timeoutSec` (default 30s) before declaring "no run found".
 //
 // Returns the first matching run object (`{ databaseId, url, status, conclusion }`).
@@ -441,7 +441,7 @@ async function findReleaseRunForSha(sha, { timeoutSec } = {}) {
       'run',
       'list',
       '--workflow=release.yml',
-      '--head-sha',
+      '--commit',
       sha,
       '--limit',
       '1',
@@ -621,7 +621,7 @@ async function runResume(opts) {
     if (opts.wait) {
       const shaPreview = sha ? sha.slice(0, 7) : '<sha-from-tag>';
       console.log(
-        `[dry-run] Would poll: gh run list --workflow=release.yml --head-sha ${shaPreview} (10-min timeout, 30s find-retry)`,
+        `[dry-run] Would poll: gh run list --workflow=release.yml --commit ${shaPreview} (10-min timeout, 30s find-retry)`,
       );
     }
     process.exit(0);
@@ -900,7 +900,7 @@ async function main() {
       );
       if (opts.wait) {
         console.log(
-          '[dry-run] Would poll: gh run list --workflow=release.yml --head-sha <HEAD> (10-min timeout, 30s find-retry)',
+          '[dry-run] Would poll: gh run list --workflow=release.yml --commit <HEAD> (10-min timeout, 30s find-retry)',
         );
       }
     }
@@ -1015,7 +1015,7 @@ async function main() {
           'run',
           'list',
           '--workflow=release.yml',
-          '--head-sha',
+          '--commit',
           headSha,
           '--limit',
           '1',
@@ -1078,7 +1078,7 @@ async function main() {
 
 // ─── --wait poll loop ───────────────────────────────────────────────────────
 //
-// Filters by `--head-sha <sha>` (Quick 260506-ilm fix). The previous
+// Filters by `--commit <sha>` (Quick 260506-ilm fix). The previous
 // implementation polled `--limit 1` with no sha filter, which returned a
 // stale completed run from the previous release while the new run was still
 // pending in the API (3-5sec window post-release:published).
@@ -1107,7 +1107,7 @@ async function pollWorkflow(tagName, sha) {
       'run',
       'list',
       '--workflow=release.yml',
-      '--head-sha',
+      '--commit',
       sha,
       '--limit',
       '1',

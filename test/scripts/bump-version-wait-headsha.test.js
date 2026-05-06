@@ -1,6 +1,6 @@
 // test/scripts/bump-version-wait-headsha.test.js
 //
-// Quick 260506-ilm — `--wait` polling now filters by `--head-sha` and retries
+// Quick 260506-ilm — `--wait` polling now filters by `--commit` and retries
 // when the new release.yml run isn't yet visible in the API.
 //
 // Bug observed during v1.1.0 release: `gh run list --workflow=release.yml
@@ -8,7 +8,7 @@
 // the new in-flight v1.1.0 run (25434770898) because the new run took ~3-5sec
 // to appear in the API after `release:published` fired.
 //
-// Fix: filter by `--head-sha <sha>` AND retry every 1sec for up to 30sec
+// Fix: filter by `--commit <sha>` AND retry every 1sec for up to 30sec
 // before declaring "no run found". Surface the chosen run-id + URL.
 
 import assert from 'node:assert/strict';
@@ -16,7 +16,7 @@ import { test } from 'node:test';
 
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--wait passes --head-sha to gh run list', async (t) => {
+test('--wait passes --commit to gh run list', async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', withOrigin: true });
   t.after(fx.cleanup);
 
@@ -52,18 +52,18 @@ test('--wait passes --head-sha to gh run list', async (t) => {
     `expected ≥1 gh run list call; saw ${runListCalls.length}\n${result.stdout}\n${result.stderr}`,
   );
 
-  // At least one run-list call must include --head-sha <sha>.
-  const headShaCalls = runListCalls.filter((e) => e.argv.includes('--head-sha'));
+  // At least one run-list call must include --commit <sha>.
+  const headShaCalls = runListCalls.filter((e) => e.argv.includes('--commit'));
   assert.ok(
     headShaCalls.length >= 1,
-    `expected --head-sha filter on gh run list; saw argvs: ${JSON.stringify(runListCalls.map((c) => c.argv))}`,
+    `expected --commit filter on gh run list; saw argvs: ${JSON.stringify(runListCalls.map((c) => c.argv))}`,
   );
 
-  // The --head-sha value must look like a git sha (40-hex or 7+ short).
+  // The --commit value must look like a git sha (40-hex or 7+ short).
   const sample = headShaCalls[0];
-  const hsIdx = sample.argv.indexOf('--head-sha');
+  const hsIdx = sample.argv.indexOf('--commit');
   const sha = sample.argv[hsIdx + 1];
-  assert.match(sha, /^[0-9a-f]{7,40}$/, `expected sha-shaped --head-sha value; got "${sha}"`);
+  assert.match(sha, /^[0-9a-f]{7,40}$/, `expected sha-shaped --commit value; got "${sha}"`);
 });
 
 test('--wait retries when run-list returns [] then succeeds when run appears', async (t) => {
@@ -84,8 +84,8 @@ test('--wait retries when run-list returns [] then succeeds when run appears', a
     `dry-run --release --wait should succeed; got ${result.status}\n${result.stderr}`,
   );
   const out = `${result.stdout}\n${result.stderr}`;
-  // The dry-run preview must surface the head-sha filter (post-fix).
-  assert.match(out, /--head-sha/, 'expected --wait dry-run preview to mention --head-sha filter');
+  // The dry-run preview must surface the commit-sha filter (post-fix).
+  assert.match(out, /--commit/, 'expected --wait dry-run preview to mention --commit filter');
 });
 
 test('--resume --wait: when run-list keeps returning [], surfaces sha-citing timeout error', async (t) => {

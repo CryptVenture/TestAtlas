@@ -148,7 +148,7 @@ test('--resume v1.1.0 --wait --dry-run → adds "Would poll: gh run list" previe
   const out = `${result.stdout}\n${result.stderr}`;
   assert.match(
     out,
-    /\[dry-run\] Would poll: gh run list .*--head-sha/,
+    /\[dry-run\] Would poll: gh run list .*--commit/,
     'expected --wait dry-run to preview head-sha-filtered poll',
   );
 });
