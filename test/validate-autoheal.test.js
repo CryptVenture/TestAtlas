@@ -25,8 +25,8 @@ import { fileURLToPath } from 'node:url';
 
 import { parseMarkers } from '../scripts/lib/markers.js';
 import { autoHealFindings } from '../scripts/lib/validate/autoheal.js';
-import { walkWorkspace } from '../scripts/lib/validate/walk-workspace.js';
 import { renderMarkdownReport } from '../scripts/lib/validate/reporter.js';
+import { walkWorkspace } from '../scripts/lib/validate/walk-workspace.js';
 import { validateWorkspace } from '../scripts/validate-workspace.js';
 import { makeValidationFixture } from './_helpers.js';
 
@@ -717,9 +717,7 @@ test('HEAL-03 with --apply writes byte-different content (mtime + sha256 differ)
   const r2 = await validateWorkspace({ cwd: fx.cwd });
   const remaining = r2.results
     .flatMap((c) => c.findings)
-    .filter(
-      (f) => f.code === 'TESTATLAS_INDEX_MISMATCH' || f.code === 'TESTATLAS_INDEX_STALE',
-    );
+    .filter((f) => f.code === 'TESTATLAS_INDEX_MISMATCH' || f.code === 'TESTATLAS_INDEX_STALE');
   assert.equal(remaining.length, 0, 'after HEAL-03 --apply: 0 INDEX_MISMATCH/INDEX_STALE');
 });
 
@@ -750,11 +748,7 @@ test('HEAL-03 without --apply does NOT write (mtime + sha256 identical, preview 
   }
 
   // Reporter output must show "Would apply" — NOT "### Applied" — in preview mode.
-  assert.match(
-    r.reportMarkdown,
-    /Would apply/,
-    'preview-mode report contains "Would apply"',
-  );
+  assert.match(r.reportMarkdown, /Would apply/, 'preview-mode report contains "Would apply"');
   assert.ok(
     !/### Applied \(/.test(r.reportMarkdown),
     'preview-mode report does NOT contain "### Applied (" header',
@@ -839,4 +833,84 @@ test('renderMarkdownReport branches header on apply flag (Applied vs Would apply
   });
   assert.match(applyMd, /### Applied \(\d+\)/, 'apply:true → "### Applied (N)" header');
   assert.ok(!/Would apply/.test(applyMd), 'apply:true → no "Would apply" header');
+});
+
+// ─── quick-260506-nj2 GAP-2: preview-subtitle + --dry-run footer wording ─────
+
+test('GAP-2: subtitle line under "Would apply (N)" when applied.length > 0 + apply=false', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd });
+  const ctx = { wsDir: fx.wsDir };
+  const fakeHealed = {
+    applied: [
+      { healId: 'HEAL-03', path: 'to_fix/by_severity/critical.md', summary: 'regen', wrote: false },
+    ],
+    skipped: [],
+  };
+
+  const md = renderMarkdownReport(r.results, ctx, { healed: fakeHealed, apply: false });
+
+  // Subtitle MUST appear immediately under the "### Would apply (N)" header
+  // (header line, blank line, subtitle line, blank line, then table).
+  assert.match(
+    md,
+    /### Would apply \(\d+\)\n\n_Preview only — re-run without `--dry-run` to persist these changes\._\n/,
+    'subtitle present immediately under "Would apply" header',
+  );
+
+  // Per-row footer also reads the new --dry-run-inverted wording.
+  assert.match(
+    md,
+    /_Preview only — re-run without `--dry-run` to persist these changes\._/,
+    'footer references --dry-run, not --apply',
+  );
+
+  // Old --apply wording must NOT appear anywhere.
+  assert.ok(!/re-run with `--apply`/.test(md), 'old "re-run with `--apply`" wording removed');
+});
+
+test('GAP-2: NO subtitle when applied.length === 0 (preview-mode, empty heals)', async (t) => {
+  const fx = await makeValidationFixture('_base-good');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd });
+  const ctx = { wsDir: fx.wsDir };
+  const md = renderMarkdownReport(r.results, ctx, {
+    healed: { applied: [], skipped: [] },
+    apply: false,
+  });
+
+  // Header still renders (so "Would apply (0)" is visible) but the
+  // preview-only line is NOT rendered when there's nothing to preview.
+  assert.match(md, /### Would apply \(0\)/, 'header renders with N=0');
+  assert.ok(
+    !/Preview only — re-run without/.test(md),
+    'no preview-only subtitle when applied.length===0',
+  );
+});
+
+test('GAP-2: NO subtitle when apply=true (Applied branch unchanged)', async (t) => {
+  const fx = await makeValidationFixture('broken-issue-index-mismatch');
+  t.after(fx.cleanup);
+
+  const r = await validateWorkspace({ cwd: fx.cwd });
+  const ctx = { wsDir: fx.wsDir };
+  const md = renderMarkdownReport(r.results, ctx, {
+    healed: {
+      applied: [
+        {
+          healId: 'HEAL-03',
+          path: 'to_fix/by_severity/critical.md',
+          summary: 'regen',
+          wrote: true,
+        },
+      ],
+      skipped: [],
+    },
+    apply: true,
+  });
+  assert.match(md, /### Applied \(\d+\)/);
+  assert.ok(!/Preview only — re-run without/.test(md), 'apply=true → no preview subtitle/footer');
 });

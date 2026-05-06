@@ -117,6 +117,13 @@ export function renderMarkdownReport(results, ctx, extras = {}) {
     const verb = apply ? 'Applied' : 'Would apply';
     lines.push(`### ${verb} (${applied.length})`);
     lines.push('');
+    // GAP-2 (quick-260506-nj2): header-level preview subtitle. Additive — the
+    // per-row footer below still renders the same wording so both ends of the
+    // table agree. Skip when applied.length === 0 (no preview to describe).
+    if (!apply && applied.length > 0) {
+      lines.push('_Preview only — re-run without `--dry-run` to persist these changes._');
+      lines.push('');
+    }
     if (applied.length > 0) {
       lines.push('| HEAL | Path | Summary |');
       lines.push('|------|------|---------|');
@@ -125,7 +132,7 @@ export function renderMarkdownReport(results, ctx, extras = {}) {
       }
       if (!apply) {
         lines.push('');
-        lines.push('_Preview only — re-run with `--apply` to persist these changes._');
+        lines.push('_Preview only — re-run without `--dry-run` to persist these changes._');
       }
     } else {
       lines.push(apply ? '_No heals applied._' : '_No heals to apply._');
