@@ -116,7 +116,23 @@ test('install.sh: _TESTATLAS_TARBALL_OVERRIDE bypasses fetch + placeholder check
     const target = path.join(tmp, 'target');
     await mkdir(target, { recursive: true });
 
-    const r = spawnSync('sh', [INSTALL_SH], {
+    // Quick 260506-hqu fix: post-release, install.sh on main carries the real
+    // tarball SHA (synced from npm registry by release.yml or bump-version.js).
+    // The placeholder-mode contract this test validates only fires when the
+    // sha line is the `REPLACE_AT_RELEASE` sentinel. Reconstruct that state
+    // in a temp copy so the contract test runs regardless of what production
+    // install.sh pins.
+    const installShText = await readFile(INSTALL_SH, 'utf8');
+    const placeholderInstallSh = path.join(tmp, 'install.sh');
+    await import('node:fs/promises').then((fs) =>
+      fs.writeFile(
+        placeholderInstallSh,
+        installShText.replace(/^TARBALL_SHA256=".*"$/m, 'TARBALL_SHA256="REPLACE_AT_RELEASE"'),
+        'utf8',
+      ),
+    );
+
+    const r = spawnSync('sh', [placeholderInstallSh], {
       env: {
         ...process.env,
         // Test hook: install.sh, when this is set, MUST skip network fetch and
@@ -132,7 +148,7 @@ test('install.sh: _TESTATLAS_TARBALL_OVERRIDE bypasses fetch + placeholder check
       0,
       `install.sh failed (exit ${r.status})\nstdout=${r.stdout}\nstderr=${r.stderr}`,
     );
-    // Placeholder-checksum log (the default install.sh ships with the placeholder)
+    // Placeholder-checksum log (the temp copy uses the placeholder sentinel)
     const combined = `${r.stdout}\n${r.stderr}`;
     assert.match(combined, /placeholder/i, `expected placeholder-mode log; got:\n${combined}`);
     // Stub install.js created the marker:
