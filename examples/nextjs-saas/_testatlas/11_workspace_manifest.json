@@ -17,7 +17,8 @@
     "flows": 6,
     "issues": 3,
     "evidenceRecords": 3,
-    "testRuns": 0
+    "testRuns": 0,
+    "reports": 0
   },
   "latestReport": null,
   "status": "initialized",
