@@ -438,8 +438,46 @@ async function probeNpmRegistryStatus(pkgName, version) {
 // Fix: filter run-list by `--commit <sha>` AND retry every 1sec for up to
 // `timeoutSec` (default 30s) before declaring "no run found".
 //
-// Returns the first matching run object (`{ databaseId, url, status, conclusion }`).
-async function findReleaseRunForSha(sha, { timeoutSec } = {}) {
+// Returns the first matching run object (`{ databaseId, url, status, conclusion, createdAt }`).
+//
+// Quick 260506-jsc — the picker now prefers in-flight runs (in_progress /
+// queued / waiting / requested) and falls back to newest completed. The
+// previous --limit 1 + naive runs[0] could lock onto an OLDER completed-
+// failure run on the same commit (a stale retry artifact), reporting the
+// wrong status to the operator. With --limit raised to 10 + an explicit
+// preference order, retries on the same tag pick the right run.
+const IN_FLIGHT_STATUSES = new Set(['in_progress', 'queued', 'waiting', 'requested', 'pending']);
+
+/**
+ * Pick the most relevant run from a list returned by `gh run list`.
+ *
+ * Order of preference:
+ *   1. Newest in-flight run (status ∈ IN_FLIGHT_STATUSES).
+ *   2. Newest completed run.
+ *   3. null when the list is empty.
+ *
+ * "Newest" = max `createdAt` (ISO-8601 string-compare works because UTC).
+ * Exported for direct unit testing.
+ *
+ * @param {Array<{databaseId?: number|string, status?: string, createdAt?: string}>} runs
+ */
+export function pickPreferredRun(runs) {
+  if (!Array.isArray(runs) || runs.length === 0) return null;
+  const byCreatedDesc = (a, b) =>
+    String(b?.createdAt ?? '').localeCompare(String(a?.createdAt ?? ''));
+  const inFlight = runs.filter((r) => IN_FLIGHT_STATUSES.has(String(r?.status ?? '')));
+  if (inFlight.length > 0) {
+    return [...inFlight].sort(byCreatedDesc)[0];
+  }
+  const completed = runs.filter((r) => String(r?.status ?? '') === 'completed');
+  if (completed.length > 0) {
+    return [...completed].sort(byCreatedDesc)[0];
+  }
+  // Unknown status (rare); just return the lexicographically-newest createdAt.
+  return [...runs].sort(byCreatedDesc)[0];
+}
+
+export async function findReleaseRunForSha(sha, { timeoutSec } = {}) {
   const effectiveTimeout =
     timeoutSec ?? Number.parseInt(process.env.BUMP_VERSION_HEADSHA_TIMEOUT_SEC ?? '30', 10);
   const start = Date.now();
@@ -451,16 +489,15 @@ async function findReleaseRunForSha(sha, { timeoutSec } = {}) {
       '--commit',
       sha,
       '--limit',
-      '1',
+      '10',
       '--json',
-      'databaseId,status,conclusion,url',
+      'databaseId,status,conclusion,url,createdAt',
     ]);
     if (r.status === 0) {
       try {
         const runs = JSON.parse(r.stdout || '[]');
-        if (Array.isArray(runs) && runs.length > 0 && runs[0]) {
-          return runs[0];
-        }
+        const picked = pickPreferredRun(runs);
+        if (picked) return picked;
       } catch {
         /* ignore parse errors and retry */
       }
@@ -1042,7 +1079,8 @@ async function main() {
         await pollWorkflow(tagName, headSha);
       } else if (headSha) {
         // Fire-and-forget: do a single (no-retry) probe so we can surface a
-        // URL if the run is already visible, but don't block.
+        // URL if the run is already visible, but don't block. Quick 260506-jsc:
+        // request --limit 10 + createdAt and pick via the same picker as --wait.
         const probe = shArgv('gh', [
           'run',
           'list',
@@ -1050,15 +1088,16 @@ async function main() {
           '--commit',
           headSha,
           '--limit',
-          '1',
+          '10',
           '--json',
-          'url',
+          'url,status,createdAt',
         ]);
         if (probe.status === 0) {
           try {
             const runs = JSON.parse(probe.stdout || '[]');
-            if (runs[0]?.url) {
-              console.log(`  Workflow run: ${runs[0].url}`);
+            const picked = pickPreferredRun(runs);
+            if (picked?.url) {
+              console.log(`  Workflow run: ${picked.url}`);
             }
           } catch {
             /* ignore parse errors */
@@ -1142,14 +1181,14 @@ async function pollWorkflow(tagName, sha) {
       '--commit',
       sha,
       '--limit',
-      '1',
+      '10',
       '--json',
-      'status,conclusion,databaseId,url',
+      'status,conclusion,databaseId,url,createdAt',
     ]);
     if (r.status === 0) {
       try {
         const runs = JSON.parse(r.stdout || '[]');
-        const cur = runs[0];
+        const cur = pickPreferredRun(runs);
         if (cur) {
           if (cur.status === 'completed') {
             if (cur.conclusion === 'success') {
@@ -1175,7 +1214,12 @@ async function pollWorkflow(tagName, sha) {
   process.exit(1);
 }
 
-main().catch((err) => {
-  console.error(`bump-version: ${err.message}`);
-  process.exit(1);
-});
+// Quick 260506-jsc: gate main() so `import bump-version.js` from tests doesn't
+// fire a real bump on the host repo. Standard ESM-CLI entrypoint pattern,
+// matching update.js / install.js.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((err) => {
+    console.error(`bump-version: ${err.message}`);
+    process.exit(1);
+  });
+}
