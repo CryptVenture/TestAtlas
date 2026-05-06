@@ -65,7 +65,14 @@ jobs:
         with:
           node-version: 22.x
           cache: pnpm
-          registry-url: https://registry.npmjs.org
+          # NOTE: registry-url INTENTIONALLY OMITTED. setup-node@v4 with
+          # registry-url auto-writes a project .npmrc containing
+          # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` AND sets
+          # NODE_AUTH_TOKEN as an empty job-level env var. Both force the
+          # token-auth path and silently bypass OIDC token-exchange (npm
+          # support E404 root cause). Without registry-url, npm CLI uses
+          # its built-in registry default (https://registry.npmjs.org/)
+          # and OIDC takes over cleanly when id-token: write is granted.
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile=false
@@ -124,41 +131,33 @@ jobs:
         run: |
           echo "Node 22 LTS ships npm 10.x; npm 11+ has the stable OIDC exchange flow."
           echo "Pre-pin: node=$(node -v) npm=$(npm -v)"
-          npm i -g npm@11
+          # `npm i -g npm@11` from npm 10 fails with `MODULE_NOT_FOUND:
+          # promise-retry` (known npm self-upgrade bootstrap bug). --force
+          # rebuilds dependencies cleanly. Pin to 11.4.x for reproducibility.
+          npm install -g --force npm@11
           echo "Post-pin: node=$(node -v) npm=$(npm -v)"
 
-      - name: Strip auth-token .npmrc lines (OIDC must run unauthenticated by token)
+      - name: Delete any auto-written .npmrc files (OIDC must run unauth'd by token)
         if: github.event.inputs.dry-run != 'true'
         run: |
           # Per npm support: "ensure NPM_TOKEN, NODE_AUTH_TOKEN, and any
           # //registry.npmjs.org/:_authToken config are not set anywhere".
-          # actions/setup-node + pnpm both auto-write a project-level .npmrc
-          # that includes `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
-          # — that line forces the token-auth path AND triggers an env-var
-          # interpolation error when NODE_AUTH_TOKEN is unset.
-          if [ -f .npmrc ]; then
-            echo "::group::Pre-strip .npmrc"
-            cat .npmrc
-            echo "::endgroup::"
-            sed -i.bak '/_authToken/d' .npmrc || true
-            sed -i.bak '/_auth=/d' .npmrc || true
-            rm -f .npmrc.bak
-            echo "::group::Post-strip .npmrc"
-            cat .npmrc
-            echo "::endgroup::"
-          else
-            echo "No project-level .npmrc — nothing to strip."
-          fi
-          for f in "$HOME/.npmrc" "/root/.npmrc"; do
-            if [ -f "$f" ]; then
-              echo "::group::Stripping $f"
-              cat "$f"
-              sed -i.bak '/_authToken/d' "$f" || true
-              sed -i.bak '/_auth=/d' "$f" || true
-              rm -f "$f.bak"
+          # We removed registry-url from setup-node above (which prevents
+          # the auto-write). This step is defense-in-depth in case anything
+          # else (pnpm, $NPM_CONFIG_USERCONFIG path) wrote one.
+          for f in .npmrc "$HOME/.npmrc" "/root/.npmrc" "$NPM_CONFIG_USERCONFIG"; do
+            if [ -n "$f" ] && [ -f "$f" ]; then
+              echo "::group::Found .npmrc at $f — contents (auth tokens will not be re-printed)"
+              grep -v -E '_authToken|_auth=' "$f" || true
               echo "::endgroup::"
+              rm -f "$f"
+              echo "Deleted $f"
             fi
           done
+          # Belt-and-suspenders: also clear NPM_CONFIG_USERCONFIG so npm
+          # doesn't try to read a file the line above just removed (or one
+          # at a stale path).
+          echo "NPM_CONFIG_USERCONFIG=" >> "$GITHUB_ENV"
 
       - name: Print diagnostic npm config (per npm support request)
         if: github.event.inputs.dry-run != 'true'
@@ -184,7 +183,11 @@ jobs:
           # id-token: write) for a short-lived npm publish credential.
           # Presence of NPM_TOKEN/NODE_AUTH_TOKEN forces the token-auth path
           # and bypasses OIDC entirely (npm support E404 root cause).
+          # Explicitly nullify NODE_AUTH_TOKEN even though setup-node no
+          # longer auto-injects it — defense-in-depth.
           NPM_CONFIG_PROVENANCE: "true"
+          NODE_AUTH_TOKEN: ""
+          NPM_TOKEN: ""
         run: |
           echo "Publishing $(node -p 'require("./package.json").name')@$(node -p 'require("./package.json").version') via Trusted Publishing OIDC..."
           # --loglevel verbose surfaces the OIDC token/exchange lines that

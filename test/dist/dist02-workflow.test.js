@@ -99,8 +99,19 @@ test('release.yml: direct npm publish path with required OIDC pre-conditions', a
   //   4. Direct `npm publish` (not via lerna/pnpm -r/changesets wrappers)
   // Each pre-condition has a dedicated step we assert here.
   const buf = await readFile(RELEASE_YML, 'utf8');
-  assert.match(buf, /npm i -g npm@11/, 'missing npm@11 pin step');
-  assert.match(buf, /Strip auth-token \.npmrc lines/, 'missing .npmrc auth-strip step');
+  assert.match(buf, /npm install -g --force npm@11/, 'missing npm@11 pin step');
+  assert.match(
+    buf,
+    /Delete any auto-written \.npmrc files/,
+    'missing .npmrc deletion step (defense-in-depth alongside dropping setup-node registry-url)',
+  );
+  // Per npm support: setup-node's `registry-url` auto-writes .npmrc + sets
+  // NODE_AUTH_TOKEN env. Both bypass OIDC. The fix is to drop registry-url.
+  assert.doesNotMatch(
+    buf,
+    /^\s*registry-url:\s*https:\/\/registry\.npmjs\.org\s*$/m,
+    'setup-node registry-url must be omitted (forces token-auth path, bypasses OIDC)',
+  );
   assert.match(
     buf,
     /npm publish --access public --provenance --loglevel verbose/,
