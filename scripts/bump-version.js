@@ -99,13 +99,17 @@ function parseArgs(argv) {
     wait: false,
     publish: false,
     githubRelease: false,
+    resume: null,
+    force: false,
   };
-  for (const a of argv) {
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
     if (a === '--major') opts.major = true;
     else if (a === '--minor') opts.minor = true;
     else if (a === '--patch') opts.patch = true;
     else if (a === '--dry-run') opts.dryRun = true;
     else if (a === '--force-dirty') opts.forceDirty = true;
+    else if (a === '--force') opts.force = true;
     else if (a === '--no-commit') opts.noCommit = true;
     else if (a === '--no-tag') opts.noTag = true;
     else if (a === '--skip-gates') opts.skipGates = true;
@@ -114,6 +118,15 @@ function parseArgs(argv) {
     else if (a === '--wait') opts.wait = true;
     else if (a === '--publish') opts.publish = true;
     else if (a === '--github-release') opts.githubRelease = true;
+    else if (a === '--resume') {
+      const next = argv[i + 1];
+      if (!next || next.startsWith('--')) {
+        console.error('bump-version: --resume requires a tag argument (e.g., --resume v1.1.0)');
+        process.exit(2);
+      }
+      opts.resume = next;
+      i++;
+    } else if (a.startsWith('--resume=')) opts.resume = a.slice('--resume='.length);
     else if (a.startsWith('--version=')) opts.explicitVersion = a.slice('--version='.length);
     else if (a === '--help' || a === '-h') {
       printHelp();
@@ -147,6 +160,13 @@ Release pipeline flags:
   --release         Push + create GH release (fires release.yml OIDC publish workflow)
   --wait            With --release: poll workflow until success/failure (10-min timeout)
 
+Recovery (half-state release):
+  --resume <tag>    Re-trigger release.yml workflow_dispatch against existing tag
+                    (recovers from "tag pushed + GH release exists + npm publish failed").
+                    Cannot be combined with bump flags or --release/--publish.
+  --force           With --resume: bypass "commit reachable from main" check
+                    (cherry-pick recovery scenario).
+
 Legacy / deprecated:
   --publish         Local npm publish (warns about OIDC migration; bootstrap-only)
   --github-release  Bare GH release (--release supersedes this)
@@ -157,7 +177,8 @@ Examples:
   node scripts/bump-version.js --patch
   node scripts/bump-version.js --minor --release           # canonical
   node scripts/bump-version.js --minor --release --wait    # canonical + poll
-  node scripts/bump-version.js --version=1.2.0 --dry-run`);
+  node scripts/bump-version.js --version=1.2.0 --dry-run
+  node scripts/bump-version.js --resume v1.1.0 --wait      # recover half-state release`);
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -364,6 +385,291 @@ function extractNotesFromBody(body) {
   return body.trim();
 }
 
+// ─── npm registry HTTP probe (for --resume "is it published?" check) ──────
+//
+// Returns a numeric HTTP status code from a HEAD/GET against
+//   https://registry.npmjs.org/<pkgName>/<version>
+// 200 = published, 404 = not published, anything else = treat as transient.
+//
+// Test override: BUMP_VERSION_FAKE_NPM_STATUS env var. Format is one or more
+// `v<X.Y.Z>=<status>` entries separated by newlines or `;`. Bare versions
+// (without the `v` prefix) also match. Default for any version not listed = 404.
+async function probeNpmRegistryStatus(pkgName, version) {
+  const fake = process.env.BUMP_VERSION_FAKE_NPM_STATUS;
+  if (fake !== undefined) {
+    const map = new Map();
+    for (const entry of fake.split(/[\n;]/)) {
+      const [k, v] = entry.split('=').map((s) => s?.trim());
+      if (!k) continue;
+      const norm = k.startsWith('v') ? k.slice(1) : k;
+      map.set(norm, Number.parseInt(v ?? '404', 10));
+    }
+    return map.get(version) ?? 404;
+  }
+  const url = `https://registry.npmjs.org/${pkgName}/${version}`;
+  try {
+    const ac = new AbortController();
+    const timer = setTimeout(() => ac.abort(), 10_000);
+    try {
+      const r = await fetch(url, { signal: ac.signal });
+      return r.status;
+    } finally {
+      clearTimeout(timer);
+    }
+  } catch {
+    // Network error → treat as transient (return 0, caller decides).
+    return 0;
+  }
+}
+
+// ─── Head-sha-filtered workflow-run finder (─wait bug fix) ────────────────
+//
+// Bug observed during v1.1.0 release: `gh run list --workflow=release.yml
+// --limit 1` returned the previous v1.0.0 failed run because the new run
+// took ~3-5sec to appear in the API after `release:published` fired.
+//
+// Fix: filter run-list by `--head-sha <sha>` AND retry every 1sec for up to
+// `timeoutSec` (default 30s) before declaring "no run found".
+//
+// Returns the first matching run object (`{ databaseId, url, status, conclusion }`).
+async function findReleaseRunForSha(sha, { timeoutSec } = {}) {
+  const effectiveTimeout =
+    timeoutSec ?? Number.parseInt(process.env.BUMP_VERSION_HEADSHA_TIMEOUT_SEC ?? '30', 10);
+  const start = Date.now();
+  while ((Date.now() - start) / 1000 < effectiveTimeout) {
+    const r = shArgv('gh', [
+      'run',
+      'list',
+      '--workflow=release.yml',
+      '--head-sha',
+      sha,
+      '--limit',
+      '1',
+      '--json',
+      'databaseId,status,conclusion,url',
+    ]);
+    if (r.status === 0) {
+      try {
+        const runs = JSON.parse(r.stdout || '[]');
+        if (Array.isArray(runs) && runs.length > 0 && runs[0]) {
+          return runs[0];
+        }
+      } catch {
+        /* ignore parse errors and retry */
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+  throw new Error(`No release.yml run found for sha ${sha} after ${effectiveTimeout}s`);
+}
+
+// ─── --resume <tag> mode (Quick 260506-ilm) ────────────────────────────────
+//
+// Half-state release recovery: tag pushed + commit on main + GH release
+// page exists, but npm publish failed. Re-fires release.yml against the tag
+// without re-bumping the version.
+//
+// State detection (4 checks):
+//   1. Tag exists on origin (`git ls-remote --tags origin <tag>`)
+//   2. Commit reachable from origin/main (`git merge-base --is-ancestor`).
+//      Bypassable with --force (cherry-pick scenario).
+//   3. npm registry reports 404 for the version (not yet published).
+//      If 200 → refuse (would create a sigstore double-signing collision).
+//   4. GH release page exists (`gh release view <tag>`).
+//
+// On success: triggers `gh workflow run release.yml -f dry-run=false --ref <tag>`
+// then (with --wait) polls via the same head-sha-filtered poll as --release.
+
+const SEMVER_TAG_RE = /^v\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/;
+
+function refuseConflictingFlags(opts) {
+  const conflicts = [];
+  if (opts.major) conflicts.push('--major');
+  if (opts.minor) conflicts.push('--minor');
+  if (opts.patch) conflicts.push('--patch');
+  if (opts.explicitVersion) conflicts.push(`--version=${opts.explicitVersion}`);
+  if (opts.release) conflicts.push('--release');
+  if (opts.publish) conflicts.push('--publish');
+  if (opts.githubRelease) conflicts.push('--github-release');
+  if (opts.push) conflicts.push('--push');
+  if (conflicts.length > 0) {
+    console.error(
+      `bump-version: --resume cannot be combined with --minor/--major/--patch/--release/--publish (got: ${conflicts.join(', ')})`,
+    );
+    process.exit(2);
+  }
+}
+
+async function runResume(opts) {
+  const tag = opts.resume;
+
+  // Tag-format gate — semver tag with optional pre-release suffix.
+  if (!SEMVER_TAG_RE.test(tag)) {
+    console.error(
+      `bump-version: --resume tag "${tag}" has invalid tag format. Must match v<MAJOR>.<MINOR>.<PATCH>[-<pre>] (e.g., v1.1.0 or v2.0.0-rc.1).`,
+    );
+    process.exit(2);
+  }
+
+  refuseConflictingFlags(opts);
+
+  const version = tag.slice(1); // strip leading 'v'
+  console.log(`Resume mode: ${tag} (${version})`);
+  console.log('');
+  console.log('State detection:');
+
+  // Check 1: tag exists on origin.
+  const tagOnRemote = tagExistsOnRemote(tag);
+  if (!tagOnRemote) {
+    console.error(`  ✗ tag ${tag} not found on origin`);
+    console.error('');
+    console.error(
+      `bump-version: ${tag} not found on origin. If you intended a fresh release, use --patch/--minor/--major --release.`,
+    );
+    process.exit(1);
+  }
+
+  // Resolve sha: try local rev-parse first (annotated tag → commit sha via ^{}).
+  // Fall back to ls-remote output (which prefixes the tag's own object sha,
+  // not necessarily the commit — for annotated tags this is the tag-object sha).
+  // Sha resolution is best-effort here; if we can't get it locally, downstream
+  // refusals (npm 200) still apply, and we error before any trigger.
+  let sha = '';
+  const localRev = shArgv('git', ['rev-parse', `${tag}^{}`]);
+  if (localRev.status === 0) {
+    sha = localRev.stdout.trim();
+  } else {
+    const lsr = shArgv('git', ['ls-remote', '--tags', 'origin', tag]);
+    if (lsr.status === 0 && lsr.stdout.trim().length > 0) {
+      sha = lsr.stdout.trim().split(/\s+/)[0] ?? '';
+    }
+  }
+  if (sha) {
+    console.log(`  ✓ tag exists at commit ${sha.slice(0, 7)}`);
+  } else {
+    console.log(
+      `  ⚠ tag exists on origin but local sha resolution failed (run \`git fetch --tags\`)`,
+    );
+  }
+
+  // Check 2: reachable from origin/main. We only refuse if we can confirm the
+  // commit is _not_ an ancestor of an existing origin/main ref. If origin/main
+  // can't be resolved (test fixture, local-only repo) OR sha resolution failed,
+  // we soft-pass with a notice — the user can still pass --force.
+  const originMainExists =
+    shArgv('git', ['rev-parse', '--verify', '--quiet', 'origin/main']).status === 0;
+  if (!sha) {
+    console.log('  ⚠ reachability check skipped (no local sha)');
+  } else if (!originMainExists) {
+    console.log('  ⚠ origin/main not present locally; reachability check skipped');
+  } else {
+    const r = shArgv('git', ['merge-base', '--is-ancestor', sha, 'origin/main']);
+    const reachable = r.status === 0;
+    if (reachable) {
+      console.log(`  ✓ commit reachable from main`);
+    } else if (opts.force) {
+      console.log(`  ⚠ commit NOT reachable from origin/main (bypassed via --force)`);
+    } else {
+      console.log(`  ✗ commit NOT reachable from origin/main`);
+      console.error('');
+      console.error(
+        'bump-version: tag commit is not reachable from origin/main. This is a cherry-pick scenario; pass --force to proceed if intentional.',
+      );
+      process.exit(1);
+    }
+  }
+
+  // Check 3: npm registry probe.
+  const pkg = await readJson(PKG_PATH);
+  const pkgName = pkg.name ?? '@webventures/testatlas';
+  const status = await probeNpmRegistryStatus(pkgName, version);
+  if (status === 200) {
+    console.log(`  ✗ npm: ${pkgName}@${version} ALREADY PUBLISHED (registry returns 200)`);
+    console.error('');
+    console.error(
+      `bump-version: Already published. v${version} is live on npm; nothing to resume.`,
+    );
+    process.exit(1);
+  }
+  if (status === 404) {
+    console.log(`  ✗ npm: ${pkgName}@${version} NOT published (registry returns 404)`);
+  } else {
+    console.log(
+      `  ⚠ npm: ${pkgName}@${version} probe returned HTTP ${status} (treating as not-published; verify manually)`,
+    );
+  }
+
+  // Check 4: GH release page.
+  const ghView = shArgv('gh', ['release', 'view', tag, '--json', 'tagName,assets']);
+  let assetCount = 0;
+  if (ghView.status === 0) {
+    try {
+      const view = JSON.parse(ghView.stdout || '{}');
+      assetCount = Array.isArray(view.assets) ? view.assets.length : 0;
+    } catch {
+      assetCount = 0;
+    }
+    console.log(`  ✓ GH release page exists (${assetCount} assets)`);
+  } else {
+    console.log(`  ⚠ GH release page check failed (gh release view exited ${ghView.status})`);
+  }
+
+  // Plan
+  console.log('');
+  if (opts.dryRun) {
+    console.log(`[dry-run] Would run: gh workflow run release.yml -f dry-run=false --ref ${tag}`);
+    if (opts.wait) {
+      const shaPreview = sha ? sha.slice(0, 7) : '<sha-from-tag>';
+      console.log(
+        `[dry-run] Would poll: gh run list --workflow=release.yml --head-sha ${shaPreview} (10-min timeout, 30s find-retry)`,
+      );
+    }
+    process.exit(0);
+  }
+
+  // For real (non-dry-run) trigger, sha is required for downstream poll.
+  if (!sha) {
+    console.error(
+      `bump-version: cannot resolve commit sha for ${tag} locally; run \`git fetch --tags\` and retry.`,
+    );
+    process.exit(1);
+  }
+
+  // Execute the trigger.
+  console.log(`Triggering release.yml workflow_dispatch against ${tag}…`);
+  const trig = shArgv('gh', [
+    'workflow',
+    'run',
+    'release.yml',
+    '-f',
+    'dry-run=false',
+    '--ref',
+    tag,
+  ]);
+  if (trig.status !== 0) {
+    console.error(`gh workflow run FAILED:\n${trig.stderr}`);
+    console.error('Ensure `gh auth status` is green and you have write access.');
+    process.exit(1);
+  }
+  console.log('✓ workflow_dispatch triggered.');
+
+  if (opts.wait) {
+    await pollWorkflow(tag, sha);
+  } else {
+    // Surface the run URL once it appears (best-effort; non-fatal).
+    try {
+      const located = await findReleaseRunForSha(sha);
+      if (located?.url) {
+        console.log(`  Workflow run: ${located.url}`);
+      }
+    } catch {
+      console.log('  (run did not appear within 30s; check GH Actions UI)');
+    }
+  }
+
+  console.log(`\nDone. Resume submitted for ${tag}.`);
+}
+
 // ─── Pre-flight gates ───────────────────────────────────────────────────────
 
 function runGates({ dryRun }) {
@@ -428,6 +734,13 @@ function runGates({ dryRun }) {
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
+
+  // --resume <tag>: half-state release recovery (Quick 260506-ilm).
+  // Short-circuits the normal bump flow.
+  if (opts.resume !== null) {
+    await runResume(opts);
+    return;
+  }
 
   // 1. Load current version
   const pkg = await readJson(PKG_PATH);
@@ -586,7 +899,9 @@ async function main() {
         `[dry-run] release.yml fires on release:published — handles OIDC npm publish + asset attachment.`,
       );
       if (opts.wait) {
-        console.log('[dry-run] Would poll: gh run list --workflow=release.yml (10-min timeout)');
+        console.log(
+          '[dry-run] Would poll: gh run list --workflow=release.yml --head-sha <HEAD> (10-min timeout, 30s find-retry)',
+        );
       }
     }
     if (willGithubReleaseLegacy) {
@@ -678,30 +993,45 @@ async function main() {
       const releaseUrl = `https://github.com/CryptVenture/TestAtlas/releases/tag/${tagName}`;
       console.log(`✓ GitHub Release created: ${releaseUrl}`);
 
-      // Surface the run URL.
-      const runList = shArgv('gh', [
-        'run',
-        'list',
-        '--workflow=release.yml',
-        '--limit',
-        '1',
-        '--json',
-        'url,status,conclusion,databaseId',
-      ]);
-      if (runList.status === 0 && runList.stdout.trim().length > 0) {
+      // Surface the run URL — filter by head sha so we don't grab a stale
+      // run from a previous release (Quick 260506-ilm bug fix). Only attempt
+      // the locate when we're going to --wait OR via a short non-blocking
+      // probe; otherwise the 30s find-retry would block fire-and-forget runs.
+      const headSha = (() => {
         try {
-          const runs = JSON.parse(runList.stdout);
-          if (runs[0]?.url) {
-            console.log(`  Workflow run: ${runs[0].url}`);
-          }
+          return sh('git rev-parse HEAD');
         } catch {
-          /* ignore parse errors */
+          return '';
         }
-      }
-
-      // 14. --wait: poll until completion.
-      if (opts.wait) {
-        await pollWorkflow(tagName);
+      })();
+      if (headSha && opts.wait) {
+        // 14. --wait: poll until completion (head-sha-filtered). pollWorkflow
+        // calls findReleaseRunForSha internally with the standard timeout.
+        await pollWorkflow(tagName, headSha);
+      } else if (headSha) {
+        // Fire-and-forget: do a single (no-retry) probe so we can surface a
+        // URL if the run is already visible, but don't block.
+        const probe = shArgv('gh', [
+          'run',
+          'list',
+          '--workflow=release.yml',
+          '--head-sha',
+          headSha,
+          '--limit',
+          '1',
+          '--json',
+          'url',
+        ]);
+        if (probe.status === 0) {
+          try {
+            const runs = JSON.parse(probe.stdout || '[]');
+            if (runs[0]?.url) {
+              console.log(`  Workflow run: ${runs[0].url}`);
+            }
+          } catch {
+            /* ignore parse errors */
+          }
+        }
       }
     } finally {
       // assertCapability(RELEASE_CAPABILITY_CONFIG, 'destructive-fs') —
@@ -725,7 +1055,7 @@ async function main() {
   // 16. Legacy --publish (deprecated; bootstrap-only).
   if (willPublishLegacy) {
     console.log('\n[deprecated] Running local npm publish…');
-    const inOidc = process.env.ACTIONS_ID_TOKEN_REQUEST_URL ? true : false;
+    const inOidc = !!process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
     const provenanceFlag = inOidc ? '--provenance' : '--provenance=false';
     if (!inOidc && !process.env.NODE_AUTH_TOKEN && !process.env.NPM_TOKEN) {
       console.error(
@@ -747,18 +1077,38 @@ async function main() {
 }
 
 // ─── --wait poll loop ───────────────────────────────────────────────────────
+//
+// Filters by `--head-sha <sha>` (Quick 260506-ilm fix). The previous
+// implementation polled `--limit 1` with no sha filter, which returned a
+// stale completed run from the previous release while the new run was still
+// pending in the API (3-5sec window post-release:published).
+//
+// Step 1: locate the run for this sha (with 30s retry-until-found).
+// Step 2: poll its status until `completed` (10m timeout).
 
-async function pollWorkflow(tagName) {
+async function pollWorkflow(tagName, sha) {
   const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
   const POLL_MS = 15 * 1000;
-  const start = Date.now();
-  console.log(`\nPolling release.yml workflow (timeout 10m)…`);
+  console.log(`\nLocating release.yml run for sha ${sha.slice(0, 7)}…`);
 
+  let run;
+  try {
+    run = await findReleaseRunForSha(sha);
+  } catch (err) {
+    console.error(`✗ ${err.message}`);
+    process.exit(1);
+  }
+  console.log(`  Run located: ${run.url} (id=${run.databaseId})`);
+  console.log(`Polling release.yml workflow (timeout 10m)…`);
+
+  const start = Date.now();
   while (Date.now() - start < TIMEOUT_MS) {
     const r = shArgv('gh', [
       'run',
       'list',
       '--workflow=release.yml',
+      '--head-sha',
+      sha,
       '--limit',
       '1',
       '--json',
@@ -766,21 +1116,21 @@ async function pollWorkflow(tagName) {
     ]);
     if (r.status === 0) {
       try {
-        const runs = JSON.parse(r.stdout);
-        const run = runs[0];
-        if (run) {
-          if (run.status === 'completed') {
-            if (run.conclusion === 'success') {
+        const runs = JSON.parse(r.stdout || '[]');
+        const cur = runs[0];
+        if (cur) {
+          if (cur.status === 'completed') {
+            if (cur.conclusion === 'success') {
               console.log(`✓ Published @webventures/testatlas@${tagName.slice(1)} via OIDC.`);
-              console.log(`  Run: ${run.url}`);
+              console.log(`  Run: ${cur.url}`);
               return;
             }
             console.error(
-              `✗ Workflow failed (${run.conclusion}). View logs: gh run view ${run.databaseId}`,
+              `✗ Workflow failed (${cur.conclusion}). View logs: gh run view ${cur.databaseId}`,
             );
             process.exit(1);
           }
-          process.stdout.write(`  status=${run.status} conclusion=${run.conclusion ?? '-'}\r`);
+          process.stdout.write(`  status=${cur.status} conclusion=${cur.conclusion ?? '-'}\r`);
         }
       } catch {
         /* ignore parse errors */
