@@ -55,6 +55,7 @@ export async function syncStatus(args = {}, _inject = {}) {
   const dryRun = args.dryRun ?? false;
 
   // Compute on-disk counts.
+  const reports = await countFiles(wsDir, 'reports', (n) => n.endsWith('.md'));
   const counts = {
     domains: await countDirs(wsDir, 'domains'),
     flows: await countFiles(wsDir, 'flows', (n) => n.endsWith('.json') && n.startsWith('FLOW-')),
@@ -69,8 +70,11 @@ export async function syncStatus(args = {}, _inject = {}) {
       'tests/runs',
       (n) => n.endsWith('.md') && n.startsWith('RUN-'),
     ),
+    // Quick 260506-dyb (G4): persist reports count in manifest (additive
+    // optional field). Schema permits it; check-status-counts will validate
+    // against on-disk count.
+    reports,
   };
-  const reports = await countFiles(wsDir, 'reports', (n) => n.endsWith('.md'));
 
   // Update manifest.
   const manifestPath = path.join(wsDir, MANIFEST);

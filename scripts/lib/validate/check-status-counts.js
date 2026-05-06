@@ -22,10 +22,9 @@
 //                      evidence.json, evidence.md, screenshot.png, etc.)
 //   testRuns         — number of unique RUN-* records (paired .md+.json
 //                      collapse to one)
-//
-// reports is NOT in the counts schema (sync-status tracks it separately).
-// We don't check reports here; check-canonical-files asserts the reports/
-// dir exists, and report quality checks live in generate-report.js.
+//   reports          — Quick 260506-dyb (G4): count of REPORT-*.md files in
+//                      reports/ (additive optional field; sync-status writes
+//                      it; we validate here only when present in manifest).
 
 export const id = 'check-status-counts';
 export const prdRule = 10;
@@ -55,6 +54,8 @@ export async function check(ctx) {
     issues: (files.issues ?? []).length,
     evidenceRecords: evidIds.size,
     testRuns: (files.testRuns ?? []).length,
+    // Quick 260506-dyb (G4): validate reports if present.
+    reports: (files.reports ?? []).length,
   };
 
   for (const [key, actualCount] of Object.entries(actual)) {
