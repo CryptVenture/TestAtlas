@@ -25,8 +25,13 @@ import path from 'node:path';
 import { formatErrors } from './ajv-instance.js';
 import { atomicWrite } from './atomic-write.js';
 import { INSTALL_MANIFEST_PATH, INSTALL_MANIFEST_SCHEMA_ID } from './constants.js';
-import { hashContent } from './content-hash.js';
+import { hashContent, verifyHashCompat } from './content-hash.js';
 import { loadAllSchemas } from './schema-loader.js';
+
+// Suite tree dirname under <target>. Mirrors install-core.js / load-config.js
+// (both keep their own copy intentionally — adding to constants.js would
+// require touching both call sites for no reader benefit).
+const SUITE_DIR = '.testatlas';
 
 /**
  * @typedef {Object} ManifestFileInput
@@ -181,4 +186,91 @@ export async function loadAndValidateManifest(target, opts = {}) {
     throw e;
   }
   return parsed;
+}
+
+/**
+ * @typedef {Object} DriftReport
+ * @property {'missing'|'no-manifest'|'in-sync'|'drift'} kind
+ * @property {Array<{path: string, expectedHash: string}>} [drifted]
+ * @property {number} [files]   Count of tracked files (kind='in-sync' / 'drift')
+ * @property {string} [reason]  Human-readable detail (e.g., parse failure cause)
+ */
+
+/**
+ * Detect content drift between the on-disk `.testatlas/` tree and the
+ * `.install-manifest.json` written at install time. Quick 260506-jsc.
+ *
+ * Cases:
+ *   - `<target>/.testatlas/` missing entirely → `kind: 'missing'`. The user
+ *     ran `update` against a directory with no install at all (common after
+ *     an accidental rm or against a fresh tmp dir).
+ *   - `.install-manifest.json` missing or invalid → `kind: 'no-manifest'`.
+ *     Pre-Phase-7 installs or hand-rolled installs land here. Update should
+ *     fall through to its normal version-equal short-circuit (we have no
+ *     drift baseline to compare against).
+ *   - One or more tracked files differ in hash from the manifest → `kind:
+ *     'drift'` with `drifted: [{path, expectedHash}]`.
+ *   - All tracked files match → `kind: 'in-sync'`.
+ *
+ * Directory entries in the manifest (vendored node_modules) are skipped —
+ * they get a placeholder hash that's not meaningfully drift-checkable.
+ * Mirrors `install-core.checkAlreadyInstalled` precedent.
+ *
+ * @param {string} target  Absolute path of the install target.
+ * @param {{cwd?: string}} [opts]
+ * @returns {Promise<DriftReport>}
+ */
+export async function detectInstallDrift(target, opts = {}) {
+  const suiteDir = path.join(target, SUITE_DIR);
+  // Step 1: .testatlas/ presence check.
+  try {
+    const s = await stat(suiteDir);
+    if (!s.isDirectory()) {
+      return { kind: 'missing', reason: `${suiteDir} exists but is not a directory` };
+    }
+  } catch {
+    return { kind: 'missing' };
+  }
+
+  // Step 2: load manifest. If it's absent / corrupt, surface 'no-manifest'
+  // (caller falls through; we don't have a hash baseline anyway).
+  let manifest;
+  try {
+    manifest = await loadAndValidateManifest(target, opts);
+  } catch (err) {
+    return {
+      kind: 'no-manifest',
+      reason: err?.message ?? String(err),
+    };
+  }
+
+  // Step 3: walk every tracked file; recompute hash; collect drift.
+  const drifted = [];
+  for (const entry of manifest.files ?? []) {
+    const abs = path.join(target, ...String(entry.path ?? '').split('/'));
+    let st;
+    try {
+      st = await stat(abs);
+    } catch {
+      // File tracked by manifest but absent on disk = drift.
+      drifted.push({ path: entry.path, expectedHash: entry.hash });
+      continue;
+    }
+    if (st.isDirectory()) continue; // vendored dirs (node_modules) skipped
+    let buf;
+    try {
+      buf = await readFile(abs);
+    } catch {
+      drifted.push({ path: entry.path, expectedHash: entry.hash });
+      continue;
+    }
+    if (!verifyHashCompat(buf.toString('utf8'), entry.hash)) {
+      drifted.push({ path: entry.path, expectedHash: entry.hash });
+    }
+  }
+
+  if (drifted.length > 0) {
+    return { kind: 'drift', drifted, files: manifest.files.length };
+  }
+  return { kind: 'in-sync', files: manifest.files.length };
 }

@@ -29,20 +29,21 @@
 // Test seam: the module-level `_testHooks` object accepts overrides for ops
 // that are otherwise hard to mock cleanly. See test/update/update-rollback.test.js.
 
-import { rename as fsRename, mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { rename as fsRename, mkdir, readdir, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import semver from 'semver';
 import { info, success, warning } from './colors.js';
 import { loadConfig } from './load-config.js';
 import { acquireLock, releaseLock } from './lockfile.js';
+import { detectInstallDrift } from './manifest.js';
 import { applyMigrations } from './migrate.js';
 import { evaluatePin, shouldWarn } from './pinning.js';
 import {
-  downloadTarball as tarballDownload,
-  extractTarball as tarballExtract,
   fetchExpectedSha,
   fetchSigstoreBundle,
+  downloadTarball as tarballDownload,
+  extractTarball as tarballExtract,
   verifyChecksum as tarballVerify,
   verifyCosignAttestation,
 } from './tarball.js';
@@ -96,12 +97,15 @@ const DEFAULT_LOGGER = (msg) => info(msg);
 
 /**
  * @typedef {Object} RunUpdateResult
- * @property {'updated'|'up-to-date'|'dry-run'|'pinned-skip'} status
+ * @property {'updated'|'up-to-date'|'dry-run'|'pinned-skip'|'install-missing'|'drift-detected'} status
  * @property {string} [previousVersion]
  * @property {string} [newVersion]
  * @property {string} [backupDir]            Path of the kept backup dir (post-swap).
  * @property {number} [migrationsApplied]
  * @property {object} [pin]                  Pin evaluation result, if any.
+ * @property {Array<{path: string, expectedHash: string}>} [drifted]
+ *   When status='drift-detected': files whose on-disk hash diverged from
+ *   .install-manifest.json. POSIX-relative paths from the install target.
  */
 
 /**
@@ -264,6 +268,52 @@ export async function runUpdate(opts) {
     }
   }
 
+  // Quick 260506-jsc — content-drift / missing-install detection.
+  //
+  // The legacy short-circuit below ("Already up to date") only consulted
+  // package.json version. That said "up to date" against (a) targets with no
+  // .testatlas/ at all and (b) targets whose .testatlas/ had drifted from
+  // the install-manifest. Both are user-actionable conditions that should
+  // surface a distinct status BEFORE the version-equal verdict.
+  //
+  // Skipped under --force-reinstall (the user is asking for a re-extract
+  // regardless) and when an actual version bump is available (the normal
+  // update flow will overwrite drift anyway).
+  if (!forceReinstall && !shouldUpdate(currentVersion, resolvedLatest)) {
+    const drift = await detectInstallDrift(target);
+    if (drift.kind === 'missing') {
+      const msg =
+        `No .testatlas/ install detected at ${target}. ` +
+        `Run \`npx @webventures/testatlas init\` (or \`testatlas init\`) to install the suite.`;
+      if (opts.logger) log(msg);
+      else warning(msg);
+      return { status: 'install-missing', previousVersion: currentVersion, pin };
+    }
+    if (drift.kind === 'drift') {
+      const head = `Content drift detected vs install-manifest (${drift.drifted.length} file${drift.drifted.length === 1 ? '' : 's'}):`;
+      if (opts.logger) log(head);
+      else warning(head);
+      for (const d of drift.drifted) {
+        const line = `  - ${d.path}`;
+        if (opts.logger) log(line);
+        else warning(line);
+      }
+      const tip =
+        'Run with --force-reinstall to re-extract the suite ' +
+        '(preserves _testatlas/ workspace).';
+      if (opts.logger) log(tip);
+      else warning(tip);
+      return {
+        status: 'drift-detected',
+        previousVersion: currentVersion,
+        pin,
+        drifted: drift.drifted,
+      };
+    }
+    // 'no-manifest' (legacy install / hand-rolled) and 'in-sync' fall
+    // through to the existing short-circuit below.
+  }
+
   // Up-to-date short-circuit (skipped under --force-reinstall).
   if (!forceReinstall && !shouldUpdate(currentVersion, resolvedLatest)) {
     const msg = `Already up to date (current ${currentVersion}, latest ${resolvedLatest ?? 'unknown'}).`;
@@ -325,13 +375,11 @@ export async function runUpdate(opts) {
       // cleanup without waiting and then exit.
       // Plan 12-02: release the lock at the SAME `lockTarget` it was
       // acquired at (global → ~/.testatlas, otherwise <target>/_testatlas).
-      Promise.allSettled([
-        rmSilent(stageDir),
-        rmSilent(tmpTarball),
-        releaseLock(lockTarget),
-      ]).then(() => {
-        process.exit(130);
-      });
+      Promise.allSettled([rmSilent(stageDir), rmSilent(tmpTarball), releaseLock(lockTarget)]).then(
+        () => {
+          process.exit(130);
+        },
+      );
     };
     process.once('SIGINT', sigintHandler);
 

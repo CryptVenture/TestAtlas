@@ -50,6 +50,9 @@ async function cliMain() {
     dryRun: Boolean(opts.dryRun),
     noUpdateCheck: opts.updateCheck === false,
   });
+  // Quick 260506-jsc: 'install-missing' and 'drift-detected' are actionable
+  // user-facing conditions that must NOT exit 0. They surface explicit
+  // remediation text in runUpdate's logger output.
   process.exitCode =
     result.status === 'updated' || result.status === 'up-to-date' || result.status === 'dry-run'
       ? 0
