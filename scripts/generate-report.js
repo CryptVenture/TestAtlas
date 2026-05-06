@@ -294,7 +294,13 @@ function buildJsonReport({
     .map((i) => i.id)
     .filter((id) => /^ISSUE-\d{3,}-[a-z0-9]+(-[a-z0-9]+)*$/.test(id));
 
-  const blockers = sortedIssues
+  // Quick 260506-esm: blockers are limited to issues that are still OPEN —
+  // i.e. status ∉ {closed, wont_fix}. A severity:critical issue that has
+  // already been fixed and closed is not a release blocker.
+  const isOpen = (i) => i.status !== 'closed' && i.status !== 'wont_fix';
+  const openIssues = sortedIssues.filter(isOpen);
+
+  const blockers = openIssues
     .filter((i) => i.severity === 'critical')
     .map((i) => `${i.id}: ${i.title ?? i.summary ?? ''}`.trim());
 
@@ -355,10 +361,12 @@ function buildJsonReport({
     .filter((i) => i.status === 'fixed' || i.status === 'cannot-reproduce')
     .map((i) => `Retest ${i.id}: ${i.title ?? i.summary ?? ''}`.trim());
 
+  // Quick 260506-esm: filter the severity check to OPEN issues so closed /
+  // wont_fix high-severity issues no longer keep the verdict at CONDITIONAL.
   const readinessAssessment =
     blockers.length > 0
       ? 'NOT READY — blockers present'
-      : sortedIssues.some((i) => i.severity === 'high')
+      : openIssues.some((i) => i.severity === 'high')
         ? 'CONDITIONAL — high-severity issues require triage'
         : 'READY';
 
