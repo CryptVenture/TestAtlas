@@ -87,10 +87,26 @@ function clearTarballHooks() {
   delete tarballHooks.extractTarball;
 }
 
+/**
+ * Quick 260506-jsf — runUpdate now sources currentVersion from
+ * manifest.suiteVersion (Bug A fix). These tests pre-date that fix and
+ * pass `currentVersion: '0.1.0'` to runUpdate as if the install were 0.1.0,
+ * but runInit (against REPO_ROOT) writes the actual repo version into the
+ * manifest. Hand-edit the manifest.suiteVersion to align the test's
+ * stated intent with the runUpdate contract.
+ */
+async function setManifestSuiteVersion(target, version) {
+  const p = path.join(target, '.testatlas', '.install-manifest.json');
+  const m = JSON.parse(await readFile(p, 'utf8'));
+  m.suiteVersion = version;
+  await writeFile(p, `${JSON.stringify(m, null, 2)}\n`, 'utf8');
+}
+
 test('update-atomic: full flow — stage → swap → backup → prune → lock released', async (t) => {
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-atomic-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();
   t.after(() => clearTarballHooks());
@@ -126,6 +142,7 @@ test('update-atomic: _testatlas/ workspace untouched when no migrations', async 
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-atomic-ws-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant a marker file in _testatlas/ to prove it survives.
   const marker = path.join(target, '_testatlas', 'user-marker.txt');
@@ -150,6 +167,7 @@ test('update-atomic: with migrations, schemaVersion bumps and _testatlas/ transf
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-mig-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant scratch/ so v1-to-v2 has work.
   await mkdir(path.join(target, '_testatlas', 'scratch'), { recursive: true });
@@ -186,6 +204,7 @@ test('update-atomic: backup pruning keeps last 3 .testatlas.backup-* dirs', asyn
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-prune-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant 5 fake backup dirs with sortable timestamps.
   const ts = [
@@ -227,6 +246,7 @@ test('update-atomic: already-up-to-date short-circuits with no swap', async (t) 
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-uptodate-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   // No tarball hooks installed — should never be called.
   let downloadCalled = false;
@@ -254,6 +274,7 @@ test('update-atomic: --force-reinstall proceeds even when versions match', async
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-force-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();
   t.after(() => clearTarballHooks());
@@ -276,6 +297,7 @@ test('update-atomic: lock held by another fresh PID throws Lock held', async (t)
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-locked-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   // Pre-acquire lock as current process (alive PID).
   const { acquireLock, releaseLock } = await import('../../scripts/lib/lockfile.js');
@@ -306,6 +328,7 @@ test('update-atomic: dry-run prints plan, no writes, no lock leftover', async (t
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-dry-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();
   t.after(() => clearTarballHooks());

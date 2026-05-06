@@ -212,14 +212,39 @@ async function doRename(src, dst) {
  */
 export async function runUpdate(opts) {
   const target = path.resolve(opts.target);
-  const currentVersion = opts.currentVersion;
   const latestVersion = opts.latestVersion;
   const log = opts.logger ?? DEFAULT_LOGGER;
   const forceReinstall = Boolean(opts.forceReinstall);
   const dryRun = Boolean(opts.dryRun);
 
-  if (!currentVersion) {
+  if (!opts.currentVersion) {
     throw new TypeError('runUpdate: `currentVersion` is required');
+  }
+
+  // Quick 260506-jsf Bug A — source currentVersion from the local install
+  // manifest (`<target>/.testatlas/.install-manifest.json#suiteVersion`)
+  // rather than the caller's value. The caller (bin/testatlas.js) passes
+  // its own pkg.version, which is the running CLI's version — NOT the
+  // version of what's installed at <target>. Without this fix, `npx
+  // @webventures/testatlas update` against an older install reports
+  // "Already up to date" because the npx-cached CLI is at the new version
+  // and "current=CLI=latest" trips the up-to-date short-circuit.
+  //
+  // We also opportunistically read `mode: 'global'` here so the lockfile-
+  // target resolution below doesn't need to re-read the file.
+  let currentVersion = opts.currentVersion;
+  let manifestModeGlobal = null;
+  try {
+    const manifestPath = path.join(target, '.testatlas', '.install-manifest.json');
+    const manifestRaw = await readFile(manifestPath, 'utf8');
+    const manifest = JSON.parse(manifestRaw);
+    if (typeof manifest.suiteVersion === 'string' && manifest.suiteVersion.length > 0) {
+      currentVersion = manifest.suiteVersion;
+    }
+    manifestModeGlobal = manifest.mode === 'global';
+  } catch {
+    // No manifest, unreadable JSON, or missing suiteVersion → keep caller's value.
+    // (Drift detection further down surfaces install-missing for kind:'missing'.)
   }
 
   // Plan 07-04: read config (best-effort) for disableUpdateCheck, pinning,
@@ -347,16 +372,11 @@ export async function runUpdate(opts) {
   // resolve to `~/.testatlas/.lock` instead of `<target>/_testatlas/.lock`.
   // Global installs intentionally never seed `_testatlas/`, so writing the
   // lock under `<target>` would ENOENT on every `runUpdate` invocation.
-  let isGlobal = false;
-  try {
-    const manifestPath = path.join(target, '.testatlas', '.install-manifest.json');
-    const manifestRaw = await readFile(manifestPath, 'utf8');
-    const manifest = JSON.parse(manifestRaw);
-    isGlobal = manifest.mode === 'global';
-  } catch {
-    // No manifest or unreadable JSON — fall back to homedir heuristic.
-    isGlobal = target === os.homedir();
-  }
+  // Quick 260506-jsf: reuse the manifest read from the version-source step
+  // above (manifestModeGlobal) so we don't re-stat/re-parse the file. When
+  // the manifest was unreadable, manifestModeGlobal is null and we fall
+  // back to the homedir heuristic.
+  const isGlobal = manifestModeGlobal ?? target === os.homedir();
   const lockTarget = isGlobal ? os.homedir() : target;
 
   // Acquire lock BEFORE any disk mutation. Throws TESTATLAS_LOCK_HELD if held.

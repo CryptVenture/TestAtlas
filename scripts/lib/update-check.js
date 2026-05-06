@@ -113,7 +113,24 @@ export async function checkForUpdate(opts) {
   const ttlMs = Math.max(0, Number(ttlHours) || 0) * 60 * 60 * 1000;
 
   if (cached && Date.now() - cached.checkedAt < ttlMs) {
-    return { fromCache: true, ...evalCache(cached, currentVersion) };
+    // Quick 260506-jsf Bug B — self-invalidate when the cache is provably
+    // stale: if the running CLI's version is greater than what the cache
+    // claims is "latest", the cache cannot be telling the truth (the user
+    // is already running newer than its claimed latest). Force re-fetch.
+    // Also bypass on malformed cache.latestVersion as a defensive measure.
+    const cliNewerThanCache = (() => {
+      try {
+        if (typeof cached.latestVersion !== 'string') return true; // malformed → bypass
+        if (!semver.valid(cached.latestVersion)) return true; // malformed → bypass
+        if (!semver.valid(currentVersion)) return false; // can't compare → trust cache
+        return semver.gt(currentVersion, cached.latestVersion);
+      } catch {
+        return true; // any parse error → bypass conservatively
+      }
+    })();
+    if (!cliNewerThanCache) {
+      return { fromCache: true, ...evalCache(cached, currentVersion) };
+    }
   }
 
   // Fresh fetch.
