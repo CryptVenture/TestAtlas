@@ -260,3 +260,101 @@ gh workflow run release.yml -f dry-run=true
 # Watch a running workflow
 gh run watch
 ```
+
+## Local release driver: `scripts/bump-version.js`
+
+Once Trusted Publishing is configured, the canonical one-liner for cutting a release is:
+
+```sh
+node scripts/bump-version.js --minor --release
+```
+
+`bump-version.js` is the local release driver. It runs pre-flight gates, syncs every version-pinned file, migrates the CHANGELOG, commits + tags, pushes to origin, and creates the GitHub Release whose `release:published` event fires `release.yml` (the OIDC publish workflow). After that, `release.yml` does the npm publish, sha256 sidecar, sigstore bundle fetch, install.sh sync, and asset attachment automatically.
+
+### Flag surface
+
+| Flag | Purpose |
+|------|---------|
+| `--major` / `--minor` / `--patch` / `--version=X.Y.Z` | Required. Pick exactly one. |
+| `--dry-run` | Preview the full sequence without mutating anything. Never invokes write-y commands. |
+| `--force-dirty` | Allow bumping with uncommitted changes. Discouraged. |
+| `--no-commit` | Skip the `git commit` step (just sync files + bump). |
+| `--no-tag` | Skip the `git tag` step. |
+| `--skip-gates` | Skip pre-bump gates (`pnpm test` + `check-adapter-parity --strict` + `validate-workspace`). Discouraged. |
+| `--push` | Push commit + tag to origin after local commit/tag. |
+| `--release` | Push + `gh release create` (fires `release.yml`). The canonical Trusted Publishing path. |
+| `--wait` | With `--release`: poll the workflow until success/failure (10-min timeout). |
+| `--publish` | **Deprecated.** Local `npm publish` (bootstrap-only fallback). Prefer `--release`. |
+| `--github-release` | Legacy bare GH release creation (use `--release` instead). |
+
+### Pre-flight gates
+
+`bump-version.js` runs three gates BEFORE any file writes — atomic safety:
+
+1. `pnpm test` — full test suite green (currently 1141 tests on a clean main).
+2. `node scripts/check-adapter-parity.js --strict` — 576/576 obligations satisfied.
+3. `node scripts/validate-workspace.js` — 10/10 PASS (skipped if no `_testatlas/` workspace is present).
+
+Plus two always-on local-safety checks (not skippable by `--skip-gates`):
+
+- Working tree must be clean (`git status --porcelain` empty), unless `--force-dirty`.
+- Tag must not already exist locally OR remotely (`git ls-remote --tags origin <tag>`).
+
+If any gate fails, the script aborts with no commits, no tags, no pushes, no mutated files.
+
+### CHANGELOG migration
+
+When you cut a release, `bump-version.js`:
+
+1. Finds the `## [Unreleased]` block.
+2. Hoists its body (preserving `### Added` / `### Changed` / `### Removed` subsections byte-for-byte) into a new `## [X.Y.Z] - YYYY-MM-DD` section.
+3. Resets `[Unreleased]` to a clean Added/Changed/Removed scaffold.
+4. If `[Unreleased]` was empty, inserts `_No notable changes since {PREV}._` as the new section's body.
+
+The new section is the source of truth for `gh release create --notes-file` — the GitHub Release notes match the CHANGELOG byte-for-byte (NOT a `--generate-notes` PR list).
+
+### OIDC vs bootstrap path
+
+| Path | When | Command |
+|------|------|---------|
+| **OIDC (canonical)** | Trusted Publisher configured (post-v1.0.0 setup) | `node scripts/bump-version.js --minor --release` |
+| **Bootstrap (deprecated)** | First-ever publish OR emergency fallback | `node scripts/bump-version.js --minor --publish` (warns; needs `NPM_TOKEN`) |
+
+The OIDC path delegates the actual publish to `release.yml` (which uses the `id-token: write` permission to mint a short-lived OIDC token). `--publish` runs `npm publish` from the developer's machine and is bootstrap-only — it now emits a loud deprecation warning suggesting `--release`.
+
+### CI integration with `--wait`
+
+For CI orchestration, combine `--release --wait`:
+
+```sh
+node scripts/bump-version.js --minor --release --wait
+```
+
+`--wait` polls `gh run list --workflow=release.yml --limit 1 --json status,conclusion,databaseId,url` every 15 seconds. On success it prints `✓ Published @webventures/testatlas@X.Y.Z to npm + GH release assets attached.` and exits 0. On failure it prints the run ID + log command and exits non-zero. Timeout is 10 minutes.
+
+### End-to-end example
+
+```sh
+# Preview the full sequence first.
+node scripts/bump-version.js --minor --release --dry-run
+# [dry-run] Would run pre-flight gates: pnpm test + parity + validate
+# [dry-run] Would modify: package.json + .testatlas/VERSION + ... + CHANGELOG.md
+# [dry-run] Would commit: "chore(release): v1.1.0"
+# [dry-run] Would create annotated tag: v1.1.0
+# [dry-run] Would run: git push origin main
+# [dry-run] Would run: git push origin v1.1.0
+# [dry-run] Would run: gh release create v1.1.0 --title v1.1.0 --notes-file /tmp/release-notes-v1.1.0.md
+
+# Then cut the real release:
+node scripts/bump-version.js --minor --release --wait
+# Pre-flight gates: PASS
+# Bumping 1.0.0 → 1.1.0
+# Updated 5 file(s)
+# Committed: chore(release): v1.1.0
+# Tagged: v1.1.0
+# Pushed: main + v1.1.0
+# ✓ GitHub Release created: https://github.com/CryptVenture/TestAtlas/releases/tag/v1.1.0
+#   Workflow run: https://github.com/CryptVenture/TestAtlas/actions/runs/123456789
+# Polling release.yml workflow (timeout 10m)…
+# ✓ Published @webventures/testatlas@1.1.0 via OIDC.
+```
