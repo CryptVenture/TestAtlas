@@ -229,6 +229,18 @@ async function regenerateInstallManifest(target, backupDir, newVersion) {
   }
 
   // 2. Walk new .testatlas/ tree (using Node 20+ recursive readdir).
+  //
+  // Quick 260506-jsh — exclude RUNTIME state files. These mutate after
+  // every update-check / lock acquisition and would otherwise trigger
+  // false-positive drift detection on the next `update`.
+  //
+  // Excluded paths (POSIX, target-relative):
+  //   .testatlas/.install-manifest.json  — itself (write-after-walk)
+  //   .testatlas/.update-cache.json      — checkForUpdate writes this
+  const RUNTIME_EXCLUDED = new Set([
+    '.testatlas/.install-manifest.json',
+    '.testatlas/.update-cache.json',
+  ]);
   const suiteDir = path.join(target, '.testatlas');
   const dirents = await readdir(suiteDir, { recursive: true, withFileTypes: true });
   const entries = [];
@@ -236,8 +248,7 @@ async function regenerateInstallManifest(target, backupDir, newVersion) {
     if (!d.isFile()) continue;
     const absPath = path.join(d.parentPath ?? d.path ?? suiteDir, d.name);
     const relFromTarget = path.relative(target, absPath).split(path.sep).join('/');
-    // Skip the manifest we're about to write
-    if (relFromTarget === '.testatlas/.install-manifest.json') continue;
+    if (RUNTIME_EXCLUDED.has(relFromTarget)) continue;
     // Look up source/type from old manifest; fall back to suite default.
     const old = oldMap.get(relFromTarget);
     const suiteRel = relFromTarget.replace(/^\.testatlas\//, '');

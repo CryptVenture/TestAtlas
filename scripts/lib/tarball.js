@@ -168,8 +168,22 @@ export async function extractTarball(tarballPath, dstDir) {
     err.code = 'CAPABILITY_DENIED';
     throw err;
   }
+  // Quick 260506-jsh — the npm tarball wraps everything in `package/`; our
+  // suite content lives at `package/.testatlas/<files>`. We extract ONLY the
+  // suite subtree and strip both wrapper segments so dstDir lands the suite
+  // content directly. This matches the contract every test fixture in the
+  // repo already assumes (`_testHooks.extractTarball` writes
+  // dstDir/bootstrap.md, never dstDir/package/.testatlas/bootstrap.md).
+  //
+  // Pre-fix, real-world `npx update` produced `<target>/.testatlas/package/.testatlas/`
+  // (suite tree two dirs too deep) — every consumer install was broken
+  // post-update.
   await new Promise((resolve, reject) => {
-    const proc = spawn('tar', ['-xzf', tarballPath, '-C', dstDir], { stdio: 'pipe' });
+    const proc = spawn(
+      'tar',
+      ['-xzf', tarballPath, '-C', dstDir, '--strip-components=2', 'package/.testatlas'],
+      { stdio: 'pipe' },
+    );
     let stderr = '';
     proc.stderr.on('data', (d) => {
       stderr += d.toString();
@@ -251,9 +265,7 @@ export async function verifyCosignAttestation(tarballPath, bundlePath) {
       e.code = 'TESTATLAS_COSIGN_NOT_FOUND';
       throw e;
     }
-    const e = new Error(
-      `cosign verify-blob-attestation failed: ${err.stderr ?? err.message}`,
-    );
+    const e = new Error(`cosign verify-blob-attestation failed: ${err.stderr ?? err.message}`);
     e.code = 'TESTATLAS_COSIGN_VERIFY_FAILED';
     throw e;
   }
