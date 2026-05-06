@@ -135,6 +135,30 @@ async function readFlows(wsDir) {
   return out;
 }
 
+/**
+ * Quick 260506-dyb (G2/G3): build a Map of TEST-id → {domain, type} by reading
+ * every TEST-*.json sidecar under tests/scenarios/. Lets coverage detection
+ * and pyramid classification resolve scenarios that runs reference by ID.
+ */
+async function readScenarioIndex(wsDir) {
+  const dir = path.join(wsDir, 'tests', 'scenarios');
+  const names = await listFilesByPredicate(
+    dir,
+    (n) => n.endsWith('.json') && n.startsWith('TEST-'),
+  );
+  const idx = new Map();
+  for (const name of names) {
+    const parsed = await readJsonSafe(path.join(dir, name));
+    if (parsed && typeof parsed.id === 'string') {
+      idx.set(parsed.id, {
+        domain: typeof parsed.domain === 'string' ? parsed.domain : null,
+        type: typeof parsed.type === 'string' ? parsed.type : null,
+      });
+    }
+  }
+  return idx;
+}
+
 async function readDomains(wsDir) {
   const dir = path.join(wsDir, 'domains');
   const slugs = await listSubdirs(dir);
@@ -242,6 +266,7 @@ function buildJsonReport({
   domains,
   evidenceIds,
   testRuns,
+  scenarioIndex,
   manifest,
 }) {
   const totalRuns = testRuns.length;
@@ -285,13 +310,28 @@ function buildJsonReport({
     .filter((id) => typeof id === 'string' && /^domain-/.test(id));
 
   // Coverage gaps: domains without any associated test run.
-  const testedDomains = new Set(
-    testRuns.flatMap((r) => {
-      const fmDomain = r.frontmatter?.domain ?? r.frontmatter?.domainId;
-      const parsedDomain = r.parsed?.domain ?? r.parsed?.domainId;
-      return [fmDomain, parsedDomain].filter(Boolean);
-    }),
-  );
+  // Quick 260506-dyb G2: harvest domain coverage by walking each run's
+  // scenariosRun[] and resolving scenario IDs against the scenario sidecar
+  // index (test-scenario.schema.json /properties/domain). Falls back to
+  // legacy frontmatter / inline domain fields if neither sidecar nor scenarios
+  // are present (older runs).
+  const testedDomains = new Set();
+  for (const r of testRuns) {
+    // Preferred: walk scenariosRun[].
+    const scenarios = Array.isArray(r.parsed?.scenariosRun) ? r.parsed.scenariosRun : [];
+    for (const s of scenarios) {
+      const id = typeof s === 'string' ? s : s?.id;
+      const inlineDomain = typeof s === 'object' ? (s?.domain ?? s?.domainId) : null;
+      const sidecar = id ? scenarioIndex?.get(id) : null;
+      const domain = sidecar?.domain ?? inlineDomain;
+      if (domain) testedDomains.add(domain);
+    }
+    // Legacy fallback: top-level run domain.
+    const fmDomain = r.frontmatter?.domain ?? r.frontmatter?.domainId;
+    const parsedDomain = r.parsed?.domain ?? r.parsed?.domainId;
+    if (fmDomain) testedDomains.add(fmDomain);
+    if (parsedDomain) testedDomains.add(parsedDomain);
+  }
   const gaps = domainIds
     .filter((d) => !testedDomains.has(d))
     .map((d) => `Domain ${d} has no recorded test runs`);
@@ -355,7 +395,14 @@ function buildJsonReport({
  *
  * @returns {string}
  */
-function renderMarkdownReport({ jsonReport, issues, testRuns, scorecardText, runLogTailLines }) {
+function renderMarkdownReport({
+  jsonReport,
+  issues,
+  testRuns,
+  scenarioIndex,
+  scorecardText,
+  runLogTailLines,
+}) {
   const lines = [];
   lines.push(`# Test Atlas Report — ${jsonReport.id}`);
   lines.push('');
@@ -416,10 +463,27 @@ function renderMarkdownReport({ jsonReport, issues, testRuns, scorecardText, run
         lines.push('_See history/quality_risks.md for the running log._');
         break;
       case 'Test Pyramid Health': {
-        const types = countBy(
-          testRuns,
-          (r) => r.frontmatter?.testType ?? r.parsed?.testType ?? 'unknown',
-        );
+        // Quick 260506-dyb G3: aggregate per scenario.type (smoke/regression/
+        // state/negative/integration/setup/user-flow/etc.) by resolving each
+        // scenariosRun[] entry against the scenario sidecar index. Fall back
+        // to legacy r.parsed.testType only when no scenarios are present, and
+        // to "unknown" when neither resolves.
+        const types = {};
+        for (const r of testRuns) {
+          const scenarios = Array.isArray(r.parsed?.scenariosRun) ? r.parsed.scenariosRun : [];
+          if (scenarios.length > 0) {
+            for (const s of scenarios) {
+              const id = typeof s === 'string' ? s : s?.id;
+              const inlineType = typeof s === 'object' ? s?.type : null;
+              const sidecar = id ? scenarioIndex?.get(id) : null;
+              const t = sidecar?.type ?? inlineType ?? 'unknown';
+              types[t] = (types[t] ?? 0) + 1;
+            }
+          } else {
+            const t = r.frontmatter?.testType ?? r.parsed?.testType ?? 'unknown';
+            types[t] = (types[t] ?? 0) + 1;
+          }
+        }
         for (const [k, v] of Object.entries(types)) {
           lines.push(`- ${k}: ${v}`);
         }
@@ -501,12 +565,13 @@ export async function generateReport(args = {}, _inject = {}) {
   const dryRun = args.dryRun ?? false;
 
   // Load all data.
-  const [issues, flows, domains, evidenceIdsList, testRuns] = await Promise.all([
+  const [issues, flows, domains, evidenceIdsList, testRuns, scenarioIndex] = await Promise.all([
     readIssues(wsDir),
     readFlows(wsDir),
     readDomains(wsDir),
     listEvidenceDirs(wsDir),
     readTestRuns(wsDir),
+    readScenarioIndex(wsDir),
   ]);
   const evidenceIds = new Set(evidenceIdsList);
 
@@ -544,6 +609,7 @@ export async function generateReport(args = {}, _inject = {}) {
     domains,
     evidenceIds,
     testRuns,
+    scenarioIndex,
     manifest,
   });
 
@@ -573,6 +639,7 @@ export async function generateReport(args = {}, _inject = {}) {
     jsonReport,
     issues,
     testRuns,
+    scenarioIndex,
     scorecardText,
     runLogTailLines,
   });
