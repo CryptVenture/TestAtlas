@@ -36,7 +36,7 @@ import semver from 'semver';
 import { info, success, warning } from './colors.js';
 import { loadConfig } from './load-config.js';
 import { acquireLock, releaseLock } from './lockfile.js';
-import { detectInstallDrift } from './manifest.js';
+import { detectInstallDrift, writeManifest } from './manifest.js';
 import { applyMigrations } from './migrate.js';
 import { evaluatePin, shouldWarn } from './pinning.js';
 import {
@@ -179,6 +179,90 @@ async function rmSilent(p) {
  * @param {number} keep
  * @returns {Promise<{ kept: string[], removed: string[] }>}
  */
+/**
+ * Quick 260506-jsg Bug C — regenerate `<target>/.testatlas/.install-manifest.json`
+ * after an atomic swap. Reads the backup manifest for adapters/mode and
+ * (path → source, type) mapping; walks the new .testatlas/ tree; writes a
+ * fresh manifest with the new suiteVersion.
+ *
+ * The npm tarball doesn't ship the manifest — it's created by `runInit`
+ * post-copy. Without regen, every update wipes the manifest and drift
+ * detection silently disables itself.
+ *
+ * Non-fatal failure mode: caller wraps this in try/catch and warns.
+ *
+ * @param {string} target          Install target.
+ * @param {string} backupDir       Path of the just-created backup dir
+ *                                  (contains the OLD manifest).
+ * @param {string} newVersion      The new suite version.
+ */
+async function regenerateInstallManifest(target, backupDir, newVersion) {
+  // 1. Read backup manifest for adapters / mode / (path → source, type) map.
+  const backupManifestPath = path.join(backupDir, '.install-manifest.json');
+  let oldAdapters = ['generic'];
+  let oldMode = null;
+  let oldSchemaVersion = 1;
+  /** @type {Map<string, {source: string, type: string}>} */
+  const oldMap = new Map();
+  try {
+    const oldRaw = await readFile(backupManifestPath, 'utf8');
+    const oldManifest = JSON.parse(oldRaw);
+    if (Array.isArray(oldManifest.adapters) && oldManifest.adapters.length > 0) {
+      oldAdapters = oldManifest.adapters;
+    }
+    if (typeof oldManifest.mode === 'string') {
+      oldMode = oldManifest.mode;
+    }
+    if (typeof oldManifest.schemaVersion === 'number') {
+      oldSchemaVersion = oldManifest.schemaVersion;
+    }
+    for (const f of oldManifest.files ?? []) {
+      if (typeof f.path === 'string') {
+        oldMap.set(f.path, {
+          source: typeof f.source === 'string' ? f.source : f.path.replace(/^\.testatlas\//, ''),
+          type: f.type === 'adapter' || f.type === 'command' ? f.type : 'suite',
+        });
+      }
+    }
+  } catch {
+    // No backup manifest (legacy install / first-time-write) — proceed with defaults.
+  }
+
+  // 2. Walk new .testatlas/ tree (using Node 20+ recursive readdir).
+  const suiteDir = path.join(target, '.testatlas');
+  const dirents = await readdir(suiteDir, { recursive: true, withFileTypes: true });
+  const entries = [];
+  for (const d of dirents) {
+    if (!d.isFile()) continue;
+    const absPath = path.join(d.parentPath ?? d.path ?? suiteDir, d.name);
+    const relFromTarget = path.relative(target, absPath).split(path.sep).join('/');
+    // Skip the manifest we're about to write
+    if (relFromTarget === '.testatlas/.install-manifest.json') continue;
+    // Look up source/type from old manifest; fall back to suite default.
+    const old = oldMap.get(relFromTarget);
+    const suiteRel = relFromTarget.replace(/^\.testatlas\//, '');
+    entries.push({
+      absPath,
+      source: old?.source ?? suiteRel,
+      type: old?.type ?? 'suite',
+    });
+  }
+
+  // 3. Write the new manifest. cwd: target so loadAllSchemas can resolve
+  // .testatlas/schemas/ for AJV validation.
+  await writeManifest(
+    target,
+    {
+      suiteVersion: newVersion,
+      schemaVersion: oldSchemaVersion,
+      adapters: oldAdapters,
+      files: entries,
+      ...(oldMode ? { mode: oldMode } : {}),
+    },
+    { cwd: target },
+  );
+}
+
 async function pruneBackups(target, keep) {
   const entries = await readdir(target, { withFileTypes: true });
   const backups = entries
@@ -221,18 +305,22 @@ export async function runUpdate(opts) {
     throw new TypeError('runUpdate: `currentVersion` is required');
   }
 
-  // Quick 260506-jsf Bug A — source currentVersion from the local install
-  // manifest (`<target>/.testatlas/.install-manifest.json#suiteVersion`)
-  // rather than the caller's value. The caller (bin/testatlas.js) passes
-  // its own pkg.version, which is the running CLI's version — NOT the
-  // version of what's installed at <target>. Without this fix, `npx
-  // @webventures/testatlas update` against an older install reports
-  // "Already up to date" because the npx-cached CLI is at the new version
-  // and "current=CLI=latest" trips the up-to-date short-circuit.
+  // Quick 260506-jsf Bug A + Quick 260506-jsg Bug B-followup —
+  //   - `cliVersion` is the running CLI's pkg.version (what the caller passed).
+  //     Used for cache invalidation in checkForUpdate (the cache should
+  //     bypass when the CLI is newer than its claimed latest).
+  //   - `currentVersion` is the version of what's INSTALLED at <target>,
+  //     sourced from manifest.suiteVersion when present. Used for the
+  //     up-to-date verdict + result.previousVersion + log messages.
+  // Without separating these, `checkForUpdate` was being called with the
+  // manifest version (which can be older than the cached latest), so its
+  // cache-self-invalidation logic never fired in the common case where
+  // the user has an older install + a stale TTL cache.
   //
   // We also opportunistically read `mode: 'global'` here so the lockfile-
   // target resolution below doesn't need to re-read the file.
-  let currentVersion = opts.currentVersion;
+  const cliVersion = opts.currentVersion;
+  let currentVersion = cliVersion;
   let manifestModeGlobal = null;
   try {
     const manifestPath = path.join(target, '.testatlas', '.install-manifest.json');
@@ -264,7 +352,10 @@ export async function runUpdate(opts) {
   if (!resolvedLatest && !disableUpdateCheck) {
     const checkResult = await checkForUpdate({
       target,
-      currentVersion,
+      // Pass cliVersion (NOT manifest-derived currentVersion) so the cache
+      // invalidation logic compares correctly: when CLI > cached.latestVersion
+      // the cache is provably stale and a fresh fetch must run.
+      currentVersion: cliVersion,
       ttlHours,
       disabled: false,
     });
@@ -483,6 +574,25 @@ export async function runUpdate(opts) {
 
     // 6. Cleanup tarball (staging dir is gone — it became .testatlas/).
     await rmSilent(tmpTarball);
+
+    // Quick 260506-jsg Bug C — regenerate .install-manifest.json.
+    //
+    // The atomic swap replaced .testatlas/ wholesale with the staged tarball
+    // content. The npm tarball doesn't ship the install-manifest (it's
+    // created by runInit at install time), so post-swap the new .testatlas/
+    // has no manifest. Without this regen, drift detection (Quick 260506-jsc
+    // Fix #3) silently dies on the next `update` because detectInstallDrift
+    // sees `kind: 'no-manifest'` and falls through to the legacy path.
+    //
+    // Strategy: read the backup manifest for adapters/mode/(path→source,type)
+    // mapping, walk the new tree, hash each file, write a fresh manifest.
+    // Non-fatal — a manifest write failure logs a warning but doesn't fail
+    // the update (the swap itself already succeeded).
+    try {
+      await regenerateInstallManifest(target, backupDir, newVersion);
+    } catch (err) {
+      warning(`Could not regenerate install-manifest after update: ${err.message}`);
+    }
 
     // 7. Prune old backups (keep last 3).
     const pruneResult = await pruneBackups(target, 3);
