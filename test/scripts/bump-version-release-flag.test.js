@@ -43,7 +43,7 @@ test('--release: dry-run shows full sequence (push + gh release create + notes-f
 });
 
 test('--release executes push + gh release create with --notes-file', async (t) => {
-  const fx = await makeBumpFixture({ version: '1.0.0' });
+  const fx = await makeBumpFixture({ version: '1.0.0', withOrigin: true });
   t.after(fx.cleanup);
 
   const stubs = await makeStubBin({ realBins: ['git'] });

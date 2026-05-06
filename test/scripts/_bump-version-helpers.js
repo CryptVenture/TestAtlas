@@ -23,12 +23,15 @@ export const BUMP_SCRIPT = path.join(REPO_ROOT, 'scripts', 'bump-version.js');
 /**
  * Build a temp project with the file shape bump-version.js mutates.
  * Initializes a real git repo (so `git diff --quiet` etc. work) and makes
- * one initial commit so HEAD exists.
+ * one initial commit so HEAD exists. Optionally creates a bare repo at
+ * <cwd>/../<basename>.origin and adds it as `origin` so `git push origin
+ * <branch>` succeeds during tests that exercise the release pipeline.
  */
 export async function makeBumpFixture({
   version = '1.0.0',
   changelog = defaultChangelog(),
   prefix = 'bump-',
+  withOrigin = false,
 } = {}) {
   const cwd = await mkdtemp(path.join(tmpdir(), prefix));
 
@@ -69,9 +72,23 @@ export async function makeBumpFixture({
   spawnSync('git', ['add', '.'], { cwd });
   spawnSync('git', ['commit', '-q', '-m', 'init'], { cwd });
 
+  let originDir = null;
+  if (withOrigin) {
+    originDir = `${cwd}.origin`;
+    await mkdir(originDir, { recursive: true });
+    spawnSync('git', ['init', '--bare', '-q', '-b', 'main'], { cwd: originDir });
+    spawnSync('git', ['remote', 'add', 'origin', originDir], { cwd });
+    // Push initial commit so subsequent pushes have a baseline to fast-forward from.
+    spawnSync('git', ['push', '-q', 'origin', 'main'], { cwd });
+  }
+
   return {
     cwd,
-    cleanup: () => rm(cwd, { recursive: true, force: true }),
+    originDir,
+    cleanup: async () => {
+      await rm(cwd, { recursive: true, force: true });
+      if (originDir) await rm(originDir, { recursive: true, force: true });
+    },
   };
 }
 
@@ -134,21 +151,30 @@ export async function makeStubBin({ realBins = [] } = {}) {
 
   const realPath = process.env.PATH ?? '/usr/local/bin:/usr/bin:/bin';
 
+  // Shared recorder script (Node-based, file-driven to avoid shell-quoting hell).
+  const recorderPath = path.join(binDir, '_record.cjs');
+  const recorderJs = `// Stub recorder: appends one JSONL entry to LOG_FILE.
+const fs = require('fs');
+const [, , bin, ...argv] = process.argv;
+fs.appendFileSync(
+  process.env.STUB_LOG_FILE,
+  JSON.stringify({ bin, argv, cwd: process.cwd() }) + '\\n',
+);
+`;
+  await writeFile(recorderPath, recorderJs, 'utf8');
+
   for (const name of ['git', 'gh', 'npm', 'pnpm']) {
+    const upper = name.toUpperCase();
     if (realBins.includes(name)) {
-      // Find the real binary on the host PATH and symlink it.
-      const which = spawnSync('which', [name], { encoding: 'utf8' });
+      // Wrapper that records argv then execs the real binary on the host PATH.
+      const which = spawnSync('which', [name], {
+        encoding: 'utf8',
+        env: { PATH: realPath },
+      });
       const realBin = which.stdout.trim();
       if (realBin) {
-        // Use a wrapper that records but still execs the real binary.
         const wrapper = `#!/bin/sh
-LOG=${JSON.stringify(logFile)}
-node -e "
-const fs = require('fs');
-fs.appendFileSync(${JSON.stringify(logFile)}, JSON.stringify({
-  bin: '${name}', argv: process.argv.slice(2), cwd: process.cwd()
-}) + '\\n');
-" -- "$@"
+STUB_LOG_FILE=${JSON.stringify(logFile)} node ${JSON.stringify(recorderPath)} ${name} "$@" || true
 exec ${JSON.stringify(realBin)} "$@"
 `;
         const stubPath = path.join(binDir, name);
@@ -159,15 +185,8 @@ exec ${JSON.stringify(realBin)} "$@"
     }
 
     // Pure stub: record + emit STUB_*_STDOUT + exit STUB_*_EXIT.
-    const upper = name.toUpperCase();
     const stub = `#!/bin/sh
-LOG=${JSON.stringify(logFile)}
-node -e "
-const fs = require('fs');
-fs.appendFileSync(${JSON.stringify(logFile)}, JSON.stringify({
-  bin: '${name}', argv: process.argv.slice(2), cwd: process.cwd()
-}) + '\\n');
-" -- "$@"
+STUB_LOG_FILE=${JSON.stringify(logFile)} node ${JSON.stringify(recorderPath)} ${name} "$@" || true
 if [ -n "\${STUB_${upper}_STDOUT:-}" ]; then
   printf '%s' "$STUB_${upper}_STDOUT"
 fi

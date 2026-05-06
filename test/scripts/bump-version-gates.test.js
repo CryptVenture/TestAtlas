@@ -84,15 +84,16 @@ test('bump-version: refuses when tag exists on remote (ls-remote check)', async 
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
-  const stubs = await makeStubBin({ realBins: [] });
+  const stubs = await makeStubBin({ realBins: ['git'] });
   t.after(stubs.cleanup);
 
   const result = runBump(fx.cwd, ['--patch', '--skip-gates'], {
     pathPrepended: stubs.pathPrepended,
     env: {
-      // Stub git: emits a fake tag on `ls-remote` query, exits 0 elsewhere.
-      // Gate logic: if ls-remote stdout is non-empty for the tag, refuse.
-      STUB_GIT_STDOUT: 'abcdef1234567890\trefs/tags/v1.0.1\n',
+      // Test-only: tell bump-version.js to pretend v1.0.1 exists on remote.
+      // This bypasses the actual ls-remote call (which would fail in a temp
+      // fixture with no real origin) and exercises the refusal path.
+      BUMP_VERSION_FAKE_REMOTE_TAGS: 'v1.0.1',
     },
   });
 
@@ -187,7 +188,9 @@ test('bump-version: --dry-run never invokes write-y stubs (no git commit/tag/pus
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
-  const stubs = await makeStubBin({ realBins: [] });
+  // `git` must be real so local tag/dirty checks return correct values; only
+  // gh/npm/pnpm need to be stubbed (and recorded).
+  const stubs = await makeStubBin({ realBins: ['git'] });
   t.after(stubs.cleanup);
 
   const result = runBump(fx.cwd, ['--patch', '--release', '--dry-run', '--skip-gates'], {
