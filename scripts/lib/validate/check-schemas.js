@@ -21,14 +21,27 @@ export const prdRule = 2;
 const SCHEMA_BASE = 'https://testatlas.dev/schemas/v1';
 
 /**
- * Returns true for raw evidence dumps under `evidence/<command>/<timestamp>/...`.
- * These are non-schema-bound captures (per create-evidence-record.js, only
- * `evidence/EVIDENCE-<digit>+(-<slug>)?/evidence.json` sidecars carry a schema).
+ * Returns true for raw evidence dumps. The ONLY schema-bound JSON file under
+ * an evidence directory is the canonical sidecar `evidence/EVIDENCE-<id>(-<slug>)?/evidence.json`.
+ * Every other JSON file under `evidence/` is a raw dump — could be an HTTP
+ * response (with HTTP_CODE: prefix), a concatenated multi-object dump, plain
+ * text masquerading as .json, etc. — and must be skipped without parsing.
  *
- * Distinguishing rule (F-7, Quick 260505-ge3):
- *   - Path has ≥3 segments under `evidence/`
- *     (i.e. evidence/<seg1>/<seg2>/file.json or deeper)
- *   - The first segment after `evidence/` is NOT of the form `EVIDENCE-<digit>+`
+ * Distinguishing rules (F-7 + Quick 260506-rd2):
+ *
+ *   1. `evidence/<non-EVIDENCE-seg>/<seg2>/...` (4+ parts, first seg NOT
+ *      EVIDENCE-NNN) → legacy raw-dump shape from `explore-codebase` and
+ *      friends. (F-7 / Quick 260505-ge3.)
+ *   2. `evidence/EVIDENCE-<id>(-<slug>)?/<basename>` where basename is
+ *      anything OTHER than `evidence.json` → raw dump promoted by HEAL-05
+ *      or written by `create-evidence-record.js` alongside the sidecar.
+ *      (Quick 260506-rd2.)
+ *   3. `evidence/EVIDENCE-<id>(-<slug>)?/<subdir>/<file>` (4+ parts under
+ *      an EVIDENCE-NNN dir) → nested raw dump (e.g. screenshots/foo.png
+ *      tree) → raw dump regardless of basename.
+ *
+ * `evidence.json` at depth 3 inside an EVIDENCE-NNN dir is the only
+ * exception — it remains schema-bound.
  *
  * @param {string} relPath  Workspace-relative POSIX path
  * @returns {boolean}
@@ -36,12 +49,19 @@ const SCHEMA_BASE = 'https://testatlas.dev/schemas/v1';
 function isRawEvidenceDump(relPath) {
   if (!relPath.startsWith('evidence/')) return false;
   const parts = relPath.split('/');
-  // ['evidence', '<seg1>', '<seg2>', ...]
-  // Sidecars live at evidence/EVIDENCE-<id>/evidence.json (3 parts).
-  // Raw dumps live under evidence/<command>/<timestamp>/file.json (4+ parts).
-  if (parts.length < 4) return false;
+  if (parts.length < 3) return false;
   const firstSeg = parts[1];
-  return !/^EVIDENCE-\d{3,}/.test(firstSeg);
+  const baseName = parts[parts.length - 1];
+
+  // EVIDENCE-NNN dir → only `evidence.json` is schema-bound; everything
+  // else (siblings + nested files) is a raw dump.
+  if (/^EVIDENCE-\d{3,}/.test(firstSeg)) {
+    return baseName !== 'evidence.json';
+  }
+
+  // Non-EVIDENCE prefix dir (e.g. evidence/explore-codebase/<ts>/foo.json)
+  // → raw dump if depth ≥ 4 (legacy F-7 rule unchanged).
+  return parts.length >= 4;
 }
 
 /**

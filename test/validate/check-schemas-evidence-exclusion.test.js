@@ -196,3 +196,93 @@ test('check-schemas (F-7): regex anchoring — `EVIDENCE-bogus/` parent treated 
     await fx.cleanup();
   }
 });
+
+// Quick 260506-rd2 — user-reported on /root/sipotel_dev: HEAL-05 promoted
+// raw evidence files into `evidence/EVIDENCE-NNN-slug/<file>.json` (filename
+// ≠ evidence.json). These are the raw evidence content, not schema-bound,
+// but the prior F-7 rule only treated them as raw if the path had ≥4 parts.
+// 3-part `evidence/EVIDENCE-NNN-slug/foo.json` was incorrectly schema-checked,
+// surfacing TESTATLAS_UNKNOWN_SCHEMA + TESTATLAS_JSON_PARSE_ERROR for HTTP-
+// response dumps with HTTP_CODE: prefixes. Fix: anything in an EVIDENCE-NNN
+// dir EXCEPT `evidence.json` is a raw dump.
+
+test('check-schemas (rd2): EVIDENCE-NNN-slug/<non-evidence.json> is treated as raw dump', async () => {
+  const fx = await makeWorkspaceFixture();
+  try {
+    const ctx = await makeCtx({ cwd: fx.cwd });
+    // Create the canonical layout HEAL-05 produces: a slug-suffixed dir with
+    // both the schema-bound `evidence.json` sidecar AND a raw payload file.
+    const evidDir = path.join(ctx.wsDir, 'evidence', 'EVIDENCE-001-auth-login-response');
+    await mkdir(evidDir, { recursive: true });
+    await writeFile(
+      path.join(evidDir, 'evidence.json'),
+      JSON.stringify(
+        {
+          $schema: 'https://testatlas.dev/schemas/v1/evidence.schema.json',
+          id: 'EVIDENCE-001',
+          type: 'log',
+          path: 'evidence/EVIDENCE-001-auth-login-response/auth-login-response.json',
+          capturedOn: '2026-05-06T18:00:00Z',
+          environment: 'dev',
+          description: 'Promoted from RUN ref by HEAL-05',
+          redacted: false,
+        },
+        null,
+        2,
+      ),
+    );
+    // Raw payload — concatenated multi-object JSON output (the actual
+    // pattern that broke /root/sipotel_dev — HTTP_CODE: prefix and trailing
+    // bytes after the first object).
+    await writeFile(
+      path.join(evidDir, 'auth-login-response.json'),
+      'HTTP_CODE: 200\n{"token":"abc"}\n{"role":"admin"}\n',
+    );
+    // Bogus-shaped raw payload (for completeness).
+    await writeFile(path.join(evidDir, 'auth-trace.json'), '{"unparseable":');
+
+    const files = await walkWorkspace(ctx.wsDir);
+    const result = await check({ ...ctx, files });
+
+    const rawHits = result.findings.filter(
+      (f) => f.path.includes('auth-login-response.json') || f.path.includes('auth-trace.json'),
+    );
+    assert.equal(
+      rawHits.length,
+      0,
+      `raw payloads beside evidence.json must NOT surface findings; got ${JSON.stringify(rawHits, null, 2)}`,
+    );
+
+    // The schema-bound sidecar still validates.
+    const sidecarViolation = result.findings.find(
+      (f) =>
+        f.path.includes('EVIDENCE-001-auth-login-response/evidence.json') &&
+        f.code === 'TESTATLAS_SCHEMA_VIOLATION',
+    );
+    assert.ok(!sidecarViolation, 'sidecar must validate cleanly under the new rule');
+  } finally {
+    await fx.cleanup();
+  }
+});
+
+test('check-schemas (rd2): EVIDENCE-NNN/<subdir>/file is also raw (nested HEAL-05 output)', async () => {
+  const fx = await makeWorkspaceFixture();
+  try {
+    const ctx = await makeCtx({ cwd: fx.cwd });
+    const nestedDir = path.join(ctx.wsDir, 'evidence', 'EVIDENCE-002-foo', 'screenshots');
+    await mkdir(nestedDir, { recursive: true });
+    await writeFile(path.join(nestedDir, 'meta.json'), '{"corrupted');
+
+    const files = await walkWorkspace(ctx.wsDir);
+    const result = await check({ ...ctx, files });
+
+    const hits = result.findings.filter((f) => f.path.includes('screenshots/meta.json'));
+    assert.equal(
+      hits.length,
+      0,
+      `nested raw files inside EVIDENCE-NNN dirs must be silent; got ${JSON.stringify(hits)}`,
+    );
+  } finally {
+    await fx.cleanup();
+  }
+});
