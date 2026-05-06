@@ -278,8 +278,9 @@ program
       'check.',
   )
   .option('--target <dir>', 'Target repo directory (default: cwd)')
-  .option('--auto-heal', 'Apply safe auto-heals (HEAL-01..04) to fixable findings')
-  .option('--apply', 'With --auto-heal, persist changes to disk (else preview only)')
+  .option('--auto-heal', 'Apply safe auto-heals (HEAL-01..04). Writes by default.')
+  .option('--dry-run', 'Preview mode: do not write reports or autoheal changes')
+  .option('--apply', '(deprecated: redundant when --auto-heal is set; will be removed in v2)')
   .option('--json', 'Emit the JSON report to stdout instead of the markdown report')
   .option('--output <file>', 'Write the markdown report to <file> + JSON to <file>.json')
   .option('--only <ids>', 'Comma-separated list of check ids to run (e.g. schemas,broken-links)')
@@ -291,12 +292,13 @@ program
       '  $ testatlas validate                          # validate cwd workspace',
       '  $ testatlas validate --target ./my-app        # validate a sibling repo',
       '  $ testatlas validate --json                   # machine-readable JSON to stdout',
-      '  $ testatlas validate --auto-heal --apply      # repair safely-fixable findings in place',
+      '  $ testatlas validate --auto-heal              # repair safely-fixable findings in place',
+      '  $ testatlas validate --auto-heal --dry-run    # preview heals without writing',
       '  $ testatlas validate --output report.md       # write markdown + JSON report files',
       '',
     ].join('\n'),
   )
-  .action(async (opts) => {
+  .action(async (opts, cmd) => {
     const target = path.resolve(opts.target ?? process.cwd());
     const only =
       typeof opts.only === 'string'
@@ -305,10 +307,30 @@ program
             .map((s) => s.trim())
             .filter(Boolean)
         : undefined;
+    // GAP-1 (Quick 260506-nj2): --auto-heal applies by default; --dry-run
+    // inverts to preview. Mirror runCli's default-flip here because the npx
+    // CLI dispatches via bin/testatlas.js → validateWorkspace() directly,
+    // bypassing runCli where the original flip lived. Detect "--apply was
+    // user-provided" via the raw argv slice (not Boolean(opts.apply), which
+    // would treat the auto-flip as user-set).
+    const userArgs = Array.isArray(cmd?.args) ? cmd.args : [];
+    const rawArgv = process.argv.slice(2);
+    const userPassedApply = rawArgv.includes('--apply');
+    const userPassedDryRun = rawArgv.includes('--dry-run');
+    let apply = Boolean(opts.apply);
+    if (opts.autoHeal && !userPassedDryRun && !userPassedApply) {
+      apply = true; // bare --auto-heal → apply
+    }
+    if (opts.autoHeal && userPassedApply) {
+      process.stderr.write(
+        'testatlas validate: --apply is now redundant when --auto-heal is set; remove it from your invocation.\n',
+      );
+    }
     const result = await validateWorkspace({
       cwd: target,
       autoHeal: Boolean(opts.autoHeal),
-      apply: Boolean(opts.apply),
+      apply,
+      dryRun: Boolean(opts.dryRun),
       only,
       report: opts.output,
     });
