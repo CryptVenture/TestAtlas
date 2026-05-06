@@ -20,6 +20,60 @@ GITHUB_RELEASE_URL="https://github.com/CryptVenture/TestAtlas/releases/download/
 _log() { printf '[testatlas] %s\n' "$*"; }
 _err() { printf '[testatlas:error] %s\n' "$*" >&2; }
 
+# Banner gating: ANSI magenta only when stdout is a TTY AND NO_COLOR is unset
+# AND FORCE_COLOR != 0. Mirrors scripts/lib/colors.js#colorEnabled().
+_colors_on() {
+    if [ -n "${NO_COLOR-}" ]; then return 1; fi
+    if [ "${FORCE_COLOR-}" = "0" ]; then return 1; fi
+    if [ ! -t 1 ]; then return 1; fi
+    return 0
+}
+
+# Unicode gating: NO_UNICODE forces the ASCII (`#`) fallback art.
+# Mirrors scripts/lib/colors.js#isUnicode().
+_unicode_on() {
+    if [ -n "${NO_UNICODE-}" ]; then return 1; fi
+    return 0
+}
+
+# POSIX banner — visually identical to scripts/lib/banner.js
+# (BANNER_UNICODE_LINES + BANNER_ASCII_LINES + TAGLINE + version line).
+# Honors NO_COLOR, NO_UNICODE, and non-TTY just like the JS path.
+_print_banner() {
+    if _colors_on; then
+        magenta=$(printf '\033[35m')
+        cyan=$(printf '\033[36m')
+        dim=$(printf '\033[2m')
+        reset=$(printf '\033[0m')
+    else
+        magenta=""
+        cyan=""
+        dim=""
+        reset=""
+    fi
+
+    if _unicode_on; then
+        printf '%s                                                                           %s\n' "$magenta" "$reset"
+        printf '%s ████████ ███████ ███████ ████████  █████  ████████ ██       █████  ███████%s\n' "$magenta" "$reset"
+        printf '%s    ██    ██      ██         ██    ██   ██    ██    ██      ██   ██ ██     %s\n' "$magenta" "$reset"
+        printf '%s    ██    █████   ███████    ██    ███████    ██    ██      ███████ ███████%s\n' "$magenta" "$reset"
+        printf '%s    ██    ██           ██    ██    ██   ██    ██    ██      ██   ██      ██%s\n' "$magenta" "$reset"
+        printf '%s    ██    ███████ ███████    ██    ██   ██    ██    ███████ ██   ██ ███████%s\n' "$magenta" "$reset"
+    else
+        printf '%s                                                                           %s\n' "$magenta" "$reset"
+        printf '%s ######## ####### ####### ########  #####  ######## ##       #####  #######%s\n' "$magenta" "$reset"
+        printf '%s    ##    ##      ##         ##    ##   ##    ##    ##      ##   ## ##     %s\n' "$magenta" "$reset"
+        printf '%s    ##    #####   #######    ##    #######    ##    ##      ####### #######%s\n' "$magenta" "$reset"
+        printf '%s    ##    ##           ##    ##    ##   ##    ##    ##      ##   ##      ##%s\n' "$magenta" "$reset"
+        printf '%s    ##    ####### #######    ##    ##   ##    ##    ####### ##   ## #######%s\n' "$magenta" "$reset"
+    fi
+    printf '\n'
+    printf '%sAgent-agnostic AI product testing & quality intelligence framework%s\n' "$cyan" "$reset"
+    printf '\n'
+    printf '%sv%s  •  https://github.com/CryptVenture/TestAtlas%s\n' "$dim" "$VERSION" "$reset"
+    printf '\n'
+}
+
 _require_node() {
     if ! command -v node >/dev/null 2>&1; then
         _err "Node.js not found. Install Node >=20.11 first:"
@@ -110,6 +164,7 @@ _main() {
     GLOBAL_MODE=0
     case " $INSTALL_FLAGS " in *" --global "*) GLOBAL_MODE=1 ;; esac
 
+    _print_banner
     _log "Installing TestAtlas v${VERSION}${GLOBAL_MODE:+ (global mode)}"
     _require_node
 
@@ -184,6 +239,7 @@ _main() {
 }
 
 _print_usage() {
+    _print_banner
     cat <<'EOF'
 Usage: install.sh [OPTIONS]
 
