@@ -12,7 +12,7 @@
 
 set -eu
 
-VERSION="1.2.4"
+VERSION="1.2.5"
 TARBALL_SHA256="06d0d1bd1e94ca5013c5eda2afd88e389c7bf02016b52caebc1e99ca7930fdba"
 TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
 GITHUB_RELEASE_URL="https://github.com/CryptVenture/TestAtlas/releases/download/v${VERSION}/testatlas-${VERSION}.tgz"
