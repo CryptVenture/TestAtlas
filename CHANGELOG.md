@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Removed
 
+## [1.2.3] - 2026-05-06
+
+_No notable changes since 1.2.2._
+
 ## [1.2.2] - 2026-05-06
 
 _No notable changes since 1.2.1._
