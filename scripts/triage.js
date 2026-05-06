@@ -48,8 +48,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { regenerateCrossCutIndexes } from './lib/command-lifecycle.js';
+import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
+import { parseMarkers } from './lib/markers.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
@@ -720,17 +722,28 @@ export async function triage(args = {}, _inject = {}) {
       const it = issues.find((x) => x.parsed.id === m.id);
       await _atomicWrite(it.filePath, `${JSON.stringify(it.parsed, null, 2)}\n`);
     }
-    await _atomicWrite(triageReportPath, triageReportMd);
-    await _atomicWrite(blockersPath, blockersMd);
-    await _atomicWrite(groupsPath, groupsMd);
 
-    // Refresh cross-cut indexes from disk truth.
-    const indexInputs = issues.map((it) => ({
-      id: it.parsed.id,
-      slug: it.parsed.slug,
-      parsed: it.parsed,
-    }));
-    await regenerateCrossCutIndexes(wsDir, indexInputs);
+    // Idempotency: when nothing actually mutated, do not rewrite triage-report
+    // or cross-cut indexes. Re-running triage on a clean corpus must be a true
+    // no-op (no new files, no hash drift, no manifest desync).
+    if (mutated.length > 0) {
+      await _atomicWrite(triageReportPath, triageReportMd);
+      await _atomicWrite(blockersPath, blockersMd);
+      await _atomicWrite(groupsPath, groupsMd);
+
+      // Refresh cross-cut indexes from disk truth (only when issues changed).
+      const indexInputs = issues.map((it) => ({
+        id: it.parsed.id,
+        slug: it.parsed.slug,
+        parsed: it.parsed,
+      }));
+      await regenerateCrossCutIndexes(wsDir, indexInputs);
+
+      // PRD §40 lifecycle: refresh workspace manifest's generatedSections
+      // hashes for the cross-cut index files we just rewrote, so
+      // validate-workspace's check-stale-generated-sections gate stays at PASS.
+      await refreshCrossCutIndexHashes(wsDir, _atomicWrite);
+    }
   }
 
   return {
@@ -747,6 +760,76 @@ export async function triage(args = {}, _inject = {}) {
 
 // Suppress unused-import lint for writeFile (kept for forward-compat extension).
 void writeFile;
+
+/**
+ * Walk every cross-cut index file under to_fix/by_<facet>/<value>.md, parse
+ * its TESTATLAS:GENERATED markers, and refresh the corresponding
+ * `generatedSections[<rel>].entries` hash in the workspace manifest. Removes
+ * stale entries for files that no longer exist on disk (e.g. when an old
+ * status no longer has any issues).
+ *
+ * Mirrors the per-file refresh that sync-scorecard.js performs for
+ * 13_quality_scorecard.md, but generalized to the by_<facet> index family.
+ */
+async function refreshCrossCutIndexHashes(wsDir, _atomicWrite) {
+  const manifestPath = path.join(wsDir, '11_workspace_manifest.json');
+  let manifest;
+  try {
+    manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  } catch (err) {
+    if (err.code === 'ENOENT') return;
+    throw err;
+  }
+
+  const facetDirs = ['by_domain', 'by_severity', 'by_status', 'by_type'];
+  manifest.generatedSections = manifest.generatedSections ?? {};
+
+  // Build the set of relative paths we'll touch this run.
+  const liveRels = new Set();
+  for (const facet of facetDirs) {
+    const dir = path.join(wsDir, 'to_fix', facet);
+    let entries;
+    try {
+      entries = await sortedReaddir(dir, { withFileTypes: true });
+    } catch (err) {
+      if (err.code === 'ENOENT') continue;
+      throw err;
+    }
+    for (const e of entries) {
+      if (!e.isFile() || !e.name.endsWith('.md')) continue;
+      const rel = `to_fix/${facet}/${e.name}`;
+      const filePath = path.join(dir, e.name);
+      const text = await readFile(filePath, 'utf8');
+      // Empty file = effectively removed (regenerateCrossCutIndexes pattern).
+      if (text.trim().length === 0) continue;
+      let parsed;
+      try {
+        parsed = parseMarkers(text);
+      } catch {
+        continue;
+      }
+      const sec = parsed.sections.get('entries');
+      if (!sec) continue;
+      const hash = hashContent(sec.contentLines.join('\n'));
+      manifest.generatedSections[rel] = { entries: hash };
+      liveRels.add(rel);
+    }
+  }
+
+  // Drop manifest entries that point at by_*/<value>.md files that no longer
+  // exist (or have been emptied) on disk. This prevents "expected section X
+  // but it is absent" warnings for status values that no longer have issues.
+  for (const rel of Object.keys(manifest.generatedSections)) {
+    const m = rel.match(/^to_fix\/(by_domain|by_severity|by_status|by_type)\//);
+    if (!m) continue;
+    if (!liveRels.has(rel)) {
+      delete manifest.generatedSections[rel];
+    }
+  }
+
+  manifest.lastUpdatedAt = now();
+  await _atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+}
 
 // ─── CLI wrapper ─────────────────────────────────────────────────────────────
 

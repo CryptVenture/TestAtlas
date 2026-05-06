@@ -115,17 +115,20 @@ test('npm pack: compressed tarball size < 1MB (Pitfall 1 — examples not shippe
   );
 });
 
-test('npm pack: unpacked size < 5MB (sanity)', () => {
-  // Even with all 7 adapter trees + 30 commands + 20 schemas + templates the
-  // unpacked tree is ~2MB. 5MB is a generous ceiling that catches obvious
-  // regressions (e.g. test/ leaking, examples/ leaking, node_modules/ leaking).
+test('npm pack: unpacked size < 8MB (sanity)', () => {
+  // With all 18 adapter trees + 31 commands + 20 schemas + templates the
+  // unpacked tree is ~5MB (Quick 260506-esm: triage.js + adapter regen
+  // pushed the previous 5MB ceiling just over the line). 8MB is now the
+  // generous ceiling that catches obvious regressions (e.g. test/ leaking,
+  // examples/ leaking, node_modules/ leaking) without being a false-positive
+  // on legitimate adapter-set growth.
   const r = runNpmPack();
   assert.equal(r.status, 0);
   const arr = parseNpmPackJson(r.stdout);
   const unpacked = arr[0].unpackedSize || 0;
-  const FIVE_MB = 5 * 1024 * 1024;
+  const EIGHT_MB = 8 * 1024 * 1024;
   assert.ok(
-    unpacked < FIVE_MB,
-    `tarball unpacked size ${unpacked} bytes exceeds 5MB sanity threshold`,
+    unpacked < EIGHT_MB,
+    `tarball unpacked size ${unpacked} bytes exceeds 8MB sanity threshold`,
   );
 });
