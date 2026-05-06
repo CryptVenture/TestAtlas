@@ -245,8 +245,21 @@ export async function detectInstallDrift(target, opts = {}) {
   }
 
   // Step 3: walk every tracked file; recompute hash; collect drift.
+  //
+  // Quick 260506-jsi — defense-in-depth for users with manifests written by
+  // older versions (v1.1.2 / v1.1.3) that incorrectly tracked runtime state
+  // files in `manifest.files[]`. We always treat these paths as exempt
+  // regardless of what the manifest says — they mutate outside install
+  // boundaries (checkForUpdate writes the cache; this very function reads
+  // the manifest), so any drift signal on them is by definition spurious.
+  // Mirrors the exclusion set in `update-core.regenerateInstallManifest`.
+  const RUNTIME_EXCLUDED = new Set([
+    '.testatlas/.install-manifest.json',
+    '.testatlas/.update-cache.json',
+  ]);
   const drifted = [];
   for (const entry of manifest.files ?? []) {
+    if (RUNTIME_EXCLUDED.has(entry.path)) continue;
     const abs = path.join(target, ...String(entry.path ?? '').split('/'));
     let st;
     try {
