@@ -1,6 +1,6 @@
 {
   "name": "@webventures/testatlas",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Installable, agent-agnostic product testing and quality intelligence framework for AI coding agents.",
   "type": "module",
   "license": "MIT",
