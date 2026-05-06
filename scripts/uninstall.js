@@ -22,10 +22,11 @@
 // invariant is bypassed (uninstall is by definition the destructive removal
 // path; the user opted in via --purge).
 
-import { readdir, rm, rmdir, stat } from 'node:fs/promises';
+import { readdir, readFile, rm, rmdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { Command } from 'commander';
 
+import { renderBanner } from './lib/banner.js';
 import { info, success, warning } from './lib/colors.js';
 import { INSTALL_MANIFEST_PATH } from './lib/constants.js';
 import { loadConfig } from './lib/load-config.js';
@@ -235,16 +236,26 @@ export async function runUninstall(opts = {}) {
  * CLI entry point. Imports against this module's URL to detect direct invocation.
  */
 async function cliMain() {
+  // Read the suite version for the banner. Direct invocation only — the
+  // bin/testatlas.js path renders its own banner upstream.
+  const PKG_PATH = path.join(import.meta.dirname, '..', 'package.json');
+  const pkg = JSON.parse(await readFile(PKG_PATH, 'utf8'));
+
   const program = new Command();
   program
     .name('testatlas-uninstall')
     .description('Remove the TestAtlas suite from the current repo')
+    .version(pkg.version)
+    .addHelpText('beforeAll', () => renderBanner({ version: pkg.version }))
+    .showHelpAfterError()
     .option('--target <dir>', 'Target repo (default: cwd)')
     .option('--purge', 'Also remove _testatlas/ workspace state (DESTRUCTIVE)')
     .option('--force-untracked', 'Allow uninstall when manifest is missing/corrupt')
     .option('--dry-run', 'Print planned removals; do not delete')
     .parse(process.argv);
   const opts = program.opts();
+  // Brand polish before kernel logs (matches install.js + update.js).
+  process.stdout.write(renderBanner({ version: pkg.version }));
   await runUninstall({
     target: opts.target,
     purge: Boolean(opts.purge),
