@@ -2,11 +2,13 @@ name: Release
 
 # Triggers:
 #   - release:published — fires after a GitHub Release is published from a tag.
-#     Used for the real publish (Phase 8 GA onward).
 #   - workflow_dispatch — manual UI/CLI trigger. Default `dry-run: true`
-#     runs `pnpm changeset publish --dry-run` and `npm pack --dry-run` only.
-#     Phase 7 ships this workflow validated in dry-run; first real publish is
-#     Phase 8 GA.
+#     runs `npm publish --dry-run` + `npm pack --dry-run` only.
+#
+# Publish path is direct `npm publish --access public --provenance --loglevel
+# verbose` — NOT `pnpm changeset publish` (npm support confirmed wrappers
+# can bypass OIDC token-exchange; that was the v1.1.0–v1.2.0 E404 root cause).
+# Trusted Publishing requires npm CLI ≥ 11 (see "Pin npm to v11" step).
 
 on:
   release:
@@ -15,7 +17,7 @@ on:
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Run pnpm changeset publish --dry-run + npm pack --dry-run only (no publish, no commit, no GitHub Release)"
+        description: "Run npm publish --dry-run + npm pack --dry-run only (no publish, no commit, no GitHub Release)"
         required: false
         default: "true"
         type: choice
@@ -25,8 +27,9 @@ on:
 
 permissions:
   contents: write       # needed for sed-and-commit + GitHub Release create
-  pull-requests: write  # needed for changesets/action Release PR
   id-token: write       # needed for npm Trusted Publishing (OIDC) + provenance
+  # NOTE: pull-requests:write was needed for changesets/action; now removed
+  # since we publish via direct `npm publish` (no Release PR flow).
 
 concurrency:
   group: release-${{ github.ref }}
@@ -83,11 +86,11 @@ jobs:
       # Runs the publish pipeline in dry-run mode only; never publishes,
       # never commits, never creates a GitHub Release.
       # ---------------------------------------------------------------------
-      - name: Dry-run — pnpm changeset publish --dry-run
+      - name: Dry-run — npm publish --dry-run
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.dry-run == 'true'
         run: |
-          echo "::group::changeset publish --dry-run"
-          pnpm changeset publish --dry-run || true
+          echo "::group::npm publish --dry-run"
+          npm publish --dry-run --access public || true
           echo "::endgroup::"
 
       - name: Dry-run — npm pack --dry-run
@@ -105,28 +108,96 @@ jobs:
 
       # ---------------------------------------------------------------------
       # REAL PUBLISH PATH — release:published event OR workflow_dispatch with
-      # dry-run=false. Uses changesets/action which:
-      #   - opens/updates a Release PR if pending changesets exist
-      #   - publishes via `pnpm changeset publish` if Release PR was merged
-      # npm Trusted Publishing (OIDC) is used; NPM_TOKEN is a fallback only.
+      # dry-run=false. Direct `npm publish` (NOT `pnpm changeset publish`)
+      # because pnpm/changesets wrappers can bypass npm's OIDC token-exchange
+      # flow per npm support (E404 root cause for v1.1.0–v1.2.0). Trusted
+      # Publishing requires:
+      #   1. id-token: write permission (set above)
+      #   2. npm CLI ≥ 11 (Node 22 ships ~npm 10.x — must upgrade)
+      #   3. NO NPM_TOKEN, NO //registry.npmjs.org/:_authToken in env or
+      #      .npmrc (presence forces token-auth path; OIDC is bypassed)
+      #   4. Direct `npm publish` invocation (not via lerna/pnpm -r/changesets)
       # ---------------------------------------------------------------------
-      - name: Create Release Pull Request or Publish
+
+      - name: Pin npm to v11 (required for stable Trusted Publishing OIDC)
         if: github.event.inputs.dry-run != 'true'
-        id: changesets
-        uses: changesets/action@6a0a831ff30acef54f2c6aa1cbbc1096b066edaf  # v1
-        with:
-          version: pnpm changeset version
-          publish: pnpm changeset publish
-          commit: "chore: release (changesets)"
-          title: "chore: release"
+        run: |
+          echo "Node 22 LTS ships npm 10.x; npm 11+ has the stable OIDC exchange flow."
+          echo "Pre-pin: node=$(node -v) npm=$(npm -v)"
+          npm i -g npm@11
+          echo "Post-pin: node=$(node -v) npm=$(npm -v)"
+
+      - name: Strip auth-token .npmrc lines (OIDC must run unauthenticated by token)
+        if: github.event.inputs.dry-run != 'true'
+        run: |
+          # Per npm support: "ensure NPM_TOKEN, NODE_AUTH_TOKEN, and any
+          # //registry.npmjs.org/:_authToken config are not set anywhere".
+          # actions/setup-node + pnpm both auto-write a project-level .npmrc
+          # that includes `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}`
+          # — that line forces the token-auth path AND triggers an env-var
+          # interpolation error when NODE_AUTH_TOKEN is unset.
+          if [ -f .npmrc ]; then
+            echo "::group::Pre-strip .npmrc"
+            cat .npmrc
+            echo "::endgroup::"
+            sed -i.bak '/_authToken/d' .npmrc || true
+            sed -i.bak '/_auth=/d' .npmrc || true
+            rm -f .npmrc.bak
+            echo "::group::Post-strip .npmrc"
+            cat .npmrc
+            echo "::endgroup::"
+          else
+            echo "No project-level .npmrc — nothing to strip."
+          fi
+          for f in "$HOME/.npmrc" "/root/.npmrc"; do
+            if [ -f "$f" ]; then
+              echo "::group::Stripping $f"
+              cat "$f"
+              sed -i.bak '/_authToken/d' "$f" || true
+              sed -i.bak '/_auth=/d' "$f" || true
+              rm -f "$f.bak"
+              echo "::endgroup::"
+            fi
+          done
+
+      - name: Print diagnostic npm config (per npm support request)
+        if: github.event.inputs.dry-run != 'true'
+        run: |
+          echo "::group::Versions"
+          node -v
+          npm -v
+          echo "::endgroup::"
+          echo "::group::npm config"
+          npm config get registry
+          npm config list -l 2>&1 | grep -v -E '_password|_authToken|_auth=' || true
+          echo "::endgroup::"
+          echo "::group::npm ping"
+          npm ping --registry=https://registry.npmjs.org
+          echo "::endgroup::"
+
+      - name: Publish to npm (Trusted Publishing OIDC, direct npm CLI)
+        id: publish
+        if: github.event.inputs.dry-run != 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # NPM_TOKEN is the legacy auth path. With Trusted Publishing
-          # configured on npmjs.com (linked to this repo + this workflow),
-          # the npm CLI obtains a short-lived OIDC token via id-token: write
-          # and NPM_TOKEN is unused. Kept here as a fallback for repos that
-          # have not yet configured the trusted publisher.
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # CRITICAL: do NOT set NPM_TOKEN, NODE_AUTH_TOKEN, or any auth env.
+          # Trusted Publishing exchanges the GitHub OIDC token (minted via
+          # id-token: write) for a short-lived npm publish credential.
+          # Presence of NPM_TOKEN/NODE_AUTH_TOKEN forces the token-auth path
+          # and bypasses OIDC entirely (npm support E404 root cause).
+          NPM_CONFIG_PROVENANCE: "true"
+        run: |
+          echo "Publishing $(node -p 'require("./package.json").name')@$(node -p 'require("./package.json").version') via Trusted Publishing OIDC..."
+          # --loglevel verbose surfaces the OIDC token/exchange lines that
+          # npm support asked us to capture if this fails again.
+          npm publish --access public --provenance --loglevel verbose
+          # Surface a `published=true` output so downstream steps still gate
+          # off it (matches the prior changesets/action contract).
+          PUBLISHED_VERSION=$(node -p "require('./package.json').version")
+          {
+            echo "published=true"
+            echo "publishedVersion=${PUBLISHED_VERSION}"
+            echo "publishedPackages=[{\"name\":\"$(node -p 'require("./package.json").name')\",\"version\":\"${PUBLISHED_VERSION}\"}]"
+          } >> "$GITHUB_OUTPUT"
 
       # ---------------------------------------------------------------------
       # POST-PUBLISH: only if changesets actually published.
@@ -135,7 +206,7 @@ jobs:
       # tarball + sigstore sidecar + sha256 attached.
       # ---------------------------------------------------------------------
       - name: Sync install.sh to published version
-        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           # Prefer dist.shasum (SHA-1) for npm, but compute SHA-256 of the
@@ -154,7 +225,7 @@ jobs:
           git push origin HEAD:main
 
       - name: Compute SHA-256 sidecar
-        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if [ ! -f "testatlas-${VERSION}.tgz" ]; then
@@ -164,7 +235,7 @@ jobs:
           sha256sum "testatlas-${VERSION}.tgz" > "testatlas-${VERSION}.tgz.sha256"
 
       - name: Fetch sigstore bundle from npm provenance store
-        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
           # npm registry exposes provenance attestations for packages published
@@ -184,11 +255,11 @@ jobs:
           fi
 
       - name: Create GitHub Release with assets
-        if: github.event.inputs.dry-run != 'true' && steps.changesets.outputs.published == 'true'
+        if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65  # v2
         with:
-          tag_name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
-          name: v${{ fromJson(steps.changesets.outputs.publishedPackages)[0].version }}
+          tag_name: v${{ fromJson(steps.publish.outputs.publishedPackages)[0].version }}
+          name: v${{ fromJson(steps.publish.outputs.publishedPackages)[0].version }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false

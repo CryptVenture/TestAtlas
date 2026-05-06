@@ -59,13 +59,12 @@ test('release.yml: has dry-run path that runs npm pack --dry-run', async () => {
   assert.match(buf, /npm pack --dry-run/, 'missing npm pack --dry-run step');
 });
 
-test('release.yml: has dry-run path that runs pnpm changeset publish --dry-run', async () => {
+test('release.yml: has dry-run path that runs npm publish --dry-run', async () => {
+  // Quick 260506-npm: replaced `pnpm changeset publish --dry-run` with direct
+  // `npm publish --dry-run` per npm support guidance (changesets/pnpm wrappers
+  // bypass npm's OIDC token-exchange flow — root cause of v1.1.0–v1.2.0 E404).
   const buf = await readFile(RELEASE_YML, 'utf8');
-  assert.match(
-    buf,
-    /pnpm changeset publish --dry-run/,
-    'missing pnpm changeset publish --dry-run step',
-  );
+  assert.match(buf, /npm publish --dry-run/, 'missing npm publish --dry-run step');
 });
 
 test('release.yml: contains a Sync install.sh step (post-publish sed)', async () => {
@@ -91,14 +90,27 @@ test('release.yml: GitHub Release attaches tarball + sha256 + sigstore.json', as
   );
 });
 
-test('release.yml: changesets/action@v1 used for versioning + publish', async () => {
+test('release.yml: direct npm publish path with required OIDC pre-conditions', async () => {
+  // Quick 260506-npm: replaced changesets/action wrapper with direct `npm
+  // publish` per npm support guidance. Trusted Publishing OIDC requires:
+  //   1. npm CLI ≥ 11 (Node 22 ships ~10.x — must `npm i -g npm@11`)
+  //   2. .npmrc auth-token lines stripped (presence forces token-auth path)
+  //   3. NO NPM_TOKEN/NODE_AUTH_TOKEN in publish step env
+  //   4. Direct `npm publish` (not via lerna/pnpm -r/changesets wrappers)
+  // Each pre-condition has a dedicated step we assert here.
   const buf = await readFile(RELEASE_YML, 'utf8');
-  // Phase 11 Plan 01 SHA-pinned the action per ISSUE-010 (G-09); the trailing
-  // `# v1` comment keeps the human-readable tag visible for Dependabot.
+  assert.match(buf, /npm i -g npm@11/, 'missing npm@11 pin step');
+  assert.match(buf, /Strip auth-token \.npmrc lines/, 'missing .npmrc auth-strip step');
   assert.match(
     buf,
-    /changesets\/action@[a-f0-9]{40}\s+#\s*v1/,
-    'missing SHA-pinned changesets/action (expected `changesets/action@<sha40> # v1`)',
+    /npm publish --access public --provenance --loglevel verbose/,
+    'missing direct `npm publish` invocation with verbose OIDC logging',
+  );
+  // Negative assertion: changesets/action MUST NOT be present anymore.
+  assert.doesNotMatch(
+    buf,
+    /uses:\s*changesets\/action@/,
+    'changesets/action publish wrapper must be removed (npm support: it bypasses OIDC)',
   );
 });
 

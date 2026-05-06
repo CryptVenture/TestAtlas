@@ -124,11 +124,15 @@ test('real-repo invocation surfaces ≥6 distinct external GitHub Actions', asyn
   const ghActions = out.filter((i) => i.type === 'github-action');
   const names = new Set(ghActions.map((g) => g.name.split('@')[0]));
   // Sanity: each of the 6 known marketplace deps surfaces.
+  // Quick 260506-npm: changesets/action removed from release.yml per npm
+  // support guidance (it bypasses OIDC token-exchange, root cause of
+  // v1.1.0–v1.2.0 E404 publish failures). sigstore/cosign-installer takes
+  // its slot in the expected-actions list.
   for (const expected of [
     'actions/checkout',
     'actions/setup-node',
     'pnpm/action-setup',
-    'changesets/action',
+    'sigstore/cosign-installer',
     'softprops/action-gh-release',
     'actions/upload-artifact',
   ]) {
