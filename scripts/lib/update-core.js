@@ -34,6 +34,7 @@ import os from 'node:os';
 import path from 'node:path';
 import semver from 'semver';
 import { info, success, warning } from './colors.js';
+import { copyAdapterCommandFiles, loadAdapterCapabilities } from './install-core.js';
 import { loadConfig } from './load-config.js';
 import { acquireLock, releaseLock } from './lockfile.js';
 import { detectInstallDrift, writeManifest } from './manifest.js';
@@ -180,6 +181,88 @@ async function rmSilent(p) {
  * @returns {Promise<{ kept: string[], removed: string[] }>}
  */
 /**
+ * Quick 260506-mgr — ISSUE-030 fix.
+ *
+ * After the atomic swap, the new <target>/.testatlas/ tree is in place
+ * but adapter command files OUTSIDE .testatlas/ (e.g. ~/.claude/commands/,
+ * <repo>/.cursor/rules/, ~/.config/aider/CONVENTIONS.md) still hold the
+ * OLD install-time bodies. Re-emit them via copyAdapterCommandFiles,
+ * prune any files present in the OLD manifest that are absent from the
+ * new stage set, and return the new entry list for manifest regen.
+ *
+ * Per-adapter try/catch — a failure on one adapter warns and continues.
+ *
+ * @param {string} target          Install target.
+ * @param {object} oldManifest     Parsed pre-swap manifest (may be {}).
+ * @param {{logger?: (msg: string) => void}} [opts]
+ * @returns {Promise<{
+ *   entries: Array<{absPath: string, source: string, type: 'command'}>,
+ *   pruned: string[],
+ *   notes: string[]
+ * }>}
+ */
+async function restageAdapters(target, oldManifest, opts = {}) {
+  const log = opts.logger ?? ((m) => warning(m));
+  const adapters =
+    Array.isArray(oldManifest?.adapters) && oldManifest.adapters.length > 0
+      ? oldManifest.adapters
+      : ['generic'];
+  const isGlobal = oldManifest?.mode === 'global';
+
+  // suiteRoot for the new install IS <target> — copyAdapterCommandFiles
+  // joins SUITE_DIR='.testatlas' internally, so we pass the install target
+  // (NOT target/.testatlas/) here.
+  const suiteRoot = target;
+
+  let caps;
+  try {
+    caps = await loadAdapterCapabilities(suiteRoot);
+  } catch (err) {
+    log(`restageAdapters: cannot load adapter-capabilities.json: ${err.message}`);
+    return { entries: [], pruned: [], notes: [] };
+  }
+
+  /** @type {Array<{absPath: string, source: string, type: 'command'}>} */
+  const allEntries = [];
+  /** @type {string[]} */
+  const allNotes = [];
+
+  // Per-adapter try/catch: one bad adapter must not abort the rest.
+  for (const name of adapters) {
+    try {
+      const { entries, notes } = await copyAdapterCommandFiles(suiteRoot, target, [name], caps, {
+        global: isGlobal,
+      });
+      allEntries.push(...entries);
+      allNotes.push(...notes);
+    } catch (err) {
+      log(`restageAdapters: adapter '${name}' restage failed: ${err.message}`);
+    }
+  }
+
+  // Orphan-prune. Build the set of POSIX-relative paths the new restage
+  // wrote, and rm any entry from oldManifest.files where
+  // type ∈ {'adapter','command'} that is NOT in the new set. Skip entries
+  // inside .testatlas/ — those were already replaced by the swap.
+  const newPaths = new Set(
+    allEntries.map((e) => path.relative(target, e.absPath).split(path.sep).join('/')),
+  );
+  /** @type {string[]} */
+  const pruned = [];
+  for (const f of oldManifest?.files ?? []) {
+    if (f?.type !== 'adapter' && f?.type !== 'command') continue;
+    if (typeof f.path !== 'string') continue;
+    if (f.path.startsWith('.testatlas/')) continue;
+    if (newPaths.has(f.path)) continue;
+    const abs = path.join(target, ...f.path.split('/'));
+    await rmSilent(abs);
+    pruned.push(f.path);
+  }
+
+  return { entries: allEntries, pruned, notes: allNotes };
+}
+
+/**
  * Quick 260506-jsg Bug C — regenerate `<target>/.testatlas/.install-manifest.json`
  * after an atomic swap. Reads the backup manifest for adapters/mode and
  * (path → source, type) mapping; walks the new .testatlas/ tree; writes a
@@ -191,12 +274,21 @@ async function rmSilent(p) {
  *
  * Non-fatal failure mode: caller wraps this in try/catch and warns.
  *
+ * Quick 260506-mgr — ISSUE-030: accepts an optional `restagedEntries`
+ * parameter. Each entry has shape `{absPath, source, type: 'command'}` and
+ * lives OUTSIDE `.testatlas/` (e.g. ~/.claude/commands/atlas-*.md). The
+ * regenerated manifest merges these in so drift detection + uninstall
+ * track the full set of files runUpdate emitted.
+ *
  * @param {string} target          Install target.
  * @param {string} backupDir       Path of the just-created backup dir
  *                                  (contains the OLD manifest).
  * @param {string} newVersion      The new suite version.
+ * @param {Array<{absPath: string, source: string, type: 'command'|'adapter'}>} [restagedEntries]
+ *   Adapter command files restaged outside .testatlas/, returned by
+ *   restageAdapters.
  */
-async function regenerateInstallManifest(target, backupDir, newVersion) {
+async function regenerateInstallManifest(target, backupDir, newVersion, restagedEntries = []) {
   // 1. Read backup manifest for adapters / mode / (path → source, type) map.
   const backupManifestPath = path.join(backupDir, '.install-manifest.json');
   let oldAdapters = ['generic'];
@@ -257,6 +349,15 @@ async function regenerateInstallManifest(target, backupDir, newVersion) {
       source: old?.source ?? suiteRel,
       type: old?.type ?? 'suite',
     });
+  }
+
+  // Quick 260506-mgr — ISSUE-030: merge restaged adapter command files
+  // (which live OUTSIDE .testatlas/) into the manifest. The walk above only
+  // produces entries inside .testatlas/, so there's no overlap by construction.
+  for (const e of restagedEntries) {
+    if (!e || typeof e.absPath !== 'string' || typeof e.source !== 'string') continue;
+    const t = e.type === 'adapter' || e.type === 'command' ? e.type : 'command';
+    entries.push({ absPath: e.absPath, source: e.source, type: t });
   }
 
   // 3. Write the new manifest. cwd: target so loadAllSchemas can resolve
@@ -586,6 +687,39 @@ export async function runUpdate(opts) {
     // 6. Cleanup tarball (staging dir is gone — it became .testatlas/).
     await rmSilent(tmpTarball);
 
+    // Quick 260506-mgr — ISSUE-030: re-stage adapter files outside .testatlas/.
+    //
+    // The atomic swap only replaced .testatlas/; agent command files at
+    // ~/.claude/commands/, .cursor/rules/, ~/.config/aider/CONVENTIONS.md, etc.
+    // still hold the OLD install-time bodies. Re-emit them via
+    // copyAdapterCommandFiles, prune any old-manifest entries (type ∈
+    // {'adapter','command'}) that are no longer in the new stage set, and
+    // pass the new entry list into regenerateInstallManifest so the manifest
+    // tracks reality.
+    //
+    // Non-fatal: a wholesale failure here logs a warning but doesn't break
+    // the swap (mirrors the existing regenerateInstallManifest pattern).
+    let restagedEntries = [];
+    try {
+      // Read the BACKUP manifest (the OLD one) — current `.install-manifest.json`
+      // was wiped by the swap. Mirrors regenerateInstallManifest's source.
+      const backupManifestPath = path.join(backupDir, '.install-manifest.json');
+      let oldManifest = {};
+      try {
+        const raw = await readFile(backupManifestPath, 'utf8');
+        oldManifest = JSON.parse(raw);
+      } catch {
+        // No old manifest — restageAdapters defaults to ['generic'] and prunes nothing.
+      }
+      const result = await restageAdapters(target, oldManifest, { logger: (m) => log(m) });
+      restagedEntries = result.entries;
+      // Surface per-adapter notes (e.g. aider's "set --read alias") on the
+      // same logger the swap-success line uses.
+      for (const n of result.notes) log(n);
+    } catch (err) {
+      warning(`Could not restage adapter command files after update: ${err.message}`);
+    }
+
     // Quick 260506-jsg Bug C — regenerate .install-manifest.json.
     //
     // The atomic swap replaced .testatlas/ wholesale with the staged tarball
@@ -597,10 +731,12 @@ export async function runUpdate(opts) {
     //
     // Strategy: read the backup manifest for adapters/mode/(path→source,type)
     // mapping, walk the new tree, hash each file, write a fresh manifest.
+    // Quick 260506-mgr — ISSUE-030: also merge restagedEntries (adapter
+    // command files outside .testatlas/) so the manifest tracks reality.
     // Non-fatal — a manifest write failure logs a warning but doesn't fail
     // the update (the swap itself already succeeded).
     try {
-      await regenerateInstallManifest(target, backupDir, newVersion);
+      await regenerateInstallManifest(target, backupDir, newVersion, restagedEntries);
     } catch (err) {
       warning(`Could not regenerate install-manifest after update: ${err.message}`);
     }
@@ -636,3 +772,9 @@ export async function runUpdate(opts) {
     await releaseLock(lockTarget);
   }
 }
+
+// Quick 260506-mgr — ISSUE-030: exported for test reach.
+// Not part of the public surface — these are internal helpers consumed by
+// test/scripts/update-restages-adapters*.test.js to exercise restage and
+// manifest-regen without driving the whole runUpdate flow.
+export { regenerateInstallManifest, restageAdapters };
