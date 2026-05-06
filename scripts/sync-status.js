@@ -55,7 +55,14 @@ export async function syncStatus(args = {}, _inject = {}) {
   const dryRun = args.dryRun ?? false;
 
   // Compute on-disk counts.
-  const reports = await countFiles(wsDir, 'reports', (n) => n.endsWith('.md'));
+  // Quick 260506-dyb (G5): per-area views (regressions/readiness/coverage/
+  // quality_risks .md) live alongside REPORT-*.md but are NOT reports — only
+  // REPORT-prefixed .md files are counted as reports.
+  const reports = await countFiles(
+    wsDir,
+    'reports',
+    (n) => n.endsWith('.md') && n.startsWith('REPORT-'),
+  );
   const counts = {
     domains: await countDirs(wsDir, 'domains'),
     flows: await countFiles(wsDir, 'flows', (n) => n.endsWith('.json') && n.startsWith('FLOW-')),
