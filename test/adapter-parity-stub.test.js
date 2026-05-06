@@ -61,6 +61,12 @@ async function makeTmpRepo() {
   await cp(path.join(repoRoot, '.testatlas'), path.join(dir, '.testatlas'), {
     recursive: true,
   });
+  // GAP-3 (quick-260506-nj2): classifyMcp reads package.json#version from
+  // repoRoot to inject into the fresh-rendered manifest for byte-compare.
+  // Copy the live package.json so each tmp parity run sees the canonical
+  // version (1.1.5 today) — matching the on-disk manifest the test trees
+  // were built from.
+  await cp(path.join(repoRoot, 'package.json'), path.join(dir, 'package.json'));
   return dir;
 }
 

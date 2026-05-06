@@ -331,10 +331,28 @@ async function classifyMcp({ repoRoot, adapter, sources }) {
   }
   if (!parsed || !Array.isArray(parsed.prompts)) return 'no-marker';
 
+  // GAP-3 (quick-260506-nj2): renderMcpToString now requires `version`.
+  // Read package.json#version from repoRoot and pass through. A missing
+  // version means parity itself can't render a fresh manifest — that's a
+  // build-environment error, not a drift category, so throw loudly rather
+  // than swallowing it as "missing".
+  const pkgPath = path.join(repoRoot, 'package.json');
+  let pkgVersion;
+  try {
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf8'));
+    pkgVersion = pkg.version;
+  } catch (err) {
+    throw new Error(`parity:mcp cannot read version from ${pkgPath}: ${err.message}`);
+  }
+  if (typeof pkgVersion !== 'string' || pkgVersion.length === 0) {
+    throw new Error(`parity:mcp ${pkgPath} has no usable "version" field`);
+  }
+
   // Layer-2: byte-compare against a fresh render.
   const fresh = renderMcpToString({
     sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
     adapterCaps: adapter.capabilities,
+    version: pkgVersion,
   });
   if (fresh !== derivedText) return 'hand-edit';
 

@@ -173,8 +173,26 @@ function aiderMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
  * }} args
  * @returns {Array<{ outPath: string, content: string }>}
  */
-function mcpMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
-  const content = renderMcpToString({ sources, adapterCaps });
+async function mcpMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
+  // GAP-3 (quick-260506-nj2): inject suite version from the workspace's
+  // package.json. Required; no fallback — a missing/unreadable package.json
+  // should fail the build loudly rather than ship a stale "1.0.0".
+  const pkgPath = path.join(workspace, 'package.json');
+  let pkgVersion;
+  try {
+    const pkg = JSON.parse(await readFile(pkgPath, 'utf8'));
+    pkgVersion = pkg.version;
+  } catch (err) {
+    throw new Error(
+      `assemble-adapter: cannot read version from ${pkgPath} for mcp adapter: ${err.message}`,
+    );
+  }
+  if (typeof pkgVersion !== 'string' || pkgVersion.length === 0) {
+    throw new Error(
+      `assemble-adapter: ${pkgPath} has no usable "version" field (got ${JSON.stringify(pkgVersion)})`,
+    );
+  }
+  const content = renderMcpToString({ sources, adapterCaps, version: pkgVersion });
   return [
     {
       outPath: path.join(workspace, adapter.outputDir, 'mcp-server-manifest.json'),
@@ -263,7 +281,7 @@ function amazonQMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
  *     adapterCaps: string[],
  *     workspace: string,
  *     adapter: AdapterEntry,
- *   }) => Array<{ outPath: string, content: string }>,
+ *   }) => Array<{ outPath: string, content: string }> | Promise<Array<{ outPath: string, content: string }>>,
  * }} opts
  * @returns {Promise<{ written: string[], unchanged: string[], drift: string[] }>}
  */
@@ -272,7 +290,15 @@ async function runMultiSourceAdapter({ adapter, workspace, check, multiRender })
   const sources = await Promise.all(
     sourcePaths.map(async (sp) => ({ sourcePath: sp, sourceText: await readFile(sp, 'utf8') })),
   );
-  const outputs = multiRender({ sources, adapterCaps: adapter.capabilities, workspace, adapter });
+  // GAP-3 (quick-260506-nj2): mcpMultiRenderer is now async (reads
+  // package.json). Other multi-renderers remain sync but await Promise.resolve()s
+  // their array return cleanly — no breaking change.
+  const outputs = await multiRender({
+    sources,
+    adapterCaps: adapter.capabilities,
+    workspace,
+    adapter,
+  });
 
   const written = [];
   const unchanged = [];

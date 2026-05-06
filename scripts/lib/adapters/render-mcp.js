@@ -53,10 +53,18 @@ function commandBaseName(sourcePath) {
  * @param {{
  *   sources: { sourceText: string, sourcePath: string }[],
  *   adapterCaps?: string[],
+ *   version: string,
  * }} opts
  * @returns {{ manifest: object }}
  */
-export function renderMcp({ sources }) {
+export function renderMcp({ sources, version }) {
+  // GAP-3 (quick-260506-nj2): version is a REQUIRED parameter. The previous
+  // hardcoded '1.0.0' caused the manifest to drift from package.json#version
+  // forever. Fail-fast — a missing/empty version is a programming error.
+  if (typeof version !== 'string' || version.length === 0) {
+    throw new TypeError('renderMcp: version (string) is required');
+  }
+
   // Sort by full sourcePath so the manifest order matches listCommandFiles
   // (the order the server uses on prompts/list and the test compares against).
   const sorted = [...sources].sort((a, b) =>
@@ -72,7 +80,7 @@ export function renderMcp({ sources }) {
 
   const manifest = {
     name: 'testatlas',
-    version: '1.0.0',
+    version,
     capabilities: { prompts: { listChanged: false } },
     prompts,
   };
@@ -85,10 +93,19 @@ export function renderMcp({ sources }) {
  * 2-space-indented JSON terminated with a single newline — byte-stable for
  * the parity gate's hash + idempotency checks.
  *
- * @param {{ sources: { sourceText: string, sourcePath: string }[], adapterCaps?: string[] }} opts
+ * @param {{
+ *   sources: { sourceText: string, sourcePath: string }[],
+ *   adapterCaps?: string[],
+ *   version: string,
+ * }} opts
  * @returns {string}
  */
 export function renderMcpToString(opts) {
+  // GAP-3: re-validate at this entry too so callers that bypass renderMcp
+  // (theoretical) still get the same fail-fast.
+  if (!opts || typeof opts.version !== 'string' || opts.version.length === 0) {
+    throw new TypeError('renderMcpToString: version (string) is required');
+  }
   const { manifest } = renderMcp(opts);
   return `${JSON.stringify(manifest, null, 2)}\n`;
 }
