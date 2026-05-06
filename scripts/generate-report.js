@@ -22,6 +22,7 @@ import { atomicWrite } from './lib/atomic-write.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
+import { buildPerAreaViews, viewsToWritePlan } from './lib/report/per-area-views.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
@@ -652,11 +653,25 @@ export async function generateReport(args = {}, _inject = {}) {
   const tsBasename = `REPORT-${generatedAt.slice(0, 10)}-${generatedAt.slice(11, 19).replace(/:/g, '-')}.md`;
   const tsPath = path.join(reportsDir, tsBasename);
 
+  // ── Build per-area views (Quick 260506-dyb G5) ──────────────────────────
+  const views = buildPerAreaViews({
+    jsonReport,
+    issues,
+    flows,
+    domains,
+    testRuns,
+    scenarioIndex,
+  });
+  const viewWritePlan = viewsToWritePlan(reportsDir, views);
+
   // ── Write or dry-run ────────────────────────────────────────────────────
   if (!dryRun) {
     await _atomicWrite(markdownPath, markdown);
     await _atomicWrite(jsonPath, `${JSON.stringify(jsonReport, null, 2)}\n`);
     await _atomicWrite(tsPath, markdown);
+    for (const v of viewWritePlan) {
+      await _atomicWrite(v.filePath, v.content);
+    }
   }
 
   return {
@@ -664,6 +679,7 @@ export async function generateReport(args = {}, _inject = {}) {
     markdownPath,
     jsonPath,
     timestampedPath: tsPath,
+    perAreaViewPaths: viewWritePlan.map((v) => v.filePath),
     jsonReport,
     dryRun,
   };
