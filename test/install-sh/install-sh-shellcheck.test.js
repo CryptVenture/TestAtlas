@@ -73,10 +73,14 @@ test('install.sh: contains no bashisms', async () => {
   assert.ok(!/pipefail/.test(code), 'must not use pipefail (bash-only)');
 });
 
-test('install.sh: line count <= 250', async () => {
+test('install.sh: line count <= 290', async () => {
+  // Quick 260506-h9q raised the budget from 250 → 290 to accommodate the
+  // POSIX banner additions (_print_banner + colors gating, ~30 lines).
+  // The banner mirrors scripts/lib/banner.js so the curl-pipe install
+  // path renders the same brand polish as the npx/git-clone paths.
   const buf = await readFile(INSTALL_SH, 'utf8');
   const lineCount = buf.split('\n').length;
-  assert.ok(lineCount <= 250, `install.sh has ${lineCount} lines, budget is 250`);
+  assert.ok(lineCount <= 290, `install.sh has ${lineCount} lines, budget is 290`);
 });
 
 test('install.sh: uses set -eu (NOT set -euo pipefail)', async () => {

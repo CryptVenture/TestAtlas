@@ -20,58 +20,34 @@ GITHUB_RELEASE_URL="https://github.com/CryptVenture/TestAtlas/releases/download/
 _log() { printf '[testatlas] %s\n' "$*"; }
 _err() { printf '[testatlas:error] %s\n' "$*" >&2; }
 
-# Banner gating: ANSI magenta only when stdout is a TTY AND NO_COLOR is unset
-# AND FORCE_COLOR != 0. Mirrors scripts/lib/colors.js#colorEnabled().
-_colors_on() {
-    if [ -n "${NO_COLOR-}" ]; then return 1; fi
-    if [ "${FORCE_COLOR-}" = "0" ]; then return 1; fi
-    if [ ! -t 1 ]; then return 1; fi
-    return 0
-}
-
-# Unicode gating: NO_UNICODE forces the ASCII (`#`) fallback art.
-# Mirrors scripts/lib/colors.js#isUnicode().
-_unicode_on() {
-    if [ -n "${NO_UNICODE-}" ]; then return 1; fi
-    return 0
-}
-
-# POSIX banner — visually identical to scripts/lib/banner.js
-# (BANNER_UNICODE_LINES + BANNER_ASCII_LINES + TAGLINE + version line).
-# Honors NO_COLOR, NO_UNICODE, and non-TTY just like the JS path.
+# POSIX banner — mirrors scripts/lib/banner.js (BANNER_UNICODE_LINES /
+# BANNER_ASCII_LINES + TAGLINE + version line). Self-gates on NO_COLOR /
+# FORCE_COLOR=0 / non-TTY (no ANSI) and NO_UNICODE (`#` fallback art).
 _print_banner() {
-    if _colors_on; then
-        magenta=$(printf '\033[35m')
-        cyan=$(printf '\033[36m')
-        dim=$(printf '\033[2m')
-        reset=$(printf '\033[0m')
-    else
-        magenta=""
-        cyan=""
-        dim=""
-        reset=""
+    _m=""; _c=""; _d=""; _r=""
+    if [ -z "${NO_COLOR-}" ] && [ "${FORCE_COLOR-}" != "0" ] && [ -t 1 ]; then
+        _m=$(printf '\033[35m'); _c=$(printf '\033[36m')
+        _d=$(printf '\033[2m');  _r=$(printf '\033[0m')
     fi
-
-    if _unicode_on; then
-        printf '%s                                                                           %s\n' "$magenta" "$reset"
-        printf '%s ████████ ███████ ███████ ████████  █████  ████████ ██       █████  ███████%s\n' "$magenta" "$reset"
-        printf '%s    ██    ██      ██         ██    ██   ██    ██    ██      ██   ██ ██     %s\n' "$magenta" "$reset"
-        printf '%s    ██    █████   ███████    ██    ███████    ██    ██      ███████ ███████%s\n' "$magenta" "$reset"
-        printf '%s    ██    ██           ██    ██    ██   ██    ██    ██      ██   ██      ██%s\n' "$magenta" "$reset"
-        printf '%s    ██    ███████ ███████    ██    ██   ██    ██    ███████ ██   ██ ███████%s\n' "$magenta" "$reset"
+    if [ -z "${NO_UNICODE-}" ]; then
+        _b1=" ████████ ███████ ███████ ████████  █████  ████████ ██       █████  ███████"
+        _b2="    ██    ██      ██         ██    ██   ██    ██    ██      ██   ██ ██     "
+        _b3="    ██    █████   ███████    ██    ███████    ██    ██      ███████ ███████"
+        _b4="    ██    ██           ██    ██    ██   ██    ██    ██      ██   ██      ██"
+        _b5="    ██    ███████ ███████    ██    ██   ██    ██    ███████ ██   ██ ███████"
     else
-        printf '%s                                                                           %s\n' "$magenta" "$reset"
-        printf '%s ######## ####### ####### ########  #####  ######## ##       #####  #######%s\n' "$magenta" "$reset"
-        printf '%s    ##    ##      ##         ##    ##   ##    ##    ##      ##   ## ##     %s\n' "$magenta" "$reset"
-        printf '%s    ##    #####   #######    ##    #######    ##    ##      ####### #######%s\n' "$magenta" "$reset"
-        printf '%s    ##    ##           ##    ##    ##   ##    ##    ##      ##   ##      ##%s\n' "$magenta" "$reset"
-        printf '%s    ##    ####### #######    ##    ##   ##    ##    ####### ##   ## #######%s\n' "$magenta" "$reset"
+        _b1=" ######## ####### ####### ########  #####  ######## ##       #####  #######"
+        _b2="    ##    ##      ##         ##    ##   ##    ##    ##      ##   ## ##     "
+        _b3="    ##    #####   #######    ##    #######    ##    ##      ####### #######"
+        _b4="    ##    ##           ##    ##    ##   ##    ##    ##      ##   ##      ##"
+        _b5="    ##    ####### #######    ##    ##   ##    ##    ####### ##   ## #######"
     fi
-    printf '\n'
-    printf '%sAgent-agnostic AI product testing & quality intelligence framework%s\n' "$cyan" "$reset"
-    printf '\n'
-    printf '%sv%s  •  https://github.com/CryptVenture/TestAtlas%s\n' "$dim" "$VERSION" "$reset"
-    printf '\n'
+    printf '%s%s%s\n' "$_m" "                                                                           " "$_r"
+    for _line in "$_b1" "$_b2" "$_b3" "$_b4" "$_b5"; do
+        printf '%s%s%s\n' "$_m" "$_line" "$_r"
+    done
+    printf '\n%sAgent-agnostic AI product testing & quality intelligence framework%s\n\n' "$_c" "$_r"
+    printf '%sv%s  •  https://github.com/CryptVenture/TestAtlas%s\n\n' "$_d" "$VERSION" "$_r"
 }
 
 _require_node() {
