@@ -1010,7 +1010,10 @@ async function main() {
       ? `Release ${tagName}\n\n${migration.extractedNotes}`
       : `Release ${tagName}`;
     // Pass via -F file to avoid shell-quoting hazards.
-    const tagMsgFile = path.join(tmpdir(), `tag-msg-${tagName}.txt`);
+    // Unique-per-process to avoid concurrent-test races (node:test runs tests
+    // in parallel; multiple test fixtures all bump to v1.0.1 → same tag name
+    // → shared tmp path → tests rm'd each other's tag-msg files mid-run).
+    const tagMsgFile = path.join(tmpdir(), `tag-msg-${tagName}-${process.pid}.txt`);
     await writeFile(tagMsgFile, tagBody, 'utf8');
     try {
       sh(`git tag -a ${tagName} -F ${JSON.stringify(tagMsgFile)}`);
