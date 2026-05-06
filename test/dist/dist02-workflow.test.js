@@ -99,15 +99,13 @@ test('release.yml: direct npm publish path with required OIDC pre-conditions', a
   //   4. Direct `npm publish` (not via lerna/pnpm -r/changesets wrappers)
   // Each pre-condition has a dedicated step we assert here.
   const buf = await readFile(RELEASE_YML, 'utf8');
-  // npm@11 install via isolated tarball-extract path (the in-place
-  // `npm i -g npm@11` self-upgrade hits MODULE_NOT_FOUND: 'promise-retry'
-  // on the GH Actions ubuntu runner — known npm bug).
-  assert.match(buf, /npm pack npm@11/, 'missing npm@11 isolated install (npm pack approach)');
-  assert.match(
-    buf,
-    /\$GITHUB_PATH/,
-    'isolated npm@11 must be added to GITHUB_PATH so next step picks it up',
-  );
+  // npm@11 pin via corepack — sidesteps both the in-place self-upgrade
+  // bug (MODULE_NOT_FOUND: promise-retry) and the isolated tarball-extract
+  // path resolution issue (npm-prefix.js lookup hits the wrong dir).
+  // Corepack ships with Node 22 and is designed for pinning package-manager
+  // versions atomically.
+  assert.match(buf, /corepack enable npm/, 'missing `corepack enable npm` step');
+  assert.match(buf, /corepack prepare npm@11 --activate/, 'missing corepack activate of npm@11');
   assert.match(
     buf,
     /Delete any auto-written \.npmrc files/,

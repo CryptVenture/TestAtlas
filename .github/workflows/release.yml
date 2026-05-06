@@ -126,35 +126,18 @@ jobs:
       #   4. Direct `npm publish` invocation (not via lerna/pnpm -r/changesets)
       # ---------------------------------------------------------------------
 
-      - name: Install npm@11 in isolated dir (avoids self-upgrade bootstrap bug)
+      - name: Pin npm to v11 via corepack (sidesteps self-upgrade bootstrap bug)
         if: github.event.inputs.dry-run != 'true'
         run: |
-          # Background: `npm i -g npm@11` (with or without --force) fails on
-          # the GitHub Actions ubuntu runner with `MODULE_NOT_FOUND:
-          # promise-retry` because the system npm overwrites its own running
-          # code mid-install. Workaround: download npm@11 tarball, install
-          # ITS deps using the existing system npm, then prepend its bin to
-          # PATH for subsequent steps. This never asks npm to upgrade itself
-          # in place.
+          # `npm i -g npm@11` and tarball-extract approaches both hit known
+          # bugs (MODULE_NOT_FOUND: promise-retry / npm-prefix.js resolution).
+          # Corepack ships with Node ≥16, is designed exactly for this kind
+          # of pin-package-manager-version use case, and atomically swaps
+          # the active npm without the in-place self-upgrade hazard.
           echo "Pre-pin: node=$(node -v) npm=$(npm -v)"
-          INSTALL_DIR="$HOME/.npm-v11"
-          mkdir -p "$INSTALL_DIR"
-          cd "$INSTALL_DIR"
-          # Use system npm to fetch the npm@11 tarball into pwd.
-          npm pack npm@11 >/dev/null
-          mkdir -p extracted
-          tar -xzf npm-*.tgz -C extracted
-          cd extracted/package
-          # Install npm@11's runtime deps using the SYSTEM npm (10.9.7), so
-          # the new npm@11 isn't asked to bootstrap itself.
-          npm install --omit=dev --omit=peer --no-audit --no-fund --no-package-lock --no-save 2>&1 | tail -3
-          chmod +x bin/npm-cli.js
-          # Prepend to PATH for all subsequent steps.
-          NEW_NPM_BIN="$INSTALL_DIR/extracted/package/bin"
-          echo "$NEW_NPM_BIN" >> "$GITHUB_PATH"
-          # Verify (note: PATH change applies to NEXT step, so use absolute
-          # path here).
-          echo "Post-pin (next step PATH): npm=$($NEW_NPM_BIN/npm --version)"
+          corepack enable npm
+          corepack prepare npm@11 --activate
+          echo "Post-pin: npm=$(npm -v) at $(command -v npm)"
 
       - name: Delete any auto-written .npmrc files (OIDC must run unauth'd by token)
         if: github.event.inputs.dry-run != 'true'
