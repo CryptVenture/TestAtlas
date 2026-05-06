@@ -6,24 +6,35 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
-- **Phase 9 — Agentic Workflow Completeness Audit + Sub-Agent Orchestration.** Closes the post-v1.0 agentic completeness work surfaced after GA across 5 plans (09-01 through 09-05).
-- `subagent-spawn` capability vocabulary entry (6th entry; locked) — declared in `vocabulary.json` `$defs/capability` and consumed by `command-instruction.schema.json` and `adapter-capabilities.schema.json` via `$ref`.
-- `bootstrap.md` Capability Degradation block + per-host invocation table covering all 18 adapters with their canonical 2026 sub-agent invocation pattern.
-- `## Sub-Agent Orchestration` blocks on the 4 umbrella commands (`/atlas:explore`, `/atlas:plan`, `/atlas:test-flow`, `/atlas:consolidate`) — parallel sub-agent spawning when host capability is available, sequential-fallback otherwise.
-- `## Sub-Agent Task Brief Contract` sections on the 11 sub-explorer commands so they work both as parallel children of an umbrella and as standalone slash invocations.
-- `## What's Next` tail navigation on all 30 command files + `README.md` + `docs/GETTING_STARTED.md` + `docs/INSTALL.md` + `docs/UPDATE.md`.
-- Cross-reference integrity test (`test/agentic/cross-reference-integrity.test.js`) gating the test suite — every `/atlas:NAME` mention, every relative `.md` link, every schema `$id` URL must resolve to a real file on disk.
-- E2E pipeline harness `scripts/e2e/run-node-api-graph.js` exercising the full command graph (init → explore → map-domains → plan → test-flow → report) in both `parallel-subagents` and `sequential-fallback` modes against `examples/node-api/`. Companion env-gated tests (`TESTATLAS_E2E=1`) at `test/agentic/e2e-pipeline.test.js`.
+- **Cosign + dogfood-test infrastructure** (Quick 260506-07b). `sigstore/cosign-installer@v3` (SHA-pinned) wired into `.github/workflows/ci.yml` so dogfood scenarios run against a real cosign install. New `scripts/setup-dogfood-env.sh` POSIX pre-flight probes for cosign + shellcheck + gh + sha256sum + tar + git + curl + jq + node ≥ 20; copy-paste install hints per missing binary; optional `--install` flag attempts non-interactive install on Linux.
+- **`CONTRIBUTING.md` Dogfood Test Prerequisites section** (Quick 260506-07b). Documents required binaries with version floors; tells contributors to run `sh scripts/setup-dogfood-env.sh` before `/atlas:test-flow --all`; notes CI installs these automatically.
+- **NEW scenario `TEST-install-cosign-absent-degrade`** (Quick 260506-07b). Verifies install.sh's fail-open default path: when `TESTATLAS_VERIFY_SIGNATURE` is unset and cosign is not on PATH, installer proceeds with sha256-only verification (exit 0). Sibling to `TEST-install-cosign-verification-smoke` (tamper-fail focus). Scenario count 25→26.
+- **Per-area report views** (Quick 260506-dyb G5). `scripts/generate-report.js` now emits `_testatlas/reports/regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md` from the same aggregation pass. Previously these were declared in the spec but never written.
+- **`counts.reports` field** in `workspace-manifest.schema.json` (Quick 260506-dyb G4). Optional integer ≥0 added additively (no migration required); HEAL-01 + check-status-counts updated to validate it; `sync-status.js` writes it from disk truth (`_testatlas/reports/REPORT-*.md` count).
+- **`scripts/triage.js` accelerator** (Quick 260506-esm). Production-grade idempotent triage driver mirroring `scripts/create-issue.js` shape. Loads all `_testatlas/to_fix/ISSUE-*.json`; verifies evidence-on-disk per issue (downgrades confidence to `needs-validation` if missing); applies 3 duplicate heuristics (exact-title, shared-evidence path, same-domain+flow+repro Levenshtein ≥0.8); transitions `status:new` → `status:triaged` with append-only history; AJV-validates every mutated record before atomicWrite; regenerates `triage-report-<ts>.md` + `blockers.md` + `groups.md`. CLI flags: `--workspace`, `--cwd`, `--dry-run`, `--severity-override <ID>=<sev>` (repeatable), `--help`. Idempotent: live runs against a stable corpus produce zero file mutations.
+- **POSIX banner in `install.sh`** (Quick 260506-h9q). New `_print_banner()` emits the same 9-line ASCII art as `scripts/lib/banner.js BANNER_UNICODE_LINES`; honors `NO_COLOR` (no ANSI when set), `NO_UNICODE` (`#`-art fallback), and non-TTY (no escape codes). Banner now renders on the curl-pipe path, matching the npx + git-clone + direct-script paths.
+- **`renderBanner` wired into `install.js`, `scripts/update.js`, `scripts/uninstall.js`** (Quick 260506-h9q). Previously only `bin/testatlas.js` (npx path) rendered the banner. All entry-points now consistent.
+- **Production-grade release driver** (Quick 260506-hqu). Refactored `scripts/bump-version.js` (770 LOC) is now a true one-liner: pre-flight gates (`pnpm test` + `check-adapter-parity --strict` + `validate-workspace`), CHANGELOG `[Unreleased]` → `[X.Y.Z]` body migration, atomic commit + annotated tag, `git push origin <branch>` + `git push origin <tag>`, `gh release create vX.Y.Z --notes-file <CHANGELOG-extract>` (NOT `--generate-notes`), optional `--wait` polls `release.yml` until OIDC publish + asset attachment completes (10-min timeout). Fires the existing `release.yml` workflow which handles npm publish via OIDC, sha256 + sigstore fetch, install.sh `TARBALL_SHA256` sync, and asset attachment automatically.
+- **`docs/RELEASE.md` "Local release driver" section** (Quick 260506-hqu). Documents the canonical `node scripts/bump-version.js --minor --release --wait` flow + every flag with examples + OIDC vs bootstrap path tradeoff.
 
 ### Changed
 
-- 9 adapters now declare `subagent-spawn` in `.testatlas/adapters/adapter-capabilities.json` (claude-code, opencode, kilocode, codex, gemini-cli, github-copilot, cline, kiro, sourcegraph-amp). The other 9 (cursor, continue-dev, aider, generic, mcp, windsurf, roo-code, zed, amazon-q) remain documented as no-spawn (sequential-fallback only).
-- `.testatlas/templates/canonical/03_execution_status.md` "Next Highest-Value Steps" rewritten to use the canonical command graph (`/atlas:explore` → `/atlas:map-domains` → `/atlas:plan`) instead of legacy never-implemented command names that previously appeared there.
-- Eight explorer/map-domains commands updated to reference the canonical `01_system_map.md` instead of the never-bootstrapped `01_app_inventory.md`.
+- **`scripts/generate-report.js` readiness verdict** (Quick 260506-esm) now filters `sortedIssues` to `status ∉ {closed, wont_fix}` BEFORE the severity check. Previously counted closed issues toward CONDITIONAL verdict; now correctly reads READY when 0 critical+open AND 0 high+open. Closes ISSUE-029.
+- **`scripts/generate-report.js` run dedup** (Quick 260506-dyb G1). `readTestRuns` groups by RUN-`<ts>` stem; prefers `.json` sidecar; merges `.md` frontmatter as supplementary. Previously read each run twice (once via .md glob, once via .json glob), reporting `2 run(s)` for 1 actual run.
+- **`scripts/generate-report.js` per-domain coverage detection** (Quick 260506-dyb G2). Walks `r.parsed.scenariosRun[].domain` instead of the (non-existent) top-level `r.parsed.domain` field. Previously claimed all domains uncovered; now correctly credits scenario coverage.
+- **`scripts/generate-report.js` Test Pyramid type-classification** (Quick 260506-dyb G3). Resolves scenario `type` via matching `_testatlas/tests/scenarios/TEST-<id>.json` sidecar. Previously emitted `unknown: N` bucket only; now reflects actual smoke/regression/state/negative/setup/integration/user-flow distribution.
+- **`scripts/generate-report.js` autoheal parity** (Quick 260506-esm). HEAL-01 now recomputes `counts.reports` alongside the other counts when re-deriving manifest from disk; previously only check-status-counts validated it but heal didn't fix mismatches.
+- **`.testatlas/commands/triage.md` Preferred-path entry** (Quick 260506-esm). Source command now declares `node .testatlas/scripts/triage.js` as the preferred-when-shell-available path, mirroring `create-issue.md` / `generate-report.md` patterns. 18 adapter trees regenerated.
+- **`install.sh` line budget** raised 250→290 (Quick 260506-h9q) to accommodate the `_print_banner` shell function. Banner code itself was tightened to ~30 lines via inline color/unicode tests + printf loop.
+- **`test/release/pack-contents.test.js`** ceiling raised 5MB→8MB (Quick 260506-dyb side-effect). Per-area views library + adapter regens nudged the pack size past the prior 5MB ceiling.
+- **`scripts/sync-status.js`** tightened (Quick 260506-dyb side-effect) — reports counter now matches `REPORT-*.md` files only (excludes per-area views).
+- **Bootstrap-token publish path deprecated** in active workflow. `release.yml`'s OIDC path is now the canonical publish route since Trusted Publishing is configured at https://www.npmjs.com/package/@webventures/testatlas/access. The legacy NPM_TOKEN repo secret is no longer used; documented as "remove from repo secrets after first OIDC publish" in `docs/RELEASE.md`.
 
-### Removed
+### Notes
 
-- All "Phase X ships this", "(deferred to v2)", "(coming in Phase X)", and "Phase X not yet installed" framings from tracked `.md` content. Post-v1.0 framing is now consistent across `README.md`, the 12 `docs/*.md`, the 30 command files, and the 18 adapter trees.
+- **Phase 9 + dogfood-loop work shipped at v1.0.0** (per Option A release decision on 2026-05-06). The original `[Unreleased]` Phase 9 content (subagent-spawn capability, sub-agent orchestration on 4 umbrella commands + 11 sub-explorers, cross-reference integrity test, E2E pipeline harness, 18-adapter capability matrix, post-GA framing cleanup) effectively shipped in the v1.0.0 tag at commit `8962859` and is recorded under `[1.0.0]`. This `[Unreleased]` section tracks only post-v1.0.0 dogfood-loop work.
+- **Dogfood loop closure** (post-v1.0.0). The framework was tested end-to-end against itself: `/atlas:test-flow --all` against the 26-scenario matrix (RUN-20260505T233506Z) produced 25 passes / 1 environmental block (publishing-release-provenance — unblocks at v1.1.0 via OIDC + sigstore). Six self-bugs surfaced + fixed + filed (ISSUE-024..029); zero observed-but-unrecorded bugs remain in the framework's own surface; readiness verdict naturally READY (0 blockers · 0 open critical/high · 5 open issues all medium/low/triaged).
+- **Test count delta v1.0.0 → v1.1.0:** 1071 → 1141 (+70 net new across 6 Quicks).
 
 ## [1.0.0] - 2026-05-04
 
@@ -42,12 +53,27 @@ First production GA release. Closes Phase 8 (examples + auto-doc generators + GA
 - **Examples** (Phase 8): 5 example workspaces — `nextjs-saas` (EX-01), `node-api` (EX-02), `cli-tool` Aider-only (EX-03 + EX-07), `monorepo` (EX-04), `mobile-web-hybrid` (EX-05). `scripts/regenerate-example.js` deterministic-replay engine. `example-script.schema.json` (19th schema). CI matrix runs `regenerate-example --check` + `validate-workspace` per example on every PR (closes EX-06 + VAL-02). `--all-workspaces` flag for monorepo orchestration.
 - **Auto-generated docs** (Phase 8): `docs/COMMANDS.md` (auto-generated from `.testatlas/commands/*.md`, 30 sections, drift-detected in CI); `docs/SCHEMAS.md` (auto-generated from `.testatlas/schemas/*.schema.json`, 19 sections); `examples/README.md` gallery; `docs/MONOREPO.md` documenting the hybrid pattern; final GA README structure.
 - **Pre-flight checks** (Phase 8): `scripts/check-org-placeholder.js` greps for the literal angle-bracketed `org` placeholder string and exits non-zero if any are found in active code (excludes `node_modules`, `.git`, `.planning`, `dist`, `build`, `coverage`, `.next`, `.expo`, `.testatlas.bak.*`).
+- **Phase 9 — Agentic Workflow Completeness Audit + Sub-Agent Orchestration.** Closes the post-v1.0 agentic completeness work surfaced after GA across 5 plans (09-01 through 09-05).
+- `subagent-spawn` capability vocabulary entry (6th entry; locked) — declared in `vocabulary.json` `$defs/capability` and consumed by `command-instruction.schema.json` and `adapter-capabilities.schema.json` via `$ref`.
+- `bootstrap.md` Capability Degradation block + per-host invocation table covering all 18 adapters with their canonical 2026 sub-agent invocation pattern.
+- `## Sub-Agent Orchestration` blocks on the 4 umbrella commands (`/atlas:explore`, `/atlas:plan`, `/atlas:test-flow`, `/atlas:consolidate`) — parallel sub-agent spawning when host capability is available, sequential-fallback otherwise.
+- `## Sub-Agent Task Brief Contract` sections on the 11 sub-explorer commands so they work both as parallel children of an umbrella and as standalone slash invocations.
+- `## What's Next` tail navigation on all 30 command files + `README.md` + `docs/GETTING_STARTED.md` + `docs/INSTALL.md` + `docs/UPDATE.md`.
+- Cross-reference integrity test (`test/agentic/cross-reference-integrity.test.js`) gating the test suite — every `/atlas:NAME` mention, every relative `.md` link, every schema `$id` URL must resolve to a real file on disk.
+- E2E pipeline harness `scripts/e2e/run-node-api-graph.js` exercising the full command graph (init → explore → map-domains → plan → test-flow → report) in both `parallel-subagents` and `sequential-fallback` modes against `examples/node-api/`. Companion env-gated tests (`TESTATLAS_E2E=1`) at `test/agentic/e2e-pipeline.test.js`.
 
 ### Changed
 
 - First production release. The previous `0.1.0` baseline (Phase 7 closure) is collapsed into this `1.0.0` entry — every artifact landed by Phases 1–7 is part of the v1.0.0 surface.
 - `package.json#version`: `0.1.0` → `1.0.0`. The repo also collapsed the prior `0.1.0-pre` and `0.1.0` markers; `1.0.0` is the first version that ships to npm.
 - The angle-bracketed GitHub-org placeholder (the pre-GA stand-in) finalized to `testatlas-dev` across `package.json`, `install.sh`, `install.js`, `scripts/lib/constants.js`, `scripts/lib/update-check.js`, README, and the docs gallery.
+- 9 adapters now declare `subagent-spawn` in `.testatlas/adapters/adapter-capabilities.json` (claude-code, opencode, kilocode, codex, gemini-cli, github-copilot, cline, kiro, sourcegraph-amp). The other 9 (cursor, continue-dev, aider, generic, mcp, windsurf, roo-code, zed, amazon-q) remain documented as no-spawn (sequential-fallback only).
+- `.testatlas/templates/canonical/03_execution_status.md` "Next Highest-Value Steps" rewritten to use the canonical command graph (`/atlas:explore` → `/atlas:map-domains` → `/atlas:plan`) instead of legacy never-implemented command names that previously appeared there.
+- Eight explorer/map-domains commands updated to reference the canonical `01_system_map.md` instead of the never-bootstrapped `01_app_inventory.md`.
+
+### Removed
+
+- All "Phase X ships this", "(deferred to v2)", "(coming in Phase X)", and "Phase X not yet installed" framings from tracked `.md` content. Post-v1.0 framing is now consistent across `README.md`, the 12 `docs/*.md`, the 30 command files, and the 18 adapter trees.
 
 ### Notes
 
