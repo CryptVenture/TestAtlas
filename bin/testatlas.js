@@ -281,6 +281,10 @@ program
   .option('--auto-heal', 'Apply safe auto-heals (HEAL-01..04). Writes by default.')
   .option('--dry-run', 'Preview mode: do not write reports or autoheal changes')
   .option('--apply', '(deprecated: redundant when --auto-heal is set; will be removed in v2)')
+  .option(
+    '--apply-suggestions',
+    'Apply suggestion-tier heals (HEAL-05 missing-evidence-ref, HEAL-06 additional-property strip). Implies --auto-heal.',
+  )
   .option('--json', 'Emit the JSON report to stdout instead of the markdown report')
   .option('--output <file>', 'Write the markdown report to <file> + JSON to <file>.json')
   .option('--only <ids>', 'Comma-separated list of check ids to run (e.g. schemas,broken-links)')
@@ -294,6 +298,7 @@ program
       '  $ testatlas validate --json                   # machine-readable JSON to stdout',
       '  $ testatlas validate --auto-heal              # repair safely-fixable findings in place',
       '  $ testatlas validate --auto-heal --dry-run    # preview heals without writing',
+      '  $ testatlas validate --apply-suggestions      # apply HEAL-05 + HEAL-06 (implies --auto-heal)',
       '  $ testatlas validate --output report.md       # write markdown + JSON report files',
       '',
     ].join('\n'),
@@ -317,19 +322,26 @@ program
     const rawArgv = process.argv.slice(2);
     const userPassedApply = rawArgv.includes('--apply');
     const userPassedDryRun = rawArgv.includes('--dry-run');
+    // Quick 260506-vaq: --apply-suggestions implies --auto-heal so the
+    // autoheal loop runs at all. Mirrors the runCli flip in
+    // scripts/validate-workspace.js.
+    const applySuggestions = Boolean(opts.applySuggestions);
+    let autoHeal = Boolean(opts.autoHeal);
+    if (applySuggestions && !autoHeal) autoHeal = true;
     let apply = Boolean(opts.apply);
-    if (opts.autoHeal && !userPassedDryRun && !userPassedApply) {
+    if (autoHeal && !userPassedDryRun && !userPassedApply) {
       apply = true; // bare --auto-heal → apply
     }
-    if (opts.autoHeal && userPassedApply) {
+    if (autoHeal && userPassedApply) {
       process.stderr.write(
         'testatlas validate: --apply is now redundant when --auto-heal is set; remove it from your invocation.\n',
       );
     }
     const result = await validateWorkspace({
       cwd: target,
-      autoHeal: Boolean(opts.autoHeal),
+      autoHeal,
       apply,
+      applySuggestions,
       dryRun: Boolean(opts.dryRun),
       only,
       report: opts.output,

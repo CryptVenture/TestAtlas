@@ -92,9 +92,13 @@ async function loadChecks() {
  *   dryRun?: boolean,
  *   autoHeal?: boolean,
  *   apply?: boolean,
+ *   applySuggestions?: boolean,
  *   only?: string[],
  *   report?: string,
  * }} [opts]
+ *   `applySuggestions` enables HEAL-05 + HEAL-06 (suggestion tier). Implies
+ *   `autoHeal` (the runCli entry-point and `bin/testatlas.js validate` flip
+ *   `autoHeal` to true when this is set so the autoheal loop runs at all).
  * @param {{
  *   assertNotUpdate?: typeof assertNotUpdate,
  *   loadChecks?: typeof loadChecks,
@@ -116,6 +120,7 @@ export async function validateWorkspace(
     dryRun = false,
     autoHeal = false,
     apply = false,
+    applySuggestions = false,
     only,
     report,
   } = {},
@@ -181,7 +186,7 @@ export async function validateWorkspace(
   let healed;
   let postHealResults;
   if (autoHeal) {
-    healed = await _autoheal(results, ctx, { dryRun, apply });
+    healed = await _autoheal(results, ctx, { dryRun, apply, applySuggestions });
 
     // If --apply landed actual writes, the workspace state has changed.
     // Re-walk + re-load manifest + re-run CHECKS so downstream consumers
@@ -268,6 +273,8 @@ async function runCli(argv) {
       opts.autoHeal = true;
     } else if (a === '--apply') {
       opts.apply = true;
+    } else if (a === '--apply-suggestions') {
+      opts.applySuggestions = true;
     } else if (a === '--only' || a.startsWith('--only=')) {
       const v = a.startsWith('--only=') ? a.slice('--only='.length) : argv[++i];
       opts.only = v
@@ -292,6 +299,8 @@ async function runCli(argv) {
           '  --auto-heal            Apply safe auto-heals (HEAL-01..04). Writes by default.',
           '  --dry-run              Preview mode: do not write reports or autoheal changes.',
           '  --apply                (deprecated: redundant when --auto-heal is set; will be removed in v2)',
+          '  --apply-suggestions    Apply suggestion-tier heals (HEAL-05 missing-evidence-ref,',
+          '                         HEAL-06 additional-property strip). Implies --auto-heal.',
           '  --only=<id[,id...]>    Run only the listed checks (e.g. check-schemas)',
           '  --report=<path>        Write markdown report to <path> + JSON to <path>.json',
           '  --help                 Show this message',
@@ -302,6 +311,14 @@ async function runCli(argv) {
       console.error(`validate-workspace: unknown argument "${a}"`);
       process.exit(2);
     }
+  }
+
+  // Quick 260506-vaq: --apply-suggestions implies --auto-heal. Flip BEFORE
+  // the GAP-1 block so the existing apply default-flip then promotes apply
+  // to true automatically (i.e. `--apply-suggestions` alone is enough — no
+  // need to type `--auto-heal --apply-suggestions`).
+  if (opts.applySuggestions && !opts.autoHeal) {
+    opts.autoHeal = true;
   }
 
   // GAP-1: --auto-heal applies by default. --dry-run inverts to preview.

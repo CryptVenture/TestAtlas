@@ -39,7 +39,7 @@
 // HEAL-02 / HEAL-03 are filled by Task 2; this file initially ships HEAL-01
 // + HEAL-04 + the dispatch + the NEVER-heal classifier.
 
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from '../atomic-write.js';
 import { hashContent } from '../content-hash.js';
@@ -631,6 +631,365 @@ function dispatch(finding) {
   }
 }
 
+// ─── HEAL-05: Missing evidence ref (suggestion-tier; gated by --apply-suggestions) ─
+//
+// Two strategies share a single handler:
+//
+//   Strategy A — Drop a dangling EVIDENCE-id:
+//     Trigger: finding.message matches /Evidence reference "([^"]+)" → ([A-Z]+-[A-Za-z0-9-]+) does not resolve/
+//     Action: read parent artifact JSON, splice the offending entry from
+//             `.evidence[]`, atomicWrite back. Other entries are byte-preserved.
+//
+//   Strategy B — Promote a path-form ref to a real EVIDENCE-NNN:
+//     Trigger: finding.message matches /Evidence reference "([^"]+)" is not in EVID-\* form/
+//     Action: if the resolved file exists on disk, allocate next EVIDENCE-NNN,
+//             move the file into evidence/EVIDENCE-NNN-<slug>/, write a
+//             schema-valid `evidence.json` sidecar (AJV-validated BEFORE
+//             writing — refuse on validation failure), then rewrite the parent
+//             artifact's `.evidence[]` entry from the original path string to
+//             the new EVIDENCE-NNN-<slug> id.
+//             If the file does NOT exist, fall back to Strategy A semantics
+//             (drop the entry).
+//
+// Defense-in-depth: this handler is ONLY invoked from autoHealFindings when
+// the caller passes applySuggestions=true. The NEVER-heal map still records
+// `skipped` entries when the caller does not opt in.
+
+const STRATEGY_A_RE = /Evidence reference "([^"]+)" → ([A-Za-z0-9-]+) does not resolve/;
+const STRATEGY_B_RE = /Evidence reference "([^"]+)" is not in EVID-\* form/;
+
+/**
+ * Build a slug from a basename. Strips extension, lowercases, replaces
+ * non-alphanumeric runs with `-`, trims leading/trailing dashes. Returns
+ * "evidence" if the result would otherwise be empty.
+ *
+ * @param {string} basename
+ * @returns {string}
+ */
+function slugFromBasename(basename) {
+  const ext = path.extname(basename);
+  const stem = ext ? basename.slice(0, -ext.length) : basename;
+  const slug = stem
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'evidence';
+}
+
+/**
+ * Find the next available EVIDENCE-NNN id by scanning the workspace's
+ * `evidence/` directory. Returns a 3-digit zero-padded numeric portion.
+ *
+ * @param {string} wsDir
+ * @returns {Promise<string>} e.g. "002"
+ */
+async function nextEvidenceNumber(wsDir) {
+  const evidenceDir = path.join(wsDir, 'evidence');
+  let entries = [];
+  try {
+    entries = await readdir(evidenceDir, { withFileTypes: true });
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  let max = 0;
+  for (const e of entries) {
+    if (!e.isDirectory()) continue;
+    const m = e.name.match(/^EVIDENCE-(\d+)/);
+    if (m) {
+      const n = Number.parseInt(m[1], 10);
+      if (Number.isFinite(n) && n > max) max = n;
+    }
+  }
+  return String(max + 1).padStart(3, '0');
+}
+
+/**
+ * Drop a single entry from a parent artifact's `.evidence[]` array. Reads
+ * the file fresh from disk (avoids stale ctx.files), preserves all other
+ * entries byte-for-byte, and atomicWrite's the result.
+ *
+ * @param {string} absPath  Absolute path to parent artifact JSON
+ * @param {string} originalRef  The exact string entry to remove (string-equality match)
+ * @param {boolean} wrote  Whether to actually write (false => preview)
+ * @returns {Promise<{matched: boolean, ownerObj: object | null}>}
+ */
+async function dropEvidenceEntry(absPath, originalRef, wrote) {
+  const text = await readFile(absPath, 'utf8');
+  const obj = JSON.parse(text);
+  if (!Array.isArray(obj.evidence)) {
+    return { matched: false, ownerObj: obj };
+  }
+  const idx = obj.evidence.indexOf(originalRef);
+  if (idx === -1) {
+    return { matched: false, ownerObj: obj };
+  }
+  obj.evidence.splice(idx, 1);
+  if (wrote) {
+    await atomicWrite(absPath, `${JSON.stringify(obj, null, 2)}\n`);
+  }
+  return { matched: true, ownerObj: obj };
+}
+
+/**
+ * Apply HEAL-05 (suggestion-tier) for a TESTATLAS_MISSING_EVIDENCE_REF finding.
+ *
+ * @param {object} ctx
+ * @param {object} finding
+ * @param {{apply: boolean, dryRun: boolean}} mode
+ * @returns {Promise<{healId: 'HEAL-05', path: string, wrote: boolean, summary: string} | null>}
+ */
+async function applyHeal05(ctx, finding, { apply, dryRun }) {
+  const { wsDir } = ctx;
+  const ownerRel = finding.path;
+  const ownerAbs = path.join(wsDir, ownerRel);
+  const wrote = apply && !dryRun;
+
+  // Strategy A — dangling EVIDENCE-id.
+  const aMatch = STRATEGY_A_RE.exec(String(finding.message ?? ''));
+  if (aMatch) {
+    const originalRef = aMatch[1];
+    let result;
+    try {
+      result = await dropEvidenceEntry(ownerAbs, originalRef, wrote);
+    } catch (_err) {
+      return null;
+    }
+    if (!result.matched) return null;
+    return {
+      healId: 'HEAL-05',
+      path: ownerRel,
+      wrote,
+      summary: `dropped dangling evidence ref "${originalRef}" from ${ownerRel}`,
+    };
+  }
+
+  // Strategy B — path-form ref. Resolve the file; if it doesn't exist, fall
+  // back to Strategy A semantics. If it does exist, promote it to an
+  // EVIDENCE-NNN sidecar layout.
+  const bMatch = STRATEGY_B_RE.exec(String(finding.message ?? ''));
+  if (!bMatch) return null;
+  const originalRef = bMatch[1];
+  const resolvedAbs = path.join(wsDir, originalRef);
+
+  let fileExists = false;
+  try {
+    const st = await stat(resolvedAbs);
+    fileExists = st.isFile();
+  } catch (_err) {
+    fileExists = false;
+  }
+
+  if (!fileExists) {
+    // Strategy A fallback — drop the entry.
+    let result;
+    try {
+      result = await dropEvidenceEntry(ownerAbs, originalRef, wrote);
+    } catch (_err) {
+      return null;
+    }
+    if (!result.matched) return null;
+    return {
+      healId: 'HEAL-05',
+      path: ownerRel,
+      wrote,
+      summary: `dropped unresolvable evidence ref "${originalRef}" from ${ownerRel} (file not on disk)`,
+    };
+  }
+
+  // File exists — Strategy B happy path: allocate next EVIDENCE-NNN, move
+  // file, write sidecar, rewrite parent.
+  const basename = path.basename(resolvedAbs);
+  const slug = slugFromBasename(basename);
+  const num = await nextEvidenceNumber(wsDir);
+  const newId = `EVIDENCE-${num}-${slug}`;
+  const newDirRel = `evidence/${newId}`;
+  const newFileRel = `${newDirRel}/${basename}`;
+  const newDirAbs = path.join(wsDir, newDirRel);
+  const newFileAbs = path.join(wsDir, newFileRel);
+  const sidecarAbs = path.join(newDirAbs, 'evidence.json');
+
+  // Build the sidecar object. NOTE: schema requires `capturedOn` (NOT
+  // `capturedAt`) and `environment`. additionalProperties=false on the
+  // schema means we must NOT include any extra keys.
+  const sidecar = {
+    $schema: 'https://testatlas.dev/schemas/v1/evidence.schema.json',
+    id: newId,
+    type: 'file',
+    path: newFileRel,
+    capturedOn: now(),
+    environment: 'auto-heal',
+    description: 'Auto-promoted from path-form evidence reference by HEAL-05',
+    redacted: false,
+  };
+
+  // AJV-validate BEFORE any write. Refuse the heal on validation failure.
+  const validator = ctx.ajv?.getSchema?.('https://testatlas.dev/schemas/v1/evidence.schema.json');
+  if (!validator?.(sidecar)) {
+    return null;
+  }
+
+  if (wrote) {
+    let buf;
+    try {
+      buf = await readFile(resolvedAbs);
+    } catch (_err) {
+      return null;
+    }
+    await mkdir(newDirAbs, { recursive: true });
+    await atomicWrite(newFileAbs, buf);
+    // Capability tag: assertCapability(_, 'destructive-fs'). The unlink
+    // removes the user's original file at `evidence/<scratch>/<basename>`
+    // AFTER atomicWrite of the new EVIDENCE-NNN-<slug>/<basename> succeeded.
+    // HEAL-05 is gated on `--apply-suggestions` opt-in + apply=true (caller
+    // intent) so the destructive move is owner-authorized; the .catch is a
+    // soft-fail to keep the heal idempotent on best-effort cleanup.
+    await unlink(resolvedAbs).catch(() => {});
+    await atomicWrite(sidecarAbs, `${JSON.stringify(sidecar, null, 2)}\n`);
+
+    // Rewrite parent: replace originalRef with newId.
+    const text = await readFile(ownerAbs, 'utf8');
+    const ownerObj = JSON.parse(text);
+    if (Array.isArray(ownerObj.evidence)) {
+      const idx = ownerObj.evidence.indexOf(originalRef);
+      if (idx !== -1) {
+        ownerObj.evidence[idx] = newId;
+        await atomicWrite(ownerAbs, `${JSON.stringify(ownerObj, null, 2)}\n`);
+      }
+    }
+  }
+
+  return {
+    healId: 'HEAL-05',
+    path: ownerRel,
+    wrote,
+    summary: `promoted "${originalRef}" → ${newId} (sidecar + ${ownerRel}.evidence rewritten)`,
+  };
+}
+
+// ─── HEAL-06: Strip additionalProperties violations (suggestion-tier) ────────
+//
+// Trigger: finding.code === 'TESTATLAS_SCHEMA_VIOLATION'.
+//
+// Scope is INTENTIONALLY narrow. The check-schemas finding message is built
+// by formatErrors() in scripts/lib/ajv-instance.js as
+//   `<sourceFile>: <instancePath>: <message> (offending property: "<name>")`
+// joined by `'; '`. HEAL-06:
+//   1. Splits the message body on `'; '` to get one segment per AJV violation.
+//   2. For each segment, requires BOTH `must NOT have additional properties`
+//      AND `(offending property: "..."` to be present. If ANY segment fails
+//      this BOTH-check, returns null (refusal — mixed violations are unsafe
+//      to auto-fix; the user should review).
+//   3. Extracts every property name via global regex.
+//   4. For each property, deletes it from the parsed JSON's TOP LEVEL only.
+//      If the AJV instancePath surfaced is non-`/` (i.e., the violation is
+//      nested), refuses (returns null). Real-world fixtures place
+//      additionalProperties at the top level; we keep this conservative.
+
+const HEAL06_OFFENDING_RE = /\(offending property: "([^"]+)"\)/g;
+
+/**
+ * Apply HEAL-06 (suggestion-tier) for a TESTATLAS_SCHEMA_VIOLATION finding
+ * caused by additionalProperties violations only.
+ *
+ * @param {object} ctx
+ * @param {object} finding
+ * @param {{apply: boolean, dryRun: boolean}} mode
+ * @returns {Promise<{healId: 'HEAL-06', path: string, wrote: boolean, summary: string} | null>}
+ */
+async function applyHeal06(ctx, finding, { apply, dryRun }) {
+  if (finding.code !== 'TESTATLAS_SCHEMA_VIOLATION') return null;
+  const { wsDir } = ctx;
+  const relPath = finding.path;
+  const absPath = path.join(wsDir, relPath);
+  const wrote = apply && !dryRun;
+
+  // formatErrors prefixes the message with `Schema validation failed: ` —
+  // strip that to get the joined error segments.
+  const raw = String(finding.message ?? '');
+  const body = raw.replace(/^Schema validation failed:\s*/, '');
+  const segments = body.split('; ').filter(Boolean);
+  if (segments.length === 0) return null;
+
+  // Every segment must be an additionalProperties violation. Each segment
+  // includes the file's relPath + instancePath + message + offending-property
+  // suffix. We match BOTH tokens. If any segment fails the test, refuse.
+  for (const seg of segments) {
+    if (
+      !seg.includes('must NOT have additional properties') ||
+      !seg.includes('(offending property: "')
+    ) {
+      return null;
+    }
+    // instancePath token: the segment is shaped as
+    // `<relPath>: <instancePath>: <message>`. Top-level instancePath is `/`.
+    // Refuse on nested instancePaths to keep this conservative.
+    // Pattern: `${relPath}: ${instancePath}: must NOT have additional properties`
+    const instMatch = seg.match(/:\s*(\/[^:]*?):\s*must NOT have additional properties/);
+    if (!instMatch) return null;
+    const inst = instMatch[1].trim();
+    if (inst !== '/' && inst !== '') return null;
+  }
+
+  // Extract every offending property name (global regex, multi-segment safe).
+  const props = [];
+  for (const m of body.matchAll(HEAL06_OFFENDING_RE)) {
+    props.push(m[1]);
+  }
+  if (props.length === 0) return null;
+
+  // Sanity: every segment should have produced exactly one offending-property
+  // token. If counts mismatch, refuse.
+  if (props.length !== segments.length) return null;
+
+  let obj;
+  try {
+    const text = await readFile(absPath, 'utf8');
+    obj = JSON.parse(text);
+  } catch (_err) {
+    return null;
+  }
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+
+  let dropped = 0;
+  for (const p of props) {
+    if (Object.hasOwn(obj, p)) {
+      delete obj[p];
+      dropped += 1;
+    }
+  }
+  if (dropped === 0) return null;
+
+  if (wrote) {
+    await atomicWrite(absPath, `${JSON.stringify(obj, null, 2)}\n`);
+  }
+
+  return {
+    healId: 'HEAL-06',
+    path: relPath,
+    wrote,
+    summary: `stripped ${dropped} additionalProperties: ${props.join(', ')}`,
+  };
+}
+
+/**
+ * Pick a suggestion-tier handler for a given finding code, or null if none
+ * applies. Mirrors `dispatch()` for the HEAL-01..04 tier; kept separate so
+ * the existing tier's behavior is byte-identical when applySuggestions=false.
+ *
+ * @param {object} finding
+ * @returns {Function | null}
+ */
+function dispatchSuggestion(finding) {
+  switch (finding.code) {
+    case 'TESTATLAS_MISSING_EVIDENCE_REF':
+      return applyHeal05;
+    case 'TESTATLAS_SCHEMA_VIOLATION':
+      return applyHeal06;
+    default:
+      return null;
+  }
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
@@ -640,14 +999,18 @@ function dispatch(finding) {
  *
  * @param {Array<{findings: object[]}>} results
  * @param {{wsDir: string, files: object, manifest: object|null}} ctx
- * @param {{dryRun?: boolean, apply?: boolean}} [opts]
+ * @param {{dryRun?: boolean, apply?: boolean, applySuggestions?: boolean}} [opts]
+ *   `applySuggestions=true` enables the suggestion-tier handlers (HEAL-05 for
+ *   `TESTATLAS_MISSING_EVIDENCE_REF`, HEAL-06 for `TESTATLAS_SCHEMA_VIOLATION`
+ *   additionalProperties only). Default false; when false, those codes still
+ *   land in the NEVER-heal `skipped` list (defense-in-depth — map untouched).
  * @returns {Promise<{
  *   applied: Array<{healId: string, path: string, summary: string}>,
  *   skipped: Array<{reason: string, path: string, code: string}>
  * }>}
  */
 export async function autoHealFindings(results, ctx, opts = {}) {
-  const { dryRun = false, apply = false } = opts;
+  const { dryRun = false, apply = false, applySuggestions = false } = opts;
   const applied = [];
   const skipped = [];
 
@@ -713,6 +1076,31 @@ export async function autoHealFindings(results, ctx, opts = {}) {
         });
       }
       continue;
+    }
+
+    // Suggestion tier (HEAL-05 / HEAL-06). Gated on applySuggestions=true.
+    // Runs BEFORE the NEVER-heal fallback so a successful heal removes the
+    // finding from the loop. On null (refusal) we fall through to the
+    // NEVER-heal fallback so the user still sees the canonical skipped entry.
+    if (applySuggestions === true) {
+      const sugg = dispatchSuggestion(finding);
+      if (sugg) {
+        try {
+          const result = await sugg(ctx, finding, { apply, dryRun });
+          if (result) {
+            applied.push(result);
+            continue;
+          }
+          // null → fall through to NEVER-heal fallback below.
+        } catch (err) {
+          skipped.push({
+            reason: `suggestion handler threw: ${err.code ?? 'ERROR'} — ${err.message}`,
+            path: finding.path,
+            code: finding.code,
+          });
+          continue;
+        }
+      }
     }
 
     // fixable !== 'auto' — check the NEVER-heal list.
