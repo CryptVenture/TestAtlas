@@ -283,7 +283,9 @@ node scripts/bump-version.js --minor --release
 | `--skip-gates` | Skip pre-bump gates (`pnpm test` + `check-adapter-parity --strict` + `validate-workspace`). Discouraged. |
 | `--push` | Push commit + tag to origin after local commit/tag. |
 | `--release` | Push + `gh release create` (fires `release.yml`). The canonical Trusted Publishing path. |
-| `--wait` | With `--release`: poll the workflow until success/failure (10-min timeout). |
+| `--wait` | With `--release` or `--resume`: poll the workflow until success/failure (10-min timeout, head-sha-filtered). |
+| `--resume <tag>` | Recovery mode. Re-fires `release.yml` against an existing tag without re-bumping. See [Recovery](#recovery----resume-tag) below. |
+| `--force` | With `--resume`: bypass the "commit reachable from origin/main" check (cherry-pick recovery). |
 | `--publish` | **Deprecated.** Local `npm publish` (bootstrap-only fallback). Prefer `--release`. |
 | `--github-release` | Legacy bare GH release creation (use `--release` instead). |
 
@@ -330,7 +332,55 @@ For CI orchestration, combine `--release --wait`:
 node scripts/bump-version.js --minor --release --wait
 ```
 
-`--wait` polls `gh run list --workflow=release.yml --limit 1 --json status,conclusion,databaseId,url` every 15 seconds. On success it prints `✓ Published @webventures/testatlas@X.Y.Z to npm + GH release assets attached.` and exits 0. On failure it prints the run ID + log command and exits non-zero. Timeout is 10 minutes.
+`--wait` polls `gh run list --workflow=release.yml --head-sha <SHA> --limit 1 --json status,conclusion,databaseId,url` every 15 seconds. The `--head-sha` filter (Quick 260506-ilm) ensures the polled run is the one this invocation just triggered — without it, the previous release's failed run could be returned during the 3-5sec window before the new run becomes API-visible. The script first does a 30-second find-retry to locate the new run, then polls it to completion.
+
+On success it prints `✓ Published @webventures/testatlas@X.Y.Z via OIDC.` and exits 0. On failure it prints the run ID + log command and exits non-zero. Timeout is 10 minutes.
+
+### Recovery — `--resume <tag>`
+
+Use when a release got into a half-state: tag pushed + commit on main + GH release page exists, but npm publish failed (Trusted Publisher misconfiguration, transient registry error, etc.) and assets not yet attached.
+
+```sh
+node scripts/bump-version.js --resume v1.1.0 --wait
+```
+
+What it does:
+
+1. Validates `<tag>` matches `v<MAJOR>.<MINOR>.<PATCH>[-<pre>]` (semver tag with optional pre-release suffix).
+2. Validates the tag exists on origin (`git ls-remote --tags origin <tag>`).
+3. Validates the tag's commit is reachable from `origin/main` (`git merge-base --is-ancestor`). Bypassable with `--force` for cherry-pick scenarios. Soft-skipped if `origin/main` is not present locally.
+4. Probes `https://registry.npmjs.org/@webventures/testatlas/<version>` — refuses with `Already published. v<version> is live on npm; nothing to resume.` if the registry returns 200.
+5. Confirms a GH release page exists (`gh release view <tag>`); proceeds whether assets are attached or not.
+6. Triggers `release.yml` via `gh workflow run release.yml -f dry-run=false --ref <tag>` (workflow_dispatch path).
+7. With `--wait`: polls the new run via head-sha-filtered `findReleaseRunForSha` until completion (10-min timeout, 30-sec find-retry).
+
+Refuses to combine with bump flags or `--release` / `--publish` (`--resume` is its own mode).
+
+#### Common scenarios
+
+- **Trusted Publisher config error.** The first publish failed because npm's Trusted Publisher config didn't list this repo + workflow. Fix the config at `https://www.npmjs.com/package/<pkg>/access`, then `--resume`.
+- **Transient registry 5xx.** Just `--resume` — the workflow re-attempts the publish.
+- **install.sh sync didn't run.** `--resume` re-fires the full workflow including post-publish install.sh sync.
+
+#### Cannot recover from
+
+- **Already-published version.** If npm returns 200 for the version, `--resume` refuses — re-publishing would create a sigstore double-signing collision. Use `--patch --release` (or `--minor` / `--major`) to publish a new version instead.
+- **Missing tag on origin.** Tag must exist on origin; if missing, use `--patch --release` (full bump).
+
+#### Dry-run preview
+
+```sh
+node scripts/bump-version.js --resume v1.1.0 --dry-run
+# Resume mode: v1.1.0 (1.1.0)
+#
+# State detection:
+#   ✓ tag exists at commit 2255229
+#   ✓ commit reachable from main
+#   ✗ npm: @webventures/testatlas@1.1.0 NOT published (registry returns 404)
+#   ✓ GH release page exists (0 assets)
+#
+# [dry-run] Would run: gh workflow run release.yml -f dry-run=false --ref v1.1.0
+```
 
 ### End-to-end example
 
