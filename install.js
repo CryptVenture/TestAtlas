@@ -11,19 +11,26 @@
 // its own beyond argv parsing. Both this entry and `bin/testatlas.js init`
 // converge on `runInit` from the kernel.
 
+import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { program } from 'commander';
 
+import { renderBanner } from './scripts/lib/banner.js';
 import { palette, symbol } from './scripts/lib/colors.js';
 import { ALL_ADAPTERS, runInit } from './scripts/lib/install-core.js';
 
 // Suite root is the directory this file lives in.
 const SUITE_ROOT = import.meta.dirname;
+const PKG_PATH = path.join(SUITE_ROOT, 'package.json');
+const pkg = JSON.parse(await readFile(PKG_PATH, 'utf8'));
 
 program
   .name('install.js')
   .description('Install TestAtlas (git-clone path).')
+  .version(pkg.version)
+  .addHelpText('beforeAll', () => renderBanner({ version: pkg.version }))
+  .showHelpAfterError()
   .argument('[target]', 'Target repo directory (default: cwd, or $HOME with --global)')
   .option('--all-adapters', `Install all ${ALL_ADAPTERS.length} adapters regardless of detection`)
   .option('--force', 'Overwrite existing .testatlas/ (preserves _testatlas/)')
@@ -46,6 +53,10 @@ program
     ].join('\n'),
   )
   .action(async (targetArg, opts) => {
+    // Render the brand banner before kicking off the install. `renderBanner`
+    // self-gates on colorEnabled / isUnicode, so NO_COLOR / NO_UNICODE /
+    // non-TTY flow through automatically.
+    process.stdout.write(renderBanner({ version: pkg.version }));
     const isGlobal = Boolean(opts.global);
     // Argument default falls back to cwd; in --global mode, prefer $HOME if
     // the caller didn't pass an explicit positional target.
