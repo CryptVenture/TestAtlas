@@ -13,6 +13,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Command } from 'commander';
+import { renderBanner } from './lib/banner.js';
 import { runUpdate } from './lib/update-core.js';
 
 const PKG_PATH = path.join(import.meta.dirname, '..', 'package.json');
@@ -23,6 +24,9 @@ async function cliMain() {
   program
     .name('testatlas-update')
     .description('Self-update the TestAtlas suite (atomic stage → migrate → swap → backup)')
+    .version(pkg.version)
+    .addHelpText('beforeAll', () => renderBanner({ version: pkg.version }))
+    .showHelpAfterError()
     .option('--target <dir>', 'Target repo (default: cwd)')
     .option('--force-reinstall', 'Re-extract latest even when current version matches')
     .option('--dry-run', 'Print planned actions; do not write')
@@ -34,6 +38,9 @@ async function cliMain() {
     .parse(process.argv);
 
   const opts = program.opts();
+  // Brand polish: show banner at the top of the action flow (matches the
+  // bin/testatlas.js + install.js pattern). Self-gates on color/unicode env.
+  process.stdout.write(renderBanner({ version: pkg.version }));
   const target = path.resolve(opts.target ?? process.cwd());
   const result = await runUpdate({
     target,
