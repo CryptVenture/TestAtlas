@@ -1,6 +1,6 @@
 {
   "name": "testatlas",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "capabilities": {
     "prompts": {
       "listChanged": false
