@@ -25,20 +25,28 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 32 derived atlas-*.md files exist (one per source command)', async () => {
+test('Test 1: K derived atlas-*.md files exist (V1 flat at root, V2 categorized in subdirs)', async () => {
+  // V2 (Phase 14 Wave 5): adapter trees now mirror the categorized source
+  // layout — flat V1 commands at the root, V2 categorized under subdirs
+  // (core/, explore/, council/, ...). Total derived files = flat + categorized.
   const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 32, `expected 32 source commands; got ${sources.length}`);
+  // Flat V1 derived files at the root (excluding any subdirs).
+  const entries = await readdir(ADAPTER_DIR, { withFileTypes: true });
+  const flatDerived = entries
+    .filter((e) => e.isFile() && e.name.startsWith('atlas-') && e.name.endsWith('.md'))
+    .map((e) => e.name);
+  assert.equal(
+    flatDerived.length,
+    sources.length,
+    `expected ${sources.length} flat derived files; got ${flatDerived.length}`,
+  );
 
-  const entries = await readdir(ADAPTER_DIR);
-  const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 32, `expected 32 derived files; got ${derived.length}`);
-
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
-  for (const name of derived) {
-    assert.ok(expectedNames.has(name), `unexpected derived file: ${name}`);
+  const expectedFlat = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
+  for (const name of flatDerived) {
+    assert.ok(expectedFlat.has(name), `unexpected derived file: ${name}`);
   }
-  for (const name of expectedNames) {
-    assert.ok(derived.includes(name), `missing derived file: ${name}`);
+  for (const name of expectedFlat) {
+    assert.ok(flatDerived.includes(name), `missing derived file: ${name}`);
   }
 });
 

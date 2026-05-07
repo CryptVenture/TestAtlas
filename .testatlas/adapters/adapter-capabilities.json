@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/adapter-capabilities.schema.json",
-  "version": "1.2.6",
+  "version": "1.3.0",
   "adapters": [
     {
       "name": "claude-code",
@@ -15,7 +15,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file"
     },
@@ -31,7 +34,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Generic prompts live under ~/.config/testatlas/prompts/. Paste any one into your agent of choice."
@@ -49,7 +54,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file"
     },
@@ -66,7 +74,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file"
     },
@@ -82,7 +93,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file"
     },
@@ -95,7 +108,9 @@
       "fileExtension": ".md",
       "capabilities": [
         "shell",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "concatenated-conventions",
       "globalNotes": "Aider doesn't auto-discover global conventions. Add `aider --read ~/.config/aider/CONVENTIONS.md` to your shell alias or `~/.aider.conf.yml`."
@@ -112,7 +127,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "mcp-server",
       "globalNotes": "MCP clients are configured per-app (Claude Desktop, Cursor MCP, etc.). Point them at `node ~/.config/testatlas/scripts/mcp-server.js` after `--global` install."
@@ -130,7 +147,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Codex auto-discovers prompts at ~/.codex/prompts/ (set $CODEX_HOME to override). Files invoke as /prompts:atlas-<name>."
@@ -148,7 +168,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Gemini CLI auto-discovers TOML commands at ~/.gemini/commands/. Run /commands reload (or restart) after install. Files invoke as /atlas-<name>."
@@ -166,7 +189,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Cline workflows are slash-invoked WITH the .md extension (e.g. `/atlas-init.md`). Workflows live in `.clinerules/workflows/` per project; the global config dir is OS-dependent so we use `~/.config/cline/workflows/` as a portable default — set `cline.workflowsPath` in your IDE settings to point there."
@@ -182,7 +208,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Windsurf has no documented global workflow path; project-local install is the only supported mode."
@@ -200,7 +228,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Kiro skills are flat-file `~/.kiro/skills/atlas-<name>.md`. Slash-invoke as /atlas-<name>."
@@ -217,7 +248,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Continue auto-discovers `~/.continue/prompts/`. Slash-invoke as /atlas-<name> in Chat / Plan / Agent modes."
@@ -234,7 +267,9 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "GitHub Copilot has no documented global filesystem path for prompts; --global skips. For machine-wide steering, edit `github.copilot.chat.codeGeneration.instructions` in VS Code user settings manually."
@@ -252,7 +287,10 @@
         "web-fetch",
         "MCP",
         "file-write",
-        "subagent-spawn"
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "per-command-file",
       "globalNotes": "Amp walks AGENTS.md from cwd up to $HOME; per-command files in `~/.agents/commands/` are the practical global path."
@@ -269,10 +307,12 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "concatenated-conventions",
-      "globalNotes": "Roo concatenates all `.roo/rules/*.md` into the system prompt alphabetically. The single `atlas.md` file lists all 30 atlas commands in collapsed form (one short H2 each, ≤7 lines body)."
+      "globalNotes": "Roo concatenates all `.roo/rules/*.md` into the system prompt alphabetically. The single `atlas.md` file lists all atlas commands (V1 + V2 categorized) in collapsed form (one short H2 each, ≤7 lines body)."
     },
     {
       "name": "zed",
@@ -285,7 +325,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "concatenated-conventions",
       "globalNotes": "Zed has no file-installable global rules path; --global skips. For machine-wide rules, use Zed's UI Rules Library."
@@ -302,7 +344,9 @@
         "shell",
         "web-fetch",
         "MCP",
-        "file-write"
+        "file-write",
+        "brain-sync",
+        "persona-context"
       ],
       "renderStrategy": "concatenated-conventions",
       "globalNotes": "Amazon Q project rules live at `.amazonq/rules/`; user prompt library at `~/.aws/amazonq/prompts/`. Q auto-applies rules; not slash-invokable."

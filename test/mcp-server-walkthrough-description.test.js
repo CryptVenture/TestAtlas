@@ -32,6 +32,7 @@ const MANIFEST_PATH = path.join(
 );
 
 const UI_TOUCHING_PROMPTS = [
+  // V1 UI-touching commands (Phase 13 walkthrough discipline).
   'atlas-explore-ui',
   'atlas-explore-accessibility',
   'atlas-explore-performance',
@@ -39,6 +40,15 @@ const UI_TOUCHING_PROMPTS = [
   'atlas-test-domain',
   'atlas-test-accessibility',
   'atlas-test-performance',
+  // V2 UI-touching explorers (Phase 14 Wave 3 — same Phase 13 walkthrough
+  // discipline propagated). These explore UI components, routes, states,
+  // errors, and security/privacy behavior via mandatory chrome-devtools-mcp
+  // walkthroughs when available.
+  'atlas-explore-components',
+  'atlas-explore-errors',
+  'atlas-explore-routes',
+  'atlas-explore-security-privacy',
+  'atlas-explore-state',
 ];
 
 async function loadManifest() {

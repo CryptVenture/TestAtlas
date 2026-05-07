@@ -35,7 +35,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { hashContent } from '../content-hash.js';
-import { listCommandFiles } from '../list-command-files.js';
+import { listCategorizedCommandFiles, listCommandFiles } from '../list-command-files.js';
 import { parseAdapterMarker } from './_shared.js';
 import { renderAider } from './render-aider.js';
 import { renderAmazonQ } from './render-amazon-q.js';
@@ -130,10 +130,18 @@ const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabiliti
  * @param {string} commandBaseName e.g. 'init'
  * @returns {string} absolute path
  */
-function expectedPathFor(repoRoot, adapter, commandBaseName) {
+function expectedPathFor(repoRoot, adapter, commandBaseName, category = null) {
   const rel = adapter.outputPattern.includes('{command}')
     ? adapter.outputPattern.replace('{command}', commandBaseName)
     : adapter.outputPattern;
+  if (category && adapter.outputPattern.includes('{command}')) {
+    // V2 (Phase 14 Wave 5): nest categorized commands under a category subdir
+    // to mirror the source `.testatlas/commands/<category>/<name>.md` layout.
+    const dir = path.dirname(rel);
+    const base = path.basename(rel);
+    const nested = dir === '.' ? path.join(category, base) : path.join(dir, category, base);
+    return path.join(repoRoot, adapter.outputDir, nested);
+  }
   return path.join(repoRoot, adapter.outputDir, rel);
 }
 
@@ -150,8 +158,8 @@ function expectedPathFor(repoRoot, adapter, commandBaseName) {
  * @returns {Promise<DriftEntry | null>} null when the obligation is satisfied
  */
 async function classifyOne(ctx) {
-  const { repoRoot, adapter, commandBaseName, sourcePath, sourceText } = ctx;
-  const expectedPath = expectedPathFor(repoRoot, adapter, commandBaseName);
+  const { repoRoot, adapter, commandBaseName, sourcePath, sourceText, category = null } = ctx;
+  const expectedPath = expectedPathFor(repoRoot, adapter, commandBaseName, category);
 
   let derivedText;
   try {
@@ -198,7 +206,9 @@ async function classifyOne(ctx) {
   // A mismatched marker.source is a strong "wrong file at this path" signal —
   // surface as no-marker (the right marker is missing).
   if (adapter.renderStrategy === 'per-command-file') {
-    const expectedSourceRel = `commands/${commandBaseName}.md`;
+    const expectedSourceRel = category
+      ? `commands/${category}/${commandBaseName}.md`
+      : `commands/${commandBaseName}.md`;
     if (marker.source !== expectedSourceRel) {
       return {
         kind: 'no-marker',
@@ -274,13 +284,21 @@ async function classifyAider({ repoRoot, adapter, sources }) {
   const marker = parseAdapterMarker(derivedText);
   if (!marker || marker.source !== 'commands/_aggregate') return 'no-marker';
 
-  const perSource = sources.map((s) => hashContent(s.sourceText));
+  // V2 (Phase 14 Wave 5): match the renderer's sourcePath-sort before computing
+  // the aggregate hash so parity stays byte-stable as the source set grows.
+  const sortedSources = [...sources].sort((a, b) =>
+    a.sourcePath < b.sourcePath ? -1 : a.sourcePath > b.sourcePath ? 1 : 0,
+  );
+  const perSource = sortedSources.map((s) => hashContent(s.sourceText));
   const aggregateHash = hashContent(perSource.join(''));
   if (marker.hash !== aggregateHash) return 'hash-mismatch';
 
   // Layer-2: re-render and byte-compare.
   const fresh = renderAider({
-    sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
+    sources: sortedSources.map((s) => ({
+      sourcePath: s.sourcePath,
+      sourceText: s.sourceText,
+    })),
     adapterCaps: adapter.capabilities,
   });
   if (fresh.conventions !== derivedText) return 'hand-edit';
@@ -386,12 +404,21 @@ async function classifyConcatenatedRules({ repoRoot, adapter, sources, render })
   const marker = parseAdapterMarker(derivedText);
   if (!marker || marker.source !== 'commands/_aggregate') return 'no-marker';
 
-  const perSource = sources.map((s) => hashContent(s.sourceText));
+  // V2 (Phase 14 Wave 5): the renderers sort by sourcePath before computing the
+  // aggregate hash; mirror that here so the parity hash matches byte-for-byte
+  // regardless of what order parity received its sources in.
+  const sortedSources = [...sources].sort((a, b) =>
+    a.sourcePath < b.sourcePath ? -1 : a.sourcePath > b.sourcePath ? 1 : 0,
+  );
+  const perSource = sortedSources.map((s) => hashContent(s.sourceText));
   const aggregateHash = hashContent(perSource.join(''));
   if (marker.hash !== aggregateHash) return 'hash-mismatch';
 
   const fresh = render({
-    sources: sources.map((s) => ({ sourcePath: s.sourcePath, sourceText: s.sourceText })),
+    sources: sortedSources.map((s) => ({
+      sourcePath: s.sourcePath,
+      sourceText: s.sourceText,
+    })),
     adapterCaps: adapter.capabilities,
   });
   if (fresh.rules !== derivedText) return 'hand-edit';
@@ -439,14 +466,30 @@ export async function enumerate({ repoRoot = process.cwd() } = {}) {
   /** @type {AdapterEntry[]} */
   const adapters = caps.adapters;
 
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  const sourceTexts = await Promise.all(
-    sources.map(async (sp) => ({
-      sourcePath: sp,
-      commandBaseName: path.basename(sp, '.md'),
-      sourceText: await readFile(sp, 'utf8'),
-    })),
-  );
+  // V2 (Phase 14 Wave 5): merge flat V1 commands and V2 categorized commands.
+  // Each record carries its `category` (null for flat) so per-command-file
+  // adapters can compute nested output paths and the marker source-rel check
+  // can match `commands/<category>/<name>.md`.
+  const flatSources = await listCommandFiles({ cwd: repoRoot });
+  const categorized = await listCategorizedCommandFiles({ cwd: repoRoot });
+  const sourceTexts = [
+    ...(await Promise.all(
+      flatSources.map(async (sp) => ({
+        sourcePath: sp,
+        commandBaseName: path.basename(sp, '.md'),
+        sourceText: await readFile(sp, 'utf8'),
+        category: /** @type {string|null} */ (null),
+      })),
+    )),
+    ...(await Promise.all(
+      categorized.map(async (c) => ({
+        sourcePath: c.absPath,
+        commandBaseName: c.basename,
+        sourceText: await readFile(c.absPath, 'utf8'),
+        category: c.category,
+      })),
+    )),
+  ];
 
   /** @type {DriftEntry[]} */
   const drift = [];
@@ -484,6 +527,7 @@ export async function enumerate({ repoRoot = process.cwd() } = {}) {
         commandBaseName: src.commandBaseName,
         sourcePath: src.sourcePath,
         sourceText: src.sourceText,
+        category: src.category,
       });
       if (entry) drift.push(entry);
     }

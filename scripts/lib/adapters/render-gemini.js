@@ -25,7 +25,7 @@
 import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE } from './_shared.js';
+import { BOOTSTRAP_PREAMBLE, sourceRelFromAbs } from './_shared.js';
 
 function stripExistingPreamble(body) {
   const sentinelRe = /^Before doing anything else:\s*$/m;
@@ -94,7 +94,13 @@ export function renderGemini({ sourceText, sourcePath }) {
   // Marker envelope — emit by hand because wrapInAdapterEnvelope writes
   // the canonical `<!-- ... -->\n<body>\n<!-- ... -->\n` form which is
   // also what we want here. We just escape the result for TOML embedding.
-  const sourceRel = `commands/${cmdName}.md`;
+  // V2 (Phase 14 Wave 5): source paths now include category subdirs for
+  // categorized commands (commands/core/...), so use sourceRelFromAbs to
+  // derive the canonical marker `source` attribute.
+  const fullSourceRel = sourceRelFromAbs(sourcePath);
+  const sourceRel = fullSourceRel.startsWith('.testatlas/')
+    ? fullSourceRel.slice('.testatlas/'.length)
+    : `commands/${cmdName}.md`;
   const hash = hashContent(sourceText);
   const start = `<!-- TESTATLAS:GENERATED:START section="adapter-body" source="${sourceRel}" hash="${hash}" -->`;
   const end = '<!-- TESTATLAS:GENERATED:END section="adapter-body" -->';

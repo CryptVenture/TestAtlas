@@ -49,10 +49,14 @@
 // prompt-cache budget. The error message names the offending command + the
 // observed line count so the fix is obvious.
 
-import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
+import {
+  BOOTSTRAP_PREAMBLE,
+  commandBaseNameFromSource,
+  sourceRelFromAbs,
+  wrapInAdapterEnvelope,
+} from './_shared.js';
 
 const MAX_LINES_PER_SECTION = 7;
 // Per-line length cap. Real source descriptions can run 200–300 chars; the
@@ -66,17 +70,8 @@ const MAX_LINE_LENGTH = 600;
 const LIFECYCLE_LINE =
   '- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.';
 
-/**
- * Derive the command base name (e.g. "init") from the absolute source path.
- *
- * @param {string} sourcePath
- * @returns {string}
- */
-function commandBaseName(sourcePath) {
-  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
-}
+// V2-aware command name + sourceRel derivation moved to ./_shared.js
+// (commandBaseNameFromSource, sourceRelFromAbs).
 
 /**
  * Collapse horizontal whitespace in a description while preserving line
@@ -109,17 +104,20 @@ function compressDescription(desc) {
  * }} args
  * @returns {string[]}
  */
-function buildSection({ command, description, commandCaps, adapterCaps }) {
+function buildSection({ command, description, commandCaps, adapterCaps, sourceRel }) {
   const adapterSet = new Set(adapterCaps);
   const missing = commandCaps.filter((c) => !adapterSet.has(c));
 
   const desc = compressDescription(description);
   const capsList = commandCaps.length > 0 ? commandCaps.join(', ') : 'file-write';
 
+  // sourceRel is the canonical path for the "read this file" pointer. For
+  // V1 flat commands it's `.testatlas/commands/<base>.md`; for V2 categorized
+  // it's `.testatlas/commands/<category>/<base>.md`.
   const lines = [
     `## /atlas-${command}`,
     '',
-    `${desc} Read \`.testatlas/commands/${command}.md\` for full instructions.`,
+    `${desc} Read \`${sourceRel}\` for full instructions.`,
     `- Required capabilities: ${capsList}.`,
   ];
   if (missing.length > 0) {
@@ -168,11 +166,12 @@ export function renderAider({ sources, adapterCaps = [] }) {
   for (let i = 0; i < sorted.length; i++) {
     const src = sorted[i];
     const fm = parseFrontmatter(src.sourceText);
-    const command = commandBaseName(src.sourcePath);
+    const command = commandBaseNameFromSource(src.sourcePath);
     const description = fm.description ?? '';
     const commandCaps = Array.isArray(fm.capabilities) ? fm.capabilities : [];
 
-    const section = buildSection({ command, description, commandCaps, adapterCaps });
+    const sourceRel = sourceRelFromAbs(src.sourcePath);
+    const section = buildSection({ command, description, commandCaps, adapterCaps, sourceRel });
     if (section.length > MAX_LINES_PER_SECTION) {
       throw new Error(
         `render-aider: section for "atlas-${command}" is ${section.length} lines, max ${MAX_LINES_PER_SECTION}. ` +

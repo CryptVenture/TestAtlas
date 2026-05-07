@@ -24,21 +24,20 @@
 // (≤7 lines per section, ≤600 chars per line). Aggregate hash is the
 // SHA-256/16hex of the concatenation of all 30 source-file hashes.
 
-import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
+import {
+  BOOTSTRAP_PREAMBLE,
+  commandBaseNameFromSource,
+  sourceRelFromAbs,
+  wrapInAdapterEnvelope,
+} from './_shared.js';
 
 const MAX_LINES_PER_SECTION = 7;
 const MAX_LINE_LENGTH = 600;
 
 const LIFECYCLE_LINE =
   '- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.';
-
-function commandBaseName(sourcePath) {
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
-}
 
 function compressDescription(desc) {
   return String(desc)
@@ -54,7 +53,7 @@ function compressDescription(desc) {
  * of lines (no terminators); the caller joins on '\n' and verifies the line
  * count against MAX_LINES_PER_SECTION.
  */
-function buildSection({ command, description, commandCaps, adapterCaps }) {
+function buildSection({ command, description, commandCaps, adapterCaps, sourceRel }) {
   const adapterSet = new Set(adapterCaps);
   const missing = commandCaps.filter((c) => !adapterSet.has(c));
 
@@ -64,7 +63,7 @@ function buildSection({ command, description, commandCaps, adapterCaps }) {
   const lines = [
     `## /atlas-${command}`,
     '',
-    `${desc} Read \`.testatlas/commands/${command}.md\` for full instructions.`,
+    `${desc} Read \`${sourceRel}\` for full instructions.`,
     `- Required capabilities: ${capsList}.`,
   ];
   if (missing.length > 0) {
@@ -101,11 +100,12 @@ export function renderRooCode({ sources, adapterCaps = [] }) {
   const sectionLines = [];
   for (const src of sorted) {
     const fm = parseFrontmatter(src.sourceText);
-    const command = commandBaseName(src.sourcePath);
+    const command = commandBaseNameFromSource(src.sourcePath);
     const description = fm.description ?? '';
     const commandCaps = Array.isArray(fm.capabilities) ? fm.capabilities : [];
+    const sourceRel = sourceRelFromAbs(src.sourcePath);
 
-    const section = buildSection({ command, description, commandCaps, adapterCaps });
+    const section = buildSection({ command, description, commandCaps, adapterCaps, sourceRel });
     if (section.length > MAX_LINES_PER_SECTION) {
       throw new Error(
         `render-roo-code: section for "atlas-${command}" is ${section.length} lines, max ${MAX_LINES_PER_SECTION}. ` +

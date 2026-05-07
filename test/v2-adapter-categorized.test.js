@@ -199,7 +199,10 @@ test('Test 8: every adapter outputDir contains the expected number of V2 files',
       adapter.name,
       path.dirname(adapter.outputPattern),
     );
-    const found = await countMdRecursive(baseDir);
+    // Each adapter's outputPattern dictates the extension; some are `.md`,
+    // others `.mdc` (cursor), `.toml` (gemini-cli), `.prompt.md` (continue,
+    // github-copilot). We accept any file under the per-adapter outputDir.
+    const found = await countFilesRecursive(baseDir);
     assert.equal(
       found,
       expectedPerCmd,
@@ -208,7 +211,7 @@ test('Test 8: every adapter outputDir contains the expected number of V2 files',
   }
 });
 
-async function countMdRecursive(dir) {
+async function countFilesRecursive(dir) {
   let count = 0;
   let entries;
   try {
@@ -219,8 +222,8 @@ async function countMdRecursive(dir) {
   }
   for (const e of entries) {
     if (e.isDirectory()) {
-      count += await countMdRecursive(path.join(dir, e.name));
-    } else if (e.isFile() && (e.name.endsWith('.md') || e.name.endsWith('.mdc'))) {
+      count += await countFilesRecursive(path.join(dir, e.name));
+    } else if (e.isFile()) {
       count += 1;
     }
   }

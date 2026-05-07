@@ -33,10 +33,11 @@
 //     adapter is populated; the parity gate requires `coverage === 1.0` AND
 //     `drift.length === 0` against the live tree.
 //
-// The matrix is 32 commands × N adapters expected obligations, where N is
-// the count declared in adapter-capabilities.json. The expected count is
-// computed dynamically from the live result (not hard-coded) so adding a
-// new adapter doesn't require updating this assertion. Tests 2–6 below
+// The matrix is K commands × N adapters expected obligations, where K is
+// the union of flat V1 + V2 categorized commands and N is the adapter count
+// declared in adapter-capabilities.json. K is computed dynamically from the
+// live source tree so adding a new V1 command, a new V2 categorized command,
+// or a new adapter does not require updating this assertion. Tests 2–6 below
 // operate on tmp-tree mutations and exercise drift detection independently
 // of the strict happy-path assertion.
 
@@ -72,14 +73,21 @@ async function makeTmpRepo() {
 
 test('Test 1: live tree — strict mode: coverage === 1.0 AND drift.length === 0', async () => {
   // Strict mode active as of Plan 06-05. Every shipped adapter must be
-  // populated; every 32 commands × N adapters obligation must be satisfied;
+  // populated; every K commands × N adapters obligation must be satisfied;
   // drift of any kind (missing / no-marker / hash-mismatch / hand-edit)
-  // fails the gate.
+  // fails the gate. K = flat V1 + V2 categorized command count.
   const result = await enumerate({ repoRoot });
-  // expected = 32 × adapter count; with 18 shipped adapters today this is 576.
+  // expected = K × adapter count. The exact value moves whenever the source
+  // tree grows; assert it's a positive multiple of the live adapter count.
+  const { readFile } = await import('node:fs/promises');
+  const capsRaw = await readFile(
+    path.join(repoRoot, '.testatlas', 'adapters', 'adapter-capabilities.json'),
+    'utf8',
+  );
+  const adapterCount = JSON.parse(capsRaw).adapters.length;
   assert.ok(
-    result.expected > 0 && result.expected % 32 === 0,
-    `expected obligations must be a positive multiple of 32; got ${result.expected}`,
+    result.expected > 0 && result.expected % adapterCount === 0,
+    `expected obligations must be a positive multiple of ${adapterCount}; got ${result.expected}`,
   );
   assert.strictEqual(
     result.found,

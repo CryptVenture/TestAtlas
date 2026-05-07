@@ -36,7 +36,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE } from './lib/adapters/_shared.js';
+import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource } from './lib/adapters/_shared.js';
 import { listCommandFiles } from './lib/list-command-files.js';
 import { extractFrontmatter, parseFrontmatter } from './lib/parse-frontmatter.js';
 
@@ -83,13 +83,17 @@ function resolveWorkspaceRoot() {
  * @returns {Promise<{ name: string, description: string, sourcePath: string, body: string, sourceText: string }[]>}
  */
 async function loadPromptCatalog(repoRoot) {
-  const sources = await listCommandFiles({ cwd: repoRoot });
+  // V2 (Phase 14 Wave 5): include both flat V1 commands and V2 categorized
+  // commands. The V2 prompt name is derived via commandBaseNameFromSource so
+  // categorized commands carry their category prefix where needed (e.g.
+  // `atlas-core-init` distinct from flat `atlas-init`).
+  const sources = await listCommandFiles({ cwd: repoRoot, includeCategorized: true });
   const records = await Promise.all(
     sources.map(async (sp) => {
       const sourceText = await readFile(sp, 'utf8');
       const fm = parseFrontmatter(sourceText);
       const { body } = extractFrontmatter(sourceText);
-      const baseName = path.basename(sp, '.md');
+      const baseName = commandBaseNameFromSource(sp);
       return {
         name: `atlas-${baseName}`,
         description: String(fm.description ?? '').trim(),

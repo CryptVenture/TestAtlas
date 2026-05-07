@@ -43,7 +43,7 @@ import { renderWindsurf } from './lib/adapters/render-windsurf.js';
 import { renderZed } from './lib/adapters/render-zed.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
-import { listCommandFiles } from './lib/list-command-files.js';
+import { listCategorizedCommandFiles, listCommandFiles } from './lib/list-command-files.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const ADAPTER_CAPS_PATH = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
@@ -125,17 +125,33 @@ async function loadAdapters(cwd) {
 /**
  * Compute the absolute output path for a single command in a given adapter.
  *
+ * V2 (Phase 14 Wave 5): when `category` is provided (categorized command from
+ * `.testatlas/commands/<category>/<name>.md`), the output is nested under a
+ * matching category subdirectory so the adapter tree mirrors the source
+ * categorization. Example for claude-code:
+ *   flat   `commands/init.md`             → `.claude/commands/atlas-init.md`
+ *   core   `commands/core/status.md`      → `.claude/commands/core/atlas-status.md`
+ *   council `commands/council/council.md` → `.claude/commands/council/atlas-council.md`
+ *
  * @param {string} workspace
  * @param {AdapterEntry} adapter
  * @param {string} commandBaseName  filename without extension, e.g. "init"
+ * @param {string|null} [category]  V2 category subdir (core/explore/council/...) or null for flat
  * @returns {string}
  */
-function computeOutputPath(workspace, adapter, commandBaseName) {
+function computeOutputPath(workspace, adapter, commandBaseName, category = null) {
   const pattern = adapter.outputPattern ?? `atlas-${commandBaseName}.md`;
   // Pattern can be either "{command}" templated (per-command) or static
   // (concatenated/manifest strategies — those don't go through the
   // per-command write loop and are handled by their own renderer).
   const rel = pattern.replace('{command}', commandBaseName);
+  if (category) {
+    // Insert the category dir between dirname(pattern) and basename(pattern).
+    const dir = path.dirname(rel);
+    const base = path.basename(rel);
+    const nested = dir === '.' ? path.join(category, base) : path.join(dir, category, base);
+    return path.join(workspace, adapter.outputDir, nested);
+  }
   return path.join(workspace, adapter.outputDir, rel);
 }
 
@@ -286,7 +302,10 @@ function amazonQMultiRenderer({ sources, adapterCaps, workspace, adapter }) {
  * @returns {Promise<{ written: string[], unchanged: string[], drift: string[] }>}
  */
 async function runMultiSourceAdapter({ adapter, workspace, check, multiRender }) {
-  const sourcePaths = await listCommandFiles({ cwd: workspace });
+  // V2 (Phase 14 Wave 5): include both flat AND categorized command sources.
+  // Concatenated/manifest renderers consume the full set in one pass; the
+  // expected aggregate-hash and prompt list grow naturally.
+  const sourcePaths = await listCommandFiles({ cwd: workspace, includeCategorized: true });
   const sources = await Promise.all(
     sourcePaths.map(async (sp) => ({ sourcePath: sp, sourceText: await readFile(sp, 'utf8') })),
   );
@@ -340,16 +359,41 @@ async function runMultiSourceAdapter({ adapter, workspace, check, multiRender })
  * @returns {Promise<{ written: string[], unchanged: string[], drift: string[] }>}
  */
 async function runOneAdapter({ adapter, workspace, check, render }) {
-  const sources = await listCommandFiles({ cwd: workspace });
+  // Flat V1 commands first (preserves V1 output paths byte-for-byte).
+  const flatPaths = await listCommandFiles({ cwd: workspace });
+  // V2 categorized commands (Phase 14 Wave 5): each renders into
+  // `<outputDir>/.../<category>/atlas-<basename><ext>`.
+  const categorized = await listCategorizedCommandFiles({ cwd: workspace });
+
   const written = [];
   const unchanged = [];
   const drift = [];
 
-  for (const sourcePath of sources) {
-    const sourceText = await readFile(sourcePath, 'utf8');
-    const baseName = path.basename(sourcePath, '.md');
-    const outPath = computeOutputPath(workspace, adapter, baseName);
-    const rendered = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
+  // Combined enumeration: flat commands carry no category; categorized carry
+  // their subdir name. The renderer is called identically — only the output
+  // path differs.
+  /** @type {{ sourcePath: string, baseName: string, category: string | null }[]} */
+  const items = [
+    ...flatPaths.map((sp) => ({
+      sourcePath: sp,
+      baseName: path.basename(sp, '.md'),
+      category: null,
+    })),
+    ...categorized.map((c) => ({
+      sourcePath: c.absPath,
+      baseName: c.basename,
+      category: c.category,
+    })),
+  ];
+
+  for (const item of items) {
+    const sourceText = await readFile(item.sourcePath, 'utf8');
+    const outPath = computeOutputPath(workspace, adapter, item.baseName, item.category);
+    const rendered = render({
+      sourceText,
+      sourcePath: item.sourcePath,
+      adapterCaps: adapter.capabilities,
+    });
 
     let existing = null;
     try {

@@ -40,7 +40,7 @@ Squash issue duplicates per triage groupings; inherit highest severity + lowest-
 
 ## /atlas:explore-accessibility
 
-Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP.
+Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.
 
 **Capabilities:** `browser`, `MCP`, `file-write`
 
@@ -110,7 +110,7 @@ Map auth, payments, email, analytics, storage, webhooks, and feature-flag integr
 
 ## /atlas:explore-performance
 
-Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP.
+Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP.
 
 **Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 
@@ -140,7 +140,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 ## /atlas:explore-ui
 
-Map routes, components, forms, modals, all PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, and accessibility basics using Chrome DevTools MCP — degrade to code reading when MCP unavailable.
+Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
 **Capabilities:** `browser`, `MCP`, `file-write`
 
@@ -230,7 +230,7 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 
 ## /atlas:test-accessibility
 
-Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
+Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
 
 **Capabilities:** `browser`, `MCP`, `file-write`
 
@@ -250,7 +250,7 @@ Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-do
 
 ## /atlas:test-domain
 
-Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode.
+Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode.
 
 **Capabilities:** `shell`, `file-write`
 
@@ -260,9 +260,9 @@ Execute domain-scoped test scenarios across PRD §26 modes (negative / state / i
 
 ## /atlas:test-flow
 
-Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13.
+Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13.
 
-**Capabilities:** `shell`, `browser`, `file-write`
+**Capabilities:** `shell`, `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/test-flow.md)
 
@@ -270,7 +270,7 @@ Execute scenarios from tests/matrix.json against the running target product, cap
 
 ## /atlas:test-performance
 
-Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings.
+Execute performance-typed scenarios via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight, emulate); assert PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with perf findings.
 
 **Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 

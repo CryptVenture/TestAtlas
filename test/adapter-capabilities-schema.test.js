@@ -45,9 +45,10 @@ const EXPECTED_ADAPTERS = new Set([
   'zed',
   'amazon-q',
 ]);
-// Plan 09-02 (locked) extends the capability vocabulary from 5 to 6 entries
-// by adding "subagent-spawn". The Set is the canonical vocab guard for the
-// schema-validity loop below.
+// Plan 09-02 (locked) extended the capability vocabulary from 5 to 6 entries
+// by adding "subagent-spawn". Phase 14 Wave 5 (V2) extends to 9 entries with
+// council-orchestration, brain-sync, persona-context. The Set is the
+// canonical vocab guard for the schema-validity loop below.
 const CAPABILITY_VOCAB = new Set([
   'browser',
   'shell',
@@ -55,6 +56,9 @@ const CAPABILITY_VOCAB = new Set([
   'MCP',
   'file-write',
   'subagent-spawn',
+  'council-orchestration',
+  'brain-sync',
+  'persona-context',
 ]);
 const RENDER_STRATEGIES = new Set(['per-command-file', 'concatenated-conventions', 'mcp-server']);
 
@@ -128,18 +132,27 @@ test('Test 5: adapter capability sets per spec', async () => {
   const data = JSON.parse(await readFile(CAPS_PATH, 'utf8'));
   const byName = Object.fromEntries(data.adapters.map((a) => [a.name, a]));
 
-  // claude-code: all 6 capabilities (canonical) — Plan 09-02 added subagent-spawn
+  // V2 (Phase 14 Wave 5): claude-code declares all 9 capabilities (canonical
+  // V2 multi-agent host).
   const cc = byName['claude-code'].capabilities;
-  assert.equal(cc.length, 6, 'claude-code declares all 6 capabilities (incl. subagent-spawn)');
+  assert.equal(cc.length, 9, `claude-code declares all 9 capabilities (V1 + V2); got ${cc.length}`);
   for (const cap of CAPABILITY_VOCAB) assert.ok(cc.includes(cap), `claude-code missing ${cap}`);
 
-  // aider: [shell, file-write] only
+  // aider: V1 [shell, file-write] + V2 [brain-sync, persona-context].
   const aider = byName.aider.capabilities.slice().sort();
-  assert.deepEqual(aider, ['file-write', 'shell']);
+  assert.deepEqual(aider, ['brain-sync', 'file-write', 'persona-context', 'shell']);
 
-  // mcp: [browser, shell, web-fetch, MCP, file-write]
+  // mcp: V1 [browser, shell, web-fetch, MCP, file-write] + V2 [brain-sync, persona-context].
   const mcp = byName.mcp.capabilities.slice().sort();
-  assert.deepEqual(mcp, ['MCP', 'browser', 'file-write', 'shell', 'web-fetch']);
+  assert.deepEqual(mcp, [
+    'MCP',
+    'brain-sync',
+    'browser',
+    'file-write',
+    'persona-context',
+    'shell',
+    'web-fetch',
+  ]);
 });
 
 test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07-01, 19th from Plan 08-01)', async () => {
@@ -148,13 +161,20 @@ test('Test 6: schema-loader auto-discovers schema #17 (and the 18th from Plan 07
     .filter((e) => e.isFile() && e.name.endsWith('.schema.json'))
     .map((e) => e.name);
   // Plan 06-01 added the 17th schema (adapter-capabilities). Plan 07-01 added the
-  // 18th (install-manifest). Plan 08-01 adds the 19th (example-script).
-  // Plan 08-02 adds the 20th (matrix).
-  // Future schema additions bump this count.
-  assert.equal(
-    schemaFiles.length,
-    20,
-    `expected 20 schemas after matrix.schema.json; got ${schemaFiles.length}`,
+  // 18th (install-manifest). Plan 08-01 added the 19th (example-script).
+  // Plan 08-02 added the 20th (matrix). Phase 14 (V2) adds many more
+  // (persona, council_session, transcript, claim, decision, drift_record,
+  // dashboard_data, sub-agent-handoff, retest_pack, quality_score, risk,
+  // assumption, etc.). The schema set is open for additive growth — this
+  // test asserts the floor (V1 baseline is 20) and that adapter-capabilities
+  // is auto-registered.
+  assert.ok(
+    schemaFiles.length >= 20,
+    `expected ≥20 schemas (V1 baseline); got ${schemaFiles.length}`,
+  );
+  assert.ok(
+    schemaFiles.includes('adapter-capabilities.schema.json'),
+    'adapter-capabilities.schema.json must be present',
   );
   // And loadAllSchemas registers the adapter-capabilities schema without error.
   const ajv = await loadAllSchemas({ cwd: repoRoot });

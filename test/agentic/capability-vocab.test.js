@@ -21,8 +21,10 @@ const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
 const ADAPTERS_PATH = path.join(REPO_ROOT, '.testatlas', 'adapters', 'adapter-capabilities.json');
 
-// Locked canonical 6-entry capability set (09-CONTEXT.md decisions section).
-// Order matters: the existing 5 first, "subagent-spawn" appended last.
+// Phase 14 Wave 5 (V2): canonical capability set extends from 6 to 9.
+// V1 entries (browser, shell, web-fetch, MCP, file-write, subagent-spawn) are
+// retained; V2 adds council-orchestration, brain-sync, persona-context. Order
+// matters — V2 entries are appended after the V1 set.
 const EXPECTED_CAPABILITIES = [
   'browser',
   'shell',
@@ -30,6 +32,9 @@ const EXPECTED_CAPABILITIES = [
   'MCP',
   'file-write',
   'subagent-spawn',
+  'council-orchestration',
+  'brain-sync',
+  'persona-context',
 ];
 
 // The 9 adapters that MUST declare subagent-spawn (09-RESEARCH.md table).
@@ -62,7 +67,7 @@ async function readJson(p) {
   return JSON.parse(await readFile(p, 'utf8'));
 }
 
-test('vocabulary.json declares the 6-entry capability enum (subagent-spawn included)', async () => {
+test('vocabulary.json declares the 9-entry capability enum (V1 6 + V2 council-orchestration/brain-sync/persona-context)', async () => {
   const vocab = await readJson(VOCAB_PATH);
   assert.ok(vocab.$defs && typeof vocab.$defs === 'object', 'vocabulary.json must define $defs');
   assert.ok(

@@ -16,7 +16,54 @@
 // output. The renderer is a pure function of (sourceText, sourcePath-relative
 // to .testatlas/) — Pitfall 3 in 06-RESEARCH.md.
 
+import path from 'node:path';
 import { hashContent } from '../content-hash.js';
+
+/**
+ * Derive the canonical adapter-facing command name from a source command's
+ * absolute path. V1 flat commands at `.testatlas/commands/<name>.md` produce
+ * just `<name>`. V2 categorized commands at `.testatlas/commands/<category>/<name>.md`
+ * are prefixed with the category to disambiguate from the V1 namespace —
+ * UNLESS the basename is the category itself (e.g. `council/council.md` →
+ * `council`, not `council-council`) or already starts with the category as
+ * a hyphen-segment (e.g. `council/council-domain-review.md` →
+ * `council-domain-review`, not `council-council-domain-review`).
+ *
+ * Used by every multi-source adapter renderer (aider, mcp, roo-code, zed,
+ * amazon-q) and any per-command-file renderer that needs a unique slot name.
+ *
+ * @param {string} sourcePath
+ * @returns {string}
+ */
+export function commandBaseNameFromSource(sourcePath) {
+  const file = path.basename(sourcePath);
+  const base = file.endsWith('.md') ? file.slice(0, -3) : file;
+  const posix = sourcePath.replace(/\\/g, '/');
+  const m = posix.match(/\.testatlas\/commands\/([^/]+)\/[^/]+\.md$/);
+  if (!m) return base;
+  const category = m[1];
+  if (base === category || base.startsWith(`${category}-`)) return base;
+  return `${category}-${base}`;
+}
+
+/**
+ * Derive the source-relative path (e.g. `.testatlas/commands/council/council.md`)
+ * used for the "read this file for full instructions" pointer in concatenated
+ * adapter outputs. V2-aware: preserves the category subdir when present.
+ *
+ * @param {string} sourcePath
+ * @returns {string}
+ */
+export function sourceRelFromAbs(sourcePath) {
+  const posix = sourcePath.replace(/\\/g, '/');
+  const idx = posix.lastIndexOf('.testatlas/');
+  if (idx === -1) {
+    const file = path.basename(sourcePath);
+    const base = file.endsWith('.md') ? file.slice(0, -3) : file;
+    return `.testatlas/commands/${base}.md`;
+  }
+  return posix.slice(idx);
+}
 
 // PRD §23 verbatim — DO NOT modify without bumping the workspace-manifest
 // schema version. The string below matches /root/TestAtlas/prd/prd.md line

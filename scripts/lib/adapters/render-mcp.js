@@ -31,20 +31,10 @@
 // manifest is intentionally deferred to Plan 06-05 (which extends the
 // validation suite) — over-engineering for v1.
 
-import path from 'node:path';
 import { parseFrontmatter } from '../parse-frontmatter.js';
+import { commandBaseNameFromSource } from './_shared.js';
 
-/**
- * Derive the command base name (e.g. "init") from the absolute source path.
- *
- * @param {string} sourcePath
- * @returns {string}
- */
-function commandBaseName(sourcePath) {
-  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
-}
+// V2-aware command name derivation lives in ./_shared.js (commandBaseNameFromSource).
 
 /**
  * Build the MCP server manifest object. Returns the manifest as an object
@@ -73,7 +63,7 @@ export function renderMcp({ sources, version }) {
 
   const prompts = sorted.map((s) => {
     const fm = parseFrontmatter(s.sourceText);
-    const name = `atlas-${commandBaseName(s.sourcePath)}`;
+    const name = `atlas-${commandBaseNameFromSource(s.sourcePath)}`;
     const description = String(fm.description ?? '').trim();
     return { name, description, arguments: [] };
   });

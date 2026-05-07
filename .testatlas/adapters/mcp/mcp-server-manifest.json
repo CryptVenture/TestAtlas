@@ -23,6 +23,101 @@
       "arguments": []
     },
     {
+      "name": "atlas-core-bootstrap-refresh",
+      "description": "Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-brain-compact",
+      "description": "Summarize long transcripts and run logs into durable summaries; keeps the brain compact without losing decisions or evidence.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-brain-export",
+      "description": "Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for handoff, dashboards, or backup.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-brain-query",
+      "description": "Answer a question about the workspace by reading brain JSON; cite file paths for every claim.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-brain-sync",
+      "description": "Detect and reconcile drift between markdown artifacts and brain JSON indexes; orchestrates sync-markdown-json + validate-brain.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-brain-validate",
+      "description": "Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-init",
+      "description": "Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-core-status",
+      "description": "Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-brain-audit",
+      "description": "Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-bug-triage",
+      "description": "Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-design-critique",
+      "description": "Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-domain-review",
+      "description": "Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-flow-review",
+      "description": "Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-product-review",
+      "description": "Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-red-team",
+      "description": "Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-release-readiness",
+      "description": "Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-retest",
+      "description": "Retest council — personas evaluate whether a claimed fix satisfies the issue's acceptance criteria through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council-test-plan",
+      "description": "Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-council",
+      "description": "Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command.",
+      "arguments": []
+    },
+    {
       "name": "atlas-explore-accessibility",
       "description": "Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.",
       "arguments": []
@@ -80,6 +175,61 @@
     {
       "name": "atlas-explore",
       "description": "Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-all",
+      "description": "V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-brain",
+      "description": "Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing indexes, dangling cross-references, drift between markdown and JSON, orphaned evidence.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-components",
+      "description": "Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-errors",
+      "description": "Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-jobs",
+      "description": "Map background jobs, schedules, queues, retry policies, timeouts, and failure scenarios; observable via shell + log inspection; degrade to code-reading when shell unavailable.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-observability",
+      "description": "Map logging setup, metrics, alerts, and tracing — verify log generation, metric collection, alert triggers, and distributed-trace propagation. Static audit + live probe when shell available.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-release-readiness",
+      "description": "Map release artifacts, blockers, readiness state, version tags, and gates. Synthesizes signal from prior explorers into a release/no-go decision report.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-routes",
+      "description": "Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-security-privacy",
+      "description": "Map auth flows, permission boundaries, sensitive-data handling, injection risks, and privacy controls. V2 expansion of V1 explore-security with mandatory walkthrough when browser+MCP available.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-state",
+      "description": "Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-explore-tests",
+      "description": "Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available.",
       "arguments": []
     },
     {

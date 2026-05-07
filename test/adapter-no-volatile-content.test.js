@@ -51,12 +51,25 @@ async function snapshotTree(workspace) {
     'commands',
   );
   const { readdir } = await import('node:fs/promises');
-  const entries = await readdir(derivedDir);
+  // V2 (Phase 14 Wave 5): the derived tree now contains category subdirs
+  // (core/, explore/, council/, ...) so we walk recursively, keying each
+  // entry by its path relative to derivedDir.
   const result = {};
-  for (const name of entries.sort()) {
-    result[name] = await readFile(path.join(derivedDir, name), 'utf8');
-  }
+  await walkInto(derivedDir, '', result);
   return result;
+
+  async function walkInto(absDir, relPrefix, acc) {
+    const entries = await readdir(absDir, { withFileTypes: true });
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const abs = path.join(absDir, e.name);
+      const rel = relPrefix ? path.join(relPrefix, e.name) : e.name;
+      if (e.isDirectory()) {
+        await walkInto(abs, rel, acc);
+      } else if (e.isFile()) {
+        acc[rel] = await readFile(abs, 'utf8');
+      }
+    }
+  }
 }
 
 test('Test 7: TESTATLAS_VERSION env change does not alter output', async () => {

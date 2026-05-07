@@ -70,19 +70,49 @@ async function exists(p) {
  * `rmdir`. Failures (ENOTEMPTY, ENOENT) are silently ignored — this is purely
  * cosmetic.
  *
+ * V2 (Phase 14 Wave 5): also recursively cleans deeper now-empty directories
+ * under each pruning seed. The V1 version only pruned a single level (the
+ * immediate parent of each removed file); V2 categorized command outputs and
+ * V2 personas/templates/agents create deeper trees (`.testatlas/agents/personas/system/`,
+ * `.testatlas/adapters/<name>/.claude/commands/council/`, etc.) that must be
+ * walked bottom-up so an emptied leaf cascades up to its parent.
+ *
  * @param {Set<string>} dirs
  */
 async function pruneEmptyDirs(dirs) {
   const sorted = [...dirs].sort((a, b) => b.length - a.length);
   for (const d of sorted) {
-    try {
-      const entries = await readdir(d);
-      if (entries.length === 0) {
-        await rmdir(d);
-      }
-    } catch {
-      // ignore
+    await pruneTreeIfEmpty(d);
+  }
+}
+
+/**
+ * Recursively prune the directory tree rooted at `dir` bottom-up, removing
+ * any directory that becomes empty. Files (if any) are left alone — only
+ * empty subdirectories are removed. Errors are silently ignored.
+ *
+ * @param {string} dir
+ */
+async function pruneTreeIfEmpty(dir) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  for (const e of entries) {
+    if (e.isDirectory()) {
+      await pruneTreeIfEmpty(path.join(dir, e.name));
     }
+  }
+  // Re-read after recursion — children may have been pruned away.
+  try {
+    const remaining = await readdir(dir);
+    if (remaining.length === 0) {
+      await rmdir(dir);
+    }
+  } catch {
+    // ignore
   }
 }
 
@@ -180,6 +210,11 @@ export async function runUninstall(opts = {}) {
       } catch {
         // ignore
       }
+      // V2 (Phase 14 Wave 5): seed prune with the suite root so deep V2 dir
+      // trees (e.g. .testatlas/agents/personas/system, .testatlas/templates/agents)
+      // that were created during install but had every file removed by the
+      // manifest loop above are walked bottom-up and removed.
+      parentDirs.add(path.join(target, '.testatlas'));
       await pruneEmptyDirs(parentDirs);
     }
   } else {

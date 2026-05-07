@@ -59,13 +59,25 @@ async function readDerivedTree(workspaceA) {
     '.claude',
     'commands',
   );
+  // V2 (Phase 14 Wave 5): derived tree contains category subdirs (core/,
+  // explore/, council/, ...). Walk recursively, key by relative path.
   const { readdir } = await import('node:fs/promises');
-  const entries = await readdir(derivedDir);
   const result = {};
-  for (const name of entries.sort()) {
-    result[name] = await readFile(path.join(derivedDir, name), 'utf8');
-  }
+  await walk(derivedDir, '', result);
   return result;
+
+  async function walk(absDir, relPrefix, acc) {
+    const entries = await readdir(absDir, { withFileTypes: true });
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const abs = path.join(absDir, e.name);
+      const rel = relPrefix ? path.join(relPrefix, e.name) : e.name;
+      if (e.isDirectory()) {
+        await walk(abs, rel, acc);
+      } else if (e.isFile()) {
+        acc[rel] = await readFile(abs, 'utf8');
+      }
+    }
+  }
 }
 
 test('Test 6: idempotency — assembling twice produces byte-identical output', async () => {
@@ -95,11 +107,25 @@ test('Test 6: idempotency — assembling twice produces byte-identical output', 
 test('Test 6b: re-running into the same workspace writes nothing on second pass', async () => {
   const ws = await buildWorkspace();
   try {
+    // V2 (Phase 14 Wave 5): the expected count is now flat V1 + V2 categorized.
+    // Compute it dynamically from the live source tree to avoid brittle
+    // hard-codes that break whenever a command is added.
+    const { listCategorizedCommandFiles, listCommandFiles } = await import(
+      '../scripts/lib/list-command-files.js'
+    );
+    const flatCount = (await listCommandFiles({ cwd: ws })).length;
+    const categorizedCount = (await listCategorizedCommandFiles({ cwd: ws })).length;
+    const expected = flatCount + categorizedCount;
+
     const first = await assembleAdapter({ adapter: 'claude-code', workspace: ws });
     const second = await assembleAdapter({ adapter: 'claude-code', workspace: ws });
-    assert.equal(first.adapters[0].written.length, 32, 'first run writes 32 files');
+    assert.equal(first.adapters[0].written.length, expected, `first run writes ${expected} files`);
     assert.equal(second.adapters[0].written.length, 0, 'second run writes nothing');
-    assert.equal(second.adapters[0].unchanged.length, 32, 'second run reports 32 unchanged');
+    assert.equal(
+      second.adapters[0].unchanged.length,
+      expected,
+      `second run reports ${expected} unchanged`,
+    );
   } finally {
     await rm(ws, { recursive: true, force: true });
   }

@@ -6,8 +6,18 @@
   "$defs": {
     "capability": {
       "type": "string",
-      "enum": ["browser", "shell", "web-fetch", "MCP", "file-write", "subagent-spawn"],
-      "description": "Locked capability vocabulary. Hosts declare which capabilities they support; commands declare which they require; bootstrap.md documents per-host invocation. Plan 09-02 extended this to 6 entries by adding subagent-spawn."
+      "enum": [
+        "browser",
+        "shell",
+        "web-fetch",
+        "MCP",
+        "file-write",
+        "subagent-spawn",
+        "council-orchestration",
+        "brain-sync",
+        "persona-context"
+      ],
+      "description": "Locked capability vocabulary. Hosts declare which capabilities they support; commands declare which they require; bootstrap.md documents per-host invocation. Plan 09-02 extended this to 6 entries by adding subagent-spawn. Phase 14 Wave 5 (V2) added council-orchestration, brain-sync, and persona-context for the multi-agent council + brain layer."
     },
     "severity": {
       "type": "string",

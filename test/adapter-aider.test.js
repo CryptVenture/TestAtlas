@@ -32,26 +32,43 @@ const ADAPTER_DIR = path.join(repoRoot, '.testatlas', 'adapters', 'aider');
 const CONVENTIONS_PATH = path.join(ADAPTER_DIR, 'CONVENTIONS.md');
 const CONF_PATH = path.join(ADAPTER_DIR, '.aider.conf.yml');
 
-test('Test 1: CONVENTIONS.md exists and total line count ≤ 210', async () => {
+test('Test 1: CONVENTIONS.md exists and total line count ≤ K × 7 + 16 envelope/header', async () => {
+  // V2 (Phase 14 Wave 5): the file now contains both V1 flat commands + V2
+  // categorized commands. Cap is K × 7 + 16 envelope/header lines, where K =
+  // total source command count.
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
+  const flatCount = (await listCommandFiles({ cwd: repoRoot })).length;
+  const catCount = (await listCategorizedCommandFiles({ cwd: repoRoot })).length;
+  const cap = (flatCount + catCount) * 7 + 16;
   const text = await readFile(CONVENTIONS_PATH, 'utf8');
   const lines = text.split('\n');
-  assert.ok(lines.length <= 210, `CONVENTIONS.md must be ≤210 lines; got ${lines.length}`);
+  assert.ok(lines.length <= cap, `CONVENTIONS.md must be ≤${cap} lines; got ${lines.length}`);
 });
 
-test('Test 2: 32 H2 sections matching source command set', async () => {
+test('Test 2: K H2 sections matching source command set (V1 flat + V2 categorized)', async () => {
+  const { commandBaseNameFromSource } = await import('../scripts/lib/adapters/_shared.js');
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
   const text = await readFile(CONVENTIONS_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 32, `expected 32 H2 atlas-* headings; got ${headings.length}`);
 
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
+  const flat = await listCommandFiles({ cwd: repoRoot });
+  const categorized = await listCategorizedCommandFiles({ cwd: repoRoot });
+  const expected = new Set([
+    ...flat.map((p) => `atlas-${commandBaseNameFromSource(p)}`),
+    ...categorized.map((c) => `atlas-${commandBaseNameFromSource(c.absPath)}`),
+  ]);
+  assert.equal(
+    headings.length,
+    expected.size,
+    `expected ${expected.size} H2 atlas-* headings; got ${headings.length}`,
+  );
   for (const h of headings) {
-    assert.ok(expectedNames.has(h), `unexpected H2 section: /${h}`);
+    assert.ok(expected.has(h), `unexpected H2 section: /${h}`);
   }
-  for (const name of expectedNames) {
+  for (const name of expected) {
     assert.ok(headings.includes(name), `missing H2 section: /${name}`);
   }
 });
@@ -133,11 +150,14 @@ test('Test 6: single envelope wraps all sections; aggregate hash = hashContent(j
   assert.equal(marker.section, 'adapter-body');
   assert.equal(marker.source, 'commands/_aggregate');
 
-  // Recompute aggregate hash from per-source hashes (sorted order — same as
-  // listCommandFiles).
-  const sources = await listCommandFiles({ cwd: repoRoot });
+  // V2 (Phase 14 Wave 5): aggregate now spans flat + categorized sources, in
+  // the order the renderer sorts them (by sourcePath ascending).
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
+  const flat = await listCommandFiles({ cwd: repoRoot });
+  const categorized = await listCategorizedCommandFiles({ cwd: repoRoot });
+  const allPaths = [...flat, ...categorized.map((c) => c.absPath)].sort();
   const perSource = await Promise.all(
-    sources.map(async (sp) => hashContent(await readFile(sp, 'utf8'))),
+    allPaths.map(async (sp) => hashContent(await readFile(sp, 'utf8'))),
   );
   const expected = hashContent(perSource.join(''));
   assert.equal(marker.hash, expected, 'aggregate hash mismatch');

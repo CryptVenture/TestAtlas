@@ -126,7 +126,17 @@ test('Test 1 (initialize): returns capabilities.prompts.listChanged === false + 
   assert.ok(resp.result.serverInfo?.version);
 });
 
-test('Test 2 (prompts/list): returns 32 entries with shape { name: "atlas-<cmd>", description: <non-empty> }', async () => {
+test('Test 2 (prompts/list): returns K entries (V1 flat + V2 categorized) with shape { name: "atlas-<cmd>", description: <non-empty> }', async () => {
+  // V2 (Phase 14 Wave 5): the MCP server now exposes both flat V1 commands
+  // and V2 categorized commands as prompts; the count is computed from the
+  // live source tree so adding a command does not require updating this test.
+  const { listCategorizedCommandFiles, listCommandFiles } = await import(
+    '../scripts/lib/list-command-files.js'
+  );
+  const flat = (await listCommandFiles({ cwd: process.cwd() })).length;
+  const cat = (await listCategorizedCommandFiles({ cwd: process.cwd() })).length;
+  const expected = flat + cat;
+
   const responses = await rpc([
     {
       jsonrpc: '2.0',
@@ -143,7 +153,7 @@ test('Test 2 (prompts/list): returns 32 entries with shape { name: "atlas-<cmd>"
   const listResp = responses.find((r) => r.id === 2);
   assert.ok(listResp, `expected response with id=2; got: ${JSON.stringify(responses)}`);
   assert.ok(Array.isArray(listResp.result?.prompts), 'result.prompts must be an array');
-  assert.equal(listResp.result.prompts.length, 32, 'must return exactly 32 prompts');
+  assert.equal(listResp.result.prompts.length, expected, `must return exactly ${expected} prompts`);
   for (const p of listResp.result.prompts) {
     assert.match(p.name, /^atlas-/, `each prompt name must begin with "atlas-": got ${p.name}`);
     assert.ok(
@@ -183,12 +193,18 @@ test('Test 3 (prompts/get atlas-init): returns description + messages[0].content
   );
 });
 
-test('Test 4 (manifest matches server): manifest.prompts.length === 32 and every name matches a prompts/list entry', async () => {
+test('Test 4 (manifest matches server): manifest.prompts.length === K (V1 + V2) and every name matches a prompts/list entry', async () => {
+  const { listCategorizedCommandFiles, listCommandFiles } = await import(
+    '../scripts/lib/list-command-files.js'
+  );
+  const flat = (await listCommandFiles({ cwd: process.cwd() })).length;
+  const cat = (await listCategorizedCommandFiles({ cwd: process.cwd() })).length;
+  const expected = flat + cat;
   const manifest = JSON.parse(await readFile(MANIFEST_PATH, 'utf8'));
   assert.equal(manifest.name, 'testatlas');
   assert.equal(manifest.capabilities?.prompts?.listChanged, false);
   assert.ok(Array.isArray(manifest.prompts));
-  assert.equal(manifest.prompts.length, 32, 'manifest must declare 32 prompts');
+  assert.equal(manifest.prompts.length, expected, `manifest must declare ${expected} prompts`);
 
   const responses = await rpc([
     {

@@ -28,21 +28,35 @@ const ATLAS_PATH = path.join(
   'atlas.md',
 );
 
-test('Test 1: atlas.md exists and total line count ≤ 200', async () => {
+test('Test 1: atlas.md exists and total line count ≤ K × 7 + 16 envelope/header', async () => {
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
+  const flat = (await listCommandFiles({ cwd: repoRoot })).length;
+  const cat = (await listCategorizedCommandFiles({ cwd: repoRoot })).length;
+  const cap = (flat + cat) * 7 + 16;
   const text = await readFile(ATLAS_PATH, 'utf8');
   const lines = text.split('\n');
-  assert.ok(lines.length <= 200, `atlas.md must be ≤200 lines; got ${lines.length}`);
+  assert.ok(lines.length <= cap, `atlas.md must be ≤${cap} lines; got ${lines.length}`);
 });
 
-test('Test 2: 32 H2 sections matching source command set', async () => {
+test('Test 2: K H2 sections matching source command set (V1 flat + V2 categorized)', async () => {
+  const { commandBaseNameFromSource } = await import('../scripts/lib/adapters/_shared.js');
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
   const text = await readFile(ATLAS_PATH, 'utf8');
   const headings = text
     .split('\n')
     .filter((l) => /^##\s+\/atlas-/.test(l))
     .map((l) => l.replace(/^##\s+\//, '').trim());
-  assert.equal(headings.length, 32, `expected 32 H2 atlas-* headings; got ${headings.length}`);
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}`));
+  const flat = await listCommandFiles({ cwd: repoRoot });
+  const categorized = await listCategorizedCommandFiles({ cwd: repoRoot });
+  const expectedNames = new Set([
+    ...flat.map((p) => `atlas-${commandBaseNameFromSource(p)}`),
+    ...categorized.map((c) => `atlas-${commandBaseNameFromSource(c.absPath)}`),
+  ]);
+  assert.equal(
+    headings.length,
+    expectedNames.size,
+    `expected ${expectedNames.size} H2 atlas-* headings; got ${headings.length}`,
+  );
   for (const h of headings) assert.ok(expectedNames.has(h), `unexpected H2: /${h}`);
   for (const name of expectedNames) assert.ok(headings.includes(name), `missing H2: /${name}`);
 });
@@ -53,9 +67,12 @@ test('Test 3: single envelope; aggregate hash = hashContent(join(per-source hash
   assert.ok(marker, 'atlas.md must contain a single adapter envelope');
   assert.equal(marker.section, 'adapter-body');
   assert.equal(marker.source, 'commands/_aggregate');
-  const sources = await listCommandFiles({ cwd: repoRoot });
+  const { listCategorizedCommandFiles } = await import('../scripts/lib/list-command-files.js');
+  const flat = await listCommandFiles({ cwd: repoRoot });
+  const categorized = await listCategorizedCommandFiles({ cwd: repoRoot });
+  const allPaths = [...flat, ...categorized.map((c) => c.absPath)].sort();
   const perSource = await Promise.all(
-    sources.map(async (sp) => hashContent(await readFile(sp, 'utf8'))),
+    allPaths.map(async (sp) => hashContent(await readFile(sp, 'utf8'))),
   );
   const expected = hashContent(perSource.join(''));
   assert.equal(marker.hash, expected, 'aggregate hash mismatch');
