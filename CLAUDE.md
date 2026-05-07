@@ -242,9 +242,15 @@ If everything else fails, this must work.
 <!-- OBD:conventions-start source:CONVENTIONS.md -->
 ## Conventions
 
-### Self-dogfood: scripts run from `scripts/`, not `.testatlas/scripts/`
+### Self-dogfood: scripts run from `scripts/` locally, but commands now reference `.testatlas/scripts/`
 
-When TestAtlas commands (`.testatlas/commands/*.md`) are executed against the TestAtlas suite repo itself (self-dogfood), the canonical accelerator scripts live at `./scripts/<name>.js` — NOT at `./.testatlas/scripts/<name>.js`. The latter path only exists in *installed* target repos, where `install.js` copies the suite tree into `<target>/.testatlas/`.
+In the TestAtlas suite source repo, the canonical accelerator scripts live at `./scripts/<name>.js`. In *installed* target repos, `install.js` copies them into `<target>/.testatlas/scripts/`.
+
+**As of Phase 17 (2026-05-07)**, all source command bodies (`/atlas:*` commands under `.testatlas/commands/**/*.md`) reference scripts as `node .testatlas/scripts/<name>.js` — the universal installed-target form. This is the only form that works correctly in adapter-rendered output across all 18 adapters.
+
+**Local dev mental swap:** when an `/atlas:*` command body says `node .testatlas/scripts/create-issue.js`, run it as `node scripts/create-issue.js` in this repo. The `.testatlas/scripts/` path doesn't exist locally — that's the installed-target form. The source-of-truth is `./scripts/`.
+
+**Invariant:** `scripts/validate-workspace.js` enforces this — any source command body containing `node scripts/` (without the `.testatlas/` prefix) is a hard error (PHASE17-INV-B `script-path-leaks-suite-form`). Use only `node .testatlas/scripts/<name>.js` in source.
 
 **Concrete impact:** when an `/atlas:*` command's "Preferred path" instruction reads `node .testatlas/scripts/create-issue.js …`, in this repo run it as `node scripts/create-issue.js …` instead. Same for `create-evidence-record.js`, `create-domain.js`, `create-flow.js`, `update-indexes.js`, `validate-workspace.js`, etc.
 
