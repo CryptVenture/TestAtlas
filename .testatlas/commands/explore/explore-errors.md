@@ -2,7 +2,7 @@
 command: explore-errors
 version: 2.0.0
 description: Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
-capabilities: [browser, MCP, file-write]
+capabilities: [shell, browser, MCP, file-write]
 produces:
   - command-result
   - evidence

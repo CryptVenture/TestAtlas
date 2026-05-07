@@ -3,7 +3,7 @@ command: council-design-critique
 version: 2.0.0
 mode: design-critique
 description: Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol.
-capabilities: [browser, file-write]
+capabilities: [shell, browser, file-write]
 produces:
   - command-result
   - council-session

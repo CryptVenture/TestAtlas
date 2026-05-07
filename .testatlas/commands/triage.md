@@ -2,7 +2,7 @@
 command: triage
 version: 1.0.0
 description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - issue
   - evidence

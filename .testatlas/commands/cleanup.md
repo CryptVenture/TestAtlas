@@ -2,7 +2,7 @@
 command: cleanup
 version: 1.0.0
 description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

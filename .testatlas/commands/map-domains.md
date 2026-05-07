@@ -2,7 +2,7 @@
 command: map-domains
 version: 1.0.0
 description: Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - domain
   - command-result

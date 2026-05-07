@@ -3,7 +3,7 @@ command: council-product-review
 version: 2.0.0
 mode: debate
 description: Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

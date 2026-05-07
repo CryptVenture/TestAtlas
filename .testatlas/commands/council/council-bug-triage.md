@@ -3,7 +3,7 @@ command: council-bug-triage
 version: 2.0.0
 mode: bug-triage
 description: Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

@@ -2,7 +2,7 @@
 command: explore-components
 version: 2.0.0
 description: Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
-capabilities: [browser, MCP, file-write]
+capabilities: [shell, browser, MCP, file-write]
 produces:
   - command-result
   - component

@@ -3,7 +3,7 @@ command: council-domain-review
 version: 2.0.0
 mode: roundtable-review
 description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

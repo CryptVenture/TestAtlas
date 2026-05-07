@@ -3,7 +3,7 @@ command: council-flow-review
 version: 2.0.0
 mode: roundtable-review
 description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

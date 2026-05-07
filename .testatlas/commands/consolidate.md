@@ -2,7 +2,7 @@
 command: consolidate
 version: 1.0.0
 description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - issue
   - evidence

@@ -2,7 +2,7 @@
 command: bootstrap
 version: 1.0.0
 description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces: []
 consumes: []
 lifecycle:

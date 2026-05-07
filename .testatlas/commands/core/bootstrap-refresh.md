@@ -2,7 +2,7 @@
 command: bootstrap-refresh
 version: 2.0.0
 description: Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

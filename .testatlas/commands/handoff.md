@@ -2,7 +2,7 @@
 command: handoff
 version: 1.0.0
 description: Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - sub-agent-handoff
   - command-result

@@ -2,7 +2,7 @@
 command: status
 version: 2.0.0
 description: Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

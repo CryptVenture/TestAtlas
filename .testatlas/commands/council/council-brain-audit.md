@@ -3,7 +3,7 @@ command: council-brain-audit
 version: 2.0.0
 mode: brain-audit
 description: Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

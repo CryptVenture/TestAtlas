@@ -2,7 +2,7 @@
 command: log-issue
 version: 1.0.0
 description: Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - issue
   - evidence

@@ -3,7 +3,7 @@ command: council
 version: 2.0.0
 mode: dispatch
 description: Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

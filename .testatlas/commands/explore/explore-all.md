@@ -2,7 +2,7 @@
 command: explore-all
 version: 2.0.0
 description: V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

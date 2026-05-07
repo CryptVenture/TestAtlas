@@ -2,7 +2,7 @@
 command: brain-query
 version: 2.0.0
 description: Answer a question about the workspace by reading brain JSON; cite file paths for every claim.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
 consumes:

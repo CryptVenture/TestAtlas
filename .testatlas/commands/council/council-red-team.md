@@ -3,7 +3,7 @@ command: council-red-team
 version: 2.0.0
 mode: red-team
 description: Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

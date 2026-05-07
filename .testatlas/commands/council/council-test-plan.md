@@ -3,7 +3,7 @@ command: council-test-plan
 version: 2.0.0
 mode: test-plan
 description: Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - command-result
   - council-session

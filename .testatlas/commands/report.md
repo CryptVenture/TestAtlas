@@ -2,7 +2,7 @@
 command: report
 version: 1.0.0
 description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - report
   - command-result

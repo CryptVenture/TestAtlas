@@ -2,7 +2,7 @@
 command: plan
 version: 1.0.0
 description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - test-scenario
   - command-result

@@ -2,7 +2,7 @@
 command: explore-routes
 version: 2.0.0
 description: Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
-capabilities: [browser, MCP, file-write]
+capabilities: [shell, browser, MCP, file-write]
 produces:
   - command-result
   - route
