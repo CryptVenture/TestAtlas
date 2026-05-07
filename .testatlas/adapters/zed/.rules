@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="623d7fee6db9cf3c96a99f9ab3d882eefe1a70695cdad1979ec1a88ffdf4bbaf" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="2bd91a4f92e312ef5f31ba9838e39bde9b2a2bad8a2a62a33ccc6c18b54faac9" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Zed. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -303,6 +303,18 @@ Capture a quality finding as an issue under to_fix/ with severity, confidence, e
 - Required capabilities: file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
+## /atlas-maintain-migrate
+
+Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. Read `.testatlas/commands/maintain/maintain-migrate.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-maintain-validate-artifacts
+
+Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status. Read `.testatlas/commands/maintain/maintain-validate-artifacts.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
 ## /atlas-map-domains
 
 Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15. Read `.testatlas/commands/map-domains.md` for full instructions.
@@ -381,10 +393,22 @@ Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI,
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
+## /atlas-test-generate-retest-pack
+
+Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix. Read `.testatlas/commands/test/generate-retest-pack.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
 ## /atlas-test-generate-scenarios
 
 Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed. Read `.testatlas/commands/test/generate-scenarios.md` for full instructions.
 - Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-test-critical-flows
+
+Identify and execute the highest-value flows based on documented product risk (test strategy priority, scenario coverage, domain priority, issue severity), capturing per-state evidence and producing a RUN-<timestamp> report. Read `.testatlas/commands/test/test-critical-flows.md` for full instructions.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-triage

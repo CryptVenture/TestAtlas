@@ -258,6 +258,16 @@
       "arguments": []
     },
     {
+      "name": "atlas-maintain-migrate",
+      "description": "Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-maintain-validate-artifacts",
+      "description": "Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status.",
+      "arguments": []
+    },
+    {
       "name": "atlas-map-domains",
       "description": "Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15.",
       "arguments": []
@@ -323,8 +333,18 @@
       "arguments": []
     },
     {
+      "name": "atlas-test-generate-retest-pack",
+      "description": "Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix.",
+      "arguments": []
+    },
+    {
       "name": "atlas-test-generate-scenarios",
       "description": "Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-test-critical-flows",
+      "description": "Identify and execute the highest-value flows based on documented product risk (test strategy priority, scenario coverage, domain priority, issue severity), capturing per-state evidence and producing a RUN-<timestamp> report.",
       "arguments": []
     },
     {
