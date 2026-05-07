@@ -20,6 +20,11 @@
     "$schema": { "type": "string" },
     "suite": { "type": "string", "const": "TestAtlas" },
     "workspaceVersion": { "type": "string", "minLength": 1 },
+    "schema_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "PRD V2 marker: present on workspaces produced/migrated by V2 suite. Coexists with workspaceVersion."
+    },
     "workspaceDir": { "type": "string", "minLength": 1 },
     "initializedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
     "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
