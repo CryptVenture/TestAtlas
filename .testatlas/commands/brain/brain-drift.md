@@ -101,3 +101,11 @@ Detect drift between when each domain/flow/route was last explored and what has 
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that drift signals are computed:
+
+- **`/atlas:brain-score`** — score the workspace against the drift signals you just computed.
+- **`/atlas:report-dashboard-data`** — assemble dashboard JSON for downstream reports.
+- **`/atlas:report`** — run the V1 readiness report consuming brain drift + scores.

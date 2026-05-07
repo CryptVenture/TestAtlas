@@ -124,3 +124,10 @@ Downstream automation MUST inspect the companion meta to decide what is real cov
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that automation skeletons exist:
+
+- **`/atlas:test-flow`** — execute the generated automation against a target flow.
+- **`/atlas:retest`** — re-run regression suites built from the new automation scaffolds.

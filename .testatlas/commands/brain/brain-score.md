@@ -104,3 +104,11 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that the workspace has been scored:
+
+- **`/atlas:report-dashboard-data`** — materialize dashboard data from the score you just computed.
+- **`/atlas:report-release`** — produce a V2 release report incorporating quality scores.
+- **`/atlas:report`** — V1 readiness report; reads `brain/quality_scores.json`.

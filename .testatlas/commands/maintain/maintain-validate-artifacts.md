@@ -129,3 +129,11 @@ The four validation dimensions:
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that artifacts have been validated:
+
+- **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
+- **`/atlas:brain-sync`** — re-index brain state after artifact validation.
+- **`/atlas:report`** — produce a fresh readiness report on the cleaned workspace.

@@ -89,5 +89,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-expor
 
 ## What's Next
 
-- `--mode json` → feed the file into a dashboard.
-- `--mode archive` → ship the directory to the next agent or back up off-repo.
+- `--mode json` → feed the file into a dashboard; pair with **`/atlas:report-dashboard-data`** to refresh the canonical dashboard.
+- `--mode archive` → ship the directory to the next agent or back up off-repo; follow with **`/atlas:handoff`** to package the workspace.
+- After export, run **`/atlas:brain-sync`** to ensure the live brain stays in lockstep with what was exported.

@@ -142,3 +142,11 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that critical flows have run:
+
+- **`/atlas:report`** — produce a readiness report on the critical-flow run.
+- **`/atlas:retest`** — schedule retests for any failing critical flows.
+- **`/atlas:log-issue`** — file issues for newly surfaced critical-flow failures.

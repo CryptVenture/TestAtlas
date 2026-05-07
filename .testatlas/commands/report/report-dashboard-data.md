@@ -119,3 +119,11 @@ node .testatlas/scripts/generate-dashboard-data.js --cwd /path/to/target-repo
 ```
 
 The dashboard data export is the V2 brain machine-readable face — JSON remains canonical; everything downstream is derived.
+
+## What's Next
+
+Now that dashboard data is materialized:
+
+- **`/atlas:report-release`** — produce a V2 release report consuming this dashboard data.
+- **`/atlas:report`** — V1 readiness report; can ingest dashboard signals.
+- **`/atlas:brain-score`** — re-score after dashboard data refresh if scoring inputs changed.

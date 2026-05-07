@@ -109,3 +109,10 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that retest packs are generated:
+
+- **`/atlas:retest`** — execute the retest pack you just generated.
+- **`/atlas:council-retest`** — formalize retest verdicts via council if outcomes are contested.

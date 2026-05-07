@@ -120,3 +120,11 @@ produces a no-op success. Always safe to retry.
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that the workspace has migrated to V2:
+
+- **`/atlas:brain-validate`** — confirm the migrated workspace's brain layer is intact.
+- **`/atlas:status`** — refresh the V2 status snapshot for the migrated workspace.
+- **`/atlas:explore`** — re-run exploration on the V2 layout.

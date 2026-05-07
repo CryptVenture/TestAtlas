@@ -110,3 +110,11 @@ Every scenario this command produces carries `status: "generated-not-yet-validat
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that scenarios are generated:
+
+- **`/atlas:test-flow`** — execute one of the newly generated scenarios as a flow.
+- **`/atlas:test-domain`** — broaden execution to the whole domain the scenarios cover.
+- **`/atlas:plan`** — feed the scenarios back into the master test plan.

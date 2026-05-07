@@ -109,3 +109,11 @@ else: verdict = "go"
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
+
+## What's Next
+
+Now that the release verdict is published:
+
+- **`/atlas:handoff`** — package the workspace for the next operator now that the release report is final.
+- **`/atlas:cleanup`** — prune transient artifacts before handoff.
+- **`/atlas:council-release-readiness`** — escalate to a council if the release verdict is contested.
