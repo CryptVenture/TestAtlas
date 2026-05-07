@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
+- Phase 13 / Plan 13-03: bootstrap.md §12 carries the positive-side mandatory-when-available walkthrough rule pointing at `reference/chrome-devtools-mcp.md`.
+- Phase 13 / Plan 13-03: `reference/capabilities.md` per-capability action matrix gains a fourth column ("Mandatory action when available") covering all six capabilities.
+
 ### Changed
 
 ### Removed
