@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/drift_record.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^DRIFT-[0-9]+$" },
     "git_ref": { "type": "string" },
     "changed_files": { "type": "array", "items": { "type": "string" } },

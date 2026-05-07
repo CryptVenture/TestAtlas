@@ -5,6 +5,7 @@
   "description": "Schema for _testatlas/brain/graph.json. PRD §11.1 (entities) + §11.2 (relationships). Defines the 16 PRD-mandated relationship types and the node/edge shape used by graph queries (drift impact, evidence reachability, blocked-release detection).",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
     "last_updated": {
       "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "string", "maxLength": 0 }]

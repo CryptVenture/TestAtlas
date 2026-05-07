@@ -5,6 +5,7 @@
   "description": "A single claim extracted from a council transcript or persona output. PRD §7.10 / §11.1. Each claim is attributable to a speaker, links to evidence, and carries explicit epistemic status (type, confidence, status).",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": {
       "type": "string",
       "pattern": "^CLAIM-[0-9]+$",

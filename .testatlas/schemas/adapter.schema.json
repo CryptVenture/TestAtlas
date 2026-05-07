@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/adapter.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "name": { "type": "string" },
     "version": { "type": "string" },
     "supported_commands": { "type": "array", "items": { "type": "string" } },

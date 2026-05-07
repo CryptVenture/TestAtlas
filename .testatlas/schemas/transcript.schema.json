@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/transcript.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^MSG-[0-9]+$" },
     "session_id": { "type": "string" },
     "round": { "type": "integer", "minimum": 1 },

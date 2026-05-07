@@ -5,6 +5,7 @@
   "description": "Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, CLI commands, jobs, and integrations have been tested, when, and by what. Plan 14-03 extended the v2 contract to include jobs + integrations as optional categories alongside the four required (routes, components, endpoints, commands).",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
     "last_updated": { "type": "string", "format": "date-time" },
     "coverage": {

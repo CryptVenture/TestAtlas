@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/decision.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^DEC-[0-9]+$" },
     "session_id": { "type": "string" },
     "topic": { "type": "string" },

@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/event.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^EVENT-[0-9]+$" },
     "timestamp": { "type": "string", "format": "date-time" },
     "actor": { "type": "string" },

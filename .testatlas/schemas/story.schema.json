@@ -5,6 +5,7 @@
   "description": "A user story / requirement that defines expected behavior for one or more flows. PRD §11.1. Stories are the source-of-truth for 'what the product is supposed to do' and feed scenario generation (§7.14).",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": {
       "type": "string",
       "pattern": "^STORY-[0-9]+$",

@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/risk.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^RISK-[0-9]+$" },
     "severity": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
     "description": { "type": "string" },

@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/quality_score.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "metric": { "type": "string" },
     "score": { "type": "integer", "minimum": 0, "maximum": 100 },
     "evidence_refs": { "type": "array", "items": { "type": "string" } },

@@ -5,6 +5,7 @@
   "description": "Self-contained reproduction package for an issue. PRD §10.4 / §17 Phase 6. Captures exact steps, expected vs actual behavior, and evidence so any agent or human can re-verify the fix.",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": {
       "type": "string",
       "pattern": "^RETEST-[0-9]+$",

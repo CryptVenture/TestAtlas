@@ -14,6 +14,7 @@
     "files"
   ],
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "manifestVersion": { "type": "string", "const": "1" },
     "suiteVersion": {
       "type": "string",

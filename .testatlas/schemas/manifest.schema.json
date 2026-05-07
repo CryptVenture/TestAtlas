@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/manifest.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
     "suite_version": { "type": "string" },
     "initialized_at": { "type": "string", "format": "date-time" },
