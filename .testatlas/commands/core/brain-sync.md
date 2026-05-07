@@ -96,3 +96,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync 
 
 - `/atlas:brain-validate` — confirm clean state.
 - `/atlas:status` — view the refreshed brain summary.
+- `/atlas:brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
+- `/atlas:brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.

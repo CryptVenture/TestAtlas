@@ -43,36 +43,23 @@ const ATLAS_REF_RE = /\/atlas:([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
 // Roots that are entry points; no inbound link expected.
 const ROOT_ALLOWLIST = new Set(['atlas-init', 'atlas-bootstrap']);
 
-// Deferred orphans — these slugs are not yet linked from any source body.
-// Plan 17-04 closed mesh fixes #4-#6 (init.md collision, update-graph wiring,
-// V2 council/brain outputs read by V1 readers) — none of which add /atlas:
-// forward links to the slugs below. Plan 17-05 (mesh fix #7 explore router,
-// #9 create-persona surfacing, #10 council.md explicit dispatcher listing all
-// 10 council sub-commands by slash name) is the deliverable that closes the
-// remaining orphans below.
+// Plan 17-05 (this plan) closed all remaining deferred orphans via:
+//  - mesh fix #7: explore.md classification table now surfaces the V1 + V2
+//    explorers as /atlas: slash links (cli, docs, runtime, security-privacy,
+//    plus the 10 V2 explorers including tests).
+//  - mesh fix #9: /atlas:create-persona command surfaced from core/init.md
+//    What's Next; create-persona.md links to /atlas:council, /atlas:status,
+//    /atlas:brain-sync.
+//  - mesh fix #10: council.md What's Next is now an explicit dispatcher
+//    listing all 10 council sub-commands.
+//  - bridges added in 17-05: bootstrap.md -> bootstrap-refresh; brain-sync.md
+//    -> brain-compact + brain-query; report.md -> report-domain;
+//    test-flow.md -> test-all.
 //
-// When Plan 17-05 lands, these entries should be removed (the test will then
-// assert the slug has at least one real inbound link).
-//
-// This list intentionally falsifies the orphan assertion in a way that
-// surfaces every still-orphaned slug to the verifier; if a NEW orphan
-// appears that is not in this list, the test fails — protecting against
-// regression while a known-pending fix is being staged.
-const DEFERRED_TO_PLAN_17_05 = new Set([
-  'atlas-bootstrap-refresh',
-  'atlas-brain-compact',
-  'atlas-brain-query',
-  'atlas-council',
-  'atlas-council-design-critique',
-  'atlas-council-product-review',
-  'atlas-explore-cli',
-  'atlas-explore-docs',
-  'atlas-explore-runtime',
-  'atlas-explore-security-privacy',
-  'atlas-explore-tests',
-  'atlas-report-domain',
-  'atlas-test-all',
-]);
+// As of Plan 17-05, the orphan invariant runs UNCONDITIONALLY with no
+// allowlist beyond ROOT_ALLOWLIST. Any future regression that introduces
+// a new orphan fails this test with no escape hatch.
+const DEFERRED_TO_PLAN_17_05 = new Set();
 
 /**
  * Load all source command files, build slug map and per-file body text.

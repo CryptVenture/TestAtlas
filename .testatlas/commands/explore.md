@@ -116,9 +116,27 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `10_command_log.md` row records `executionMode` matching the selected mode.
 - Zero stop conditions triggered.
 
-## V2 Explorer Classification
+## Explorer Classification
 
-V2 ships 10 additional explorers beyond the V1 set above. Use this table to classify them alongside the V1 sub-explorers when building `_testatlas/explore-plan.md`. Each row maps the V2 surface concern to its slash command — invoke directly or surface via `/atlas:explore-all`.
+The full set of sub-explorers — V1 (already shipped per PRD §13 / §6.5) and V2 (PRD V2 surfaces). Use this table to classify them when building `_testatlas/explore-plan.md`. Each row maps the surface concern to its slash command — invoke directly or surface via `/atlas:explore-all`.
+
+### V1 Sub-Explorers (already routed in Required Actions step 3 above)
+
+| Explorer | Slash | Concern |
+|---|---|---|
+| Codebase | `/atlas:explore-codebase` | Repository structure, package signals, the canonical app map |
+| UI | `/atlas:explore-ui` | User-facing routes, pages, components, visual surfaces |
+| CLI | `/atlas:explore-cli` | Binaries, scripts, command-line entry points, argv conventions |
+| API | `/atlas:explore-api` | HTTP/RPC/GraphQL endpoints, route handlers, payload contracts |
+| Docs | `/atlas:explore-docs` | Project documentation tree, READMEs, in-repo guides |
+| Runtime | `/atlas:explore-runtime` | Runtime tooling — compilers, linkers, package managers, CI |
+| Data | `/atlas:explore-data` | Models, migrations, schemas, persistent stores |
+| Integrations | `/atlas:explore-integrations` | External services — auth, payment, email, analytics SDKs |
+| Accessibility | `/atlas:explore-accessibility` | A11y compliance signals, ARIA usage, keyboard surfaces |
+| Performance | `/atlas:explore-performance` | Performance budgets, slow-path heuristics, bundle/build cost |
+| Security | `/atlas:explore-security` | Auth surfaces, credential paths, secret-handling patterns |
+
+### V2 Sub-Explorers
 
 | Explorer | Slash | Concern |
 |---|---|---|

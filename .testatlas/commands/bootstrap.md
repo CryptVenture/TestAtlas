@@ -155,3 +155,4 @@ Now that the constitution is reloaded:
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
 - **`/atlas:brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
 - **`/atlas:status`** — V2 status snapshot of the freshly bootstrapped workspace.
+- **`/atlas:bootstrap-refresh`** — long-running session shard refresh (V2 token-budget audit + bootstrap-shard regeneration).

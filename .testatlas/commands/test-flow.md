@@ -144,3 +144,4 @@ Now that the flow run is complete:
 - **`/atlas:report`** — fold the run into the next aggregate report
 - **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
 - **`/atlas:generate-automation`** — produce reproducible automation scaffolds from this flow.
+- **`/atlas:test-all`** — run every flow + every domain in one orchestrated sweep, aggregating per-child runs into a single merged RUN-<timestamp>.
