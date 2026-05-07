@@ -84,6 +84,28 @@ test('Test 3: missing required flag throws TESTATLAS_INVALID_ARGS', async () => 
   }
 });
 
+test('Test 5: createPersona emits $schema annotation on persona JSON (sub-finding #1)', async () => {
+  const ctx = await setupWorkspace();
+  try {
+    const { createPersona } = await import(SCRIPT);
+    const r = await createPersona({
+      cwd: ctx.dir,
+      suiteCwd: REPO_ROOT,
+      name: 'Schema Annotated Persona',
+      type: 'system',
+      mission: 'verify $schema emission',
+    });
+    const json = JSON.parse(await readFile(r.jsonPath, 'utf8'));
+    assert.equal(
+      json.$schema,
+      'https://testatlas.dev/schemas/v2/persona.schema.json',
+      `expected persona JSON to carry $schema annotation; got ${JSON.stringify({ $schema: json.$schema })}`,
+    );
+  } finally {
+    await ctx.cleanup();
+  }
+});
+
 test('Test 4: invalid type fails AJV validation against persona.schema.json', async () => {
   const ctx = await setupWorkspace();
   try {
