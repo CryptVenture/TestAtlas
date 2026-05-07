@@ -1,0 +1,53 @@
+{
+  "id": "brain-audit",
+  "version": "2.0.0",
+  "mode": "brain-audit",
+  "command": "council-brain-audit",
+  "description": "Reusable configuration for a brain audit council. Personas inspect _testatlas/ for staleness, contradictions, missing updates, and structural drift.",
+  "default_participants": [
+    "documentation-curator",
+    "codebase-mapper",
+    "adversarial-red-team-tester"
+  ],
+  "optional_participants": ["qa-lead", "runtime-investigator"],
+  "required_context": [
+    "_testatlas/bootstrap/BOOTSTRAP.md",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/manifest.json",
+    "_testatlas/brain/drift.json",
+    "_testatlas/09_artifact_index.md",
+    "_testatlas/00_overview.md"
+  ],
+  "consistency_checks": [
+    "markdown↔JSON parity (sync-markdown-json --check)",
+    "schema validation (validate-brain.js)",
+    "cross-reference integrity (issues→flows→domains)",
+    "TESTATLAS:GENERATED marker honored",
+    "stale-doc detection (check-stale-docs.js)",
+    "evidence-path resolvability"
+  ],
+  "drift_thresholds": {
+    "max_stale_days_critical": 30,
+    "max_stale_days_high": 60,
+    "max_stale_days_medium": 90,
+    "broken_xref_count_blocker": 1,
+    "schema_violation_count_blocker": 1
+  },
+  "remediation_triggers": {
+    "schema_violation": "schedule /atlas:brain-validate immediately",
+    "doc_drift_critical": "run /atlas:brain-sync, then re-audit",
+    "broken_xref": "regenerate _testatlas/09_artifact_index.md",
+    "stale_evidence": "schedule re-explore for affected domain/flow"
+  },
+  "expected_outputs": {
+    "drift_records": "append to brain/drift.json",
+    "contradictions": "append to disagreements.md",
+    "canonical_update_proposals": "list with target_file + rationale",
+    "voting_required_for": ["drift severity", "remediation priority"]
+  },
+  "stop_conditions": [
+    "_testatlas/brain/ not initialized",
+    "validate-brain.js reports unrecoverable schema violations",
+    "fewer than 2 participants"
+  ]
+}
