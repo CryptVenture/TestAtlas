@@ -19,7 +19,8 @@ const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'));
 const VOCAB_PATH = path.join(repoRoot, '.testatlas/vocabulary.json');
 const VOCAB_ID = 'https://testatlas.dev/schemas/v1/vocabulary.schema.json';
 
-const REQUIRED_DEFS = [
+// V1 vocabulary keys — must be present and stable.
+const V1_REQUIRED_DEFS = [
   'capability',
   'severity',
   'confidence',
@@ -47,6 +48,19 @@ const REQUIRED_DEFS = [
   'integrationId',
   'personaId',
 ];
+
+// V2 vocabulary keys — added by Plan 14-01 (Wave 1) per PRD §10.3.
+const V2_REQUIRED_DEFS = [
+  'claim_type',
+  'council_type',
+  'drift_status',
+  'persona_type',
+  'message_type',
+  'disagreement_type',
+  'vote_value',
+];
+
+const REQUIRED_DEFS = [...V1_REQUIRED_DEFS, ...V2_REQUIRED_DEFS];
 
 test('TPL-04: vocabulary present at canonical path', async () => {
   const vocab = await readJson(VOCAB_PATH);

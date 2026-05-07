@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/coverage.schema.json",
+  "title": "TestAtlas V2 Coverage Index",
+  "description": "Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, and CLI commands have been tested, when, and by what.",
+  "type": "object",
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
+    "last_updated": { "type": "string", "format": "date-time" },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "routes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        },
+        "components": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        },
+        "endpoints": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        },
+        "commands": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        }
+      },
+      "required": ["routes", "components", "endpoints", "commands"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["schema_version", "coverage"],
+  "additionalProperties": false,
+  "$defs": {
+    "coverageEntry": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "tested": { "type": "boolean" },
+        "last_tested": { "type": "string", "format": "date-time" },
+        "test_ids": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "items": { "type": "string" } },
+        "drift_status": {
+          "type": "string",
+          "enum": ["fresh", "possibly_stale", "stale_requires_review", "unknown"]
+        }
+      },
+      "required": ["id", "tested"],
+      "additionalProperties": false
+    }
+  }
+}

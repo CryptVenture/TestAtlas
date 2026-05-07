@@ -49,8 +49,12 @@ const V2_VOCAB_ENUMS = [
 ];
 
 async function getAjv() {
-  const { getAjv } = await import(path.join(REPO_ROOT, 'scripts', 'lib', 'ajv-instance.js'));
-  return getAjv();
+  // Use loadAllSchemas so vocabulary.json + every schema (V1+V2) is registered
+  // BEFORE any cross-file $ref resolves. Idempotent; safe to call per-test.
+  const { loadAllSchemas } = await import(
+    path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+  );
+  return loadAllSchemas({ cwd: REPO_ROOT });
 }
 
 test('all V2 schema files exist', async () => {
@@ -121,9 +125,11 @@ test('claim.schema.json cross-references vocabulary.json via $ref', async () => 
   const claim = JSON.parse(await readFile(path.join(SCHEMAS_DIR, 'claim.schema.json'), 'utf8'));
   const claimStr = JSON.stringify(claim);
   // The schema may reference vocabulary.json#/$defs/<enum> for confidence, claim_type, etc.
+  // Vocabulary $id is https://testatlas.dev/schemas/v1/vocabulary.schema.json
+  // (renamed from vocabulary.json with .schema.json suffix per V1 convention).
   assert.ok(
-    claimStr.includes('vocabulary.json#/$defs/'),
-    'claim.schema.json must use a $ref into vocabulary.json#/$defs/...',
+    claimStr.includes('vocabulary.schema.json#/$defs/'),
+    'claim.schema.json must use a $ref into vocabulary.schema.json#/$defs/...',
   );
 });
 

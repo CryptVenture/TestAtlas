@@ -172,6 +172,66 @@
     "personaId": {
       "type": "string",
       "pattern": "^PERSONA-[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+
+    "claim_type": {
+      "type": "string",
+      "enum": ["observed", "inferred", "hypothesized", "disputed", "invalidated", "accepted"],
+      "description": "V2 — TestAtlas Brain claim type. PRD §7.10. Identifies the epistemic status of a claim extracted from a council transcript."
+    },
+    "council_type": {
+      "type": "string",
+      "enum": [
+        "domain-review",
+        "flow-deepdive",
+        "release-readiness",
+        "issue-triage",
+        "risk-assessment",
+        "regression-strategy",
+        "exploration-planning",
+        "dispute-resolution"
+      ],
+      "description": "V2 — Council session category. PRD §7.8 / §9.3. Determines default participants, prompt scaffold, and consolidation expectations."
+    },
+    "drift_status": {
+      "type": "string",
+      "enum": ["fresh", "possibly_stale", "stale_requires_review", "unknown"],
+      "description": "V2 — Drift status for a flow/domain/coverage record. PRD §7.16. 'fresh' = no relevant code changes since last verify; 'possibly_stale' = touched files in dependency cone; 'stale_requires_review' = behavior-defining files changed; 'unknown' = no baseline."
+    },
+    "persona_type": {
+      "type": "string",
+      "enum": ["system", "generated", "project"],
+      "description": "V2 — Persona origin. PRD §6.2 (system: shipped with TestAtlas), §6.3 (generated: synthesized from product context), §7.7 (project: hand-authored in repo)."
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "finding",
+        "critique",
+        "rebuttal",
+        "vote",
+        "consolidation",
+        "question",
+        "evidence_request"
+      ],
+      "description": "V2 — Transcript message kind. PRD §7.10 / §25. Drives consolidation logic and orchestrator turn-taking."
+    },
+    "disagreement_type": {
+      "type": "string",
+      "enum": [
+        "factual",
+        "interpretation",
+        "priority",
+        "scope",
+        "evidence_sufficiency",
+        "risk_assessment"
+      ],
+      "description": "V2 — Disagreement classification. PRD §12.5. Used when two personas hold conflicting positions; informs resolution strategy (more evidence, vote, escalate, defer)."
+    },
+    "vote_value": {
+      "type": "string",
+      "enum": ["strong_yes", "yes", "abstain", "no", "strong_no"],
+      "description": "V2 — Council vote value. PRD §12.6. Five-point scale; consolidation requires majority + no strong_no for binding decisions."
     }
   }
 }

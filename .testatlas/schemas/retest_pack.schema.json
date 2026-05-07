@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/retest_pack.schema.json",
+  "title": "TestAtlas V2 Retest Pack",
+  "description": "Self-contained reproduction package for an issue. PRD §10.4 / §17 Phase 6. Captures exact steps, expected vs actual behavior, and evidence so any agent or human can re-verify the fix.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^RETEST-[0-9]+$",
+      "description": "Sequential retest pack ID, e.g. RETEST-0001."
+    },
+    "issue_id": {
+      "type": "string",
+      "description": "Linked issue, e.g. ISSUE-001-signup-failure."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Environment / state that must be in place before running steps."
+    },
+    "steps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Ordered, runnable reproduction steps."
+    },
+    "expected": {
+      "type": "string",
+      "description": "Expected behavior."
+    },
+    "actual": {
+      "type": "string",
+      "description": "Actual behavior at time of issue capture."
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Evidence references — paths under _testatlas/evidence/."
+    },
+    "automation_candidate": {
+      "type": "boolean",
+      "description": "Whether this retest is suitable for promotion to an automated test."
+    },
+    "automated_test_path": {
+      "type": "string",
+      "description": "Path to generated automated test, if any."
+    },
+    "created_at": { "type": "string", "format": "date-time" },
+    "last_run_at": { "type": "string", "format": "date-time" },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "passed", "failed", "blocked", "skipped", "obsolete"]
+    }
+  },
+  "required": ["id", "issue_id", "title", "steps", "expected", "actual", "created_at", "status"],
+  "additionalProperties": false
+}
