@@ -24,7 +24,7 @@ const SCHEMA_PATH = path.join(
 const CAPS_PATH = path.join(repoRoot, '.testatlas', 'adapters', 'adapter-capabilities.json');
 const SCHEMAS_DIR = path.join(repoRoot, '.testatlas', 'schemas');
 
-const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.json';
+const SCHEMA_ID = 'https://testatlas.dev/schemas/v1/adapter-capabilities.schema.json';
 const EXPECTED_ADAPTERS = new Set([
   'claude-code',
   'generic',

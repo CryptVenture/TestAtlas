@@ -48,7 +48,7 @@ import { listCategorizedCommandFiles, listCommandFiles } from './lib/list-comman
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const ADAPTER_CAPS_PATH = path.join('.testatlas', 'adapters', 'adapter-capabilities.json');
-const SCHEMA_ID = 'https://testatlas.dev/schemas/adapter-capabilities.schema.json';
+const SCHEMA_ID = 'https://testatlas.dev/schemas/v1/adapter-capabilities.schema.json';
 
 // Per-command-file renderer dispatch. Each entry takes
 // `{ sourceText, sourcePath, adapterCaps }` and returns the rendered string

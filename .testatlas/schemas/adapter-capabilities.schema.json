@@ -1,5 +1,5 @@
 {
-  "$id": "https://testatlas.dev/schemas/adapter-capabilities.schema.json",
+  "$id": "https://testatlas.dev/schemas/v1/adapter-capabilities.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "TestAtlas Adapter Capabilities",
   "description": "Per-adapter capability declarations. Each TestAtlas command declares required capabilities in its frontmatter; an adapter is allowed to render the command only if it declares all of those capabilities (or provides a capability-degradation render for the missing ones).",
