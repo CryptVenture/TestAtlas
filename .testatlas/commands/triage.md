@@ -48,6 +48,7 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every mutated issue must continue to satisfy.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The current `_testatlas/to_fix/by_severity/`, `_testatlas/to_fix/by_status/`, `_testatlas/to_fix/by_domain/` indexes.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most recent council session consolidations (filter to bug-triage mode); read to honor severity verdicts ratified by council.
 
 ## Required Actions
 

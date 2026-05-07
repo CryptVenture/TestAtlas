@@ -51,6 +51,7 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 - `.testatlas/schemas/matrix.schema.json` — required JSON shape for the bundled `matrix.json` index.
 - `.testatlas/schemas/test-scenario.schema.json` — required JSON shape per scenario sidecar in `tests/scenarios/`.
 - `.testatlas/default.config.json` — currently declared adapter capabilities (used to gate scenarios per step 8).
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most recent council session consolidations (filter to test-plan mode); read to honor matrix decisions ratified by council.
 
 ## Required Actions
 

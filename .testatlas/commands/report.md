@@ -51,6 +51,9 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 - `_testatlas/12_app_map.json` and `_testatlas/domains/*/domain.json` — coverage denominators (apps / routes / domains / flows).
 - The previous `_testatlas/reports/REPORT-*.md` if any — for the trend-vs-prior section (last section).
 - `.testatlas/schemas/report.schema.json` — required JSON shape and section list.
+- `_testatlas/brain/quality_scores.json` — brain layer quality score signals; readiness verdict must reflect current scores.
+- `_testatlas/brain/drift.json` — brain layer drift signals; readiness verdict must flag stale or contested artifacts.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most-recent council consolidation per mode (release-readiness primarily); read to honor council verdicts.
 
 ## Required Actions
 
