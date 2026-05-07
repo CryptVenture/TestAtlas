@@ -1,0 +1,11 @@
+{
+  "session_id": "COUNCIL-YYYY-MM-DD-NNN",
+  "decisions": [],
+  "accepted_claims": [],
+  "rejected_claims": [],
+  "disputed_claims": [],
+  "generated_issues": [],
+  "generated_flows": [],
+  "generated_questions": [],
+  "completed_at": "0000-00-00T00:00:00Z"
+}

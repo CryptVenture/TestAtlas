@@ -1,0 +1,10 @@
+{
+  "session_id": "COUNCIL-YYYY-MM-DD-NNN",
+  "motions": [
+    {
+      "motion_id": "MOTION-001",
+      "topic": "",
+      "votes": []
+    }
+  ]
+}

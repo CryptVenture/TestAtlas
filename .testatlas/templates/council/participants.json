@@ -1,0 +1,10 @@
+{
+  "session_id": "COUNCIL-YYYY-MM-DD-NNN",
+  "participants": [
+    {
+      "persona_id": "qa-lead",
+      "role": "moderator",
+      "joined_at": "0000-00-00T00:00:00Z"
+    }
+  ]
+}
