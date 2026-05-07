@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/quality_score.schema.json",
+  "type": "object",
+  "properties": {
+    "metric": { "type": "string" },
+    "score": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "evidence_refs": { "type": "array", "items": { "type": "string" } },
+    "freshness": { "type": "string", "enum": ["fresh", "stale", "unknown"] },
+    "confidence": { "type": "string", "enum": ["confirmed", "strong_suspect", "needs_validation"] },
+    "computed_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["metric", "score", "computed_at"],
+  "additionalProperties": false
+}

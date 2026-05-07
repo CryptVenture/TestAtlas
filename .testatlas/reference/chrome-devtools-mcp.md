@@ -1,6 +1,6 @@
 # Chrome DevTools MCP Walkthrough Reference
 
-> **When to read this:** You are executing a UI-touching command (`explore-ui`, `explore-accessibility`, `explore-performance`, `test-flow`, `test-domain`, `test-accessibility`, `test-performance`) and need the canonical walkthrough patterns + tool tiering + state-coverage matrix. Command bodies link here from `## Required First Reads` so each command stays inside its 1500-word budget while still binding the agent to the full walkthrough contract.
+> **When to read this:** You are executing a UI-touching command (`explore-ui`, `explore-accessibility`, `explore-performance`, `test-flow`, `test-domain`, `test-accessibility`, `test-performance`) and need the canonical walkthrough patterns + tool tiering + state-coverage matrix. Command bodies link here from `## Required First Reads` so each command stays inside its 1800-word budget while still binding the agent to the full walkthrough contract.
 
 This shard is the single source of truth for the Chrome DevTools MCP toolset, the mandatory-when-available contract, the five canonical walkthrough patterns, the five-state coverage matrix (PRD §13.1), and the evidence-persistence mapping (PRD §18). Do NOT duplicate this prose into command bodies — link.
 

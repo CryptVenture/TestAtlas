@@ -1,0 +1,9 @@
+{
+  "schema_version": "2.0.0",
+  "suite_version": "2.0.0",
+  "initialized_at": "0000-00-00T00:00:00Z",
+  "last_updated": "0000-00-00T00:00:00Z",
+  "project_name": "",
+  "adapters": [],
+  "schema_uri": "https://testatlas.dev/schemas/v2/manifest.schema.json"
+}

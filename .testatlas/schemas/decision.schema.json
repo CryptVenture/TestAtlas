@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/decision.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "pattern": "^DEC-[0-9]+$" },
+    "session_id": { "type": "string" },
+    "topic": { "type": "string" },
+    "vote_summary": {
+      "type": "object",
+      "properties": {
+        "total_votes": { "type": "integer" },
+        "sum": { "type": "integer" },
+        "average": { "type": "number" }
+      }
+    },
+    "rationale": { "type": "string" },
+    "accepted": { "type": "array", "items": { "type": "string" } },
+    "rejected": { "type": "array", "items": { "type": "string" } },
+    "disputed": { "type": "array", "items": { "type": "string" } },
+    "created_at": { "type": "string", "format": "date-time" },
+    "resolved_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["id", "topic", "rationale", "created_at"],
+  "additionalProperties": false
+}

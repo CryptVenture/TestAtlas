@@ -87,6 +87,26 @@ const NESTED_DIRS = [
   'evidence/performance',
 ];
 
+// V2 directory additions (Phase 14)
+const V2_NESTED_DIRS = [
+  'bootstrap',
+  'brain/schema',
+  'agents/personas/system',
+  'agents/personas/generated',
+  'agents/personas/project',
+  'agents/councils/council_templates',
+  'agents/councils/sessions',
+  'agents/councils/transcripts',
+  'agents/councils/outputs',
+  'agents/councils/consolidations',
+  'agents/handoffs',
+  'agents/outputs',
+  'agents/scorecards',
+  'maps',
+  'tests/generated_automation',
+  'tests/retest_packs',
+];
+
 const CANONICAL_FILES = [
   '00_overview.md',
   '01_system_map.md',
@@ -184,6 +204,11 @@ export async function initWorkspace(
     await mkdir(path.join(wsDir, nested), { recursive: true });
   }
 
+  // V2 directory structure (Phase 14)
+  for (const nested of V2_NESTED_DIRS) {
+    await mkdir(path.join(wsDir, nested), { recursive: true });
+  }
+
   const templatesDir = path.join(cwd, '.testatlas', 'templates', 'canonical');
   const nowIso = now();
   const projectName = path.basename(cwd);
@@ -260,6 +285,121 @@ export async function initWorkspace(
 
     await atomicWrite(manifestPath, finalManifest);
     created.push(MANIFEST_FILE);
+  }
+
+  // V2 brain skeleton files (Phase 14)
+  const brainFiles = {
+    'brain/manifest.json': {
+      schema_version: '2.0.0',
+      suite_version: '2.0.0',
+      initialized_at: nowIso,
+      last_updated: nowIso,
+      project_name: projectName,
+      adapters: [],
+      schema_uri: 'https://testatlas.dev/schemas/v2/manifest.schema.json',
+    },
+    'brain/state.json': {
+      schema_version: '2.0.0',
+      project: { name: projectName, repo_root: '.', primary_stack: [] },
+      status: {
+        phase: 'initialized',
+        last_updated: nowIso,
+        last_command: '/atlas:init',
+        active_environment: 'local',
+      },
+      counts: {
+        domains: 0,
+        flows: 0,
+        issues: 0,
+        critical_issues: 0,
+        high_issues: 0,
+        evidence_artifacts: 0,
+        council_sessions: 0,
+      },
+      confidence: { overall: 'unknown', highest_risk_domains: [], stale_domains: [] },
+      next_recommended_commands: [],
+    },
+    'brain/domains.json': { schema_version: '2.0.0', last_updated: nowIso, domains: [] },
+    'brain/flows.json': { schema_version: '2.0.0', last_updated: nowIso, flows: [] },
+    'brain/routes.json': { schema_version: '2.0.0', last_updated: nowIso, routes: [] },
+    'brain/components.json': { schema_version: '2.0.0', last_updated: nowIso, components: [] },
+    'brain/commands.json': { schema_version: '2.0.0', last_updated: nowIso, commands: [] },
+    'brain/personas.json': { schema_version: '2.0.0', last_updated: nowIso, personas: [] },
+    'brain/issues.json': { schema_version: '2.0.0', last_updated: nowIso, issues: [] },
+    'brain/evidence.json': { schema_version: '2.0.0', last_updated: nowIso, evidence: [] },
+    'brain/risks.json': { schema_version: '2.0.0', last_updated: nowIso, risks: [] },
+    'brain/assumptions.json': { schema_version: '2.0.0', last_updated: nowIso, assumptions: [] },
+    'brain/open_questions.json': {
+      schema_version: '2.0.0',
+      last_updated: nowIso,
+      open_questions: [],
+    },
+    'brain/decisions.json': { schema_version: '2.0.0', last_updated: nowIso, decisions: [] },
+    'brain/coverage.json': {
+      schema_version: '2.0.0',
+      last_updated: nowIso,
+      coverage: { routes: [], components: [], endpoints: [], commands: [] },
+    },
+    'brain/quality_scores.json': { schema_version: '2.0.0', last_updated: nowIso, scores: [] },
+    'brain/agent_sessions.json': { schema_version: '2.0.0', last_updated: nowIso, sessions: [] },
+    'brain/drift.json': { schema_version: '2.0.0', last_updated: nowIso, drift_records: [] },
+    'brain/claims.jsonl': '',
+    'brain/observations.jsonl': '',
+    'brain/events.jsonl': '',
+    'brain/embeddings_manifest.json': {
+      schema_version: '2.0.0',
+      last_updated: nowIso,
+      embeddings: [],
+    },
+    'brain/graph.json': { schema_version: '2.0.0', last_updated: nowIso, nodes: [], edges: [] },
+  };
+
+  for (const [relPath, content] of Object.entries(brainFiles)) {
+    const targetPath = path.join(wsDir, relPath);
+    if ((await stat(targetPath).catch(() => null)) !== null) continue;
+    const data = typeof content === 'object' ? `${JSON.stringify(content, null, 2)}\n` : content;
+    await atomicWrite(targetPath, data);
+    created.push(relPath);
+  }
+
+  // V2 agents registry
+  const registryPath = path.join(wsDir, 'agents', 'registry.json');
+  if ((await stat(registryPath).catch(() => null)) === null) {
+    await atomicWrite(
+      registryPath,
+      `${JSON.stringify(
+        {
+          schema_version: '2.0.0',
+          last_updated: nowIso,
+          personas: [],
+          councils: [],
+          generated_count: 0,
+          session_count: 0,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+    created.push('agents/registry.json');
+  }
+
+  // V2 history files
+  const decisionsPath = path.join(wsDir, 'history', 'decisions.md');
+  if ((await stat(decisionsPath).catch(() => null)) === null) {
+    await atomicWrite(
+      decisionsPath,
+      `---\nschema_version: "2.0.0"\nlast_updated: "${nowIso}"\n---\n\n# Decision Log\n\n*No decisions recorded yet.*\n`,
+    );
+    created.push('history/decisions.md');
+  }
+
+  const changelogPath = path.join(wsDir, 'history', 'changelog.md');
+  if ((await stat(changelogPath).catch(() => null)) === null) {
+    await atomicWrite(
+      changelogPath,
+      `---\nschema_version: "2.0.0"\nlast_updated: "${nowIso}"\n---\n\n# Changelog\n\n*No changes recorded yet.*\n`,
+    );
+    created.push('history/changelog.md');
   }
 
   // Status determination.

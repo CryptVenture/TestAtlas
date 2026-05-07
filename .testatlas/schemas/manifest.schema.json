@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/manifest.schema.json",
+  "type": "object",
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
+    "suite_version": { "type": "string" },
+    "initialized_at": { "type": "string", "format": "date-time" },
+    "last_updated": { "type": "string", "format": "date-time" },
+    "project_name": { "type": "string" },
+    "adapters": { "type": "array", "items": { "type": "string" } },
+    "schema_uri": { "type": "string", "format": "uri" }
+  },
+  "required": ["schema_version"],
+  "additionalProperties": false
+}

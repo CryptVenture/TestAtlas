@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/drift_record.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "pattern": "^DRIFT-[0-9]+$" },
+    "git_ref": { "type": "string" },
+    "changed_files": { "type": "array", "items": { "type": "string" } },
+    "affected_domains": { "type": "array", "items": { "type": "string" } },
+    "affected_flows": { "type": "array", "items": { "type": "string" } },
+    "drift_status": { "type": "string", "enum": ["fresh", "possibly_stale", "stale_requires_review", "unknown"] },
+    "detected_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["id", "git_ref", "drift_status", "detected_at"],
+  "additionalProperties": false
+}

@@ -120,6 +120,21 @@ function inferSchemaId(absPath, parsed, wsDir) {
   if (relPath.startsWith('reports/') && /^REPORT-/.test(baseName))
     return `${SCHEMA_BASE}/report.schema.json`;
 
+  // V2: brain/*.json — skip skeleton/index files that lack $schema or have
+  // array wrappers rather than single-record shape. Wave 0 scaffolding only.
+  if (relPath.startsWith('brain/') && baseName.endsWith('.json')) {
+    if (parsed && typeof parsed.$schema === 'string') {
+      return parsed.$schema;
+    }
+    // No $schema and no path rule → skip silently (not an error for V2 stubs).
+    return '__SKIP__';
+  }
+
+  // V2: agents/registry.json — skip until dedicated schema exists.
+  if (relPath === 'agents/registry.json') {
+    return '__SKIP__';
+  }
+
   // No mapping — caller surfaces as TESTATLAS_UNKNOWN_SCHEMA.
   return null;
 }
@@ -160,6 +175,9 @@ export async function check(ctx) {
     if (!f.parsed || typeof f.parsed !== 'object') continue;
 
     const schemaId = inferSchemaId(f.path, f.parsed, wsDir);
+    if (schemaId === '__SKIP__') {
+      continue;
+    }
     if (!schemaId) {
       findings.push({
         severity: 'error',

@@ -54,4 +54,5 @@ _testatlas/
 prd
 
 CLAUDE.md
-.claude/
+AGENTS.md
+.claude/tmp-test-v2-migration/

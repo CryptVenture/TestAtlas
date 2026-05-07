@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/assumption.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "pattern": "^ASM-[0-9]+$" },
+    "assumption": { "type": "string" },
+    "basis": { "type": "string" },
+    "invalidated_by": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["active", "validated", "invalidated", "superseded"] }
+  },
+  "required": ["id", "assumption", "status"],
+  "additionalProperties": false
+}
