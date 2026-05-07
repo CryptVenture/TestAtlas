@@ -3,7 +3,7 @@ mode: agent
 description: Detect and reconcile drift between markdown artifacts and brain JSON indexes; orchestrates sync-markdown-json + validate-brain.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="3d8be1cbaf1be08cdf1a88c97492091492854461a05c65595c63e2f814bd84da" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="82e6621c7a321e2622f40560ec25db79519080c6a89860047ffcd9e0777eba61" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-core-brain-sync.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -27,6 +27,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 1. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/sync-markdown-json.js`. The script is idempotent — second invocation with no on-disk changes writes nothing.
    - Run `node .testatlas/scripts/index-artifacts.js` to rebuild brain indexes from artifact scans.
+   - Run `node .testatlas/scripts/update-graph.js` to refresh `_testatlas/brain/graph.json` (PRD §11 16-relationship knowledge graph).
    - Run `node .testatlas/scripts/validate-brain.js` to confirm the brain is schema-valid post-sync.
 2. **Fallback path (no `shell`):**
    - Read each domain's `domain.md` + `domain.json`; if mtimes differ, surface drift; mark run `confidence: needs-validation`.

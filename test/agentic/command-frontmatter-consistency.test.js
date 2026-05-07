@@ -64,12 +64,14 @@ async function loadFrontmatter(name) {
   return parseFrontmatter(text);
 }
 
-test('init.md declares command-result in produces (touches 10_command_log.md)', async () => {
-  const fm = await loadFrontmatter('init.md');
-  assert.ok(Array.isArray(fm.produces), 'init.md frontmatter `produces` must be an array');
+test('core/init.md declares command-result in produces (touches 10_command_log.md)', async () => {
+  // Phase 17 Plan 17-04 deleted V1 commands/init.md (slash collision fix);
+  // canonical /atlas:init source is now commands/core/init.md.
+  const fm = await loadFrontmatter('core/init.md');
+  assert.ok(Array.isArray(fm.produces), 'core/init.md frontmatter `produces` must be an array');
   assert.ok(
     fm.produces.includes('command-result'),
-    `init.md produces should include 'command-result' since lifecycle touches 10_command_log.md. Got: ${JSON.stringify(fm.produces)}`,
+    `core/init.md produces should include 'command-result' since lifecycle touches 10_command_log.md. Got: ${JSON.stringify(fm.produces)}`,
   );
 });
 

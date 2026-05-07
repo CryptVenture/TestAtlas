@@ -163,7 +163,10 @@ test('Test 2 (prompts/list): returns K entries (V1 flat + V2 categorized) with s
   }
 });
 
-test('Test 3 (prompts/get atlas-init): returns description + messages[0].content.text starting with BOOTSTRAP_PREAMBLE', async () => {
+test('Test 3 (prompts/get atlas-core-init): returns description + messages[0].content.text starting with BOOTSTRAP_PREAMBLE', async () => {
+  // Phase 17 Plan 17-04 deleted V1 commands/init.md (slash collision fix);
+  // the canonical /atlas:init source is now commands/core/init.md, which
+  // surfaces in the MCP prompts manifest as `atlas-core-init`.
   const responses = await rpc([
     {
       jsonrpc: '2.0',
@@ -175,7 +178,7 @@ test('Test 3 (prompts/get atlas-init): returns description + messages[0].content
         clientInfo: { name: 't', version: '1' },
       },
     },
-    { jsonrpc: '2.0', id: 3, method: 'prompts/get', params: { name: 'atlas-init' } },
+    { jsonrpc: '2.0', id: 3, method: 'prompts/get', params: { name: 'atlas-core-init' } },
   ]);
   const getResp = responses.find((r) => r.id === 3);
   assert.ok(getResp, `expected response with id=3; got: ${JSON.stringify(responses)}`);
@@ -193,11 +196,11 @@ test('Test 3 (prompts/get atlas-init): returns description + messages[0].content
   // prefix is byte-stable across all channels and is what we pin here.
   assert.ok(
     msg.content.text.includes(BOOTSTRAP_PREAMBLE_PREFIX),
-    `prompts/get atlas-init text must contain bootstrap preamble`,
+    `prompts/get atlas-core-init text must contain bootstrap preamble`,
   );
   assert.ok(
-    msg.content.text.includes('<MCP prompt: atlas-init>'),
-    `prompts/get atlas-init text must substitute {{ADAPTER_COMMAND_PATH}} for the MCP-prompt pseudo-path`,
+    msg.content.text.includes('<MCP prompt: atlas-core-init>'),
+    `prompts/get atlas-core-init text must substitute {{ADAPTER_COMMAND_PATH}} for the MCP-prompt pseudo-path`,
   );
 });
 

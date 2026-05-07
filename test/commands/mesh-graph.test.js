@@ -21,7 +21,8 @@
 // LEAVES the atlas-init slug collision until Plan 17-04 deletes the V1
 // `init.md`. The collisions test is therefore expected to FAIL after Plan
 // 17-03 lands, with exactly 1 collision (atlas-init -> [init.md, core/init.md]).
-// Plan 17-04 unsticks the collisions assertion.
+// Plan 17-04 (Task 2) deleted V1 init.md — collisions assertion now runs
+// unconditionally. Remaining 13 orphans are closed by Plan 17-05.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -42,17 +43,22 @@ const ATLAS_REF_RE = /\/atlas:([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
 // Roots that are entry points; no inbound link expected.
 const ROOT_ALLOWLIST = new Set(['atlas-init', 'atlas-bootstrap']);
 
-// Deferred orphans — these slugs are not yet linked from any source body but
-// Plan 17-04 (Mesh fix #4-#6 + #10 — council.md explicit dispatcher, V2→V1
-// council-output reads, init.md collision resolution) will wire them in.
-// When Plan 17-04 lands, these entries should be removed (the test will then
+// Deferred orphans — these slugs are not yet linked from any source body.
+// Plan 17-04 closed mesh fixes #4-#6 (init.md collision, update-graph wiring,
+// V2 council/brain outputs read by V1 readers) — none of which add /atlas:
+// forward links to the slugs below. Plan 17-05 (mesh fix #7 explore router,
+// #9 create-persona surfacing, #10 council.md explicit dispatcher listing all
+// 10 council sub-commands by slash name) is the deliverable that closes the
+// remaining orphans below.
+//
+// When Plan 17-05 lands, these entries should be removed (the test will then
 // assert the slug has at least one real inbound link).
 //
 // This list intentionally falsifies the orphan assertion in a way that
 // surfaces every still-orphaned slug to the verifier; if a NEW orphan
 // appears that is not in this list, the test fails — protecting against
 // regression while a known-pending fix is being staged.
-const DEFERRED_TO_PLAN_17_04 = new Set([
+const DEFERRED_TO_PLAN_17_05 = new Set([
   'atlas-bootstrap-refresh',
   'atlas-brain-compact',
   'atlas-brain-query',
@@ -174,7 +180,7 @@ test('REVIEW-INV-C orphans: every non-root command slug has inbound /atlas: link
   const orphans = [];
   for (const [slug, count] of inbound) {
     if (ROOT_ALLOWLIST.has(slug)) continue;
-    if (DEFERRED_TO_PLAN_17_04.has(slug)) continue;
+    if (DEFERRED_TO_PLAN_17_05.has(slug)) continue;
     if (count === 0) orphans.push(slug);
   }
   orphans.sort();
@@ -250,9 +256,9 @@ test('REVIEW-INV-C broken-refs: every /atlas: reference targets an existing sour
   );
 });
 
-// Plan 17-04 deletes V1 init.md so atlas-init collapses to one source file
-// (core/init.md). Until that lands, tolerate this exact collision.
-const DEFERRED_COLLISIONS = new Set(['atlas-init']);
+// Plan 17-04 (Task 2) deleted V1 init.md, collapsing atlas-init to a single
+// source file (core/init.md). The collisions assertion now runs unconditionally
+// — no allowlist. Any future collision regression fails the test.
 
 test('REVIEW-INV-C collisions: no two source files render to the same flat slug', async () => {
   const { slugToFiles } = await loadCommandGraph();
@@ -260,7 +266,7 @@ test('REVIEW-INV-C collisions: no two source files render to the same flat slug'
   /** @type {Array<{ slug: string, files: string[] }>} */
   const collisions = [];
   for (const [slug, fileList] of slugToFiles) {
-    if (fileList.length > 1 && !DEFERRED_COLLISIONS.has(slug)) {
+    if (fileList.length > 1) {
       collisions.push({ slug, files: [...fileList].sort() });
     }
   }

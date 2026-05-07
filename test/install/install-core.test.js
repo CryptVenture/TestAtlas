@@ -281,10 +281,13 @@ test('install-core: --global writes adapter command files into user-home paths',
     assert.equal(result.global, true);
     // Suite tree still lands at $HOME/.testatlas/ so bootstrap.md is resolvable.
     await stat(path.join(fakeHome, '.testatlas', 'bootstrap.md'));
-    // Per-adapter command files at home-relative globalOutputPattern dirs:
-    await stat(path.join(fakeHome, '.claude', 'commands', 'atlas-init.md'));
-    await stat(path.join(fakeHome, '.cursor', 'rules', 'atlas-init.mdc'));
-    await stat(path.join(fakeHome, '.config', 'opencode', 'command', 'atlas-init.md'));
+    // Per-adapter command files at home-relative globalOutputPattern dirs.
+    // Phase 17 Plan 17-04 deleted V1 commands/init.md (slash collision fix);
+    // canonical /atlas:init source is now commands/core/init.md →
+    // atlas-core-init.md. Stat that instead of the now-removed atlas-init.md.
+    await stat(path.join(fakeHome, '.claude', 'commands', 'atlas-core-init.md'));
+    await stat(path.join(fakeHome, '.cursor', 'rules', 'atlas-core-init.mdc'));
+    await stat(path.join(fakeHome, '.config', 'opencode', 'command', 'atlas-core-init.md'));
     await stat(path.join(fakeHome, '.config', 'aider', 'CONVENTIONS.md'));
     // _testatlas/ workspace must NOT exist — workspace state is project-local.
     await assert.rejects(

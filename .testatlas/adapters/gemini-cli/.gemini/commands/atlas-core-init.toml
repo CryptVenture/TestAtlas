@@ -1,6 +1,6 @@
 description = "Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="4d7583714600844227a7a221646f625a1288daa308fb1b3f4e753a45451e1aac" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="055252fc3faa61e6ea3f2f64d8e44dd2be69df038909fb52f6c46d204bd9ed83" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -15,7 +15,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Required Actions
 
-1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`.
+1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`. After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
 2. **V2 upgrade specifics:**
    - Ensure `_testatlas/brain/` exists with all 22 required files (delegated to `init-workspace.js` Wave 0/1 helpers).
    - Mirror schemas to `_testatlas/brain/schema/` for offline validation.
@@ -49,6 +49,16 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 - Target repo path is not writable → halt; never proceed silently.
 - `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable.
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record current command + completion state.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute counts.
+- `_testatlas/history/run_log.md` — narrative log entry for this run.
+
 ## Completion Criteria
 
 - `_testatlas/11_workspace_manifest.json` validates and records `status: initialized` (or `partial-fill` for upgrade).
@@ -64,7 +74,9 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command init --acto
 ## What's Next
 
 - `/atlas:status` — confirm the new workspace state.
+- `/atlas:validate-workspace` — confirm V1 schemas + manifest are clean before any exploration.
 - `/atlas:brain-validate` — confirm V2 brain integrity.
-- `/atlas:explore` — start mapping the product.
+- `/atlas:explore` — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available).
+- `/atlas:bootstrap` — re-load the constitution if you suspect context drift.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 """

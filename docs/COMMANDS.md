@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/commands/*.md` (V1 flat + V2 categorized) by `scripts/generate-commands-doc.js`. Do not edit by hand._
 
-This index covers every `/atlas:*` command shipped with TestAtlas (73 commands: 32 V1 flat + 41 V2 categorized in core/, explore/, test/, council/, brain/, report/, maintain/). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
+This index covers every `/atlas:*` command shipped with TestAtlas (72 commands: 31 V1 flat + 41 V2 categorized in core/, explore/, test/, council/, brain/, report/, maintain/). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
 
 See [docs/SCHEMAS.md](./SCHEMAS.md) for the JSON Schemas these commands consume and produce.
 
@@ -167,16 +167,6 @@ Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,
 **Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/handoff.md)
-
----
-
-## /atlas:init
-
-Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently.
-
-**Capabilities:** `shell`, `file-write`
-
-[Source](../.testatlas/commands/init.md)
 
 ---
 

@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="c4457cacb704fb9955cd160f27fe9df749a6422959cdc4f89d6f08b86d617e12" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="a855693a25e9ba3043b97f319e8c59078bf682a05404acebfbb9f103c4f44e5d" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -288,12 +288,6 @@ Inventory existing tests, measure coverage, identify gaps, surface flaky tests. 
 ## /atlas-handoff
 
 Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries. Read `.testatlas/commands/handoff.md` for full instructions.
-- Required capabilities: shell, file-write.
-- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
-
-## /atlas-init
-
-Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently. Read `.testatlas/commands/init.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

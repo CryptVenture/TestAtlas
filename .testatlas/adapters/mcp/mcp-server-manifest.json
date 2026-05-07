@@ -248,11 +248,6 @@
       "arguments": []
     },
     {
-      "name": "atlas-init",
-      "description": "Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently.",
-      "arguments": []
-    },
-    {
       "name": "atlas-log-issue",
       "description": "Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17.",
       "arguments": []

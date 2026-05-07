@@ -159,8 +159,11 @@ test('Test 6: claude-code exposes V2 explore/* and core/* commands at FLAT root 
   // V2 commands appear at flat root with `commandBaseNameFromSource` naming:
   //   commands/explore/state.md  →  atlas-explore-state.md
   //   commands/core/status.md    →  atlas-core-status.md
-  //   commands/core/init.md      →  atlas-core-init.md (NOT atlas-init.md
-  //                                  — that name belongs to V1 flat init.md)
+  //   commands/core/init.md      →  atlas-core-init.md (canonical /atlas:init
+  //                                  source after Phase 17 Plan 17-04 deleted
+  //                                  V1 commands/init.md to resolve the slash
+  //                                  collision; atlas-init.md no longer exists
+  //                                  at flat root)
   const cmdDir = path.join(
     repoRoot,
     '.testatlas',
@@ -200,10 +203,16 @@ test('Test 6: claude-code exposes V2 explore/* and core/* commands at FLAT root 
     flatNames.includes('atlas-core-status.md'),
     `atlas-core-status.md must exist at flat root (V2 core/status.md disambiguated by commandBaseNameFromSource)`,
   );
-  // V1 atlas-init.md (from flat commands/init.md) must remain UNCHANGED at flat root.
+  // Phase 17 Plan 17-04: V1 commands/init.md was deleted to resolve the
+  // /atlas:init slash collision; atlas-init.md must NOT exist at flat root.
+  // The canonical source is now commands/core/init.md → atlas-core-init.md.
   assert.ok(
-    flatNames.includes('atlas-init.md'),
-    `V1 atlas-init.md must remain at flat root (byte-identical post-flatten)`,
+    !flatNames.includes('atlas-init.md'),
+    `V1 atlas-init.md must NOT exist at flat root after Plan 17-04 deletion (canonical is atlas-core-init.md)`,
+  );
+  assert.ok(
+    flatNames.includes('atlas-core-init.md'),
+    `atlas-core-init.md must exist at flat root (V2 core/init.md is the canonical /atlas:init source post-Plan-17-04)`,
   );
 
   const exploreFlat = flatNames.filter((n) => n.startsWith('atlas-explore-') && n.endsWith('.md'));

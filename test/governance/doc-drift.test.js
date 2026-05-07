@@ -140,16 +140,21 @@ test('README.md does not name the legacy 7-adapter list', async () => {
   );
 });
 
-test('docs/GETTING_STARTED.md command count says 32, not 30 or 31', async () => {
+test('docs/GETTING_STARTED.md command count reflects post-Plan-17-04 V1+V2 totals', async () => {
   const src = await readFile(GETTING_STARTED_PATH, 'utf8');
   assert.ok(!src.includes('30 /atlas:'), 'docs/GETTING_STARTED.md must not say "30 /atlas:"');
   assert.ok(!src.includes('30 `/atlas'), 'docs/GETTING_STARTED.md must not say "30 `/atlas"');
-  assert.ok(!src.includes('31 /atlas:'), 'docs/GETTING_STARTED.md must not say "31 /atlas:"');
-  assert.ok(!src.includes('31 `/atlas'), 'docs/GETTING_STARTED.md must not say "31 `/atlas"');
-  const has32 = src.includes('32 /atlas:') || src.includes('32 `/atlas');
+  // Phase 17 Plan 17-04 deleted V1 init.md; V1 flat surface dropped 32 → 31.
+  // V2 categorized surface is 41 (post-Phase-16 flatten). The doc must
+  // surface BOTH numbers — no bare "32" claim in the post-17-04 era.
   assert.ok(
-    has32,
-    'docs/GETTING_STARTED.md must say "32 /atlas:" or "32 `/atlas" (post-Quick-260505-vj4 command count after adding test-all).',
+    !src.includes('32 /atlas:') && !src.includes('32 `/atlas'),
+    'docs/GETTING_STARTED.md must not say "32 /atlas:" — post-Plan-17-04 V1 flat count is 31, not 32.',
+  );
+  const has31 = src.includes('31 V1') || src.includes('31 /atlas:') || src.includes('31 `/atlas');
+  assert.ok(
+    has31,
+    'docs/GETTING_STARTED.md must reference the post-Plan-17-04 31-command V1 surface (e.g. "31 V1 + 41 V2 /atlas:*").',
   );
 });
 

@@ -38,7 +38,7 @@ Then in your AI agent of choice:
 /atlas:init
 ```
 
-That's it. The agent now has 32 `/atlas:*` commands, schema-validated workspace artifacts, and a capability-aware degradation rule that keeps it honest when tools (browser/MCP/shell) aren't available.
+That's it. The agent now has 31 `/atlas:*` V1 commands plus 41 V2 `/atlas:*` commands, schema-validated workspace artifacts, and a capability-aware degradation rule that keeps it honest when tools (browser/MCP/shell) aren't available.
 
 ## How it works
 
@@ -95,7 +95,7 @@ All three paths converge on the same install kernel and produce the same `.testa
 
 - `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer (14 canonical files + 23 subdirs).
 - Auto-detected adapter for your agent across 18 adapter families spanning the major 2026 AI coding agent ecosystems (see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md) for the full roster). `--all-adapters` ships every adapter; `--adapter <name>` picks specific ones.
-- 32 `/atlas:*` commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup.
+- 31 `/atlas:*` V1 commands plus 41 V2 commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup, plus the V2 surface (council, brain, generate, report-{domain,release,dashboard-data}, maintain).
 - 20 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
 - Atomic self-update with backup + rollback, signed tarball verification (cosign opt-in), and version pinning for stability-conscious teams.
 
@@ -220,7 +220,7 @@ Then tell your agent: `/atlas:explore` — and watch it map your product surface
 | Step | Resource |
 |------|----------|
 | 1. Install | [docs/INSTALL.md](docs/INSTALL.md) — three paths (npx, curl, git clone) |
-| 2. First hour | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — walk through all 32 `/atlas:*` commands |
+| 2. First hour | [docs/GETTING_STARTED.md](docs/GETTING_STARTED.md) — walk through all 31 V1 plus 41 V2 `/atlas:*` commands |
 | 3. Explore your product | `/atlas:explore` — the agent maps UI, API, CLI, data, integrations, performance, accessibility |
 | 4. Run tests | `/atlas:test-flow` — execute scenarios against your running product with evidence capture |
 | 5. Deep dive | [docs/COMMANDS.md](docs/COMMANDS.md) — auto-generated command reference |

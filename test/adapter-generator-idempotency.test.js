@@ -147,7 +147,8 @@ test('Test 6d: hand-edit detection — modifying a derived file makes --check ex
   const ws = await buildWorkspace();
   try {
     await assembleAdapter({ adapter: 'claude-code', workspace: ws });
-    // Hand-edit one derived file.
+    // Hand-edit one derived file. Phase 17 Plan 17-04 deleted V1 init.md;
+    // canonical /atlas:init render is atlas-core-init.md (V2 core/init.md).
     const target = path.join(
       ws,
       '.testatlas',
@@ -155,7 +156,7 @@ test('Test 6d: hand-edit detection — modifying a derived file makes --check ex
       'claude-code',
       '.claude',
       'commands',
-      'atlas-init.md',
+      'atlas-core-init.md',
     );
     const text = await readFile(target, 'utf8');
     await writeFile(target, `${text}\n<!-- malicious hand-edit -->\n`, 'utf8');
@@ -167,7 +168,7 @@ test('Test 6d: hand-edit detection — modifying a derived file makes --check ex
     });
     assert.equal(checked.exitCode, 1, 'exit code must be 1 when drift detected');
     assert.equal(checked.adapters[0].drift.length, 1, 'one drift entry expected');
-    assert.match(checked.adapters[0].drift[0], /atlas-init\.md$/);
+    assert.match(checked.adapters[0].drift[0], /atlas-core-init\.md$/);
   } finally {
     await rm(ws, { recursive: true, force: true });
   }

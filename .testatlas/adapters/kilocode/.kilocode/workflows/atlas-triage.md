@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="5a46df98c41e5d77a950d9c1a7c77521ca491ca05bf5179d9058ca2581e1ad31" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="a9a44fb471237ff9f73b4d3a9d7c8889d15f0beb8f2b9269808e32567e809f35" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -24,6 +24,7 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every mutated issue must continue to satisfy.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The current `_testatlas/to_fix/by_severity/`, `_testatlas/to_fix/by_status/`, `_testatlas/to_fix/by_domain/` indexes.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most recent council session consolidations (filter to bug-triage mode); read to honor severity verdicts ratified by council.
 
 ## Required Actions
 

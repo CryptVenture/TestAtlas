@@ -43,7 +43,9 @@ test('add-adapter: adds a new adapter — manifest reflects both, command files 
     assert.ok(manifest.adapters.includes('claude-code'));
     assert.ok(manifest.adapters.includes('cline'));
     // Cline command file landed at the project-local outputPattern dir.
-    await stat(path.join(target, '.clinerules', 'workflows', 'atlas-init.md'));
+    // Phase 17 Plan 17-04 deleted V1 commands/init.md; canonical /atlas:init
+    // source is now commands/core/init.md → atlas-core-init.md.
+    await stat(path.join(target, '.clinerules', 'workflows', 'atlas-core-init.md'));
     // New entries appear in manifest.files with type='command'.
     const cmdEntries = manifest.files.filter((f) => f.type === 'command');
     assert.ok(
@@ -153,8 +155,9 @@ test('add-adapter: --dry-run leaves manifest untouched and reports planned adds'
     const afterContent = await readFile(manifestPath, 'utf8');
     assert.equal(afterContent, beforeContent, 'manifest unchanged on dry-run');
     // Cline command file must NOT have been written.
+    // Phase 17 Plan 17-04: stat atlas-core-init.md (post-V1-deletion canonical).
     await assert.rejects(
-      () => stat(path.join(target, '.clinerules', 'workflows', 'atlas-init.md')),
+      () => stat(path.join(target, '.clinerules', 'workflows', 'atlas-core-init.md')),
       (err) => err.code === 'ENOENT',
     );
   });
@@ -180,7 +183,8 @@ test('add-adapter: --global mode operates on the global manifest', async (t) => 
     assert.equal(result.status, 'added');
     assert.equal(result.global, true);
     // Global cline command file lands at home-relative globalOutputPattern.
-    await stat(path.join(fakeHome, '.config', 'cline', 'workflows', 'atlas-init.md'));
+    // Phase 17 Plan 17-04: canonical /atlas:init is atlas-core-init.md.
+    await stat(path.join(fakeHome, '.config', 'cline', 'workflows', 'atlas-core-init.md'));
     const manifest = await loadAndValidateManifest(fakeHome, { cwd: REPO_ROOT });
     assert.equal(manifest.mode, 'global');
     assert.ok(manifest.adapters.includes('cline'));

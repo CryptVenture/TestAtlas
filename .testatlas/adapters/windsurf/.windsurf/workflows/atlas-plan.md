@@ -3,7 +3,7 @@ description: Produce a risk-based, domain-based, flow-based, state-aware test st
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="990c6b050ee28e2622d42a736be2ec6cce53c0d32ebbe0e25090f0dd7c35c0dd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="6b08e2c3d166b36bcf42138a20aa5e67cceb0ef04bdb6ad1bed25ac0b097865f" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -20,6 +20,7 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 - `.testatlas/schemas/matrix.schema.json` — required JSON shape for the bundled `matrix.json` index.
 - `.testatlas/schemas/test-scenario.schema.json` — required JSON shape per scenario sidecar in `tests/scenarios/`.
 - `.testatlas/default.config.json` — currently declared adapter capabilities (used to gate scenarios per step 8).
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most recent council session consolidations (filter to test-plan mode); read to honor matrix decisions ratified by council.
 
 ## Required Actions
 

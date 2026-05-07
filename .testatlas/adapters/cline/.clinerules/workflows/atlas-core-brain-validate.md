@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-validate. Invoke as /atlas-core-brain-validate.md. Description: Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="060e7cd85a0b17ffa1ee2a483b7be488d506c53872b0248443a3691c4284a571" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="10b440e2671f83ae1f4b3d3e34207443e5ecf9049b3b011099a6e7935f49cd11" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-core-brain-validate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -48,6 +48,18 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
 
 - `_testatlas/` missing entirely → halt with `Run /atlas:init first.`
 - No findings → success path; close lifecycle and exit.
+
+## Brain Files Inventory
+
+The 22 required brain files validated by this command:
+
+- `_testatlas/brain/manifest.json` — V2 manifest (schema_version, suite_version, project_name, adapters).
+- `_testatlas/brain/state.json` — current workspace state snapshot.
+- `_testatlas/brain/quality_scores.json` — per-domain/flow quality score signals.
+- `_testatlas/brain/drift.json` — drift signals across markdown↔JSON boundaries.
+- `_testatlas/brain/coverage.json` — coverage matrix indexed by flow + scenario.
+- `_testatlas/brain/graph.json` — 16-relationship knowledge graph (populated by `node .testatlas/scripts/update-graph.js` from `/atlas:brain-sync`).
+- Remaining 16 JSON/JSONL indexes per V2 brain schema (`events.jsonl`, council/persona/agent indexes, etc.) — full enumeration in `.testatlas/schemas/manifest.schema.json`.
 
 ## Completion Criteria
 

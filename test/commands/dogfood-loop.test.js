@@ -1,11 +1,13 @@
 // test/commands/dogfood-loop.test.js
 //
-// CMD-01: structural test asserting the EXACT 32-file command roster
+// CMD-01: structural test asserting the EXACT 31-file FLAT command roster
 // (Phase 3 shipped 9; Phase 4 ships 21 NEW; quick-260505-2zr adds uninstall.md
-// = 31 total; quick-260505-vj4 adds test-all.md = 32 total). Cannot live in
-// any single plan because the roster is only complete after Wave 1 + Wave 2
-// of Phase 4 lands. Acts as a drift detector: adding or removing a command
-// without updating EXPECTED_ROSTER fails the test with a clear diff.
+// = 31 total; quick-260505-vj4 adds test-all.md = 32 total; Phase 17 Plan
+// 17-04 deletes V1 init.md to resolve the /atlas:init slash collision = 31
+// total flat). Cannot live in any single plan because the roster is only
+// complete after Wave 1 + Wave 2 of Phase 4 lands. Acts as a drift detector:
+// adding or removing a command without updating EXPECTED_ROSTER fails the
+// test with a clear diff.
 //
 // Build-up history:
 //   - Phase 3 (9):  init, bootstrap, validate-workspace, log-issue,
@@ -16,6 +18,10 @@
 //                   triage, retest, consolidate, handoff, cleanup, update
 //   - quick-260505-2zr (+1): uninstall (lifecycle parity with init/update)
 //   - quick-260505-vj4 (+1): test-all (umbrella for test-flow --all + test-domain --all)
+//   - Phase 17 Plan 17-04 (-1): V1 init.md deleted (slash collision fix);
+//                   canonical /atlas:init now lives at commands/core/init.md
+//                   which is enumerated by listCategorizedCommandFiles, not
+//                   listCommandFiles, so is intentionally NOT in this roster.
 //
 // README.md is filtered out — it is an index page, not a command file.
 
@@ -43,7 +49,6 @@ const EXPECTED_ROSTER = [
   'explore-ui.md',
   'explore.md',
   'handoff.md',
-  'init.md',
   'log-issue.md',
   'map-domains.md',
   'plan.md',
@@ -61,7 +66,7 @@ const EXPECTED_ROSTER = [
   'validate-workspace.md',
 ];
 
-test('CMD-01: dogfood loop ships exactly 32 command files', async () => {
+test('CMD-01: dogfood loop ships exactly 31 flat command files (V1 init.md deleted in Plan 17-04)', async () => {
   const files = await listCommandFiles();
   const basenames = files.map((f) => path.basename(f)).filter((name) => name !== 'README.md');
   assert.equal(

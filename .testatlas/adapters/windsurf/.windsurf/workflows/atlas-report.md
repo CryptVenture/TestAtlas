@@ -3,7 +3,7 @@ description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="967efad38f3f9c8d8b567e48bd6406335e4c7bd37221d233f5a200ca7c441916" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="5e3dda031d7760aa6b5bfd395bfde9294c4ea914824e64d1799d377ce770df5d" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-report.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -18,6 +18,9 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 - `_testatlas/12_app_map.json` and `_testatlas/domains/*/domain.json` — coverage denominators (apps / routes / domains / flows).
 - The previous `_testatlas/reports/REPORT-*.md` if any — for the trend-vs-prior section (last section).
 - `.testatlas/schemas/report.schema.json` — required JSON shape and section list.
+- `_testatlas/brain/quality_scores.json` — brain layer quality score signals; readiness verdict must reflect current scores.
+- `_testatlas/brain/drift.json` — brain layer drift signals; readiness verdict must flag stale or contested artifacts.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most-recent council consolidation per mode (release-readiness primarily); read to honor council verdicts.
 
 ## Required Actions
 

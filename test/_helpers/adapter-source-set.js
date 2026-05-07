@@ -6,7 +6,7 @@
 // commands root with `commandBaseNameFromSource(sourcePath)` as the unique
 // identifier. This module returns:
 //   - `expectedFlatNames(ext)`: Set of expected flat-root filenames the
-//     adapter must contain (e.g. `atlas-init.md`, `atlas-council-domain-review.md`)
+//     adapter must contain (e.g. `atlas-bootstrap.md`, `atlas-council-domain-review.md`)
 //   - `flatNameToSource(ext)`: Map of `atlas-<flatName>.<ext>` →
 //     { sourcePath, sourceRel } so per-adapter Test 3 can validate marker
 //     source + hash without hand-coding the V1↔V2 mapping.

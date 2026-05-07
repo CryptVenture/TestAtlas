@@ -37,8 +37,11 @@ const AGENT_FACING_SCRIPTS = [
 ];
 
 // Per-command expected script references (the canonical wiring map).
+// Phase 17 Plan 17-04: V1 commands/init.md deleted; canonical /atlas:init
+// source is now commands/core/init.md (V2). The wiring-map key uses the
+// path-relative form `core/init.md` so readAllCommandFiles() finds it.
 const WIRING_MAP = {
-  'init.md': ['init-workspace.js'],
+  'core/init.md': ['init-workspace.js'],
   'update.md': ['update.js'],
   'validate-workspace.md': [
     'validate-workspace.js',
@@ -58,12 +61,25 @@ const WIRING_MAP = {
 };
 
 async function readAllCommandFiles() {
-  const entries = await readdir(COMMANDS_DIR, { withFileTypes: true });
   const out = new Map();
+  // Flat V1 command files (commands/*.md).
+  const entries = await readdir(COMMANDS_DIR, { withFileTypes: true });
   for (const e of entries) {
-    if (!e.isFile() || !e.name.endsWith('.md')) continue;
-    const content = await readFile(path.join(COMMANDS_DIR, e.name), 'utf8');
-    out.set(e.name, content);
+    if (e.isFile() && e.name.endsWith('.md')) {
+      const content = await readFile(path.join(COMMANDS_DIR, e.name), 'utf8');
+      out.set(e.name, content);
+    } else if (e.isDirectory()) {
+      // Phase 17 Plan 17-04: V2 categorized command files (commands/<cat>/*.md)
+      // — needed so the wiring map can reference paths like `core/init.md`.
+      const subEntries = await readdir(path.join(COMMANDS_DIR, e.name), {
+        withFileTypes: true,
+      });
+      for (const se of subEntries) {
+        if (!se.isFile() || !se.name.endsWith('.md')) continue;
+        const content = await readFile(path.join(COMMANDS_DIR, e.name, se.name), 'utf8');
+        out.set(`${e.name}/${se.name}`, content);
+      }
+    }
   }
   return out;
 }

@@ -45,7 +45,7 @@ test('detectInstallDrift fires after a hand-edit to a restaged adapter file (cla
   const cap = live.adapters.find((a) => a.name === 'claude-code');
   await seedCapabilities(target, ['claude-code']);
   const written = await seedAdapterSource(target, 'claude-code', cap, {
-    files: ['.claude/commands/atlas-bootstrap.md', '.claude/commands/atlas-init.md'],
+    files: ['.claude/commands/atlas-bootstrap.md', '.claude/commands/atlas-core-init.md'],
   });
   await seedSchemas(target);
 

@@ -116,7 +116,9 @@ test('Test 2: hand-edit detection — append bytes inside envelope → kind === 
       'claude-code',
       '.claude',
       'commands',
-      'atlas-init.md',
+      // Phase 17 Plan 17-04: V1 commands/init.md deleted; canonical adapter
+      // render is atlas-core-init.md (from V2 commands/core/init.md source).
+      'atlas-core-init.md',
     );
     const text = await readFile(target, 'utf8');
     // Insert "MUTATED" before the END marker so the marker line itself stays
@@ -135,8 +137,8 @@ test('Test 2: hand-edit detection — append bytes inside envelope → kind === 
       `expected at least one hand-edit drift entry; got: ${JSON.stringify(result.drift.filter((d) => d.kind !== 'missing'))}`,
     );
     assert.ok(
-      handEdits.some((d) => d.expectedPath?.endsWith(path.join('atlas-init.md'))),
-      `hand-edit drift must include atlas-init.md; got expectedPaths: ${handEdits.map((d) => d.expectedPath).join(', ')}`,
+      handEdits.some((d) => d.expectedPath?.endsWith(path.join('atlas-core-init.md'))),
+      `hand-edit drift must include atlas-core-init.md; got expectedPaths: ${handEdits.map((d) => d.expectedPath).join(', ')}`,
     );
   } finally {
     await rm(tmp, { recursive: true, force: true });
@@ -146,7 +148,9 @@ test('Test 2: hand-edit detection — append bytes inside envelope → kind === 
 test('Test 3: hash-mismatch detection — mutate source command without regen → kind === "hash-mismatch"', async () => {
   const tmp = await makeTmpRepo();
   try {
-    const sourcePath = path.join(tmp, '.testatlas', 'commands', 'init.md');
+    // Phase 17 Plan 17-04: V1 commands/init.md deleted; canonical /atlas:init
+    // source is now commands/core/init.md → atlas-core-init.md adapter render.
+    const sourcePath = path.join(tmp, '.testatlas', 'commands', 'core', 'init.md');
     const original = await readFile(sourcePath, 'utf8');
     await writeFile(sourcePath, `${original}\n<!-- source mutation -->\n`, 'utf8');
 
@@ -157,11 +161,11 @@ test('Test 3: hash-mismatch detection — mutate source command without regen �
       `expected at least one hash-mismatch drift; got: ${JSON.stringify(result.drift.filter((d) => d.kind !== 'missing').slice(0, 3))}`,
     );
     const initMismatch = hashMismatches.find((d) =>
-      d.expectedPath?.endsWith(path.join('atlas-init.md')),
+      d.expectedPath?.endsWith(path.join('atlas-core-init.md')),
     );
     assert.ok(
       initMismatch,
-      'init source mutation must surface as a hash-mismatch on atlas-init.md',
+      'core/init source mutation must surface as a hash-mismatch on atlas-core-init.md',
     );
     assert.ok(
       initMismatch.expectedHash && initMismatch.actualHash,
