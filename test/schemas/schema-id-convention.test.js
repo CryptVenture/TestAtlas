@@ -49,6 +49,7 @@ const V2_SCHEMAS = new Set([
   'coverage.schema.json',
   'dashboard_data.schema.json',
   'retest_pack.schema.json',
+  'relationship.schema.json',
 ]);
 
 test('TPL-02: every schema has $id, $schema (Draft 2020-12), title', async () => {

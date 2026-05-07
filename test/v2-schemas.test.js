@@ -14,7 +14,7 @@ const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCHEMAS_DIR = path.join(REPO_ROOT, '.testatlas', 'schemas');
 const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
 
-// V2 schemas (Wave 0 + Wave 1). All 21.
+// V2 schemas (Wave 0 + Wave 1). 18 total.
 const V2_SCHEMAS = [
   // Wave 0
   'manifest.schema.json',
@@ -35,6 +35,8 @@ const V2_SCHEMAS = [
   'coverage.schema.json',
   'dashboard_data.schema.json',
   'retest_pack.schema.json',
+  // Plan 14-01 task 3 — brain graph relationship schema (PRD §11.2).
+  'relationship.schema.json',
 ];
 
 // V2 enums that vocabulary.json must define under $defs.

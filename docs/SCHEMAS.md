@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/schemas/*.schema.json` by `scripts/generate-schemas-doc.js`. Do not edit by hand._
 
-Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 37 schemas shipped with v1.
+Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 38 schemas shipped with v1.
 
 See [docs/COMMANDS.md](./COMMANDS.md) for the commands that consume and produce these schemas.
 
@@ -297,6 +297,18 @@ Schema for tests/matrix.json — the bundled scenario index produced by /atlas:p
 **Top-level properties:** `metric`, `score`, `evidence_refs`, `freshness`, `confidence`, `computed_at`
 
 [Source](../.testatlas/schemas/quality_score.schema.json)
+
+---
+
+## TestAtlas V2 Brain Graph
+
+Schema for _testatlas/brain/graph.json. PRD §11.1 (entities) + §11.2 (relationships). Defines the 16 PRD-mandated relationship types and the node/edge shape used by graph queries (drift impact, evidence reachability, blocked-release detection).
+
+**`$id`:** `https://testatlas.dev/schemas/v2/relationship.schema.json`
+
+**Top-level properties:** `schema_version`, `last_updated`, `nodes`, `edges`
+
+[Source](../.testatlas/schemas/relationship.schema.json)
 
 ---
 

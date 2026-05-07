@@ -13,13 +13,10 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
-const SCHEMA_PATH = path.join(
-  REPO_ROOT,
-  '_testatlas',
-  'brain',
-  'schema',
-  'relationship.schema.json',
-);
+// Canonical schema source-of-truth lives in the suite tree (.testatlas/schemas/);
+// install/init-workspace mirrors it to _testatlas/brain/schema/ in target repos.
+// In this self-dogfood repo we read the suite copy directly.
+const SCHEMA_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'relationship.schema.json');
 const GRAPH_PATH = path.join(REPO_ROOT, '_testatlas', 'brain', 'graph.json');
 
 const PRD_RELATIONSHIP_TYPES = [
