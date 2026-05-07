@@ -14,7 +14,7 @@ See [docs/SCHEMAS.md](./SCHEMAS.md) for the JSON Schemas these commands consume 
 
 Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/bootstrap.md)
 
@@ -24,7 +24,7 @@ Refresh the agent's understanding of the TestAtlas constitution and reaffirm the
 
 Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/cleanup.md)
 
@@ -34,7 +34,7 @@ Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link t
 
 Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/consolidate.md)
 
@@ -164,7 +164,7 @@ Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommen
 
 Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/handoff.md)
 
@@ -184,7 +184,7 @@ Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 
 
 Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/log-issue.md)
 
@@ -194,7 +194,7 @@ Capture a quality finding as an issue under to_fix/ with severity, confidence, e
 
 Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/map-domains.md)
 
@@ -204,7 +204,7 @@ Distill the app-map into per-domain functional models under _testatlas/domains/<
 
 Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/plan.md)
 
@@ -214,7 +214,7 @@ Produce a risk-based, domain-based, flow-based, state-aware test strategy and ma
 
 Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/report.md)
 
@@ -294,7 +294,7 @@ Re-run previously-failed scenarios from prior RUN-<timestamp>.json files; diff a
 
 Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/triage.md)
 
@@ -356,7 +356,7 @@ Compute the 11 PRD §7.15 quality scores from documented brain evidence and writ
 
 Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/core/bootstrap-refresh.md)
 
@@ -386,7 +386,7 @@ Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for 
 
 Answer a question about the workspace by reading brain JSON; cite file paths for every claim.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/core/brain-query.md)
 
@@ -426,7 +426,7 @@ Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` sk
 
 Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/core/status.md)
 
@@ -436,7 +436,7 @@ Summarize the current TestAtlas workspace — phase, counts, blockers, stale are
 
 Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-brain-audit.md)
 
@@ -446,7 +446,7 @@ Brain Audit Council — personas inspect the _testatlas workspace for staleness,
 
 Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-bug-triage.md)
 
@@ -456,7 +456,7 @@ Bug triage council — multiple personas classify and prioritize open issues by 
 
 Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol.
 
-**Capabilities:** `browser`, `file-write`
+**Capabilities:** `shell`, `browser`, `file-write`
 
 [Source](../.testatlas/commands/council/council-design-critique.md)
 
@@ -466,7 +466,7 @@ Design Critique — Product Strategist, User Advocate, and Accessibility Reviewe
 
 Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-domain-review.md)
 
@@ -476,7 +476,7 @@ Roundtable review of a domain — every persona reads the domain's docs, evidenc
 
 Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-flow-review.md)
 
@@ -486,7 +486,7 @@ Roundtable review of a single user flow — personas read the flow doc, route ma
 
 Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-product-review.md)
 
@@ -496,7 +496,7 @@ Debate-mode council on product priority, feature coherence, and tradeoffs — pe
 
 Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-red-team.md)
 
@@ -526,7 +526,7 @@ Retest council — personas evaluate whether a claimed fix satisfies the issue's
 
 Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council-test-plan.md)
 
@@ -536,7 +536,7 @@ Test Plan Council — QA, automation, codebase, data, and runtime personas propo
 
 Umbrella router for V2 council commands.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/council/council.md)
 
@@ -546,7 +546,7 @@ Umbrella router for V2 council commands.
 
 V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/explore/explore-all.md)
 
@@ -566,7 +566,7 @@ Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing i
 
 Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `shell`, `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/explore/explore-components.md)
 
@@ -576,7 +576,7 @@ Inventory every UI component with props, state dependencies, responsive behavior
 
 Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `shell`, `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/explore/explore-errors.md)
 
@@ -616,7 +616,7 @@ Map release artifacts, blockers, readiness state, version tags, and gates.
 
 Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `shell`, `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/explore/explore-routes.md)
 
@@ -636,7 +636,7 @@ Map auth flows, permission boundaries, sensitive-data handling, injection risks,
 
 Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `shell`, `browser`, `MCP`, `file-write`
 
 [Source](../.testatlas/commands/explore/explore-state.md)
 

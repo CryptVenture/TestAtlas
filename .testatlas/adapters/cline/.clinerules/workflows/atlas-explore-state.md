@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-state. Invoke as /atlas-explore-state.md. Description: Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="992240edd0b40ec7ff6f99959d82ec2e4784798f76d2b07aa5d3f8f6385a41b2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="a81372c502733f4e884cfdf74c4d35531eda8db5f241dfebe112cd3702b6581b" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-state.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

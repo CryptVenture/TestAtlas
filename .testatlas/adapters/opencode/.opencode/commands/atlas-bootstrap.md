@@ -2,7 +2,7 @@
 description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="cb6b814404554b3e6eeeb914e1b1c96f97920650f88fe44d0415c377643836c5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="dcfb626272bb503b06effbb5c176c3249cf911e8dc7f15dffaa4d5f295b13c84" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-bootstrap.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

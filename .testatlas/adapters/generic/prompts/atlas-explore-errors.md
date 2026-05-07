@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-errors. Paste .testatlas/bootstrap.md first; description: Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="ee27934cd50ddbe46e4ad11e2de7570488c29ebba7c1fba77743e34ea1ce691d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="2e877101fcb41aaa335327e1a59a592aeacd75288f372021e120b984a39055be" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-errors.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

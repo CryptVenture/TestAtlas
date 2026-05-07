@@ -4,7 +4,7 @@ description: Summarize the current TestAtlas workspace — phase, counts, blocke
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="6df091e8019479fdc5dd29d8a2aa5ec2c34cd1a070c0637d99c7dcdd1647ef78" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="c369638158a975f40dd0c37cd3ef0166ebc7872fb6cc70573e20aa37bd37c227" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-core-status.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

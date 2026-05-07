@@ -4,7 +4,7 @@ description: Map UI states (empty, loading, error, success, permission) plus sta
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="992240edd0b40ec7ff6f99959d82ec2e4784798f76d2b07aa5d3f8f6385a41b2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="a81372c502733f4e884cfdf74c4d35531eda8db5f241dfebe112cd3702b6581b" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-state.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

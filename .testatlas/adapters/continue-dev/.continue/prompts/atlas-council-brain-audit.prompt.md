@@ -4,7 +4,7 @@ description: Brain Audit Council — personas inspect the _testatlas workspace f
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="c9e5a3bc09a95c4938b540e708b5adfa0ad9196dea22cb073c19b4bb2f2d4f0f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="3c441c335c4717bd9ef1d3cabc93be6b1bdae3fb659c216ea0208bf1fbf6903a" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-brain-audit.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

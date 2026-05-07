@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-consolidate. Invoke as /prompts:atlas-consolidate. Description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="81e20de746d43b6d44d13da28362495c01753d28599df6821a7be68c07d00311" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="61203dea83b17ff7f98d1b3f2a2dc9820bed504670a02877a6a3da814973ef8f" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

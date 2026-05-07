@@ -3,7 +3,7 @@ mode: agent
 description: Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="6b5bbedb2eb9c4bc4cc417ab9667276d668b7b7322ad79ebffbd800ec5d7421e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="401d310e667487cd92126a429529629865da560ec8aa5a566ffc0ac50d3449c7" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-handoff.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

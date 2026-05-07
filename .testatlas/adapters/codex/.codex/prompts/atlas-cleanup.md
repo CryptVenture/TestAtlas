@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-cleanup. Invoke as /prompts:atlas-cleanup. Description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="709abfbe8aef29a02f168339daea384e6e61757f7f8ad92836265c194e1b38d0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="e3239613309a6dd3d723fdaaa8bd2140fe7269cc1ea3b1dbda1d9cb895bdc2b3" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-cleanup.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

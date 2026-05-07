@@ -4,7 +4,7 @@ description: Red Team Challenge — adversarial personas attempt to find hidden 
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="82dccfb42e4b27fd689e2c1430aaaf3778abe08615426719117b7095e792911d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="43cae98dacfe96957d89120ecac939eb75bd0124420bf961b495664918b29f04" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council-red-team.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

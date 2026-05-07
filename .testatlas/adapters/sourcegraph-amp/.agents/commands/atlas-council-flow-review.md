@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-flow-review. Invoke as /atlas-council-flow-review. Description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="38d3a6b5e825af07868debf1fcaa4816eab18296d314c37ed5abda7184d0c80e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="ed322551957baedf093ee52c8da296113d6669a20245188dcbe5dfb8468c5b81" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-flow-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

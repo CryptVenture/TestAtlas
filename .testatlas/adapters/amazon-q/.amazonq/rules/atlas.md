@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="3ab61ab11ee78f47083375079edebc3b6d66dd7f510c47a9945a9e7c2bf4f430" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="99847ef29e5876fda90955c4b4757ab7aa2e38010f82956166d61298bde04154" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -6,7 +6,7 @@ TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/boo
 ## /atlas-bootstrap
 
 Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2. Read `.testatlas/commands/bootstrap.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-brain-drift
@@ -24,19 +24,19 @@ Compute the 11 PRD §7.15 quality scores from documented brain evidence and writ
 ## /atlas-cleanup
 
 Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content. Read `.testatlas/commands/cleanup.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-consolidate
 
 Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series. Read `.testatlas/commands/consolidate.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-core-bootstrap-refresh
 
 Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules. Read `.testatlas/commands/core/bootstrap-refresh.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-core-brain-compact
@@ -54,7 +54,7 @@ Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for 
 ## /atlas-core-brain-query
 
 Answer a question about the workspace by reading brain JSON; cite file paths for every claim. Read `.testatlas/commands/core/brain-query.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-core-brain-sync
@@ -78,49 +78,49 @@ Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` sk
 ## /atlas-core-status
 
 Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state. Read `.testatlas/commands/core/status.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-brain-audit
 
 Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol. Read `.testatlas/commands/council/council-brain-audit.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-bug-triage
 
 Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol. Read `.testatlas/commands/council/council-bug-triage.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-design-critique
 
 Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. Read `.testatlas/commands/council/council-design-critique.md` for full instructions.
-- Required capabilities: browser, file-write.
+- Required capabilities: shell, browser, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-domain-review
 
 Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. Read `.testatlas/commands/council/council-domain-review.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-flow-review
 
 Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol. Read `.testatlas/commands/council/council-flow-review.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-product-review
 
 Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol. Read `.testatlas/commands/council/council-product-review.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-red-team
 
 Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol. Read `.testatlas/commands/council/council-red-team.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-release-readiness
@@ -138,13 +138,13 @@ Retest council — personas evaluate whether a claimed fix satisfies the issue's
 ## /atlas-council-test-plan
 
 Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol. Read `.testatlas/commands/council/council-test-plan.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council
 
 Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. Read `.testatlas/commands/council/council.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-accessibility
@@ -222,7 +222,7 @@ Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommen
 ## /atlas-explore-all
 
 V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings. Read `.testatlas/commands/explore/explore-all.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-brain
@@ -234,13 +234,13 @@ Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing i
 ## /atlas-explore-components
 
 Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore/explore-components.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-errors
 
 Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore/explore-errors.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-jobs
@@ -264,7 +264,7 @@ Map release artifacts, blockers, readiness state, version tags, and gates. Synth
 ## /atlas-explore-routes
 
 Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore/explore-routes.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-security-privacy
@@ -276,7 +276,7 @@ Map auth flows, permission boundaries, sensitive-data handling, injection risks,
 ## /atlas-explore-state
 
 Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore/explore-state.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-tests
@@ -288,7 +288,7 @@ Inventory existing tests, measure coverage, identify gaps, surface flaky tests. 
 ## /atlas-handoff
 
 Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<timestamp>.{md,json} validating against sub-agent-handoff.schema.json with explicit context boundaries. Read `.testatlas/commands/handoff.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-init
@@ -300,7 +300,7 @@ Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 
 ## /atlas-log-issue
 
 Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17. Read `.testatlas/commands/log-issue.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-maintain-migrate
@@ -318,19 +318,19 @@ Run comprehensive artifact validation beyond `validate-workspace` — brain JSON
 ## /atlas-map-domains
 
 Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15. Read `.testatlas/commands/map-domains.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-plan
 
 Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. Read `.testatlas/commands/plan.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-report
 
 Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard. Read `.testatlas/commands/report.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-report-dashboard-data
@@ -420,7 +420,7 @@ Identify and execute the highest-value flows based on documented product risk (t
 ## /atlas-triage
 
 Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md. Read `.testatlas/commands/triage.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-uninstall

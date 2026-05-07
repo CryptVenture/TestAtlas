@@ -6,10 +6,10 @@ permission:
     "_testatlas/**": allow
     ".testatlas/**": deny
     "*": ask
-  bash: deny
+  bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="71a5d6841fb2fe82d2b28058841d94e4c6c3adafcac41792a505bcabcc5e4d43" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="49c1365d8b0fd8adf39842ec5669ab79ad72d90390519cfc3e8990c31fae2491" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-product-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

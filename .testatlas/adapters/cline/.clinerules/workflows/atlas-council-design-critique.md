@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-design-critique. Invoke as /atlas-council-design-critique.md. Description: Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="626e8053449dde286db9451027f5ebe5b8d5d3c9bdb48a301ea35dd22b4c5fe8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="32a23401fbeb7c607313588e579e3f6da2abad13b1452960331329bb56d5fd81" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

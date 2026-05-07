@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-query. Invoke as /atlas-core-brain-query.md. Description: Answer a question about the workspace by reading brain JSON; cite file paths for every claim. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="f950786bb6d68876aecefc32f90e3574c7b96e90fe8e952d732866a1d42ce148" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="d548e65d5844fdad389cc74b1e9a5f5eba7e5b05e07057d44df25d01ee2e03a0" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

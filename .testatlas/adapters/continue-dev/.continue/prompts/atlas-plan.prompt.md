@@ -4,7 +4,7 @@ description: Produce a risk-based, domain-based, flow-based, state-aware test st
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="04e5f118548273f32512b4d7beea130c7aeedaf8239df203b907866fc3bcb27d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="3e932d961a8c348a80a21e2f5efb44dcee76869128bebd1e77236af43925bf93" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-plan.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

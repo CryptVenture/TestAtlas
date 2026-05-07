@@ -6,10 +6,10 @@ permission:
     "_testatlas/**": allow
     ".testatlas/**": deny
     "*": ask
-  bash: deny
+  bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="b13f9199876e698847e5d63bae23c0d0e52daf2f0dd9947a0ae6d0381c750665" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="81806f1dae3b58f9c17b6d8d8e62bb9bb5943e4bdaa86ce3f26b2b2a186e9e03" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-core-bootstrap-refresh.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

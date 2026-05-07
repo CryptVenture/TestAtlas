@@ -4,7 +4,7 @@ description: Map every route, navigation paths, guards, redirects, deep-link beh
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="c4a70f4147203822bd0a640a5df3a473d6009a5c5ffa0583d1dfd0f1f111afbb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="100dea75f3c91bb40d6c9c79a88c34c1b117c0c7ac44f8fd794f028dc182b17d" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-routes.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

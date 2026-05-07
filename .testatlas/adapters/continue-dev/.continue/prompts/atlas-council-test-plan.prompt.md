@@ -4,7 +4,7 @@ description: Test Plan Council — QA, automation, codebase, data, and runtime p
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="38cbdfa5acda3afe0796ebd6b4ec1798fefed5ecd501b56310e2a1fcd9e31a2f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="416ba45cdfff23533507933f8b7f078aab940eb28b5e6c9d4ef1ef8cfdfb1213" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-test-plan.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
