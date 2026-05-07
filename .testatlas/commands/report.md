@@ -117,3 +117,6 @@ Now that the report is generated:
 - **`/atlas:consolidate`** — merge with prior reports for trend analysis
 - **`/atlas:handoff`** — package the workspace for another agent or engineer
 - **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
+- **`/atlas:council-release-readiness`** — formalize the readiness verdict via council when the report flags contested risks.
+- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals.
+- **`/atlas:brain-score`** — re-score the workspace using the report's findings as input.

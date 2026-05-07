@@ -142,3 +142,5 @@ Now that the flow run is complete:
 - **`/atlas:log-issue`** — file individual issues for failing scenarios
 - **`/atlas:retest`** — rerun failing scenarios after fixes land
 - **`/atlas:report`** — fold the run into the next aggregate report
+- **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
+- **`/atlas:generate-automation`** — produce reproducible automation scaffolds from this flow.

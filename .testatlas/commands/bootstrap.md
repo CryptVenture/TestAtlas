@@ -145,3 +145,5 @@ Now that the constitution is reloaded:
 
 - **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
+- **`/atlas:brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
+- **`/atlas:status`** — V2 status snapshot of the freshly bootstrapped workspace.

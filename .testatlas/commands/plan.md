@@ -131,3 +131,5 @@ Now that the test plan exists:
 - **`/atlas:test-flow`** — execute scenarios end-to-end with evidence capture
 - **`/atlas:test-domain`** — execute one full domain at a time when scope is large
 - **`/atlas:log-issue`** — file blocking issues surfaced during planning
+- **`/atlas:council-test-plan`** — ratify the test matrix this plan produces via council protocol.
+- **`/atlas:generate-scenarios`** — materialize the plan into concrete generated test scenarios.

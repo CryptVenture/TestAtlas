@@ -105,3 +105,5 @@ Now that the workspace is validated:
 - **`/atlas:explore`** — proceed with discovery if validation passed clean
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
 - **`/atlas:update`** — refresh the suite if the report flagged a stale version
+- **`/atlas:brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
+- **`/atlas:maintain-migrate`** — if validation flags `schema_version: 1.x` on a V2 suite, run migration.

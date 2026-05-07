@@ -116,3 +116,5 @@ Now that the handoff is recorded:
 
 - **`/atlas:cleanup`** — archive resolved evidence so the next operator inherits a lean tree
 - **`/atlas:update`** — refresh the suite version before the next operator picks up
+- **`/atlas:report-release`** — V2 release report; the next operator's primary readiness artifact.
+- **`/atlas:brain-score`** — snapshot brain quality scores for handoff package.

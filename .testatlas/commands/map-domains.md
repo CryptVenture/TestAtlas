@@ -97,3 +97,4 @@ Now that the domains are distilled:
 
 - **`/atlas:plan`** — turn the domain set into a test plan with risk-prioritised charters
 - **`/atlas:explore`** — return to discovery if any domain is missing app-map coverage
+- **`/atlas:council-domain-review`** — quality gate after domain mapping; flags contested boundary calls.

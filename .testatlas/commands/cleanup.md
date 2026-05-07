@@ -106,3 +106,5 @@ Now that the workspace is tidy:
 
 - **`/atlas:update`** — pull the latest suite version on a clean tree
 - **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift
+- **`/atlas:brain-sync`** — re-index brain state after cleanup so brain reflects the cleaned workspace.
+- **`/atlas:maintain-validate-artifacts`** — V2 cleanup completion check; validates remaining artifacts are coherent.

@@ -139,3 +139,5 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - **`/atlas:report`** — fold the consolidated set into the next REPORT
 - **`/atlas:handoff`** — package the workspace for another operator
+- **`/atlas:brain-sync`** — re-index brain state after consolidation to reflect new artifacts.
+- **`/atlas:brain-validate`** — confirm the brain layer remains coherent after consolidation.

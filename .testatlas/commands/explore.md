@@ -123,3 +123,6 @@ Now that the explore-plan is routed and the product overview aggregated:
 - **`/atlas:map-domains`** — group explorer findings into testable domains
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
 - **`/atlas:test-flow`** — start executing flows immediately if scope is already clear
+- **`/atlas:council-domain-review`** — escalate exploration findings into a council quality gate per domain.
+- **`/atlas:council-flow-review`** — escalate flow-related findings into a council quality gate.
+- **`/atlas:explore-all`** — V2 router covering V2 explorers (state, errors, components, routes, jobs, security-privacy, observability, tests, brain, release-readiness).

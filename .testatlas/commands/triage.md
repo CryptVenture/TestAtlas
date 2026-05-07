@@ -112,3 +112,4 @@ Now that the triage pass has run:
 - **`/atlas:retest`** — rerun fixed-pending-retest issues to confirm or regress
 - **`/atlas:consolidate`** — merge duplicate groups into canonical issues
 - **`/atlas:report`** — fold blockers + severity tallies into the next report
+- **`/atlas:council-bug-triage`** — escalate to a multi-persona council when severity is contested or the triage queue is large.

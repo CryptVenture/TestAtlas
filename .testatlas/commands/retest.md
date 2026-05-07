@@ -111,3 +111,4 @@ Now that the retest pass has run:
 - **`/atlas:triage`** — re-classify any reopened regressions back into the queue
 - **`/atlas:report`** — fold retest outcomes into the next aggregate report
 - **`/atlas:log-issue`** — file new issues if retest surfaced fresh symptoms
+- **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested or coverage is unclear.
