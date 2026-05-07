@@ -1,0 +1,30 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "2026-05-03T00:00:00.000Z",
+  "domains": [
+    {
+      "id": "domain-mobile-screens",
+      "slug": "mobile-screens",
+      "status": "mapped",
+      "display_name": "mobile-screens"
+    },
+    {
+      "id": "domain-auth",
+      "slug": "auth",
+      "status": "mapped",
+      "display_name": "auth"
+    },
+    {
+      "id": "domain-navigation",
+      "slug": "navigation",
+      "status": "mapped",
+      "display_name": "navigation"
+    },
+    {
+      "id": "domain-api-client",
+      "slug": "api-client",
+      "status": "mapped",
+      "display_name": "api-client"
+    }
+  ]
+}

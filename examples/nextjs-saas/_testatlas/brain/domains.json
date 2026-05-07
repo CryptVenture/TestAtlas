@@ -1,0 +1,30 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "2026-05-03T00:00:00.000Z",
+  "domains": [
+    {
+      "id": "domain-auth",
+      "slug": "auth",
+      "status": "mapped",
+      "display_name": "auth"
+    },
+    {
+      "id": "domain-dashboard",
+      "slug": "dashboard",
+      "status": "mapped",
+      "display_name": "dashboard"
+    },
+    {
+      "id": "domain-marketing",
+      "slug": "marketing",
+      "status": "mapped",
+      "display_name": "marketing"
+    },
+    {
+      "id": "domain-api",
+      "slug": "api",
+      "status": "mapped",
+      "display_name": "api"
+    }
+  ]
+}

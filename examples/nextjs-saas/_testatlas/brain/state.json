@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.0.0",
+  "project": {
+    "name": "TestAtlas",
+    "repo_root": ".",
+    "primary_stack": []
+  },
+  "status": {
+    "phase": "initialized",
+    "last_updated": "2026-05-03T00:00:00.000Z",
+    "last_command": "create-domain",
+    "active_environment": "local"
+  },
+  "counts": {
+    "domains": 4,
+    "flows": 0,
+    "issues": 0,
+    "critical_issues": 0,
+    "high_issues": 0,
+    "evidence_artifacts": 0,
+    "council_sessions": 0
+  },
+  "confidence": {
+    "overall": "unknown",
+    "highest_risk_domains": [],
+    "stale_domains": []
+  },
+  "next_recommended_commands": []
+}

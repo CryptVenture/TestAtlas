@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "2026-05-03T00:00:00.000Z",
+  "domains": [
+    {
+      "id": "domain-auth",
+      "slug": "auth",
+      "status": "mapped",
+      "display_name": "auth"
+    },
+    {
+      "id": "domain-tasks",
+      "slug": "tasks",
+      "status": "mapped",
+      "display_name": "tasks"
+    },
+    {
+      "id": "domain-health",
+      "slug": "health",
+      "status": "mapped",
+      "display_name": "health"
+    }
+  ]
+}
