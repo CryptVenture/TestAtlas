@@ -283,6 +283,11 @@
       "arguments": []
     },
     {
+      "name": "atlas-report-dashboard-data",
+      "description": "Render a machine-readable dashboard data export (PRD §16) at _testatlas/reports/dashboard-data.json suitable for downstream UIs and CI status pages.",
+      "arguments": []
+    },
+    {
       "name": "atlas-report-domain",
       "description": "Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md.",
       "arguments": []
