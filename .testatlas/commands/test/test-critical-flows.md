@@ -102,7 +102,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
    `last_updated`), the **evidence index**
    (`_testatlas/09_artifact_index.md`), **issues**
    (`_testatlas/to_fix/<ISSUE-id>.json` `retestNotes`/`history`), and
-   **brain events** (append via `node scripts/append-event.js`).
+   **brain events** (append via `node .testatlas/scripts/append-event.js`).
 4. Write `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` with summary
    counts (total / passed / failed / skipped / blocked) and a
    `prioritisation` field listing why each flow was in scope. Validates
@@ -141,4 +141,4 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).

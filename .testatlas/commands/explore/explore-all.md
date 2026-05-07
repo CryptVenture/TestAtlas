@@ -43,7 +43,7 @@ V2 supersedes the V1 `explore.md` umbrella with full coverage of the 20-explorer
 3. Selects an `executionMode` (`parallel-subagents` / `sequential-fallback` / `classify-only` / `single-spawn-inline` / `no-op`) per host capability and non-cached recommended count.
 4. Spawns recommended children in parallel (via the host's `subagent-spawn`) or runs them sequentially (fallback).
 5. Aggregates child findings into `_testatlas/02_product_overview.md` and writes the routing decision into `_testatlas/explore-plan.md`.
-6. Aggregates per-category coverage from each child into `_testatlas/brain/coverage.json` via `node scripts/update-coverage.js --category all`.
+6. Aggregates per-category coverage from each child into `_testatlas/brain/coverage.json` via `node .testatlas/scripts/update-coverage.js --category all`.
 
 ## The 20-explorer pool
 
@@ -102,7 +102,7 @@ V2 additions (10, in `.testatlas/commands/explore/`):
    - 0 non-cached `recommended` → `no-op`.
 6. **Spawn children.** Pass each child a 6-slot brief: `objective`, `scope`, `files-to-read`, `output-format`, `may-write`, `exit-criteria`. Children own their evidence under `_testatlas/evidence/<child-name>/<ts>/`.
 7. **Aggregate.** After children return, synthesize findings into `_testatlas/02_product_overview.md` (5 generated sections wrapped in `TESTATLAS:GENERATED:START/END` markers: `executive-summary`, `surface-matrix`, `child-results-table`, `coverage-gaps`, `last-updated`). Write the routing decision to `_testatlas/explore-plan.md`.
-8. **Update coverage ledger.** Run `node scripts/update-coverage.js --category all` after children finish so the brain coverage ledger reflects new evidence.
+8. **Update coverage ledger.** Run `node .testatlas/scripts/update-coverage.js --category all` after children finish so the brain coverage ledger reflects new evidence.
 9. **Failure handling.** Partial-halt children → record in child-results-table with `status:halted`. Run `status:ok` if ≥1 child succeeded; `status:partial` if ≥1 halt + ≥1 ok; `status:failed` only if every child halted.
 10. Close the lifecycle.
 
@@ -123,7 +123,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Do NOT alter `counts.*` (children's responsibility).
 - `_testatlas/history/run_log.md` — narrative: "Routed `<n>` recommended / `<m>` cached / `<k>` skip explorers (executionMode=`<mode>`); aggregated into `02_product_overview.md`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-all --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-all --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

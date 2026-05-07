@@ -66,7 +66,7 @@ and is paired with a human-readable markdown sibling. Packs live under
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-retest-pack.js`. Flags:
+   - Run `node .testatlas/scripts/generate-retest-pack.js`. Flags:
      - `--issue-id <ISSUE-id>` — generate a pack for one issue.
      - `--all-open` — generate packs for every issue whose `status` is not `closed` or `obsolete`.
    - The script writes `RET-<issue-id>/RETEST-<NNNN>.{md,json}` and increments `RETEST-NNNN` deterministically against any existing packs.
@@ -108,4 +108,4 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).

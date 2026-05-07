@@ -60,21 +60,21 @@ Recommended slate: Release Readiness Judge, QA Lead, Security and Privacy Review
 3. **Initial findings.** Personas emit `message_type: "finding"` with their gate-by-gate verdict.
 4. **Cross-questioning.** Personas challenge gate evaluations.
 5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
-6. **Rebuttal or evidence request.** Personas may request `node scripts/explore-tests.js --refresh` or similar before voting.
+6. **Rebuttal or evidence request.** Personas may request `node .testatlas/scripts/explore-tests.js --refresh` or similar before voting.
 7. **Vote.** Per gate motion AND on the final go / conditional / no-go, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** The Release Readiness Judge drafts the final decision in `consolidation.{md,json}` with explicit blockers, conditional concerns, and rollback plan.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>` and `node scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>` and `node .testatlas/scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Release readiness for v<version>" \
   --mode release-readiness \
   --participants release-readiness-judge,qa-lead,security-privacy-reviewer,documentation-curator
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 
@@ -106,5 +106,5 @@ Run `node scripts/extract-claims.js --session-id <id>` after round 3.
 ## What's Next
 
 - `/atlas:report` for the full quality report.
-- If go: human-driven `node scripts/bump-version.js` (this command does not auto-bump).
+- If go: human-driven `node .testatlas/scripts/bump-version.js` (this command does not auto-bump).
 - If no-go: `/atlas:triage` on blockers and re-run this council after remediation.

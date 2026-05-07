@@ -50,7 +50,7 @@ Refresh the agent's understanding of the TestAtlas constitution — re-read boot
    - safety: `safeMode: true`, `allowDestructiveActions: false`, `allowProductionTesting: false`
    - persistence: `No evidence, no finding.`
 3. If bootstrap shards exist under `_testatlas/bootstrap/`, validate every shard against the schema and note any drift.
-4. Run `node scripts/check-token-budget.js .testatlas/bootstrap.md 3000` to validate the bootstrap word budget.
+4. Run `node .testatlas/scripts/check-token-budget.js .testatlas/bootstrap.md 3000` to validate the bootstrap word budget.
 5. Note any conflicts between the constitution and prior decisions earlier in the session — surface explicitly. Do not silently override.
 6. Close the lifecycle (next section).
 
@@ -82,7 +82,7 @@ If `shell` is unavailable, skip the budget-check step and mark the run record `c
 
 ## Post-Operation Brain Update
 
-Call `node scripts/update-brain-after-command.js --command bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
+Call `node .testatlas/scripts/update-brain-after-command.js --command bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
 
 ## What's Next
 

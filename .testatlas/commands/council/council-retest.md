@@ -63,18 +63,18 @@ Recommended slate: QA Lead (lead), Automation Engineer, Adversarial Red Team Tes
 6. **Rebuttal or evidence request.** Personas may request additional retest runs (`/atlas:retest issue <id>`).
 7. **Vote.** On the overall verdict (passed / failed / needs-more-evidence), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the verdict in `consolidation.{md,json}`.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. If verdict is `passed`, the issue's status updates to `closed_verified`; if `failed`, status updates to `regression_confirmed`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. If verdict is `passed`, the issue's status updates to `closed_verified`; if `failed`, status updates to `regression_confirmed`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Retest: <issue-id>" \
   --mode retest \
   --participants qa-lead,automation-engineer,adversarial-red-team-tester
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

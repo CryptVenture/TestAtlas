@@ -58,7 +58,7 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
    - **Sink enumeration:** stdout-only, file rotation, syslog, vendor (Datadog, Sumo, Splunk, ELK, Loki). Capture credentials only by reference (path / env var name); NEVER copy credentials into evidence.
    - **Level distribution:** generate a sample run (`shell` invocation that exercises a representative endpoint) → capture stdout/stderr to `evidence/log-sample.txt` → count log lines per level (debug/info/warn/error/fatal).
    - **Structured-log fields:** confirm each line is JSON or key-value structured. Record the standard fields (`timestamp`, `level`, `service`, `traceId`, `spanId`, `userId`, `requestId`).
-   - **Redaction:** run `node scripts/redact-evidence.js --scan <evidence-path>` on captured logs to flag any secret / PII leak.
+   - **Redaction:** run `node .testatlas/scripts/redact-evidence.js --scan <evidence-path>` on captured logs to flag any secret / PII leak.
 
 4. **Metrics audit.**
    - **Library detection:** identify the metrics surface (`prom-client`, `@opentelemetry/sdk-metrics`, `statsd-client`, `micrometer`, `dropwizard`).
@@ -98,7 +98,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Audited logging / metrics / alerts / tracing in `_testatlas/evidence/explore-observability/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

@@ -47,7 +47,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Required Actions
 
-1. **Preferred path (if `shell`):** run `node scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`.
+1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`.
 2. **V2 upgrade specifics:**
    - Ensure `_testatlas/brain/` exists with all 22 required files (delegated to `init-workspace.js` Wave 0/1 helpers).
    - Mirror schemas to `_testatlas/brain/schema/` for offline validation.
@@ -91,7 +91,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
+Run `node .testatlas/scripts/update-brain-after-command.js --command init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
 
 ## What's Next
 

@@ -67,7 +67,7 @@ produces a no-op success. Always safe to retry.
    - The migration script tolerates missing backups but the operator SHOULD
      always pre-create one. CI flows can pin a deterministic timestamp.
 2. **Preferred path (if `shell` available):**
-   - Run `node scripts/v2-migrate.js [--workspace <path>] [--cwd <path>] [--force]`.
+   - Run `node .testatlas/scripts/v2-migrate.js [--workspace <path>] [--cwd <path>] [--force]`.
    - The script:
      - Detects V1 workspace (`schema_version: 1.x` in
        `11_workspace_manifest.json`).
@@ -119,4 +119,4 @@ produces a no-op success. Always safe to retry.
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).

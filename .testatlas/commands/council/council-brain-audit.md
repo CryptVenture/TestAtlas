@@ -46,7 +46,7 @@ Run a Brain Audit Council (PRD §7.9) after large runs, before final reports, or
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/drift.json`
 - `_testatlas/09_artifact_index.md`, `_testatlas/00_overview.md`
-- Output of `node scripts/validate-brain.js` and `node scripts/sync-markdown-json.js --check`
+- Output of `node .testatlas/scripts/validate-brain.js` and `node .testatlas/scripts/sync-markdown-json.js --check`
 
 ## Participant Selection
 
@@ -62,18 +62,18 @@ Recommended slate: Documentation Curator (lead), Codebase Mapper, Adversarial Re
 6. **Rebuttal or evidence request.** Personas may request a fresh `validate-brain.js` run before voting.
 7. **Vote.** Per finding, vote on severity (drift, contradiction, missing) and proposed fix. +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with the audit narrative + canonical-update proposals.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. Approved drift records update `_testatlas/brain/drift.json`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. Approved drift records update `_testatlas/brain/drift.json`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Brain audit: <reason>" \
   --mode brain-audit \
   --participants documentation-curator,codebase-mapper,adversarial-red-team-tester
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

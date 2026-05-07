@@ -62,7 +62,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `domains.json`.
 2. Read the canonical brain inputs.
 3. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
+   - Run `node .testatlas/scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
 4. **Fallback path (no `shell`):**
    - Render `_testatlas/reports/domain-<slug>.md` by hand using `.testatlas/templates/reports/quality_scores.md` as the section skeleton.
 5. Mark every score `confidence: needs_validation` if `quality_scores.json` has not been refreshed in the current session.
@@ -91,4 +91,4 @@ Produce a focused, human-readable report for a single domain. The report combine
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command report-domain --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.

@@ -85,7 +85,7 @@ This command requires only `file-write`. No degradation needed.
 
 ## Post-Operation Brain Update
 
-After the status block is rendered, call `node scripts/update-brain-after-command.js --command status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
+After the status block is rendered, call `node .testatlas/scripts/update-brain-after-command.js --command status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
 
 ## What's Next
 

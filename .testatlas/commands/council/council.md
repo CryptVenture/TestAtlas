@@ -60,7 +60,7 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
    - **test-plan** → `council-test-plan`
 3. Pick participants per the recommended slate in `council-protocol.md` §5. Operator may add/remove personas; record the rationale.
 4. Record the routing decision in `_testatlas/agents/councils/sessions/dispatch-log.md` (append-only): timestamp, requested topic, chosen mode, chosen sub-command, chosen participants.
-5. Hand off to the chosen sub-command. The sub-command will create the session folder via `node scripts/create-council-session.js --topic <s> --mode <s> --participants <a,b,c>`.
+5. Hand off to the chosen sub-command. The sub-command will create the session folder via `node .testatlas/scripts/create-council-session.js --topic <s> --mode <s> --participants <a,b,c>`.
 
 ## Inputs
 

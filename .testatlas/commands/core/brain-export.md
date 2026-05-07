@@ -49,7 +49,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Required Actions
 
-1. Validate the brain first via `node scripts/validate-brain.js` — never export an invalid brain.
+1. Validate the brain first via `node .testatlas/scripts/validate-brain.js` — never export an invalid brain.
 2. Based on `--mode`:
    - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`).
    - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`).
@@ -85,7 +85,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
 
 ## What's Next
 

@@ -64,7 +64,7 @@ after `/atlas:test-flow` (or equivalent) executes it and captures evidence.
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-scenarios.js`. Flags:
+   - Run `node .testatlas/scripts/generate-scenarios.js`. Flags:
      - `--flow <FLOW-id>` — generate scenarios for a single flow.
      - `--domain <domain-slug>` — restrict to flows in one domain.
      - `--all` — every flow under `_testatlas/flows/`.
@@ -109,4 +109,4 @@ Every scenario this command produces carries `status: "generated-not-yet-validat
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).

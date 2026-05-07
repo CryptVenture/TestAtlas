@@ -63,18 +63,18 @@ Recommended slate: Product Strategist, User Advocate, Accessibility Reviewer. Op
 6. **Rebuttal or evidence request.** Personas may request additional walkthrough captures.
 7. **Vote.** Per critique motion (e.g., "this copy needs revision", "this flow needs a clearer success state"), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts the critique narrative in `consolidation.{md,json}`.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Design critique: <flow-id>" \
   --mode design-critique \
   --participants product-strategist,user-advocate,accessibility-reviewer
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

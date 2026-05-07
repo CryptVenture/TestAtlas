@@ -91,7 +91,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{components,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Inventoried `<n>` components across `<m>` routes / `<k>` breakpoints in `_testatlas/evidence/explore-components/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-components --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-components --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

@@ -45,7 +45,7 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
 ## Required Actions
 
 1. **Preferred path (if `shell`):**
-   - Run `node scripts/validate-brain.js`.
+   - Run `node .testatlas/scripts/validate-brain.js`.
    - Exit-0 means clean; exit-1 means findings exist.
 2. **Fallback (no `shell`):** parse every JSON/JSONL file under `_testatlas/brain/` and surface any syntax errors. Mark run `confidence: needs-validation` because schema-level checks were skipped.
 3. If findings exist: list each as `[CODE] file: message`. Common codes:
@@ -87,7 +87,7 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
 
 ## What's Next
 

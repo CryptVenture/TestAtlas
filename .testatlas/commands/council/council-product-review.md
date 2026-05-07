@@ -61,18 +61,18 @@ Recommended slate: Product Strategist, QA Lead, User Advocate, Adversarial Red T
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per motion, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Product debate: <question>" \
   --mode debate \
   --participants product-strategist,qa-lead,user-advocate,adversarial-red-team-tester
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

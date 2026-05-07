@@ -97,7 +97,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Inventoried `<n>` tests across `<m>` runners; coverage `<p>%`; flagged `<k>` flakes / `<g>` gaps."
 
-Then run `node scripts/update-brain-after-command.js --command explore-tests --actor agent --status completed --reindex` followed by `node scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-tests --actor agent --status completed --reindex` followed by `node .testatlas/scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
 
 ## Stop Conditions
 

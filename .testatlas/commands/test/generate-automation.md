@@ -72,7 +72,7 @@ suite:
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-automation.js --<framework>` — exactly one of `--playwright`, `--cypress`, `--api`, `--cli`, `--contract`, `--smoke`. Equivalent: `--framework <name>`.
+   - Run `node .testatlas/scripts/generate-automation.js --<framework>` — exactly one of `--playwright`, `--cypress`, `--api`, `--cli`, `--contract`, `--smoke`. Equivalent: `--framework <name>`.
    - Optional flags:
      - `--flow <FLOW-id>` — scaffold a single flow.
      - `--issue <ISSUE-id>` — scaffold from an issue's reproduction steps (regression seed).
@@ -123,4 +123,4 @@ Downstream automation MUST inspect the companion meta to decide what is real cov
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).

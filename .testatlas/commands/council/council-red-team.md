@@ -62,18 +62,18 @@ Recommended slate: Adversarial Red Team Tester (lead), Security and Privacy Revi
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per claim under attack, vote on whether it should be re-classified (stay accepted, downgrade to disputed, mark invalidated). +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}`; Red Team Tester writes the recalibration narrative.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. Invalidated claims update `_testatlas/brain/claims.jsonl` status to `invalidated` or `disputed`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. Invalidated claims update `_testatlas/brain/claims.jsonl` status to `invalidated` or `disputed`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Red team: <scope>" \
   --mode red-team \
   --participants adversarial-red-team-tester,security-privacy-reviewer,qa-lead
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

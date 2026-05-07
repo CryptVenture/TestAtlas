@@ -50,7 +50,7 @@ Keep the brain durable without bloating it. Long transcripts (`agents/councils/s
    - Extract structured records (claims, decisions, evidence pointers) — copy verbatim into the corresponding brain index if not already present.
    - Summarize the surrounding free-form prose into a compact paragraph.
    - Replace the original file's free-form prose with the summary, preserving structured records (keep JSONL lines as-is; replace markdown body with the summary).
-3. Re-run `node scripts/validate-brain.js` to confirm nothing schema-relevant broke.
+3. Re-run `node .testatlas/scripts/validate-brain.js` to confirm nothing schema-relevant broke.
 4. Close the lifecycle.
 
 ## Allowed Tools
@@ -82,7 +82,7 @@ Keep the brain durable without bloating it. Long transcripts (`agents/councils/s
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved.
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved.
 
 ## What's Next
 

@@ -55,7 +55,7 @@ Compute the 11 PRD §7.15 quality scores from documented brain state and write t
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/score-quality.js`. Add `--category <name>` to compute a single metric (`domain`, `flow`, `evidence`, `issue`, `test`, `ux`, `a11y`, `perf`, `security`, `freshness`, `council`).
+   - Run `node .testatlas/scripts/score-quality.js`. Add `--category <name>` to compute a single metric (`domain`, `flow`, `evidence`, `issue`, `test`, `ux`, `a11y`, `perf`, `security`, `freshness`, `council`).
    - The script atomically writes `_testatlas/brain/quality_scores.json` with `schema_version`, `last_updated`, `disclaimer`, and a `scores[]` array.
    - On error, halt and surface the script exit code.
 2. **Fallback path (no `shell`):**
@@ -103,4 +103,4 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).

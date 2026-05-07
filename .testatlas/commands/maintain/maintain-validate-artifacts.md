@@ -82,11 +82,11 @@ The four validation dimensions:
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/validate-workspace.js --strict` — produces the
+   - Run `node .testatlas/scripts/validate-workspace.js --strict` — produces the
      base-layer pass/fail.
-   - Run `node scripts/validate-brain.js --strict` — checks brain JSON
+   - Run `node .testatlas/scripts/validate-brain.js --strict` — checks brain JSON
      consistency (cross-reference resolution).
-   - Run `node scripts/sync-markdown-json.js --check` — reports drift
+   - Run `node .testatlas/scripts/sync-markdown-json.js --check` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
      the brain indexes; collect orphans + danglers.
@@ -128,4 +128,4 @@ The four validation dimensions:
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
