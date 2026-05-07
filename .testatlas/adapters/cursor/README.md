@@ -46,3 +46,34 @@ alwaysApply: false
 ## Regeneration
 
 These files are **GENERATED** by `node scripts/assemble-adapter.js cursor`. Do not hand-edit them — the parity gate (`node scripts/check-adapter-parity.js`) detects hand-edits via byte-compare against a fresh in-memory render and fails CI. To customize, edit the source command at `.testatlas/commands/<name>.md` and regenerate.
+
+## V2 Command Surface (Phase 14, Wave 5)
+
+TestAtlas V2 adds 30 categorized commands on top of the 32 V1 flat commands. The categorized set is rendered into the adapter's output dir under `core/`, `explore/`, and `council/` subdirectories so V1 commands stay at the root and V2 commands cluster by category. Categories shipped today: `core` (8 commands incl. `init`, `status`, `bootstrap-refresh`, `brain-{compact,export,query,sync,validate}`), `explore` (11 V2 explorers), and `council` (11 council commands). The `test/`, `brain/`, `report/`, and `maintain/` categories are reserved for plans 14-06/07/08.
+
+### V2 Capabilities Declared
+
+- `brain-sync` — Read/write `_testatlas/brain/*.json` from within a command
+- `persona-context` — Persona context (read `.testatlas/agents/personas/system/<id>.md` to adopt persona role)
+
+### Persona / Council Strategy
+
+This adapter runs councils in **simulated** mode. Cursor single-agent — councils run as multi-pass prompts within one chat.
+
+**Council orchestration via simulated multi-pass.** Each council round runs as a sequential prompt; the operator (or the prior round's output) primes the persona context for the next round.
+
+**Brain sync supported.** Commands read/write `_testatlas/brain/{state,manifest,coverage,graph,events,personas}.json` directly via the `file-write` capability. The `atlas-brain-sync`, `atlas-brain-validate`, and `atlas-brain-query` commands ship as first-class operations.
+
+**Persona context supported.** Persona files (`.testatlas/agents/personas/system/<id>.md` + `.json`) are readable; commands that adopt a persona role load the file and prepend its `Mission`, `Default Stance`, `Files to Read`, and `Output Format` sections to the working context.
+
+### Example V2 Invocations
+
+```
+# Cursor reads .cursor/rules/atlas-*.mdc automatically. Trigger by mentioning the rule name in chat.
+@atlas-init
+@atlas-council-domain-review
+```
+
+### Caveats
+
+- Council orchestration is simulated: the same agent role-plays each persona sequentially. For high-stakes councils, prefer a subagent-capable adapter (claude-code, opencode, kilocode, codex, gemini-cli, cline, kiro, sourcegraph-amp).
