@@ -10,5 +10,5 @@ Each entry below is mirrored to `_testatlas/to_fix/ISSUE-NNN-<slug>.md`.
 |          |          |       |              |                |
 
 <!-- TESTATLAS:GENERATED:START field=generated_issues -->
-<!-- Machine-populated by `consolidate.js` after vote. -->
+<!-- Machine-populated section. The `/atlas:consolidate` command (see `.testatlas/commands/consolidate.md`) is responsible for emitting this content via its standard accelerators after vote. -->
 <!-- TESTATLAS:GENERATED:END field=generated_issues -->
