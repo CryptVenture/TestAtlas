@@ -162,27 +162,41 @@ function affectsDomainOrFlow(filePath, list, sourcePathsField = 'source_paths') 
   return out;
 }
 
-async function gitChangedFiles(cwd, since) {
+async function gitChangedFiles(cwd, since, _inject) {
   // Build the diff range. If `since` is provided, diff `since..HEAD`. Otherwise
   // assume working-tree drift detection (rarely useful in CI but supported).
   const args = since ? ['diff', '--name-only', `${since}..HEAD`] : ['diff', '--name-only', 'HEAD'];
+  // Test seam: callers may inject a fake git runner (Promise-returning
+  // {stdout,stderr}) to simulate failure modes. Default = real execFileAsync
+  // against the system git. Read-only git probe — no capability gate needed.
+  const runGit = _inject?.gitRunner
+    ? (file, fileArgs, opts) =>
+        Promise.resolve().then(() => _inject.gitRunner(file, fileArgs, opts))
+    : execFileAsync;
   try {
-    const { stdout } = await execFileAsync('git', args, { cwd, maxBuffer: 16 * 1024 * 1024 });
+    const { stdout } = await runGit('git', args, { cwd, maxBuffer: 16 * 1024 * 1024 });
     return stdout
       .split('\n')
       .map((s) => s.trim())
       .filter(Boolean);
   } catch (e) {
-    if (e.code === 'ENOENT') {
-      return null; // git not available
-    }
-    throw err('TESTATLAS_GIT_FAILURE', `git ${args.join(' ')} failed: ${e.message}`);
+    // Any git failure (ENOENT/binary missing, non-zero exit, EPIPE, ENXIO,
+    // EACCES, ...) → degrade to mtime-only per
+    // .testatlas/commands/brain/brain-drift.md:99. Do NOT halt.
+    console.warn(
+      `[detect-drift] git probe failed (${e.code ?? 'unknown'}); falling back to mtime-only`,
+    );
+    return null;
   }
 }
 
-async function gitHead(cwd) {
+async function gitHead(cwd, _inject) {
+  const runGit = _inject?.gitRunner
+    ? (file, fileArgs, opts) =>
+        Promise.resolve().then(() => _inject.gitRunner(file, fileArgs, opts))
+    : execFileAsync;
   try {
-    const { stdout } = await execFileAsync('git', ['rev-parse', 'HEAD'], { cwd });
+    const { stdout } = await runGit('git', ['rev-parse', 'HEAD'], { cwd });
     return stdout.trim();
   } catch {
     return '';
@@ -271,8 +285,13 @@ export async function detectDrift(args = {}) {
     readJsonOr(path.join(brainDir, 'flows.json'), { flows: [] }),
   ]);
 
-  const changedFiles = (await gitChangedFiles(cwd, since)) ?? [];
-  const head = await gitHead(cwd);
+  const _inject = args._inject;
+  const changedFilesRaw = await gitChangedFiles(cwd, since, _inject);
+  // When git is unavailable in any failure mode, gitChangedFiles returns null.
+  // Surface this on the report so consumers know coverage is reduced.
+  const degradedMode = changedFilesRaw === null ? 'mtime-only' : null;
+  const changedFiles = changedFilesRaw ?? [];
+  const head = await gitHead(cwd, _inject);
   const generatedAt = new Date().toISOString();
 
   // One drift record per changed file. Each carries its own categories +
@@ -340,6 +359,9 @@ export async function detectDrift(args = {}) {
     drift_records: inMemory,
     outputPath: outPath,
     reportPath,
+    // ISSUE-008 / Plan 18-03: 'mtime-only' when the git probe failed (any
+    // failure mode); null when git was available and produced a diff.
+    degradedMode,
   };
 }
 

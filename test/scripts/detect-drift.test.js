@@ -299,7 +299,7 @@ test('Test 8 (18-03): detectDrift handles git EACCES gracefully via _inject', as
     const r = await detectDrift({
       cwd: ctx.dir,
       _inject: {
-        execFile: () => {
+        gitRunner: () => {
           const e = new Error('mock EACCES');
           e.code = 'EACCES';
           throw e;
@@ -326,7 +326,7 @@ test('Test 9 (18-03): detectDrift handles git EPIPE gracefully via _inject', asy
     const r = await detectDrift({
       cwd: ctx.dir,
       _inject: {
-        execFile: () => {
+        gitRunner: () => {
           const e = new Error('mock EPIPE');
           e.code = 'EPIPE';
           throw e;
