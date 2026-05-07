@@ -36,7 +36,11 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { listCategorizedCommandFiles, listCommandFiles } from '../list-command-files.js';
-import { commandBaseNameFromSource, parseAdapterMarker } from './_shared.js';
+import {
+  commandBaseNameFromSource,
+  parseAdapterMarker,
+  substituteAdapterCommandPath,
+} from './_shared.js';
 import { renderAider } from './render-aider.js';
 import { renderAmazonQ } from './render-amazon-q.js';
 import { renderClaudeCode } from './render-claude-code.js';
@@ -248,7 +252,14 @@ async function classifyOne(ctx) {
   // body without touching the marker line).
   const render = RENDERERS[adapter.name];
   if (render) {
-    const fresh = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
+    let fresh = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
+    // Quick 260507-hzw: parity must mirror assemble-adapter's post-render
+    // {{ADAPTER_COMMAND_PATH}} substitution; otherwise every per-command-file
+    // adapter would report `hand-edit` for every file. Compute the
+    // workspace-relative installed path the same way assemble-adapter does
+    // (path.relative(repoRoot, expectedPath), POSIX-normalized).
+    const installedRel = path.relative(repoRoot, expectedPath).split(path.sep).join('/');
+    fresh = substituteAdapterCommandPath(fresh, installedRel);
     if (fresh !== derivedText) {
       return {
         kind: 'hand-edit',

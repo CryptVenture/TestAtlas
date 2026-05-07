@@ -23,7 +23,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { commandBaseNameFromSource } from './lib/adapters/_shared.js';
+import { commandBaseNameFromSource, substituteAdapterCommandPath } from './lib/adapters/_shared.js';
 import { renderAider } from './lib/adapters/render-aider.js';
 import { renderAmazonQ } from './lib/adapters/render-amazon-q.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
@@ -325,13 +325,21 @@ async function runMultiSourceAdapter({ adapter, workspace, check, multiRender })
   const unchanged = [];
   const drift = [];
   for (const { outPath, content } of outputs) {
+    // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with the
+    // workspace-relative installed path before drift comparison + write.
+    // Aggregate adapters (aider, roo-code, zed, amazon-q, mcp) do not embed
+    // the placeholder in their output — substituteAdapterCommandPath is a
+    // no-op for them, so this call is unconditionally safe.
+    const installedRel = path.relative(workspace, outPath).split(path.sep).join('/');
+    const finalContent = substituteAdapterCommandPath(content, installedRel);
+
     let existing = null;
     try {
       existing = await readFile(outPath, 'utf8');
     } catch (err) {
       if (err.code !== 'ENOENT') throw err;
     }
-    if (existing === content) {
+    if (existing === finalContent) {
       unchanged.push(outPath);
       continue;
     }
@@ -340,7 +348,7 @@ async function runMultiSourceAdapter({ adapter, workspace, check, multiRender })
       continue;
     }
     await mkdir(path.dirname(outPath), { recursive: true });
-    await atomicWrite(outPath, content);
+    await atomicWrite(outPath, finalContent);
     written.push(outPath);
   }
   return { written, unchanged, drift };
@@ -400,6 +408,16 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
       adapterCaps: adapter.capabilities,
     });
 
+    // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with the
+    // workspace-relative installed path. The marker hash is already baked into
+    // `rendered` (computed from the placeholder-bearing sourceText inside
+    // wrapInAdapterEnvelope), so substitution AFTER render preserves the
+    // hash-stability contract — the same source bytes produce the same
+    // marker.hash regardless of which adapter renders it (Option B1, plan
+    // §Step B.2).
+    const installedRel = path.relative(workspace, outPath).split(path.sep).join('/');
+    const finalRendered = substituteAdapterCommandPath(rendered, installedRel);
+
     let existing = null;
     try {
       existing = await readFile(outPath, 'utf8');
@@ -407,7 +425,7 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
       if (err.code !== 'ENOENT') throw err;
     }
 
-    if (existing === rendered) {
+    if (existing === finalRendered) {
       unchanged.push(outPath);
       continue;
     }
@@ -418,7 +436,7 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
     }
 
     await mkdir(path.dirname(outPath), { recursive: true });
-    await atomicWrite(outPath, rendered);
+    await atomicWrite(outPath, finalRendered);
     written.push(outPath);
   }
 

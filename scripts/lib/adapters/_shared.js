@@ -73,6 +73,41 @@ export const BOOTSTRAP_PREAMBLE =
   'First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. ' +
   'If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.';
 
+// Quick 260507-hzw: source command preamble carries an
+// {{ADAPTER_COMMAND_PATH}} placeholder ("Read `{{ADAPTER_COMMAND_PATH}}`
+// completely…") that adapter renderers MUST substitute with the rendered
+// file's actual installed path before atomicWrite. Without substitution the
+// agent reads the literal "{{ADAPTER_COMMAND_PATH}}" string and either fails
+// fast or (worse) probes the wrong filesystem path based on training-data
+// priors — the empirical KiloCode bug at tmpv2 that motivated this Quick.
+//
+// Hash-stability contract (Option B1, plan §Step B.2): substitution runs
+// AFTER the marker hash is computed inside wrapInAdapterEnvelope (which hashes
+// `sourceText` — still placeholder-bearing). Result: the marker.hash stays
+// stable across all 18 adapters even though the bodies differ by their
+// substituted path. parity.js's classifyOne does its layer-2 byte-compare
+// against a freshly-rendered string that has ALSO been substituted, so the
+// hand-edit detector still fires correctly.
+export const ADAPTER_COMMAND_PATH_PLACEHOLDER = '{{ADAPTER_COMMAND_PATH}}';
+
+/**
+ * Substitute the {{ADAPTER_COMMAND_PATH}} placeholder with the adapter's
+ * rendered file path. Returns the input unchanged when the placeholder is
+ * absent (the case for multi-source aggregate adapters whose envelope body
+ * never contains the source body text — aider, roo-code, zed, amazon-q,
+ * mcp). Idempotent: re-applying with the same `installedPath` is a no-op.
+ *
+ * @param {string} rendered            full rendered output for one adapter file
+ * @param {string} installedPath       workspace-relative path the agent will
+ *                                     see at runtime (e.g.
+ *                                     `.kilocode/workflows/atlas-bootstrap.md`)
+ * @returns {string}
+ */
+export function substituteAdapterCommandPath(rendered, installedPath) {
+  if (!rendered.includes(ADAPTER_COMMAND_PATH_PLACEHOLDER)) return rendered;
+  return rendered.split(ADAPTER_COMMAND_PATH_PLACEHOLDER).join(installedPath);
+}
+
 // Hash group accepts EITHER 16 hex chars (legacy, pre-Phase-11) OR 64 hex
 // chars (Phase-11+ widened, full SHA-256 — closes ISSUE-013). Phase 11
 // widened content-hash.js's `hashContent` from 16-hex to 64-hex; existing
