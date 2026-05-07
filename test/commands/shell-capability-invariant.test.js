@@ -136,3 +136,66 @@ test('predicate fixtures — violatesShellCapabilityInvariant returns true/false
     '\\bnode\\s+ word boundary must reject "anode"',
   );
 });
+
+test('validate-workspace check-shell-capability — passes on the current source tree', async () => {
+  const { check } = await import('../../scripts/lib/validate/check-shell-capability.js');
+  // Mimic the orchestrator-supplied ctx: wsDir is `_testatlas/` under the
+  // suite root; the check derives suite cwd as dirname(wsDir).
+  const wsDir = path.resolve(process.cwd(), '_testatlas');
+  const result = await check({ wsDir });
+  assert.strictEqual(result.id, 'check-shell-capability');
+  assert.strictEqual(
+    result.status,
+    'pass',
+    `expected pass, got ${result.status} with findings: ${JSON.stringify(result.findings, null, 2)}`,
+  );
+  assert.deepStrictEqual(result.findings, []);
+});
+
+test('validate-workspace check-shell-capability — fails on synthetic violating fixture', async () => {
+  // Fixture: temp suite root with a single command file that uses
+  // `node scripts/foo.js` in body + missing shell cap. This validates that
+  // the check truly reports a violation when one exists, complementing the
+  // GREEN-on-real-tree assertion above.
+  const { mkdtemp, mkdir, writeFile, rm } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+
+  const tmpRoot = await mkdtemp(path.join(tmpdir(), 'testatlas-shellcap-'));
+  try {
+    const cmdDir = path.join(tmpRoot, '.testatlas', 'commands');
+    await mkdir(cmdDir, { recursive: true });
+    const violatingBody = [
+      '---',
+      'command: bad-cmd',
+      'version: 1.0.0',
+      'description: synthetic',
+      'capabilities: [file-write]',
+      'produces: []',
+      'consumes: []',
+      '---',
+      '',
+      '# Body',
+      '',
+      'Run `node scripts/foo.js` to do the thing.',
+      '',
+    ].join('\n');
+    await writeFile(path.join(cmdDir, 'bad-cmd.md'), violatingBody, 'utf8');
+
+    const { check } = await import('../../scripts/lib/validate/check-shell-capability.js');
+    // The check derives suite cwd from dirname(wsDir), so wsDir must be
+    // <tmpRoot>/_testatlas (not tmpRoot itself).
+    const wsDir = path.join(tmpRoot, '_testatlas');
+    await mkdir(wsDir, { recursive: true });
+    const result = await check({ wsDir });
+
+    assert.strictEqual(result.status, 'fail', 'expected fail on violating fixture');
+    assert.strictEqual(result.findings.length, 1, 'expected exactly 1 violation');
+    const f = result.findings[0];
+    assert.strictEqual(f.code, 'TESTATLAS_SHELL_CAPABILITY_MISSING');
+    assert.strictEqual(f.reason, 'shell-capability-missing');
+    assert.match(f.path, /bad-cmd\.md$/);
+    assert.match(f.message, /shell/);
+  } finally {
+    await rm(tmpRoot, { recursive: true, force: true });
+  }
+});

@@ -56,6 +56,12 @@ const CHECK_IDS = [
   'modified-generated-content',
   'status-counts',
   'evidence-redaction', // ISSUE-015 fix (Phase 11 Plan 05) — secret-scanner backing redacted:true
+  // Phase 17 Plan 01 — REVIEW-INV-A — body uses `node scripts/` MUST declare
+  // `shell` cap. Findings carry reason `shell-capability-missing`. See
+  // ./lib/validate/check-shell-capability.js for the regex
+  // /\bnode\s+(\.testatlas\/)?scripts\// and the `shell-capability-missing`
+  // reason emission.
+  'shell-capability',
 ];
 
 /**
