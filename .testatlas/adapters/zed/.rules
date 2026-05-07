@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="7eda579f29763f9b2c2d770c3a3945f0f6f11b0aa3bf09fe8e44e6125d37a492" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="4dee51d26de29c03cb1917b3a8953c222f92db94d40afedb47e7e172801f2309" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Zed. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -23,7 +23,7 @@ Squash issue duplicates per triage groupings; inherit highest severity + lowest-
 
 ## /atlas-explore-accessibility
 
-Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP. Read `.testatlas/commands/explore-accessibility.md` for full instructions.
+Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP. Read `.testatlas/commands/explore-accessibility.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
@@ -65,7 +65,7 @@ Map auth, payments, email, analytics, storage, webhooks, and feature-flag integr
 
 ## /atlas-explore-performance
 
-Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP. Read `.testatlas/commands/explore-performance.md` for full instructions.
+Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP. Read `.testatlas/commands/explore-performance.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
@@ -83,7 +83,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 ## /atlas-explore-ui
 
-Map routes, components, forms, modals, all PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, and accessibility basics using Chrome DevTools MCP — degrade to code reading when MCP unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
+Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
@@ -137,7 +137,7 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 
 ## /atlas-test-accessibility
 
-Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. Read `.testatlas/commands/test-accessibility.md` for full instructions.
+Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. Read `.testatlas/commands/test-accessibility.md` for full instructions.
 - Required capabilities: browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
@@ -149,19 +149,19 @@ Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-do
 
 ## /atlas-test-domain
 
-Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode. Read `.testatlas/commands/test-domain.md` for full instructions.
+Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode. Read `.testatlas/commands/test-domain.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-flow
 
-Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13. Read `.testatlas/commands/test-flow.md` for full instructions.
-- Required capabilities: shell, browser, file-write.
+Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13. Read `.testatlas/commands/test-flow.md` for full instructions.
+- Required capabilities: shell, browser, MCP, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-performance
 
-Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings. Read `.testatlas/commands/test-performance.md` for full instructions.
+Execute performance-typed scenarios via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight, emulate); assert PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with perf findings. Read `.testatlas/commands/test-performance.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

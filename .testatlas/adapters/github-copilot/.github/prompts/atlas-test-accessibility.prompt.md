@@ -1,9 +1,9 @@
 ---
 mode: agent
-description: Execute accessibility-typed scenarios using Chrome DevTools MCP lighthouse_audit + ARIA introspection; assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
+description: Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="31e2d9295444c08ddc98b41416bf0b177605365c0752264749253455667544d5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="7c6e9479a2e6c822bd196b1b998f9eb40a5aac09b01ca66cf31845bcec78ff6f" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,6 +13,7 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
+- `.testatlas/reference/chrome-devtools-mcp.md` § *A11y walkthrough* — canonical accessibility walkthrough (lighthouse audit, ARIA inventory, focus-order traversal, contrast samples). The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — accessibility-typed scenarios; if none, halt.
 - `prd/prd.md` §13.9 + §26.7 — the assertable a11y items and the test-type contract.
 - `.testatlas/default.config.json` — `allowProductionTesting`, `safeMode` flags; default a11y thresholds.
@@ -23,8 +24,9 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every assertion this command produces MUST cite an evidence file path under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/` that exists on disk. Fabricated paths fail `validate-workspace`.
 2. Verify capabilities. **If `MCP` is unavailable, MUST NOT produce runtime accessibility findings — fall back to source-code reading via `_testatlas/12_app_map.json` and the source files it references (look for ARIA attributes, label associations, semantic HTML, color tokens). Mark every finding `confidence: needs-validation`. Add `tool_unavailable: MCP` to each artifact per `bootstrap.md` §4. Never invent lighthouse scores, ARIA roles, focus order, or contrast values from training-data priors.** **If `browser` is unavailable, MUST NOT navigate or capture runtime DOM — fall back to source-code reading per the same rules; mark findings `confidence: needs-validation`; add `tool_unavailable: browser` per `bootstrap.md` §4. Never simulate keyboard traversal, focus rings, or rendered DOM from training-data priors.** If both `MCP` AND `browser` are unavailable, halt via stop condition.
-3. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — do not navigate. Inspect resolved URLs, not author-claimed environments.
-4. Connect to Chrome DevTools MCP and confirm the canonical accessibility toolset is reachable. The required tools (verbatim names) are:
+3. **Mandatory walkthrough when capabilities are available.** When `browser` AND `MCP` are both available (verified per `.testatlas/reference/capabilities.md`), this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *A11y walkthrough* for every accessibility-typed scenario in scope. Skipping a walkthrough step when the underlying tool is reachable — because the result feels predictable, training-data priors fill in the page, or exhaustive coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a step legitimately cannot run (route lacks focusable elements, lighthouse returns transport error after retry), record the skip rationale on the per-scenario result. MUST NOT skip silently.
+4. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — do not navigate. Inspect resolved URLs, not author-claimed environments.
+5. Connect to Chrome DevTools MCP and confirm the canonical accessibility toolset is reachable. The required tools (verbatim names) are:
    - `navigate_page(url)` — load the scenario's target route.
    - `wait_for(condition)` — block on selector / text / network-idle before observation.
    - `take_snapshot()` — capture the rendered accessibility tree as the source-of-truth DOM.
@@ -35,7 +37,7 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
    - `press_key(key)` — exercise keyboard navigation (`Tab`, `Shift+Tab`, `Enter`, `Esc`).
    - `list_console_messages()` — capture JS errors that may signal a11y misuse (e.g. ARIA warnings).
    - `take_screenshot(format, fullPage)` — visual evidence for focus rings, contrast issues, and dynamic feedback states.
-5. **Per scenario.** For each accessibility-typed scenario:
+6. **Per scenario.** For each accessibility-typed scenario:
    a. Navigate to the target route and `wait_for` it to settle.
    b. Run `lighthouse_audit` filtered to the `accessibility` category. Persist as `lighthouse.json`.
    c. Use `evaluate_script` to dump the ARIA inventory (role, aria-*, accessible name) for every interactive element. Persist as `aria-inventory.json`.
@@ -43,10 +45,10 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
    e. Sample contrast for primary headings, body, links, button labels, form labels via `evaluate_script` reading computed `color` / `background-color` / font size. Persist as `contrast-samples.json`.
    f. Capture `list_console_messages` output as `console.log.txt`.
    g. Save all evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/`.
-6. **Threshold assertion.** Compare the captured evidence against the scenario's expected thresholds (e.g. `lighthouse.score >= 90`, `criticalViolations === 0`, `focusOrderComplete === true`, `noUnlabeledControls === true`, `minContrastRatio >= 4.5`). Status is `passed` / `failed` / `skipped` / `blocked`. Each per-result `confidence` per `bootstrap.md` §8.
-7. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/runs/RUN-<timestamp>.json` with `type: "accessibility"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
-8. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails.
-9. Close the lifecycle (next section).
+7. **Threshold assertion.** Compare the captured evidence against the scenario's expected thresholds (e.g. `lighthouse.score >= 90`, `criticalViolations === 0`, `focusOrderComplete === true`, `noUnlabeledControls === true`, `minContrastRatio >= 4.5`). Status is `passed` / `failed` / `skipped` / `blocked`. Each per-result `confidence` per `bootstrap.md` §8.
+8. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/runs/RUN-<timestamp>.json` with `type: "accessibility"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
+9. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails.
+10. Close the lifecycle (next section).
 
 ## Outputs
 

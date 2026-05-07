@@ -1,5 +1,5 @@
 ---
-description: Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP.
+description: Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP.
 mode: primary
 permission:
   edit:
@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="910a2b6c57d28137f7d173399c692bf8d3eda4bb5237a7295b95b0bd4a24d788" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="3620aaca27bc35e88a949503f8f8abd3fa22ef7a1dbf03ce548456bcc593d862" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,6 +19,7 @@ Detect user-visible performance issues per PRD §13.10: slow first paint, long t
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
+- `.testatlas/reference/chrome-devtools-mcp.md` § *Performance walkthrough* — canonical perf walkthrough (baseline + throttled traces, Web Vitals assertions, network waterfall + retry inventory). The mandatory-when-available contract lives there.
 - `_testatlas/11_workspace_manifest.json` — confirm initialization and counts.
 - `_testatlas/12_app_map.json` — route entries (with traffic hints if present) to sample.
 - `_testatlas/00_overview.md` — runtime metadata: how to start the local dev server (command, port, health endpoint).
@@ -43,23 +44,25 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 2. Verify capabilities and degrade per `bootstrap.md` §4:
    - **If `MCP` or `browser` is unavailable, MUST NOT produce runtime performance findings — fall back to source-code reading via `app-map` (`12_app_map.json`) and the source files it references (look for known anti-patterns: N+1 queries, unbatched fetches, blocking sync IO, oversized bundles, missing memoization, unawaited promises in render). Mark every finding `confidence: needs-validation` and add `tool_unavailable: <MCP|browser>` per `bootstrap.md` §4. Never invent trace timings, LCP/INP/CLS scores, throttling profiles, or network waterfalls from training-data priors.**
    - **If `shell` is unavailable, MUST NOT start the local dev server — fall back to a deployed sandbox URL recorded in `_testatlas/00_overview.md` and mark findings `confidence: needs-validation`. If neither shell nor a sandbox URL is available, halt via stop condition.**
-3. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — never run perf traces against production. Inspect resolved URLs, not author-claimed environments.
-4. (If `shell` is available) Start the local dev server per `_testatlas/00_overview.md` runtime metadata. Wait for the documented health-check (HTTP 200 on `/health` or equivalent). Persist the startup log under `_testatlas/evidence/explore-performance/<timestamp>/dev-server.log`.
-5. Connect to Chrome DevTools MCP and confirm the performance toolset (verbatim names):
+3. **Mandatory walkthrough when capabilities are available.** When `browser` AND `MCP` are both available in this adapter context (verified per `.testatlas/reference/capabilities.md` per-capability action matrix), this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *Performance walkthrough* — baseline trace + throttled trace per sampled route, with `performance_analyze_insight` against PRD §13.10 thresholds (LCP <= 2500ms, INP <= 200ms, CLS <= 0.1, totalBlockingTime <= 300ms). Skipping a walkthrough step when the tool is reachable — because the result feels predictable, priors say the route is fast, or coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a step legitimately cannot run (the route returns an error after retry, `performance_start_trace` rejects with attached-target-lost), record the skip rationale on the resulting findings entry. MUST NOT skip silently.
+4. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — never run perf traces against production. Inspect resolved URLs, not author-claimed environments.
+5. (If `shell` is available) Start the local dev server per `_testatlas/00_overview.md` runtime metadata. Wait for the documented health-check (HTTP 200 on `/health` or equivalent). Persist the startup log under `_testatlas/evidence/explore-performance/<timestamp>/dev-server.log`.
+6. Connect to Chrome DevTools MCP and confirm the performance toolset (verbatim names):
    - `navigate_page(url)` — load a target route under instrumentation.
    - `wait_for(condition)` — wait for the route to settle.
    - `performance_start_trace(...)` / `performance_stop_trace()` — bracket a trace capture.
    - `performance_analyze_insight(...)` — derive LCP, INP, CLS, long tasks, render-blocking, layout shifts.
    - `emulate({cpuThrottlingRate, networkConditions})` — CPU + network throttling profiles.
    - `list_network_requests()` — XHR/fetch traffic with timing, status, retries, payload size.
-6. Select a representative route set: the home/landing route plus the 2–3 most-trafficked routes from `_testatlas/12_app_map.json` (or, absent traffic hints, the routes most central to the dogfood-loop's primary user flow). Record the rationale in `route-selection.md`.
-7. For each selected route, capture a baseline trace: `navigate_page` → `wait_for` settle → `performance_start_trace` → exercise the primary user interaction (click, fill, submit) → `performance_stop_trace`. Persist the trace JSON under `_testatlas/evidence/explore-performance/<timestamp>/<route-slug>/baseline.trace.json`.
-8. For each selected route, capture a throttled trace: call `emulate({cpuThrottlingRate: 4, networkConditions: 'Slow 3G'})` (or the equivalent profile name supported by the MCP build), repeat the baseline interaction sequence, and persist as `throttled.trace.json`. This is the reliability surface — slow CPUs and bad networks reveal the failures real users hit.
-9. Run `performance_analyze_insight` against each captured trace. Persist insights (LCP, INP, CLS, total-blocking-time, long tasks, render-blocking resources, layout-shift sources) as `insights.md` per route, alongside the underlying machine-readable JSON when the tool returns one.
-10. Capture the network inventory via `list_network_requests` for each trace, recording: URL, method, status, duration, payload size, and retry count. Persist as `network.json` per route. Highlight retried/failed requests, slow third-party calls, and unbatched requests.
-11. Aggregate findings into `_testatlas/evidence/explore-performance/<timestamp>/findings.md` with severity per PRD §13.10 (critical / serious / moderate / minor), explicit threshold rationale (which budget the observed value violated), and confidence per `bootstrap.md` §8. Every finding cites at least one evidence path created in steps 7–10.
-12. (If a dev server was started) Stop it cleanly. Record exit status in `dev-server.log`.
-13. Close the lifecycle (next section).
+   - `list_console_messages()` — surface runtime errors and warnings emitted during the trace window.
+7. Select a representative route set: the home/landing route plus the 2–3 most-trafficked routes from `_testatlas/12_app_map.json` (or, absent traffic hints, the routes most central to the dogfood-loop's primary user flow). Record the rationale in `route-selection.md`.
+8. For each selected route, capture a baseline trace: `navigate_page` → `wait_for` settle → `performance_start_trace` → exercise the primary user interaction (click, fill, submit) → `performance_stop_trace`. Persist the trace JSON under `_testatlas/evidence/explore-performance/<timestamp>/<route-slug>/baseline.trace.json`.
+9. For each selected route, capture a throttled trace: call `emulate({cpuThrottlingRate: 4, networkConditions: 'Slow 3G'})` (or the equivalent profile name supported by the MCP build), repeat the baseline interaction sequence, and persist as `throttled.trace.json`. This is the reliability surface — slow CPUs and bad networks reveal the failures real users hit.
+10. Run `performance_analyze_insight` against each captured trace. Persist insights (LCP, INP, CLS, total-blocking-time, long tasks, render-blocking resources, layout-shift sources) as `insights.md` per route, alongside the underlying machine-readable JSON when the tool returns one.
+11. Capture the network inventory via `list_network_requests` for each trace, recording: URL, method, status, duration, payload size, and retry count. Persist as `network.json` per route. Highlight retried/failed requests, slow third-party calls, and unbatched requests.
+12. Aggregate findings into `_testatlas/evidence/explore-performance/<timestamp>/findings.md` with severity per PRD §13.10 (critical / serious / moderate / minor), explicit threshold rationale (which budget the observed value violated), and confidence per `bootstrap.md` §8. Every finding cites at least one evidence path created in steps 8–11.
+13. (If a dev server was started) Stop it cleanly. Record exit status in `dev-server.log`.
+14. Close the lifecycle (next section).
 
 ## Outputs
 

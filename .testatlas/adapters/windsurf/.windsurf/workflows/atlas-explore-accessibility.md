@@ -1,9 +1,9 @@
 ---
-description: Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP.
+description: Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="9b39eff6a62b36ddeac9f42cd44641ef938b51eb2b8f13a6b0518e1140b346b3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="e9721b236098ffcb5cf453465d82af7ff6a7c7d7d43342440ef40aeb1e251278" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,6 +13,7 @@ Evaluate the target product's accessibility per PRD §13.9: keyboard navigabilit
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
+- `.testatlas/reference/chrome-devtools-mcp.md` § *A11y walkthrough* — canonical accessibility walkthrough (lighthouse audit, ARIA inventory, focus-order traversal, contrast samples, dynamic feedback). The mandatory-when-available contract lives there.
 - `_testatlas/11_workspace_manifest.json` — confirm initialization status and counts.
 - `_testatlas/12_app_map.json` — the route + component entries to audit.
 - `prd/prd.md` §13.9 — must-discover items the audit must address.
@@ -33,9 +34,10 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-accessibility/<timestamp>/` that exists on disk. Fabricated paths fail `validate-workspace`.
-2. Verify capabilities. **If `MCP` is unavailable, MUST NOT produce runtime accessibility findings — fall back to code reading via `app-map` (`12_app_map.json`) and the source files it references (look for ARIA attributes, label associations, semantic HTML elements). Mark every finding `confidence: needs-validation`. Add `tool_unavailable: MCP` to each artifact per `bootstrap.md` §4. Never invent lighthouse scores, contrast ratios, focus order, or ARIA findings from training-data priors.** **If `browser` is unavailable, MUST NOT navigate or capture runtime DOM — fall back to source-code reading per the same rules; mark findings `confidence: needs-validation`; add `tool_unavailable: browser` per `bootstrap.md` §4. Never simulate keyboard traversal, focus rings, or rendered DOM from training-data priors.** If both `MCP` AND `browser` are unavailable, halt via stop condition.
-3. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — do not navigate. Inspect resolved URLs, not author-claimed environments.
-4. Connect to Chrome DevTools MCP and confirm the canonical accessibility toolset is reachable. The required tools (verbatim names) are:
+2. Verify capabilities. **If `MCP` is unavailable, MUST NOT produce runtime accessibility findings — fall back to code reading via `app-map` (`12_app_map.json`) and the source files it references (ARIA attributes, label associations, semantic HTML). Mark every finding `confidence: needs-validation`; add `tool_unavailable: MCP` per `bootstrap.md` §4. Never invent lighthouse scores, contrast ratios, focus order, or ARIA findings from training-data priors.** **If `browser` is unavailable, MUST NOT navigate or capture runtime DOM — fall back to source reading per the same rules; mark findings `confidence: needs-validation`; add `tool_unavailable: browser` per `bootstrap.md` §4. Never simulate keyboard traversal, focus rings, or rendered DOM from training-data priors.** If both `MCP` AND `browser` are unavailable, halt via stop condition.
+3. **Mandatory walkthrough when capabilities are available.** When `browser` AND `MCP` are both available (verified per `.testatlas/reference/capabilities.md`), this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *A11y walkthrough*. Skipping a walkthrough step when the underlying tool is reachable — because the result feels predictable, training-data priors fill in the page, or exhaustive coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a step legitimately cannot run (route lacks a focusable element, lighthouse returns transport error after retry), record the skip rationale on the resulting findings entry. MUST NOT skip silently.
+4. Verify safety flags. If the resolved target URL is a production host and `allowProductionTesting=false`, halt — do not navigate. Inspect resolved URLs, not author-claimed environments.
+5. Connect to Chrome DevTools MCP and confirm the canonical accessibility toolset is reachable. The required tools (verbatim names) are:
    - `navigate_page(url)` — load a target route.
    - `wait_for(condition)` — wait for the route to settle (network idle, selector visible, or title text).
    - `take_snapshot()` — capture the rendered accessibility tree as the source-of-truth DOM.
@@ -43,13 +45,13 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - `lighthouse_audit(...)` — run the accessibility category and capture per-issue results plus the category score.
    - `press_key(key)` — exercise keyboard navigation (`Tab`, `Shift+Tab`, `Enter`, `Esc`, `ArrowDown`, etc.).
    - `take_screenshot(format, fullPage)` — visual evidence for focus rings, contrast issues, and dynamic feedback states.
-5. For each route in `_testatlas/12_app_map.json`, navigate, wait for the route to settle, then run `lighthouse_audit` filtered to the `accessibility` category. Persist the lighthouse JSON under `_testatlas/evidence/explore-accessibility/<timestamp>/<route-slug>/lighthouse.json`. Record the category score and the per-issue list.
-6. Exercise keyboard navigation. From the route's initial focus, sequence `press_key('Tab')` repeatedly (and `Shift+Tab` to verify reverse order); after each step, capture `evaluate_script(() => document.activeElement.outerHTML)` plus `take_screenshot` of the focus indicator. Save the captured trail as `focus-order.json` and the screenshots under `focus-trail/`. Note focus traps, hidden focus targets, missing visible indicators, and skip-link presence.
-7. Inventory ARIA. Use `evaluate_script` to dump `role`, `aria-*` attributes, and accessible names for every interactive element (`button`, `a`, `input`, `[role]`). Save as `aria-inventory.json` per route. Cross-check that interactive controls have accessible names and that landmark roles are present.
-8. Check contrast. For each text node, use `evaluate_script` to read computed `color`, `background-color`, and effective font size; sample at least the page's primary headings, body copy, links, button labels, and form labels. Save as `contrast-samples.json` per route. Pair samples with a `take_screenshot` so reviewers can verify visually.
-9. Exercise dynamic feedback. Trigger toasts, banners, modals, and route changes; capture `take_snapshot` pre/post and `take_screenshot` of the live region or focus target. Verify that route changes move focus and that ARIA live regions announce new content. Save under `dynamic-feedback/`.
-10. Aggregate findings into `_testatlas/evidence/explore-accessibility/<timestamp>/findings.md` with severity per PRD §13.9 (critical / serious / moderate / minor) and confidence per `bootstrap.md` §8. Every finding cites at least one evidence path created in steps 5–9.
-11. Close the lifecycle (next section).
+6. For each route in `_testatlas/12_app_map.json`, navigate, wait for the route to settle, then run `lighthouse_audit` filtered to the `accessibility` category. Persist the lighthouse JSON under `_testatlas/evidence/explore-accessibility/<timestamp>/<route-slug>/lighthouse.json`. Record the category score and the per-issue list.
+7. Exercise keyboard navigation. From the route's initial focus, sequence `press_key('Tab')` repeatedly (and `Shift+Tab` to verify reverse order); after each step, capture `evaluate_script(() => document.activeElement.outerHTML)` plus `take_screenshot` of the focus indicator. Save the captured trail as `focus-order.json` and the screenshots under `focus-trail/`. Note focus traps, hidden focus targets, missing visible indicators, and skip-link presence.
+8. Inventory ARIA. Use `evaluate_script` to dump `role`, `aria-*` attributes, and accessible names for every interactive element (`button`, `a`, `input`, `[role]`). Save as `aria-inventory.json` per route. Cross-check that interactive controls have accessible names and that landmark roles are present.
+9. Check contrast. For each text node, use `evaluate_script` to read computed `color`, `background-color`, and effective font size; sample at least the page's primary headings, body copy, links, button labels, and form labels. Save as `contrast-samples.json` per route. Pair samples with a `take_screenshot` so reviewers can verify visually.
+10. Exercise dynamic feedback. Trigger toasts, banners, modals, and route changes; capture `take_snapshot` pre/post and `take_screenshot` of the live region or focus target. Verify that route changes move focus and that ARIA live regions announce new content. Save under `dynamic-feedback/`.
+11. Aggregate findings into `_testatlas/evidence/explore-accessibility/<timestamp>/findings.md` with severity per PRD §13.9 (critical / serious / moderate / minor) and confidence per `bootstrap.md` §8. Every finding cites at least one evidence path created in steps 6–10.
+12. Close the lifecycle (next section).
 
 ## Outputs
 

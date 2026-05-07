@@ -1,15 +1,15 @@
 ---
 name: atlas-test-domain
-description: Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode.
+description: Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode.
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="d09ef5950371b3312bb97353bcf1a0b2bae6b1fd754efb8328972bc2a86270b6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="dd2732853af605a7efce9780d64fbd6e3518e1cf683f03e2e98b1407951d9d56" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against the running target product across four PRD §26 test modes: **negative** (PRD §26.5), **state** (PRD §26.6), **integration** (PRD §26.9), and **setup-testability** (PRD §26.10). Scenarios for smoke, user-flow, and exploratory belong to `/atlas:test-flow`; accessibility and performance belong to `/atlas:test-accessibility` and `/atlas:test-performance`. The scenario's `type` field disambiguates the mode at runtime — every scenario carries one of the four enum values above. Output is a `_testatlas/runs/RUN-<timestamp>.{md,json}` pair (the JSON validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/`. Like every test command, this is a high fabrication-risk surface — every claim about target behaviour MUST be backed by evidence captured first.
+Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against the running target product across four PRD §26 modes: **negative** (§26.5), **state** (§26.6), **integration** (§26.9), and **setup-testability** (§26.10). Smoke / user-flow / exploratory belong to `/atlas:test-flow`; accessibility and performance belong to `/atlas:test-accessibility` and `/atlas:test-performance`. The scenario's `type` field selects the mode. Output is `_testatlas/runs/RUN-<timestamp>.{md,json}` (validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/`. High fabrication-risk surface — every claim MUST cite evidence captured first.
 
 ### Mode discoverability
 
@@ -23,6 +23,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
+- `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough* and § *Interactive-surface walkthrough* — canonical UI walkthroughs invoked by the `state` branch when scenarios target UI surfaces. The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — the planned scenarios; if missing, halt.
 - `_testatlas/flows/<slug>/flow.{md,json}` for any flow referenced by a scenario — preconditions, oracle.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
@@ -32,61 +33,69 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` that exists on disk. Fabricated paths fail `validate-workspace`.
-2. Verify capabilities. **If `shell` is unavailable, MUST NOT execute scenarios that need test runners, dev servers, fixtures, migrations, or seed scripts — mark them `skipped: shell unavailable` per `bootstrap.md` §4, emit a partial RUN of only the skipped entries, and tag each `tool_unavailable: shell`. Never simulate command output or side-effects from training-data priors.**
-3. Verify safety flags. If `allowDestructiveActions=false`, refuse scenarios whose steps mutate or delete data — including setup-testability scenarios calling `db:reset`, `migrate down`, fixture wipes, or destructive seed operations. If `allowProductionTesting=false`, inspect the resolved target URL/env (do not trust scenario-author claims) and refuse production. Halt rather than degrade silently.
-4. **Mode disambiguation.** For each scenario in scope (filter `tests/matrix.json` by the four supported `type` values; ignore others — they belong to other test commands), branch on `scenario.type`:
-   - **`negative`** — exercise invalid input, permission denial, missing-resource access, malformed payloads, expired sessions, rate-limit triggers. Assert that the target returns the expected error response (status code, error code, message shape) without leaking secrets, stack traces, or internal IDs. Capture request, response, and any rendered error UI as evidence.
-   - **`state`** — exercise the canonical lifecycle states from PRD §13: empty, loading, error, success, permission-denied, long-list, partial-data, stale-cache. Capture per-state evidence (one screenshot or DOM snapshot or log file per state observed). A scenario need not exercise every state, but every state it claims to cover MUST have its own evidence file.
-   - **`integration`** — exercise external-service contracts (auth providers, payment processors, email, SMS, webhook receivers). **Sandbox endpoints only** — refuse if the resolved endpoint is a production URL or uses live API keys. Capture the outbound request, the recorded response, and the target-side acknowledgement as evidence. Never trigger real charges, real emails, or real SMS deliveries.
-   - **`setup-testability`** — exercise the install / seed / migrate / configure paths the next agent needs to reproduce results. Capture the before-state, the command run, the after-state, and any side-effect inventory. The scenario passes when the recorded after-state matches the scenario's expected post-condition.
-5. For each scenario, capture evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` BEFORE making any pass / fail / skipped / blocked claim. Evidence file names should be stable and self-describing (`request.json`, `response.json`, `state-empty.png`, `before.json`, `after.json`, `console.log.txt`). Apply TEST-03 redaction discipline per `evidence.schema.json` — strip secrets, tokens, PII before persisting.
-6. Record per-scenario results: scenario id, name, `type` (one of `negative` | `state` | `integration` | `setup-testability` per `test-run.schema.json` enum), status (`passed` | `failed` | `skipped` | `blocked`), evidence paths (under `_testatlas/evidence/runs/<run-id>/`), observed vs expected assertions, deltas, and a per-result `confidence` per `bootstrap.md` §8.
-7. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario, grouped by mode) and `_testatlas/runs/RUN-<timestamp>.json` (the schema-valid sidecar). Include a top-level summary: total / passed / failed / skipped / blocked, per-mode counts, capabilities used, capabilities unavailable, environment fingerprint.
-8. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails — do not commit a malformed run record.
-9. Update flow confidence per scenario outcome — flows whose scenarios passed climb in confidence; flows with failures or skips drop and are flagged for the next plan cycle.
-10. Close the lifecycle (next section).
+2. Verify capabilities. **If `shell` is unavailable, MUST NOT execute scenarios that need test runners, dev servers, fixtures, migrations, or seed scripts — mark them `skipped: shell unavailable` per `bootstrap.md` §4, emit a partial RUN of only the skipped entries, tag each `tool_unavailable: shell`. Never simulate command output or side-effects from training-data priors.**
+3. **Mandatory walkthrough when capabilities are available (state branch + UI-touching scenarios).** When `scenario.type === "state"` AND the scenario targets a UI surface AND `browser` AND `MCP` are both available in this adapter context (verified per `.testatlas/reference/capabilities.md` per-capability action matrix), this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough*. The state-coverage matrix prescribes the 5 PRD §13.1 states (empty / loading / error / success / permission), each state's trigger technique, and the evidence to capture per state. Pre-register `handle_dialog({accept})` BEFORE any action that may open `alert` / `confirm` / `beforeunload`. Skipping a walkthrough step when the underlying tool is reachable — because the result feels predictable, priors say the state will render, or coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a state is legitimately absent (a static surface has no loading state), record the skip rationale on the per-scenario result. MUST NOT skip silently.
+4. Verify safety flags. If `allowDestructiveActions=false`, refuse scenarios that mutate/delete data — including setup-testability calls to `db:reset`, `migrate down`, fixture wipes, or destructive seeds. If `allowProductionTesting=false`, inspect the resolved target URL/env and refuse production. Halt rather than degrade silently.
+5. **Mode disambiguation.** Filter `tests/matrix.json` by the four supported `type` values; ignore others (they belong to other test commands). Branch on `scenario.type`:
+   - **`negative`** — exercise invalid input, permission denial, missing-resource access, malformed payloads, expired sessions, rate-limit triggers. Assert expected error response (status code, error code, message shape) without leaking secrets, stack traces, or internal IDs. Capture request, response, rendered error UI as evidence.
+   - **`state`** — exercise the PRD §13.1 5-state matrix per the state-coverage matrix in `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough*. The five canonical states are: **empty**, **loading**, **error**, **success**, **permission**. Trigger techniques (verbatim):
+     - **empty** — fresh-user authentication, or `evaluate_script(() => localStorage.clear())` then reload.
+     - **loading** — `emulate({networkConditions: 'Slow 3G'})` then `navigate_page`; `take_screenshot` BEFORE `wait_for` resolves.
+     - **error** — for forms: `fill_form` invalid + `click(submit)`; for fetches: monkey-patch `window.fetch` to reject. Pre-register `handle_dialog({accept: false})` if the surface may open dialogs.
+     - **success** — happy path `fill_form` valid + `click(submit)` + `wait_for("[data-success]")`.
+     - **permission** — strip session cookie via `evaluate_script` then `navigate_page`, OR sign in as a role lacking permission per scenario.
+
+     Capture per-state evidence (one `take_screenshot` and one `take_snapshot` per state observed) under `_testatlas/evidence/runs/<run-id>/<scenario-id>/state/`. A scenario need not exercise every state, but every state it claims to cover MUST have its own evidence file. PRD §26.6 also recognizes long-list / partial-data / stale-cache extensions; capture as additional state evidence files when the scenario specifies them.
+   - **`integration`** — exercise external-service contracts (auth, payments, email, SMS, webhooks). **Sandbox endpoints only** — refuse production URLs or live keys. Capture outbound request, recorded response, target-side acknowledgement. Never trigger real charges/emails/SMS.
+   - **`setup-testability`** — exercise install/seed/migrate/configure paths the next agent needs to reproduce results. Capture before-state, command run, after-state, side-effect inventory. Passes when after-state matches expected post-condition.
+6. Capture evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` BEFORE any pass/fail/skipped/blocked claim. Use stable, self-describing names (`request.json`, `response.json`, `state-empty.png`, `before.json`, `after.json`, `console.log.txt`). Apply TEST-03 redaction per `evidence.schema.json` — strip secrets, tokens, PII before persisting.
+7. Record per-scenario: id, name, `type` (one of `negative` | `state` | `integration` | `setup-testability`), status (`passed`/`failed`/`skipped`/`blocked`), evidence paths, observed vs expected, deltas, and `confidence` per `bootstrap.md` §8.
+8. Write `_testatlas/runs/RUN-<timestamp>.{md,json}` (the JSON validates against `test-run.schema.json`). Include top-level summary: total / passed / failed / skipped / blocked, per-mode counts, capabilities used, capabilities unavailable, environment fingerprint.
+9. Validate RUN JSON against `test-run.schema.json` before commit. Halt on validation failure.
+10. Update flow confidence per outcome — passes climb; failures/skips drop and flag for next plan cycle.
+11. Close the lifecycle (next section).
 
 ### `--all` mode
 
-`/atlas:test-domain --all` walks domains with ≥1 scenario in the matrix (filtered to the four PRD §26 modes); domains with zero in-scope scenarios are skipped silently. Accumulates per-domain results into ONE merged RUN with `executionMode: 'all-domains'` (run metadata; `type` enum unchanged). **Capability-blocked** or `pending: capability-required` scenarios — including `integration` resolved to production — are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
+`/atlas:test-domain --all` walks domains with ≥1 in-scope scenario; empty domains are skipped silently. Results accumulate into ONE merged RUN with `executionMode: 'all-domains'`. Capability-blocked or `pending: capability-required` scenarios (including `integration` resolved to production) are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — schema-valid run record with per-scenario results, mode tags, and evidence paths.
-- `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` — captured request / response / state / before-after evidence per scenario.
-- Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched by this run.
+- `_testatlas/runs/RUN-<timestamp>.{md,json}` — schema-valid run record with per-scenario results, mode tags, evidence paths.
+- `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` — captured request/response/state/before-after evidence.
+- Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched.
 
 ## Lifecycle
 
-After completing this command, update these workspace artifacts in PRD §40 order:
+After completing, update these workspace artifacts in PRD §40 order:
 
-- `_testatlas/03_execution_status.md` — record run id, total / passed / failed / skipped / blocked counts, per-mode counts, capabilities used.
-- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
-- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence` against the new evidence files.
+- `_testatlas/03_execution_status.md` — record run id, total/passed/failed/skipped/blocked counts, per-mode counts, capabilities used.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
+- `_testatlas/10_command_log.md` — append row per `command-result.schema.json` referencing this run id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
 
 ## Stop Conditions
 
 - `_testatlas/tests/matrix.json` missing → halt; "Run /atlas:plan first."
 - No scenarios match the four supported types → halt; "test-domain has no scenarios in scope. Use /atlas:test-flow, /atlas:test-accessibility, or /atlas:test-performance."
-- All in-scope scenarios skipped due to missing `shell` capability → halt; require the operator to enable shell or swap adapter.
-- Resolved target is a production host but `allowProductionTesting=false` → halt; refuse to run.
-- An integration-mode scenario would trigger a real charge, real email, or real SMS (resolved endpoint is production or live key detected) → refuse and halt that scenario; continue with the rest.
-- `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
-- Evidence file referenced in a result does not exist on disk after capture → halt; do not record a result citing a non-existent path.
-- `test-run.schema.json` validation fails on the produced JSON → halt; do not commit a malformed run.
-- `--all` mode never halts on a single capability-blocked skip; halts only when every in-scope scenario is skipped with non-user-recoverable reasons.
+- All in-scope scenarios skipped due to missing `shell` → halt; enable shell or swap adapter.
+- Resolved target is production but `allowProductionTesting=false` → halt.
+- Integration scenario would trigger real charge/email/SMS (production endpoint or live key) → refuse that scenario; continue.
+- `safeMode=true` and step would mutate target-repo source → halt.
+- Evidence path cited in a result does not exist on disk → halt.
+- `test-run.schema.json` validation fails → halt; do not commit malformed run.
+- `--all` halts only when every in-scope scenario is skipped with non-user-recoverable reasons.
 
 ## Completion Criteria
 
-- At least one `_testatlas/runs/RUN-<timestamp>.{md,json}` pair exists, or there is an unambiguous justification for zero (e.g. all in-scope scenarios legitimately skipped) recorded in the run summary.
-- Every recorded result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
-- Every scenario result's `type` is one of the four supported enum values: `negative`, `state`, `integration`, `setup-testability`.
-- The RUN JSON validates against `test-run.schema.json`.
-- Manifest `counts.runs` and `counts.evidence` are updated to match disk.
-- Flow confidence is updated for every flow touched.
-- The five lifecycle files listed above are updated.
+- At least one `_testatlas/runs/RUN-<timestamp>.{md,json}` pair exists, or unambiguous zero justification recorded in the summary.
+- Every result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
+- Every result's `type` is one of `negative` / `state` / `integration` / `setup-testability`.
+- RUN JSON validates against `test-run.schema.json`.
+- Manifest `counts.runs` and `counts.evidence` match disk.
+- Flow confidence updated for every flow touched.
+- The five lifecycle files updated.
 
 ## What's Next
 
