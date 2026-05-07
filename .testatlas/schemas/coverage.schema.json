@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://testatlas.dev/schemas/v2/coverage.schema.json",
   "title": "TestAtlas V2 Coverage Index",
-  "description": "Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, and CLI commands have been tested, when, and by what.",
+  "description": "Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, CLI commands, jobs, and integrations have been tested, when, and by what. Plan 14-03 extended the v2 contract to include jobs + integrations as optional categories alongside the four required (routes, components, endpoints, commands).",
   "type": "object",
   "properties": {
     "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
@@ -23,6 +23,14 @@
           "items": { "$ref": "#/$defs/coverageEntry" }
         },
         "commands": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        },
+        "jobs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/coverageEntry" }
+        },
+        "integrations": {
           "type": "array",
           "items": { "$ref": "#/$defs/coverageEntry" }
         }

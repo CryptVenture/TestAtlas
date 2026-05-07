@@ -136,7 +136,7 @@ Schema for components/<domain>/COMPONENT-<name>.{md,json} (PRD §11).
 
 ## TestAtlas V2 Coverage Index
 
-Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, and CLI commands have been tested, when, and by what.
+Brain coverage map. PRD §7.13 / §11.1. Tracks which routes, components, endpoints, CLI commands, jobs, and integrations have been tested, when, and by what. Plan 14-03 extended the v2 contract to include jobs + integrations as optional categories alongside the four required (routes, components, endpoints, commands).
 
 **`$id`:** `https://testatlas.dev/schemas/v2/coverage.schema.json`
 
