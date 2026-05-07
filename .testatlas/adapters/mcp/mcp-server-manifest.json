@@ -318,6 +318,16 @@
       "arguments": []
     },
     {
+      "name": "atlas-test-generate-automation",
+      "description": "Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI, contract, smoke) from documented flows. Output marked `generated-but-not-validated` until executed.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-test-generate-scenarios",
+      "description": "Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed.",
+      "arguments": []
+    },
+    {
       "name": "atlas-triage",
       "description": "Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md.",
       "arguments": []

@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="69167d45508bdcb36ae4e0cb8d607dd03cd78a675145257b5fc60932090654b3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="623d7fee6db9cf3c96a99f9ab3d882eefe1a70695cdad1979ec1a88ffdf4bbaf" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Aider. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -387,6 +387,18 @@ Execute performance-typed scenarios via mandatory Chrome DevTools MCP perf walkt
 ## /atlas-test-regression
 
 Re-run previously-failed scenarios from prior RUN-<timestamp>.json files; diff against the prior failed run; report regressed / recovered / unchanged / unverified per scenario. Read `.testatlas/commands/test-regression.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-test-generate-automation
+
+Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI, contract, smoke) from documented flows. Output marked `generated-but-not-validated` until executed. Read `.testatlas/commands/test/generate-automation.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-test-generate-scenarios
+
+Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed. Read `.testatlas/commands/test/generate-scenarios.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
