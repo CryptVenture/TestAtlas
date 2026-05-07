@@ -6,13 +6,13 @@
 //
 // POSIX-only — install.sh is /bin/sh; skipped on win32.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile as execFileCb } from 'node:child_process';
-import { promisify } from 'node:util';
 import { mkdtemp, rm, stat } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { test } from 'node:test';
+import { promisify } from 'node:util';
 
 const execFile = promisify(execFileCb);
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
@@ -58,29 +58,23 @@ test('install.sh -h short flag works', { skip: isWindows }, async () => {
   assert.ok(r.stdout.includes('Usage:'), 'stdout must contain "Usage:"');
 });
 
-test(
-  'install.sh --dry-run prints resolution AND has zero side effects',
-  { skip: isWindows },
-  async () => {
-    const tmp = await mkdtemp(path.join(os.tmpdir(), 'install-dryrun-'));
+test('install.sh --dry-run prints resolution AND has zero side effects', {
+  skip: isWindows,
+}, async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), 'install-dryrun-'));
+  try {
+    const r = await run(['--dry-run'], { cwd: tmp });
+    assert.equal(r.exitCode, 0, `expected exit 0; stderr: ${r.stderr}`);
+    const has = r.stdout.includes('tarball=') || r.stdout.toLowerCase().includes('dry-run');
+    assert.ok(has, `stdout must indicate dry-run resolution; stdout was: ${r.stdout}`);
+    // Side-effect-free assertion: no _testatlas/ created in tmp CWD
+    let exists = false;
     try {
-      const r = await run(['--dry-run'], { cwd: tmp });
-      assert.equal(r.exitCode, 0, `expected exit 0; stderr: ${r.stderr}`);
-      const has =
-        r.stdout.includes('tarball=') || r.stdout.toLowerCase().includes('dry-run');
-      assert.ok(
-        has,
-        `stdout must indicate dry-run resolution; stdout was: ${r.stdout}`,
-      );
-      // Side-effect-free assertion: no _testatlas/ created in tmp CWD
-      let exists = false;
-      try {
-        await stat(path.join(tmp, '_testatlas'));
-        exists = true;
-      } catch {}
-      assert.equal(exists, false, '<tmp>/_testatlas/ must NOT exist after --dry-run');
-    } finally {
-      await rm(tmp, { recursive: true, force: true });
-    }
-  },
-);
+      await stat(path.join(tmp, '_testatlas'));
+      exists = true;
+    } catch {}
+    assert.equal(exists, false, '<tmp>/_testatlas/ must NOT exist after --dry-run');
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});

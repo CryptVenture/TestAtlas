@@ -19,29 +19,17 @@ const STATES = ['empty', 'loading', 'error', 'success', 'permission'];
 test('explore-ui.md embeds the 5-state matrix and trigger techniques', async () => {
   const text = await readFile('.testatlas/commands/explore-ui.md', 'utf8');
   for (const s of STATES) {
-    assert.match(
-      text,
-      new RegExp('\\b' + s + '\\b'),
-      `explore-ui.md missing state: ${s}`,
-    );
+    assert.match(text, new RegExp(`\\b${s}\\b`), `explore-ui.md missing state: ${s}`);
   }
   assert.match(text, /emulate/, 'explore-ui.md missing emulate trigger reference');
   assert.match(text, /Slow 3G/, 'explore-ui.md missing Slow 3G throttle reference');
-  assert.match(
-    text,
-    /handle_dialog/,
-    'explore-ui.md missing handle_dialog reference',
-  );
+  assert.match(text, /handle_dialog/, 'explore-ui.md missing handle_dialog reference');
 });
 
 test('test-domain.md state branch embeds the 5-state matrix', async () => {
   const text = await readFile('.testatlas/commands/test-domain.md', 'utf8');
   for (const s of STATES) {
-    assert.match(
-      text,
-      new RegExp('\\b' + s + '\\b'),
-      `test-domain.md missing state: ${s}`,
-    );
+    assert.match(text, new RegExp(`\\b${s}\\b`), `test-domain.md missing state: ${s}`);
   }
   assert.match(
     text,

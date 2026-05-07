@@ -30,21 +30,9 @@ const TIER_1 = [
   'handle_dialog',
 ];
 
-const TIER_2_INTERACTIVE = [
-  'click',
-  'fill_form',
-  'press_key',
-  'hover',
-  'type_text',
-  'upload_file',
-];
+const TIER_2_INTERACTIVE = ['click', 'fill_form', 'press_key', 'hover', 'type_text', 'upload_file'];
 
-const TIER_3_A11Y = [
-  'lighthouse_audit',
-  'take_snapshot',
-  'press_key',
-  'evaluate_script',
-];
+const TIER_3_A11Y = ['lighthouse_audit', 'take_snapshot', 'press_key', 'evaluate_script'];
 
 const TIER_4_PERF = [
   'performance_start_trace',
@@ -58,12 +46,8 @@ async function readCmd(name) {
 }
 
 function assertCites(text, tools, file) {
-  const missing = tools.filter((t) => !new RegExp('\\b' + t + '\\b').test(text));
-  assert.deepEqual(
-    missing,
-    [],
-    `${file}: missing verbatim tool names: ${missing.join(', ')}`,
-  );
+  const missing = tools.filter((t) => !new RegExp(`\\b${t}\\b`).test(text));
+  assert.deepEqual(missing, [], `${file}: missing verbatim tool names: ${missing.join(', ')}`);
 }
 
 test('explore-ui.md cites Tier-1 toolset verbatim', async () => {
@@ -71,44 +55,20 @@ test('explore-ui.md cites Tier-1 toolset verbatim', async () => {
 });
 
 test('explore-ui.md cites Tier-2 interactive surface tools verbatim', async () => {
-  assertCites(
-    await readCmd('explore-ui.md'),
-    TIER_2_INTERACTIVE,
-    'explore-ui.md',
-  );
+  assertCites(await readCmd('explore-ui.md'), TIER_2_INTERACTIVE, 'explore-ui.md');
 });
 
 test('explore-accessibility.md + test-accessibility.md cite Tier-3 a11y tools verbatim', async () => {
-  assertCites(
-    await readCmd('explore-accessibility.md'),
-    TIER_3_A11Y,
-    'explore-accessibility.md',
-  );
-  assertCites(
-    await readCmd('test-accessibility.md'),
-    TIER_3_A11Y,
-    'test-accessibility.md',
-  );
+  assertCites(await readCmd('explore-accessibility.md'), TIER_3_A11Y, 'explore-accessibility.md');
+  assertCites(await readCmd('test-accessibility.md'), TIER_3_A11Y, 'test-accessibility.md');
 });
 
 test('explore-performance.md + test-performance.md cite Tier-4 perf tools verbatim', async () => {
-  assertCites(
-    await readCmd('explore-performance.md'),
-    TIER_4_PERF,
-    'explore-performance.md',
-  );
-  assertCites(
-    await readCmd('test-performance.md'),
-    TIER_4_PERF,
-    'test-performance.md',
-  );
+  assertCites(await readCmd('explore-performance.md'), TIER_4_PERF, 'explore-performance.md');
+  assertCites(await readCmd('test-performance.md'), TIER_4_PERF, 'test-performance.md');
 });
 
 test('test-flow.md + test-domain.md cite handle_dialog for interactive-surface walkthroughs', async () => {
   assertCites(await readCmd('test-flow.md'), ['handle_dialog'], 'test-flow.md');
-  assertCites(
-    await readCmd('test-domain.md'),
-    ['handle_dialog'],
-    'test-domain.md',
-  );
+  assertCites(await readCmd('test-domain.md'), ['handle_dialog'], 'test-domain.md');
 });

@@ -70,11 +70,9 @@ export async function resolveCachedTarball() {
     return null;
   }
   try {
-    const { stdout } = await execFile(
-      'npm',
-      ['pack', '--dry-run', '--json', PACKAGE_NAME],
-      { timeout: 5000 },
-    );
+    const { stdout } = await execFile('npm', ['pack', '--dry-run', '--json', PACKAGE_NAME], {
+      timeout: 5000,
+    });
     const arr = JSON.parse(stdout);
     if (Array.isArray(arr) && arr[0]?.filename) {
       // npm pack --dry-run reports filename. The actual cached tarball

@@ -189,9 +189,7 @@ test('stale-index: HEAL-03 round-trip removes stale entry, preserves correct one
     const postHeal = r.postHealResults ?? r.results;
     const stillStale = (postHeal ?? [])
       .flatMap((res) => res.findings ?? [])
-      .filter(
-        (f) => f.code === 'TESTATLAS_INDEX_STALE' && /by_severity\/high\.md$/.test(f.path),
-      );
+      .filter((f) => f.code === 'TESTATLAS_INDEX_STALE' && /by_severity\/high\.md$/.test(f.path));
     assert.equal(
       stillStale.length,
       0,

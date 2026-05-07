@@ -33,10 +33,7 @@ test('SECURITY.md does not contain stale `Pre-release / not yet GA` claim', asyn
 test('SECURITY.md 1.x row positively asserts Supported or GA status', async () => {
   const text = await readFile(SECURITY_PATH, 'utf8');
   const row = text.split('\n').find((line) => line.includes('1.x'));
-  assert.ok(
-    row,
-    'SECURITY.md no longer contains a `1.x` row in the Supported Versions table.',
-  );
+  assert.ok(row, 'SECURITY.md no longer contains a `1.x` row in the Supported Versions table.');
   // Reject the negated form "not yet GA" so a substring match on `GA` cannot
   // accidentally satisfy the positive assertion.
   assert.ok(

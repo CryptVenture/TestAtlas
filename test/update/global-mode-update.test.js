@@ -98,15 +98,9 @@ test('global-install fixture has manifest.mode === "global" and no _testatlas/',
   // Sanity: the fixture itself models the production global-install layout.
   const tmp = await makeGlobalInstall();
   t.after(() => rm(tmp, { recursive: true, force: true }));
-  const raw = await readFile(
-    path.join(tmp, '.testatlas', '.install-manifest.json'),
-    'utf8',
-  );
+  const raw = await readFile(path.join(tmp, '.testatlas', '.install-manifest.json'), 'utf8');
   const m = JSON.parse(raw);
   assert.equal(m.mode, 'global');
   // _testatlas/ MUST NOT exist in this layout.
-  await assert.rejects(
-    () => readFile(path.join(tmp, '_testatlas', '.anything'), 'utf8'),
-    /ENOENT/,
-  );
+  await assert.rejects(() => readFile(path.join(tmp, '_testatlas', '.anything'), 'utf8'), /ENOENT/);
 });

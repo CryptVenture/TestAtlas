@@ -4,11 +4,11 @@
 // `node scripts/assemble-adapter.js --help` MUST exit 0 with usage output
 // without throwing a TDZ ReferenceError.
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile as execFileCb } from 'node:child_process';
-import { promisify } from 'node:util';
 import path from 'node:path';
+import { test } from 'node:test';
+import { promisify } from 'node:util';
 
 const execFile = promisify(execFileCb);
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');

@@ -31,7 +31,7 @@ import path from 'node:path';
 import { detectAdapters } from './adapter-detect.js';
 import { info, step, success, warning } from './colors.js';
 import { INSTALL_MANIFEST_PATH } from './constants.js';
-import { hashContent, verifyHashCompat } from './content-hash.js';
+import { verifyHashCompat } from './content-hash.js';
 import { buildManifest, loadAndValidateManifest, writeManifest } from './manifest.js';
 import { assertCapability } from './safety.js';
 import { verifyCachedPackage } from './verify-package.js';

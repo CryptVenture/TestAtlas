@@ -86,7 +86,10 @@ test('Test A — runInit with verifySignature:true invokes cosign verify-blob-at
     /testatlas.*\.tgz$/,
     'tarball path should look like a real testatlas .tgz',
   );
-  assert.ok(bundleFetchedFor, 'fetchSigstoreBundle must be invoked to obtain the .sigstore.json sidecar');
+  assert.ok(
+    bundleFetchedFor,
+    'fetchSigstoreBundle must be invoked to obtain the .sigstore.json sidecar',
+  );
 });
 
 test('Test B — runInit with verifySignature:true and unresolvable cached tarball halts with TESTATLAS_INIT_TARBALL_UNAVAILABLE', async () => {

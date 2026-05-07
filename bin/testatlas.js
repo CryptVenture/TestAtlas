@@ -318,7 +318,7 @@ program
     // bypassing runCli where the original flip lived. Detect "--apply was
     // user-provided" via the raw argv slice (not Boolean(opts.apply), which
     // would treat the auto-flip as user-set).
-    const userArgs = Array.isArray(cmd?.args) ? cmd.args : [];
+    const _userArgs = Array.isArray(cmd?.args) ? cmd.args : [];
     const rawArgv = process.argv.slice(2);
     const userPassedApply = rawArgv.includes('--apply');
     const userPassedDryRun = rawArgv.includes('--dry-run');
