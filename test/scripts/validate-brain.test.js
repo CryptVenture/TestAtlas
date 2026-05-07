@@ -155,8 +155,21 @@ async function fillHealthy(brainDir) {
       next_recommended_commands: [],
     }),
   );
+  // Files with schemas that require nested structure get hand-rolled minimal
+  // valid bodies. Others get schema_version-only stubs.
+  await writeFile(
+    path.join(brainDir, 'coverage.json'),
+    JSON.stringify({
+      schema_version: '2.0.0',
+      coverage: { routes: [], components: [], endpoints: [], commands: [] },
+    }),
+  );
+  await writeFile(
+    path.join(brainDir, 'graph.json'),
+    JSON.stringify({ schema_version: '2.0.0', nodes: [], edges: [] }),
+  );
   for (const f of REQUIRED_JSON_FILES) {
-    if (f === 'manifest.json' || f === 'state.json') continue;
+    if (['manifest.json', 'state.json', 'coverage.json', 'graph.json'].includes(f)) continue;
     await writeFile(path.join(brainDir, f), JSON.stringify({ schema_version: '2.0.0' }));
   }
   for (const f of REQUIRED_JSONL_FILES) {
