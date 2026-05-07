@@ -111,9 +111,11 @@ test('Test 4: adapter-capabilities.json declares V2 capabilities on supported ad
   }
 });
 
-test('Test 5: claude-code adapter tree carries V2 categorized commands in nested dirs', async () => {
-  // After regen the adapter tree has e.g.
-  // `.testatlas/adapters/claude-code/.claude/commands/council/atlas-council.md`.
+test('Test 5: claude-code adapter tree exposes V2 council commands at FLAT root (no nested dir)', async () => {
+  // Phase 16 Plan 16-01 inversion: per `prd/reports/v2-adapter-slash-command-
+  // discovery.md` Option A, every per-command-file adapter renders flat. The
+  // council/ subdirectory must NOT exist; council commands live at the flat
+  // root with names from `commandBaseNameFromSource`.
   const cmdDir = path.join(
     repoRoot,
     '.testatlas',
@@ -123,23 +125,42 @@ test('Test 5: claude-code adapter tree carries V2 categorized commands in nested
     'commands',
   );
   const councilDir = path.join(cmdDir, 'council');
-  const entries = await readdir(councilDir).catch(() => []);
-  assert.ok(
-    entries.length >= 11,
-    `expected ≥11 council commands at ${councilDir}; got ${entries.length}: [${entries.join(', ')}]`,
+  const councilEntriesOrNull = await readdir(councilDir).catch((err) =>
+    err.code === 'ENOENT' ? null : Promise.reject(err),
   );
-  // Should include atlas-council.md (umbrella) and atlas-council-domain-review.md.
+  assert.equal(
+    councilEntriesOrNull,
+    null,
+    `council/ subdir must NOT exist after flatten (ENOENT expected); got: ${
+      Array.isArray(councilEntriesOrNull) ? `[${councilEntriesOrNull.join(', ')}]` : 'unexpected'
+    }`,
+  );
+
+  // Flat root must contain ≥11 atlas-council-* files plus atlas-council.md.
+  const rootEntries = await readdir(cmdDir, { withFileTypes: true });
+  const flatNames = rootEntries.filter((e) => e.isFile()).map((e) => e.name);
   assert.ok(
-    entries.includes('atlas-council.md'),
-    `umbrella atlas-council.md must exist; got: [${entries.join(', ')}]`,
+    flatNames.includes('atlas-council.md'),
+    `umbrella atlas-council.md must exist at flat root; got first 30: [${flatNames.slice(0, 30).join(', ')}]`,
   );
   assert.ok(
-    entries.includes('atlas-council-domain-review.md'),
-    `atlas-council-domain-review.md must exist; got: [${entries.join(', ')}]`,
+    flatNames.includes('atlas-council-domain-review.md'),
+    `atlas-council-domain-review.md must exist at flat root`,
+  );
+  const councilFlat = flatNames.filter((n) => n.startsWith('atlas-council') && n.endsWith('.md'));
+  assert.ok(
+    councilFlat.length >= 11,
+    `expected ≥11 atlas-council* files at flat root; got ${councilFlat.length}: [${councilFlat.join(', ')}]`,
   );
 });
 
-test('Test 6: claude-code carries V2 explore/* and core/* commands in nested dirs', async () => {
+test('Test 6: claude-code exposes V2 explore/* and core/* commands at FLAT root (no nested dirs)', async () => {
+  // Phase 16 Plan 16-01 inversion: explore/ and core/ subdirs must NOT exist.
+  // V2 commands appear at flat root with `commandBaseNameFromSource` naming:
+  //   commands/explore/state.md  →  atlas-explore-state.md
+  //   commands/core/status.md    →  atlas-core-status.md
+  //   commands/core/init.md      →  atlas-core-init.md (NOT atlas-init.md
+  //                                  — that name belongs to V1 flat init.md)
   const cmdDir = path.join(
     repoRoot,
     '.testatlas',
@@ -150,21 +171,50 @@ test('Test 6: claude-code carries V2 explore/* and core/* commands in nested dir
   );
   const exploreDir = path.join(cmdDir, 'explore');
   const coreDir = path.join(cmdDir, 'core');
-  const exploreEntries = await readdir(exploreDir).catch(() => []);
-  const coreEntries = await readdir(coreDir).catch(() => []);
-  assert.ok(
-    exploreEntries.length >= 11,
-    `expected ≥11 V2 explore commands; got ${exploreEntries.length}`,
+
+  const exploreEntriesOrNull = await readdir(exploreDir).catch((err) =>
+    err.code === 'ENOENT' ? null : Promise.reject(err),
   );
-  assert.ok(coreEntries.length >= 8, `expected ≥8 V2 core commands; got ${coreEntries.length}`);
-  // Spot-check one well-known V2 explorer and one core:
+  const coreEntriesOrNull = await readdir(coreDir).catch((err) =>
+    err.code === 'ENOENT' ? null : Promise.reject(err),
+  );
+  assert.equal(
+    exploreEntriesOrNull,
+    null,
+    `explore/ subdir must NOT exist after flatten (ENOENT expected)`,
+  );
+  assert.equal(
+    coreEntriesOrNull,
+    null,
+    `core/ subdir must NOT exist after flatten (ENOENT expected)`,
+  );
+
+  const rootEntries = await readdir(cmdDir, { withFileTypes: true });
+  const flatNames = rootEntries.filter((e) => e.isFile()).map((e) => e.name);
+
   assert.ok(
-    exploreEntries.some((n) => n === 'atlas-explore-state.md'),
-    `atlas-explore-state.md missing; got: [${exploreEntries.join(', ')}]`,
+    flatNames.includes('atlas-explore-state.md'),
+    `atlas-explore-state.md must exist at flat root`,
   );
   assert.ok(
-    coreEntries.some((n) => n === 'atlas-status.md'),
-    `atlas-status.md missing; got: [${coreEntries.join(', ')}]`,
+    flatNames.includes('atlas-core-status.md'),
+    `atlas-core-status.md must exist at flat root (V2 core/status.md disambiguated by commandBaseNameFromSource)`,
+  );
+  // V1 atlas-init.md (from flat commands/init.md) must remain UNCHANGED at flat root.
+  assert.ok(
+    flatNames.includes('atlas-init.md'),
+    `V1 atlas-init.md must remain at flat root (byte-identical post-flatten)`,
+  );
+
+  const exploreFlat = flatNames.filter((n) => n.startsWith('atlas-explore-') && n.endsWith('.md'));
+  const coreFlat = flatNames.filter((n) => n.startsWith('atlas-core-') && n.endsWith('.md'));
+  assert.ok(
+    exploreFlat.length >= 11,
+    `expected ≥11 atlas-explore-* at flat root; got ${exploreFlat.length}: [${exploreFlat.join(', ')}]`,
+  );
+  assert.ok(
+    coreFlat.length >= 8,
+    `expected ≥8 atlas-core-* at flat root; got ${coreFlat.length}: [${coreFlat.join(', ')}]`,
   );
 });
 
@@ -180,9 +230,12 @@ test('Test 7: assembleAdapter --check is clean (idempotent V2 regen)', async () 
   );
 });
 
-test('Test 8: every adapter outputDir contains the expected number of V2 files', async () => {
-  // Per-command-file adapters: flat-count + categorized-count = total derived files.
-  // Multi-source adapters (aider/mcp/roo-code/zed/amazon-q): single output file.
+test('Test 8: every per-command-file adapter has flat-count + cat-count files at FLAT root (no recursion)', async () => {
+  // Phase 16 Plan 16-01 inversion: per-command-file adapters render every
+  // source command (V1 flat + V2 categorized) at the adapter's commands root.
+  // The expected count remains flat.length + cat.length, but the COUNT MUST
+  // come from a top-level-only readdir (recursion would silently re-admit the
+  // nested-subdir bug we are fixing).
   const flat = await listCommandFiles({ cwd: repoRoot });
   const cat = await listCategorizedCommandFiles({ cwd: repoRoot });
   const expectedPerCmd = flat.length + cat.length;
@@ -199,33 +252,22 @@ test('Test 8: every adapter outputDir contains the expected number of V2 files',
       adapter.name,
       path.dirname(adapter.outputPattern),
     );
-    // Each adapter's outputPattern dictates the extension; some are `.md`,
-    // others `.mdc` (cursor), `.toml` (gemini-cli), `.prompt.md` (continue,
-    // github-copilot). We accept any file under the per-adapter outputDir.
-    const found = await countFilesRecursive(baseDir);
+    // Top-level only — no recursion. Any subdirectory under baseDir would
+    // surface as a non-file entry and FAIL the count match (acting as a
+    // belt-and-braces flatness invariant alongside Tests 5/6 + the new
+    // adapter-flat-discovery.test.js gate).
+    const entries = await readdir(baseDir, { withFileTypes: true }).catch(() => []);
+    const found = entries.filter((e) => e.isFile()).length;
+    const subdirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+    assert.deepEqual(
+      subdirs,
+      [],
+      `${adapter.name}: expected zero subdirs at ${baseDir}; got [${subdirs.join(', ')}]`,
+    );
     assert.equal(
       found,
       expectedPerCmd,
-      `${adapter.name}: expected ${expectedPerCmd} derived files, got ${found} at ${baseDir}`,
+      `${adapter.name}: expected ${expectedPerCmd} flat-root files, got ${found} at ${baseDir}`,
     );
   }
 });
-
-async function countFilesRecursive(dir) {
-  let count = 0;
-  let entries;
-  try {
-    entries = await readdir(dir, { withFileTypes: true });
-  } catch (err) {
-    if (err.code === 'ENOENT') return 0;
-    throw err;
-  }
-  for (const e of entries) {
-    if (e.isDirectory()) {
-      count += await countFilesRecursive(path.join(dir, e.name));
-    } else if (e.isFile()) {
-      count += 1;
-    }
-  }
-  return count;
-}
