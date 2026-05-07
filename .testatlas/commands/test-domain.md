@@ -87,7 +87,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 
 ### `--all` mode
 
-`/atlas:test-domain --all` walks domains with ≥1 in-scope scenario; empty domains are skipped silently. Results accumulate into ONE merged RUN with `executionMode: 'all-domains'`. Capability-blocked or `pending: capability-required` scenarios (including `integration` resolved to production) are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
+`/atlas:test-domain --all` walks domains with ≥1 in-scope scenario; domains with zero in-scope scenarios are skipped silently. Results accumulate into ONE merged RUN with `executionMode: 'all-domains'`. Capability-blocked or `pending: capability-required` scenarios (including `integration` resolved to production) are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Outputs
 

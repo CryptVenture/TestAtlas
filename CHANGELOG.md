@@ -6,10 +6,22 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
-- Phase 13 / Plan 13-03: bootstrap.md §12 carries the positive-side mandatory-when-available walkthrough rule pointing at `reference/chrome-devtools-mcp.md`.
-- Phase 13 / Plan 13-03: `reference/capabilities.md` per-capability action matrix gains a fourth column ("Mandatory action when available") covering all six capabilities.
+- **Phase 13 — Chrome DevTools MCP UI Walkthrough Coverage.** The 7 UI-touching commands (`explore-ui`, `explore-accessibility`, `explore-performance`, `test-flow`, `test-domain`, `test-accessibility`, `test-performance`) now embed a **mandatory-when-available walkthrough contract**: when `browser` AND `MCP` capabilities are both available, the canonical Chrome DevTools MCP toolset MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` (component-discovery, state-coverage, interactive-surface, a11y, performance patterns + the 5-state PRD §13.1 matrix + tool tiering Tier 1–4). Skipping a walkthrough step when the underlying tool is reachable is now a contract violation equivalent to fabricating evidence.
+- Phase 13 / Plan 13-02: new reference shard `.testatlas/reference/chrome-devtools-mcp.md` housing the 5 walkthrough patterns, state-coverage matrix, tool tiering, and Strategy A evidence-persistence mapping. Four new regression tests (`walkthrough-mandatory.test.js`, `walkthrough-toolset.test.js`, `walkthrough-state-coverage.test.js`, `frontmatter-walkthrough-description.test.js`) assert the contract.
+- Phase 13 / Plan 13-03: bootstrap.md §12 carries the positive-side mandatory-when-available walkthrough rule pointing at `reference/chrome-devtools-mcp.md`. `reference/capabilities.md` per-capability action matrix gains a fourth column ("Mandatory action when available") covering all six capabilities.
+- Phase 13 / Plan 13-09: new `test/mcp-server-walkthrough-description.test.js` — asserts each of the 7 UI-touching prompts in `mcp-server-manifest.json` carries the walkthrough phrase in its description (visible to MCP-aware clients in their picker UI). Symmetric guard rejects accidental leak into non-UI prompts.
+- Phase 13 / Plan 13-09: extended `test/adapter-aider.test.js` with a Phase 13 regression — asserts the concatenated `.testatlas/adapters/aider/CONVENTIONS.md` preserves the `code-reading` degrade prose, proving the documented fallback path for non-browser hosts (Aider, generic, etc.) survives the rewrite.
 
 ### Changed
+
+- Phase 13 / Plans 13-04..13-07: 7 UI-touching command bodies rewritten with a reference-shard link in Required First Reads, a new Required Action paragraph (mandatory-when-available), Tier-1/2/3/4 toolset retention/expansion (incl. `handle_dialog`, `hover`, `type_text`, `upload_file` newly added to `explore-ui.md`), and (for `explore-ui.md` + `test-domain.md` state branch) the 5-state matrix prose with verbatim trigger techniques (`emulate`, `Slow 3G`, `handle_dialog`).
+- Phase 13 / Plan 13-07: `test-flow.md` capability declaration extended to include `MCP` (was `[shell, browser, file-write]`; now `[shell, browser, MCP, file-write]`).
+- Phase 13 / Plan 13-08: 7 UI-touching command frontmatter `description` fields rewritten to mention walkthrough discipline (visible to MCP-aware clients via the manifest, surfaced in adapter prompt menus).
+- Phase 13 / Plan 13-09: all 18 adapter trees regenerated via `node scripts/assemble-adapter.js` to propagate the canonical command rewrites (96 derived files updated; idempotency held — `--check` exits 0).
+
+### Backward compatibility
+
+- The code-reading degrade path is preserved verbatim for non-browser hosts (Aider, generic, etc.). `capability-fallback.test.js`, `anti-hallucination.test.js`, and the new `adapter-aider.test.js` Test 9 each assert this. No `vocabulary.json` schema change (Strategy A — existing `evidenceType` enum values cover all walkthrough artifacts). All 18 adapter manifests + the 32-command roster remain intact (no commands added or removed in Phase 13).
 
 ### Removed
 

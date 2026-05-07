@@ -2,7 +2,7 @@
 description: Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="dd2732853af605a7efce9780d64fbd6e3518e1cf683f03e2e98b1407951d9d56" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="1d9238bdfc8c299970c2c15b592c6bebe4de337ce19e1e79e3a468d2907743ef" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -55,7 +55,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 
 ### `--all` mode
 
-`/atlas:test-domain --all` walks domains with ≥1 in-scope scenario; empty domains are skipped silently. Results accumulate into ONE merged RUN with `executionMode: 'all-domains'`. Capability-blocked or `pending: capability-required` scenarios (including `integration` resolved to production) are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
+`/atlas:test-domain --all` walks domains with ≥1 in-scope scenario; domains with zero in-scope scenarios are skipped silently. Results accumulate into ONE merged RUN with `executionMode: 'all-domains'`. Capability-blocked or `pending: capability-required` scenarios (including `integration` resolved to production) are `status: 'skipped'` with `skipReason`; `--all` MUST NOT halt on first skip. Halt only when every in-scope scenario was skipped with non-user-recoverable reasons.
 
 ## Outputs
 
