@@ -1,0 +1,33 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "cli_commands": [
+    {
+      "command": "example-cli init",
+      "flags": [
+        { "name": "--target", "type": "string", "required": true, "description": "Target repo path" },
+        { "name": "--dry-run", "type": "boolean", "required": false, "description": "Preview only" }
+      ],
+      "help_text": "Initialize the example workspace under <target>/_example/.",
+      "config_files": [".examplerc.json", "example.config.js"],
+      "env_vars": [
+        { "name": "EXAMPLE_API_KEY", "required": true, "secret": true },
+        { "name": "EXAMPLE_BASE_URL", "required": false, "secret": false }
+      ],
+      "output_formats": ["text", "json"],
+      "exit_codes": [
+        { "code": 0, "meaning": "success" },
+        { "code": 1, "meaning": "general failure" },
+        { "code": 2, "meaning": "invalid args" }
+      ],
+      "test_coverage": {
+        "tests": ["TEST-cli-init-success", "TEST-cli-init-bad-flag"],
+        "percent": 0
+      },
+      "evidence": [
+        "evidence/explore-cli/<ts>/init/help.txt",
+        "evidence/explore-cli/<ts>/init/run.txt"
+      ]
+    }
+  ]
+}

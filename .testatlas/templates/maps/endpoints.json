@@ -1,0 +1,41 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "endpoints": [
+    {
+      "path": "/api/example/:id",
+      "method": "GET",
+      "auth": {
+        "required": true,
+        "schemes": ["bearer", "session-cookie"]
+      },
+      "request_schema": "schemas/api/example/get.request.schema.json",
+      "response_schema": "schemas/api/example/get.response.schema.json",
+      "errors": [
+        { "status": 400, "shape": "ValidationError" },
+        { "status": 401, "shape": "AuthError" },
+        { "status": 403, "shape": "PermissionError" },
+        { "status": 404, "shape": "NotFoundError" },
+        { "status": 500, "shape": "ServerError" }
+      ],
+      "pagination": null,
+      "idempotency": {
+        "method_implies_idempotent": true,
+        "header": null
+      },
+      "rate_limit": {
+        "scope": "per-user",
+        "max_requests_per_minute": 60
+      },
+      "test_coverage": {
+        "tests": ["TEST-api-example-get-200", "TEST-api-example-get-404"],
+        "percent": 0
+      },
+      "evidence": [
+        "evidence/explore-api/<ts>/example/get-200.json",
+        "evidence/explore-api/<ts>/example/get-404.json"
+      ],
+      "confidence": "needs-validation"
+    }
+  ]
+}

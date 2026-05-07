@@ -1,0 +1,28 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "pages": [
+    {
+      "path": "/example",
+      "title": "Example List",
+      "layout": "DefaultLayout",
+      "components": ["COMPONENT-example-list", "COMPONENT-example-filters"],
+      "states": ["empty", "loading", "error", "success", "permission"],
+      "accessibility": {
+        "role": "main",
+        "accessible_name": "Example list",
+        "evidence": "evidence/explore-routes/<ts>/example-list/snapshot.json"
+      },
+      "responsive": {
+        "375": "evidence/explore-routes/<ts>/example-list/responsive/375.png",
+        "768": "evidence/explore-routes/<ts>/example-list/responsive/768.png",
+        "1280": "evidence/explore-routes/<ts>/example-list/responsive/1280.png"
+      },
+      "evidence": [
+        "evidence/explore-routes/<ts>/example-list/direct.png",
+        "evidence/explore-routes/<ts>/example-list/snapshot.json"
+      ],
+      "confidence": "needs-validation"
+    }
+  ]
+}

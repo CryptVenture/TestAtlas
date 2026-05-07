@@ -1,0 +1,41 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "jobs": [
+    {
+      "name": "ExampleCleanupJob",
+      "schedule": {
+        "type": "cron",
+        "expression": "0 3 * * *",
+        "timezone": "UTC"
+      },
+      "queue": {
+        "runner": "bullmq",
+        "name": "default",
+        "concurrency": 4
+      },
+      "retry_policy": {
+        "max_attempts": 5,
+        "backoff_strategy": "exponential",
+        "base_delay_ms": 1000,
+        "jitter": true
+      },
+      "timeout": {
+        "value_ms": 60000,
+        "source": "src/jobs/cleanup.ts:42"
+      },
+      "dependencies": [
+        { "type": "enqueues", "target": "ExampleArchiveJob" }
+      ],
+      "test_coverage": {
+        "tests": ["TEST-cleanup-success", "TEST-cleanup-retry-after-fail"],
+        "percent": 0
+      },
+      "evidence": [
+        "evidence/explore-jobs/<ts>/cleanup/source.txt",
+        "evidence/explore-jobs/<ts>/cleanup/runtime.txt",
+        "evidence/explore-jobs/<ts>/cleanup/schedule.json"
+      ]
+    }
+  ]
+}

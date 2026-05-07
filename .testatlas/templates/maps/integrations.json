@@ -1,0 +1,29 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "integrations": [
+    {
+      "service": "Stripe",
+      "type": "payments",
+      "auth_method": "secret-key-env",
+      "sandbox_strategy": {
+        "available": true,
+        "host": "api.stripe.com",
+        "key_prefix_for_sandbox": "sk_test_",
+        "key_prefix_for_production": "sk_live_"
+      },
+      "endpoints": [
+        { "path": "/v1/checkout/sessions", "method": "POST", "purpose": "Create checkout session" },
+        { "path": "/v1/webhooks", "method": "POST", "purpose": "Receive webhook events" }
+      ],
+      "test_coverage": {
+        "tests": ["TEST-stripe-checkout-create", "TEST-stripe-webhook-signature"],
+        "percent": 0
+      },
+      "evidence": [
+        "evidence/explore-integrations/<ts>/stripe/source.txt",
+        "evidence/explore-integrations/<ts>/stripe/sandbox-call.json"
+      ]
+    }
+  ]
+}

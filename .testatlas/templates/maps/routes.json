@@ -1,0 +1,38 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "1970-01-01T00:00:00.000Z",
+  "routes": [
+    {
+      "path": "/example/:id",
+      "name": "ExampleDetail",
+      "owning_domain": "domain-example",
+      "components": ["COMPONENT-example-card", "COMPONENT-example-actions"],
+      "user_purpose": "View and act on a single example record.",
+      "props": [
+        { "name": "id", "type": "string", "source": "route-param", "required": true }
+      ],
+      "states": ["empty", "loading", "error", "success", "permission"],
+      "accessibility": {
+        "role": "main",
+        "accessible_name": "Example detail",
+        "focus_order_evidence": "evidence/explore-routes/<ts>/example-detail/snapshot.json"
+      },
+      "responsive": {
+        "375": "evidence/explore-routes/<ts>/example-detail/responsive/375.png",
+        "768": "evidence/explore-routes/<ts>/example-detail/responsive/768.png",
+        "1280": "evidence/explore-routes/<ts>/example-detail/responsive/1280.png"
+      },
+      "observed_behavior": "Renders fields; CTA fires PUT /api/example/:id; redirects to /example on delete.",
+      "test_coverage": {
+        "tests": ["TEST-example-detail-load", "TEST-example-detail-edit"],
+        "percent": 0
+      },
+      "evidence": [
+        "evidence/explore-routes/<ts>/example-detail/direct.png",
+        "evidence/explore-routes/<ts>/example-detail/snapshot.json"
+      ],
+      "issues": [],
+      "confidence": "needs-validation"
+    }
+  ]
+}

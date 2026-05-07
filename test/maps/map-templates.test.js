@@ -32,7 +32,10 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
-const MAPS_DIR = path.join(REPO_ROOT, '_testatlas', 'maps');
+// Canonical map templates ship under .testatlas/templates/maps/ and are
+// copied to _testatlas/maps/ at init time. We validate the shipped
+// (version-controlled) templates so the test is hermetic.
+const MAPS_DIR = path.join(REPO_ROOT, '.testatlas', 'templates', 'maps');
 
 const REQUIRED_FIELDS = {
   routes: [
