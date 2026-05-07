@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "2026-05-03T00:00:00.000Z",
+  "domains": [
+    {
+      "id": "domain-web-routing",
+      "slug": "web-routing",
+      "status": "mapped",
+      "display_name": "web-routing"
+    },
+    {
+      "id": "domain-web-components",
+      "slug": "web-components",
+      "status": "mapped",
+      "display_name": "web-components"
+    },
+    {
+      "id": "domain-web-state",
+      "slug": "web-state",
+      "status": "mapped",
+      "display_name": "web-state"
+    }
+  ]
+}

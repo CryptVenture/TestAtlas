@@ -1,0 +1,24 @@
+{
+  "schema_version": "2.0.0",
+  "last_updated": "2026-05-03T00:00:00.000Z",
+  "domains": [
+    {
+      "id": "domain-shared-package",
+      "slug": "shared-package",
+      "status": "mapped",
+      "display_name": "shared-package"
+    },
+    {
+      "id": "domain-monorepo-architecture",
+      "slug": "monorepo-architecture",
+      "status": "mapped",
+      "display_name": "monorepo-architecture"
+    },
+    {
+      "id": "domain-e2e-flows",
+      "slug": "e2e-flows",
+      "status": "mapped",
+      "display_name": "e2e-flows"
+    }
+  ]
+}
