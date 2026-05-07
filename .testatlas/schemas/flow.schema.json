@@ -59,6 +59,15 @@
       "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
     },
     "retestNotes": { "type": "array", "items": { "type": "string" } },
-    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "routeCoverage": { "type": "array", "items": { "type": "string" }, "description": "V2: PAGE-id or paths covered." },
+    "dataLifecycle": { "type": "object", "description": "V2: data inputs/writes/reads/side-effects.", "additionalProperties": true },
+    "apiEndpointsTouched": { "type": "array", "items": { "type": "string" }, "description": "V2: API-METHOD-path." },
+    "backgroundJobsTouched": { "type": "array", "items": { "type": "string" }, "description": "V2: JOB-id." },
+    "personasConsulted": { "type": "array", "items": { "type": "string" }, "description": "V2: persona ids." },
+    "relatedCouncilSessions": { "type": "array", "items": { "type": "string" }, "description": "V2: COUNCIL-id." },
+    "qualityScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "V2: §7.15 quality score." },
+    "automationCandidate": { "type": "boolean", "description": "V2: candidate for regression suite." },
+    "driftStatus": { "type": "string", "enum": ["fresh", "possibly_stale", "stale_requires_review", "unknown"], "description": "V2: §7.16 drift status." }
   }
 }

@@ -142,6 +142,17 @@ export async function createIssue(args = {}, _inject = {}) {
     lastUpdatedAt: nowIso,
   };
 
+  // V2 optional fields (Plan 14-02). Only emit when caller supplied a value;
+  // omit (don't null) when absent — preserves V1 schema validation.
+  if (args.discoveredByPersona !== undefined) record.discoveredByPersona = args.discoveredByPersona;
+  if (Array.isArray(args.brainClaimIds)) record.brainClaimIds = args.brainClaimIds;
+  if (args.driftSensitivity !== undefined) record.driftSensitivity = args.driftSensitivity;
+  if (args.automationCandidate !== undefined) record.automationCandidate = args.automationCandidate;
+  if (args.councilConsensusLevel !== undefined)
+    record.councilConsensusLevel = args.councilConsensusLevel;
+  if (args.evidenceStrength !== undefined) record.evidenceStrength = args.evidenceStrength;
+  if (args.retestPackPath !== undefined) record.retestPackPath = args.retestPackPath;
+
   const result = await emit(
     {
       schemaId: ISSUE_SCHEMA,
@@ -241,6 +252,28 @@ async function runCli(argv) {
         break;
       case '--dry-run':
         opts.dryRun = true;
+        break;
+      case '--discovered-by-persona':
+        opts.discoveredByPersona = argv[++i];
+        break;
+      case '--brain-claim-id':
+        if (!Array.isArray(opts.brainClaimIds)) opts.brainClaimIds = [];
+        opts.brainClaimIds.push(argv[++i]);
+        break;
+      case '--drift-sensitivity':
+        opts.driftSensitivity = argv[++i];
+        break;
+      case '--automation-candidate':
+        opts.automationCandidate = argv[++i] === 'true';
+        break;
+      case '--council-consensus':
+        opts.councilConsensusLevel = argv[++i];
+        break;
+      case '--evidence-strength':
+        opts.evidenceStrength = argv[++i];
+        break;
+      case '--retest-pack-path':
+        opts.retestPackPath = argv[++i];
         break;
       case '--help':
       case '-h':

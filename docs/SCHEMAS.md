@@ -230,7 +230,7 @@ Schema for flows/FLOW-<domain>-<slug>.{md,json} (PRD §16).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/flow.schema.json`
 
-**Top-level properties:** `id`, `name`, `domain`, `persona`, `priority`, `status`, `confidence`, `goal`, `preconditions`, `entryPoints`, `expectedBehavior`, `alternatePaths`, `edgeCases`, `failurePaths`, `dataRequirements`, `dependencies`, `testScenarios`, `evidence`, `issues`, `retestNotes`, `lastUpdatedAt`
+**Top-level properties:** `id`, `name`, `domain`, `persona`, `priority`, `status`, `confidence`, `goal`, `preconditions`, `entryPoints`, `expectedBehavior`, `alternatePaths`, `edgeCases`, `failurePaths`, `dataRequirements`, `dependencies`, `testScenarios`, `evidence`, `issues`, `retestNotes`, `lastUpdatedAt`, `routeCoverage`, `dataLifecycle`, `apiEndpointsTouched`, `backgroundJobsTouched`, `personasConsulted`, `relatedCouncilSessions`, `qualityScore`, `automationCandidate`, `driftStatus`
 
 [Source](../.testatlas/schemas/flow.schema.json)
 
@@ -252,7 +252,7 @@ Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/issue.schema.json`
 
-**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`
+**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`, `discoveredByPersona`, `brainClaimIds`, `driftSensitivity`, `automationCandidate`, `councilConsensusLevel`, `evidenceStrength`, `retestPackPath`
 
 [Source](../.testatlas/schemas/issue.schema.json)
 

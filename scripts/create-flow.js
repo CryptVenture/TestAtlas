@@ -76,6 +76,21 @@ export async function createFlow(args = {}, _inject = {}) {
     lastUpdatedAt: nowIso,
   };
 
+  // V2 optional fields (Plan 14-02). Omit when caller did not supply.
+  if (Array.isArray(args.routeCoverage)) record.routeCoverage = args.routeCoverage;
+  if (args.dataLifecycle && typeof args.dataLifecycle === 'object')
+    record.dataLifecycle = args.dataLifecycle;
+  if (Array.isArray(args.apiEndpointsTouched))
+    record.apiEndpointsTouched = args.apiEndpointsTouched;
+  if (Array.isArray(args.backgroundJobsTouched))
+    record.backgroundJobsTouched = args.backgroundJobsTouched;
+  if (Array.isArray(args.personasConsulted)) record.personasConsulted = args.personasConsulted;
+  if (Array.isArray(args.relatedCouncilSessions))
+    record.relatedCouncilSessions = args.relatedCouncilSessions;
+  if (typeof args.qualityScore === 'number') record.qualityScore = args.qualityScore;
+  if (args.automationCandidate !== undefined) record.automationCandidate = args.automationCandidate;
+  if (args.driftStatus !== undefined) record.driftStatus = args.driftStatus;
+
   const result = await emit(
     {
       schemaId: FLOW_SCHEMA,
@@ -143,6 +158,35 @@ async function runCli(argv) {
         break;
       case '--dry-run':
         opts.dryRun = true;
+        break;
+      case '--route-coverage':
+        if (!Array.isArray(opts.routeCoverage)) opts.routeCoverage = [];
+        opts.routeCoverage.push(argv[++i]);
+        break;
+      case '--api-endpoint':
+        if (!Array.isArray(opts.apiEndpointsTouched)) opts.apiEndpointsTouched = [];
+        opts.apiEndpointsTouched.push(argv[++i]);
+        break;
+      case '--background-job':
+        if (!Array.isArray(opts.backgroundJobsTouched)) opts.backgroundJobsTouched = [];
+        opts.backgroundJobsTouched.push(argv[++i]);
+        break;
+      case '--persona-consulted':
+        if (!Array.isArray(opts.personasConsulted)) opts.personasConsulted = [];
+        opts.personasConsulted.push(argv[++i]);
+        break;
+      case '--council-session':
+        if (!Array.isArray(opts.relatedCouncilSessions)) opts.relatedCouncilSessions = [];
+        opts.relatedCouncilSessions.push(argv[++i]);
+        break;
+      case '--quality-score':
+        opts.qualityScore = Number.parseFloat(argv[++i]);
+        break;
+      case '--automation-candidate':
+        opts.automationCandidate = argv[++i] === 'true';
+        break;
+      case '--drift-status':
+        opts.driftStatus = argv[++i];
         break;
       case '--help':
       case '-h':

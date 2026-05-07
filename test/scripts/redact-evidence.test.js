@@ -45,7 +45,7 @@ for (const { name, payload } of PATTERNS) {
       assert.equal(r.ok, true);
       assert.equal(r.sensitive, true);
       const redacted = await readFile(r.redactedPath, 'utf8');
-      assert.notMatch(redacted, new RegExp(payload.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')));
+      assert.doesNotMatch(redacted, new RegExp(payload.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')));
       assert.match(redacted, /\[REDACTED/);
       // Original unchanged.
       const original = await readFile(evidencePath, 'utf8');

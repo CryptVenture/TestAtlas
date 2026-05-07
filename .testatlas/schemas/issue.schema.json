@@ -68,6 +68,13 @@
     },
     "retestNotes": { "type": "array", "items": { "type": "string" } },
     "history": { "type": "array", "items": { "type": "object" } },
-    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "discoveredByPersona": { "type": "string", "description": "V2: persona id that discovered this issue (PRD §10.5)." },
+    "brainClaimIds": { "type": "array", "items": { "type": "string" }, "description": "V2: brain claim IDs that support this issue." },
+    "driftSensitivity": { "type": "string", "enum": ["low", "medium", "high"], "description": "V2: how sensitive this issue is to upstream drift." },
+    "automationCandidate": { "type": "boolean", "description": "V2: regression-suite automation candidate." },
+    "councilConsensusLevel": { "type": "string", "enum": ["unanimous", "majority", "split", "none"], "description": "V2: council consensus that surfaced the issue." },
+    "evidenceStrength": { "type": "string", "enum": ["strong", "moderate", "weak"], "description": "V2: aggregate evidence strength." },
+    "retestPackPath": { "type": "string", "description": "V2: relative path to retest pack for verifying the fix." }
   }
 }

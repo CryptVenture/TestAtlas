@@ -739,3 +739,133 @@ async function runCli(argv) {
     process.exit(1);
   }
 }
+
+// ─────────────────────── Plan 14-02: V2 report wrapper ───────────────────────
+//
+// generateV2Report() is the V2 entrypoint. Reads brain/{state,issues,coverage,
+// evidence}.json, renders REPORT-latest.md with the PRD §16.1 sections (Run
+// Summary, Coverage, Key Findings, Severity Breakdown, Blockers, Gaps,
+// Assumptions, Next Actions, Readiness). Does not depend on the V1 manifest
+// path; intended for V2 brain workspaces.
+
+/**
+ * @param {{ cwd?: string, type?: 'latest'|'domain'|'release', output?: string }} args
+ */
+export async function generateV2Report(args = {}) {
+  const cwd = args.cwd ?? process.cwd();
+  const wsDir = path.join(cwd, '_testatlas');
+  const brainDir = path.join(wsDir, 'brain');
+  const reportType = args.type ?? 'latest';
+
+  const readJsonOr = async (p, fb) => {
+    try {
+      return JSON.parse(await readFile(p, 'utf8'));
+    } catch {
+      return fb;
+    }
+  };
+  const state = await readJsonOr(path.join(brainDir, 'state.json'), null);
+  if (!state) {
+    const e = new Error(`brain/state.json missing under ${brainDir}`);
+    e.code = 'TESTATLAS_BRAIN_MISSING';
+    throw e;
+  }
+  const issuesIdx = await readJsonOr(path.join(brainDir, 'issues.json'), { issues: [] });
+  const coverage = await readJsonOr(path.join(brainDir, 'coverage.json'), {
+    coverage: { routes: [], components: [], endpoints: [], commands: [] },
+  });
+  const evidence = await readJsonOr(path.join(brainDir, 'evidence.json'), { evidence: [] });
+
+  const issues = Array.isArray(issuesIdx.issues) ? issuesIdx.issues : [];
+  const sevCount = (s) => issues.filter((i) => i.severity === s).length;
+  const blockers = issues.filter(
+    (i) => (i.severity === 'critical' || i.severity === 'high') && i.status !== 'closed',
+  );
+
+  const projectName = state.project?.name ?? 'unknown';
+  const phase = state.status?.phase ?? 'unknown';
+  const env = state.status?.active_environment ?? 'unknown';
+  const overallConfidence = state.confidence?.overall ?? 'unknown';
+
+  const lines = [];
+  lines.push(`# TestAtlas Report — ${projectName}`);
+  lines.push('');
+  lines.push(`Generated: ${new Date().toISOString()}`);
+  lines.push(`Type: ${reportType}`);
+  lines.push('');
+  lines.push('## Run Summary');
+  lines.push('');
+  lines.push(`- Project: ${projectName}`);
+  lines.push(`- Phase: ${phase}`);
+  lines.push(`- Active environment: ${env}`);
+  lines.push(`- Overall confidence: ${overallConfidence}`);
+  lines.push('');
+  lines.push('## Coverage');
+  lines.push('');
+  lines.push(`- Routes: ${coverage.coverage?.routes?.length ?? 0}`);
+  lines.push(`- Components: ${coverage.coverage?.components?.length ?? 0}`);
+  lines.push(`- Endpoints: ${coverage.coverage?.endpoints?.length ?? 0}`);
+  lines.push(`- Commands: ${coverage.coverage?.commands?.length ?? 0}`);
+  lines.push('');
+  lines.push('## Key Findings');
+  lines.push('');
+  if (issues.length === 0) {
+    lines.push('- No issues filed.');
+  } else {
+    for (const i of issues.slice(0, 10)) {
+      lines.push(`- ${i.id} (${i.severity}/${i.status}) — ${i.domain ?? 'no-domain'}`);
+    }
+  }
+  lines.push('');
+  lines.push('## Severity Breakdown');
+  lines.push('');
+  lines.push(`- critical: ${sevCount('critical')}`);
+  lines.push(`- high: ${sevCount('high')}`);
+  lines.push(`- medium: ${sevCount('medium')}`);
+  lines.push(`- low: ${sevCount('low')}`);
+  lines.push('');
+  lines.push('## Blockers');
+  lines.push('');
+  if (blockers.length === 0) {
+    lines.push('- None.');
+  } else {
+    for (const b of blockers) lines.push(`- ${b.id} (${b.severity}) — ${b.domain ?? ''}`);
+  }
+  lines.push('');
+  lines.push('## Gaps');
+  lines.push('');
+  lines.push(`- Stale domains: ${(state.confidence?.stale_domains ?? []).join(', ') || 'none'}`);
+  lines.push(
+    `- Highest-risk domains: ${(state.confidence?.highest_risk_domains ?? []).join(', ') || 'none'}`,
+  );
+  lines.push('');
+  lines.push('## Assumptions');
+  lines.push('');
+  lines.push('- See `_testatlas/brain/assumptions.json` for the full set.');
+  lines.push('');
+  lines.push('## Next Actions');
+  lines.push('');
+  for (const cmd of state.next_recommended_commands ?? []) lines.push(`- ${cmd}`);
+  if ((state.next_recommended_commands ?? []).length === 0) {
+    lines.push('- (none recorded)');
+  }
+  lines.push('');
+  lines.push('## Readiness');
+  lines.push('');
+  lines.push(`- Evidence artifacts: ${(evidence.evidence ?? []).length}`);
+  lines.push(`- Council sessions completed: ${state.counts?.council_sessions ?? 0}`);
+  const readinessGate = blockers.length === 0 ? 'GREEN' : 'BLOCKED';
+  lines.push(`- Release readiness: ${readinessGate}`);
+  lines.push('');
+
+  const outputPath = args.output
+    ? path.resolve(args.output)
+    : path.join(wsDir, 'reports', 'REPORT-latest.md');
+  // Ensure output dir exists.
+  await import('node:fs/promises').then((m) =>
+    m.mkdir(path.dirname(outputPath), { recursive: true }),
+  );
+  await atomicWrite(outputPath, lines.join('\n'));
+
+  return { ok: true, outputPath };
+}
