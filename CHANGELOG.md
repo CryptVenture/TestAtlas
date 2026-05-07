@@ -122,6 +122,11 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Fixed
 
+- **Phase 16 — Flatten V2 commands at adapter render.** Closed a slash-command discovery bug where V2 categorized commands were rendered under nested category subdirs and were invisible to flat-only hosts (Claude Code, Codex). Per `prd/reports/v2-adapter-slash-command-discovery.md` (Option A), every per-command-file adapter now renders all 73 source commands as flat files at the adapter commands root. The categorized source-of-truth at `.testatlas/commands/<category>/<name>.md` is preserved unchanged.
+  - Flat-name policy: `commandBaseNameFromSource()` (`scripts/lib/adapters/_shared.js`) — zero naming collisions across all 73 source files (32 V1 flat + 41 V2 categorized).
+  - V1 byte-identical: V1 flat command outputs are unchanged pre/post fix; multi-source adapters (aider, mcp, roo-code, zed, amazon-q) and the MCP manifest are unaffected. All 13 per-command-file adapters regenerated.
+  - Side-fix: Gemini CLI's `/atlas-explore:atlas-explore-state` namespace mutation goes away — V2 commands now invoke as `/atlas-explore-state`. `.testatlas/adapters/adapter-capabilities.json` version: 1.3.0 → 1.4.0.
+
 - **Phase 15 / Plan 15-01 — V2 brain writers honor `TESTATLAS_FIXED_TIMESTAMP`.** The four V2 writers that emit `_testatlas/brain/{coverage,domains,flows,issues,evidence,state}.json` (`scripts/update-coverage.js`, `scripts/update-brain-after-command.js`, `scripts/index-artifacts.js`, `scripts/create-domain.js`) routed `last_updated` through direct `new Date().toISOString()` calls, bypassing the `now()` determinism contract from Plan 08-01 (`scripts/lib/determinism.js`). Result: `regenerate-example.js --check` reported drift on `brain/domains.json` + `brain/state.json` between back-to-back replays, breaking `test/scripts/regenerate-example.test.js` "regenerateExample: idempotent — replay twice → second run is byte-identical" and blocking the Wave 2 example fixture re-baseline. Fix: each writer now imports `now` from `./lib/determinism.js` and calls it for every `last_updated` emission. When `TESTATLAS_FIXED_TIMESTAMP` is unset, behavior is byte-identical to the prior wall-clock path (zero regression in production / dogfood paths). Drops the failing-tests count from 19 → 18 and unblocks Plan 15-02 fixture re-baseline.
 
 ### Removed
