@@ -8,7 +8,7 @@ The full 32-file `/atlas:*` command surface ships in v1 GA. The dogfood-loop cor
 
 | Group | Commands |
 |-------|----------|
-| Dogfood loop (9) | `init.md`, `bootstrap.md`, `validate-workspace.md`, `explore-codebase.md`, `map-domains.md`, `plan.md`, `test-flow.md`, `log-issue.md`, `report.md` |
+| Dogfood loop (9) | `core/init.md`, `bootstrap.md`, `validate-workspace.md`, `explore-codebase.md`, `map-domains.md`, `plan.md`, `test-flow.md`, `log-issue.md`, `report.md` |
 | Explore family (11) | `explore.md` (umbrella) + `explore-ui.md`, `explore-cli.md`, `explore-api.md`, `explore-data.md`, `explore-runtime.md`, `explore-integrations.md`, `explore-security.md`, `explore-performance.md`, `explore-accessibility.md`, `explore-docs.md` |
 | Specialized testing (5) | `test-all.md` (umbrella) + `test-domain.md`, `test-regression.md`, `test-performance.md`, `test-accessibility.md` |
 | Lifecycle / utilities (7) | `triage.md`, `retest.md`, `consolidate.md`, `handoff.md`, `cleanup.md`, `update.md`, `uninstall.md` |
