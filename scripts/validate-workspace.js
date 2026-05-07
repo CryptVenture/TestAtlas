@@ -62,6 +62,12 @@ const CHECK_IDS = [
   // /\bnode\s+(\.testatlas\/)?scripts\// and the `shell-capability-missing`
   // reason emission.
   'shell-capability',
+  // Phase 17 Plan 02 — REVIEW-INV-B — body MUST NOT use legacy
+  // `node scripts/` form; only `node .testatlas/scripts/` is permitted.
+  // Findings carry reason `script-path-leaks-suite-form`. See
+  // ./lib/validate/check-script-path.js for the regex /\bnode\s+scripts\//
+  // and the `script-path-leaks-suite-form` reason emission.
+  'script-path',
 ];
 
 /**
