@@ -1,6 +1,6 @@
 description = "Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="acd8bbb5a1f9dfdc77bdff5705dd22cf9b505ee94566e0319ef2071b089e0c3e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="93299d05194061896e50ac749bb4e7145dde8e03fe04b920def021166d570924" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,5 +76,12 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that retest packs are generated:
+
+- **`/atlas:retest`** — execute the retest pack you just generated.
+- **`/atlas:council-retest`** — formalize retest verdicts via council if outcomes are contested.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 """

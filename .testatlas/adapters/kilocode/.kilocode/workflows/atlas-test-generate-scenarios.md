@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="3982db889264105645b39a3e0eff7a675fb73513829804b612d9af1ec4f1c783" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="5f0d0988e20863dec992abc7c0d2f18e9aa44b16ca1e6ded75996d049cdb061b" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,4 +87,12 @@ Every scenario this command produces carries `status: "generated-not-yet-validat
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that scenarios are generated:
+
+- **`/atlas:test-flow`** — execute one of the newly generated scenarios as a flow.
+- **`/atlas:test-domain`** — broaden execution to the whole domain the scenarios cover.
+- **`/atlas:plan`** — feed the scenarios back into the master test plan.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

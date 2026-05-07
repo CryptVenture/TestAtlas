@@ -3,7 +3,7 @@ mode: agent
 description: Retest council — personas evaluate whether a claimed fix satisfies the issue's acceptance criteria through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="089fc00a35826ecf56864cb70f10f2dae51bc55f7430c226ab7cdf098e958859" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="2e65a52711537bddae74153a2c55226b22a226c486bd8a6424056c62cf74a795" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-council-retest.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -63,7 +63,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 - Issue id not specified → halt with question.
 - Issue not in `fixed_pending_retest` status → halt: "Issue must be marked fixed before retesting."
-- Retest pack missing → halt: "Run `/atlas:generate retest-pack --issue <id>` first."
+- Retest pack missing → halt: "Run `/atlas:generate-retest-pack --issue <id>` first."
 - Fewer than 2 participants → halt.
 
 ## Completion Criteria

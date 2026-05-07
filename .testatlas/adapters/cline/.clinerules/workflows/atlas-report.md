@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report. Invoke as /atlas-report.md. Description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="5dc489418eb67591ce469073761639ddb55edb59b6ca7c557db901fccacbbc7f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="967efad38f3f9c8d8b567e48bd6406335e4c7bd37221d233f5a200ca7c441916" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-report.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -81,4 +81,7 @@ Now that the report is generated:
 - **`/atlas:consolidate`** — merge with prior reports for trend analysis
 - **`/atlas:handoff`** — package the workspace for another agent or engineer
 - **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
+- **`/atlas:council-release-readiness`** — formalize the readiness verdict via council when the report flags contested risks.
+- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals.
+- **`/atlas:brain-score`** — re-score the workspace using the report's findings as input.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="1b0470dadb0bed9d3b9e3634cd7d43bef0bcd0c62b2e78de768e72a19c4fb462" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ebdcb6ea1de731fc249809e4424b2f3ecf7b8facd77129b23efc8d8fcd95a8da" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -107,4 +107,12 @@ The four validation dimensions:
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that artifacts have been validated:
+
+- **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
+- **`/atlas:brain-sync`** — re-index brain state after artifact validation.
+- **`/atlas:report`** — produce a fresh readiness report on the cleaned workspace.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

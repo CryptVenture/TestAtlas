@@ -3,7 +3,7 @@ description: Brain Audit Council — personas inspect the _testatlas workspace f
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="d48c76915aaeb14e0c048878e3bfbedcdd36acdb0513331d429f7bea7ad55091" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="8e2645718f83730599aa95a43e3acad97ea9423cae781238b40364035fd2fd1d" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,5 +76,5 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 - `/atlas:brain-validate` to confirm post-audit brain integrity.
 - `/atlas:brain-sync` to apply markdown↔JSON sync fixes.
-- If many drift findings, schedule `/atlas:council retest` for affected issues.
+- If many drift findings, schedule `/atlas:council-retest` for affected issues.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

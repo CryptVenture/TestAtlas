@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-flow-review. Invoke as /atlas-council-flow-review. Description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="c7f534e14547ead350d780fa079aba4a33b221e9af43d886d5c80f9df410a66e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="1a33c4f95bc8b1cb01bd766c87d1204cfa20580c8ada900abd02ac7c63a492d3" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-flow-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,7 +71,7 @@ Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after rou
 
 ## What's Next
 
-- `/atlas:test flow <flow-id>` to validate council-proposed test scenarios.
+- `/atlas:test-flow` to validate council-proposed test scenarios.
 - `/atlas:report` to refresh the quality report.
 - If new issue candidates were generated, run `/atlas:triage` to prioritize.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

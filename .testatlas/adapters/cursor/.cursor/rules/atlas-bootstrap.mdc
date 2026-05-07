@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="dcfb626272bb503b06effbb5c176c3249cf911e8dc7f15dffaa4d5f295b13c84" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="63ecca13537c2ac6315115cbdd92b6240849bc979f757c2d121d12b4fc034896" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-bootstrap.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -121,4 +121,6 @@ Now that the constitution is reloaded:
 
 - **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
+- **`/atlas:brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
+- **`/atlas:status`** — V2 status snapshot of the freshly bootstrapped workspace.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

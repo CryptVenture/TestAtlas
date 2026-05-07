@@ -2,7 +2,7 @@
 description: Render a machine-readable dashboard data export (PRD §16) at _testatlas/reports/dashboard-data.json suitable for downstream UIs and CI status pages.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="fd80fc087146968e7d8e45797db1938fa63d2e0233e5832f80537ffe040116a2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="12453d3a83d77ef06a7aa7db8ff173ead1826ecdb97809cd463f42ebfab23f17" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-report-dashboard-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -91,4 +91,12 @@ node .testatlas/scripts/generate-dashboard-data.js --cwd /path/to/target-repo
 ```
 
 The dashboard data export is the V2 brain machine-readable face — JSON remains canonical; everything downstream is derived.
+
+## What's Next
+
+Now that dashboard data is materialized:
+
+- **`/atlas:report-release`** — produce a V2 release report consuming this dashboard data.
+- **`/atlas:report`** — V1 readiness report; can ingest dashboard signals.
+- **`/atlas:brain-score`** — re-score after dashboard data refresh if scoring inputs changed.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

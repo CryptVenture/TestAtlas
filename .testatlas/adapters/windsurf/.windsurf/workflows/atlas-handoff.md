@@ -3,7 +3,7 @@ description: Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<ti
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="401d310e667487cd92126a429529629865da560ec8aa5a566ffc0ac50d3449c7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="cbd60079a4a39d4405450583e129a0e8209995026f7f3807966085a7ab36e43d" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-handoff.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -88,4 +88,6 @@ Now that the handoff is recorded:
 
 - **`/atlas:cleanup`** — archive resolved evidence so the next operator inherits a lean tree
 - **`/atlas:update`** — refresh the suite version before the next operator picks up
+- **`/atlas:report-release`** — V2 release report; the next operator's primary readiness artifact.
+- **`/atlas:brain-score`** — snapshot brain quality scores for handoff package.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

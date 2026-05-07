@@ -2,7 +2,7 @@
 description: Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="c28bfce9ab7ecfe7eca0236b3dceb9c1388b5a83318a8d2aeea9ac4de9d51a91" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="143adaaa428563b7cdb68880b36be37093eeada8d72d656b3e3739753dcc57e7" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-test-flow.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -110,4 +110,6 @@ Now that the flow run is complete:
 - **`/atlas:log-issue`** — file individual issues for failing scenarios
 - **`/atlas:retest`** — rerun failing scenarios after fixes land
 - **`/atlas:report`** — fold the run into the next aggregate report
+- **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
+- **`/atlas:generate-automation`** — produce reproducible automation scaffolds from this flow.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

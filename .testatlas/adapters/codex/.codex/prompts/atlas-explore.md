@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore. Invoke as /prompts:atlas-explore. Description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b3a9f9d5624aae1a5026c58e5ffa73c6b945b8c8711e397f1eda1ffcd5c083f3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="7f45b59fbe276bf886a01b641f32e02d745908c270879d606eaf988397c34922" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -92,4 +92,7 @@ Now that the explore-plan is routed and the product overview aggregated:
 - **`/atlas:map-domains`** — group explorer findings into testable domains
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
 - **`/atlas:test-flow`** — start executing flows immediately if scope is already clear
+- **`/atlas:council-domain-review`** — escalate exploration findings into a council quality gate per domain.
+- **`/atlas:council-flow-review`** — escalate flow-related findings into a council quality gate.
+- **`/atlas:explore-all`** — V2 router covering V2 explorers (state, errors, components, routes, jobs, security-privacy, observability, tests, brain, release-readiness).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

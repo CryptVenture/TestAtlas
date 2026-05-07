@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-triage. Invoke as /prompts:atlas-triage. Description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="391a7a2504e656eb36b43c34a864782e4e071d7fff79008f5e456f6557273cf3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="5a46df98c41e5d77a950d9c1a7c77521ca491ca05bf5179d9058ca2581e1ad31" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,4 +79,5 @@ Now that the triage pass has run:
 - **`/atlas:retest`** — rerun fixed-pending-retest issues to confirm or regress
 - **`/atlas:consolidate`** — merge duplicate groups into canonical issues
 - **`/atlas:report`** — fold blockers + severity tallies into the next report
+- **`/atlas:council-bug-triage`** — escalate to a multi-persona council when severity is contested or the triage queue is large.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

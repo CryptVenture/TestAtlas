@@ -3,7 +3,7 @@ mode: agent
 description: Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="e6a66a515a83a7a2dd0117ae4d70cc27a57c1194934e908cab1a0fc16d3d1d8f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="fb23fe78087bb368d9e449e5dfc21fbccfa6ae02f06e181bceb63c20bb88590c" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-map-domains.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -68,4 +68,5 @@ Now that the domains are distilled:
 
 - **`/atlas:plan`** — turn the domain set into a test plan with risk-prioritised charters
 - **`/atlas:explore`** — return to discovery if any domain is missing app-map coverage
+- **`/atlas:council-domain-review`** — quality gate after domain mapping; flags contested boundary calls.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

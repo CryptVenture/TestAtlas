@@ -53,7 +53,13 @@ test('every .testatlas/commands/*.md file has a "## What\'s Next" H2 section', a
   );
 });
 
-test('every "## What\'s Next" section has 1-4 entries with /atlas: links', async () => {
+test('every "## What\'s Next" section has 1-6 entries with /atlas: links', async () => {
+  // Phase 17 Plan 03 raised the upper bound from 4 to 6 to accommodate
+  // V1->V2 mesh bridges (see review §2.6: V1 commands must keep their V1->V1
+  // forward links AND surface their V2 counterparts). The 1-4 ceiling was a
+  // Wave-0 heuristic that predates the V2 surface; with V1+V2 bridges plus
+  // 1-3 existing V1->V1 links, 4-6 is the natural range. Below 1 or above 6
+  // is still a code smell (under-linked or directionless).
   const files = await listCommandFiles({ cwd: REPO_ROOT });
   const violations = [];
   for (const file of files) {
@@ -71,9 +77,9 @@ test('every "## What\'s Next" section has 1-4 entries with /atlas: links', async
     // Count bullet entries that point to /atlas: commands.
     const entries =
       section.match(/^[-*]\s+\*\*`?\/atlas:[a-z][a-z0-9-]+`?\*\*\s+[—-]\s+.+$/gm) || [];
-    if (entries.length < 1 || entries.length > 4) {
+    if (entries.length < 1 || entries.length > 6) {
       violations.push(
-        `${path.relative(REPO_ROOT, file)}: found ${entries.length} entries (must be 1-4)`,
+        `${path.relative(REPO_ROOT, file)}: found ${entries.length} entries (must be 1-6)`,
       );
     }
     // The first entry must match the canonical pattern (ensures shape, not just count).

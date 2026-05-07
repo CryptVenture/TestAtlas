@@ -2,7 +2,7 @@
 description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="3e932d961a8c348a80a21e2f5efb44dcee76869128bebd1e77236af43925bf93" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="990c6b050ee28e2622d42a736be2ec6cce53c0d32ebbe0e25090f0dd7c35c0dd" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -99,4 +99,6 @@ Now that the test plan exists:
 - **`/atlas:test-flow`** — execute scenarios end-to-end with evidence capture
 - **`/atlas:test-domain`** — execute one full domain at a time when scope is large
 - **`/atlas:log-issue`** — file blocking issues surfaced during planning
+- **`/atlas:council-test-plan`** — ratify the test matrix this plan produces via council protocol.
+- **`/atlas:generate-scenarios`** — materialize the plan into concrete generated test scenarios.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

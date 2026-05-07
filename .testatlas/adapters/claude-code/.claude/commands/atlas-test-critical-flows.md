@@ -3,7 +3,7 @@ description: Identify and execute the highest-value flows based on documented pr
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="286ab3232e24fed421e218c192a8bc5f6fb1b411f1a0eb467351e5836afd46f2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="2d9cc1117e27730f14c97087195e7507724949f2d2ab06f2bbb20685d3fe10b1" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -26,7 +26,7 @@ ranks high under at least two of them.
 2. **`_testatlas/tests/matrix.json` scenario coverage** — flows with the
    highest count of high/critical-priority scenarios. Flows with zero
    scenarios are NOT executed by this command (they have no oracle); they
-   are silently skipped with a recommendation to run `/atlas:test/generate-scenarios` first.
+   are silently skipped with a recommendation to run `/atlas:generate-scenarios` first.
 3. **Domain priority** — `_testatlas/brain/domains.json` `priority`
    ordering. Business-critical domains first (auth, payments, identity,
    data-write paths) ahead of nice-to-have domains.
@@ -110,4 +110,12 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that critical flows have run:
+
+- **`/atlas:report`** — produce a readiness report on the critical-flow run.
+- **`/atlas:retest`** — schedule retests for any failing critical flows.
+- **`/atlas:log-issue`** — file issues for newly surfaced critical-flow failures.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

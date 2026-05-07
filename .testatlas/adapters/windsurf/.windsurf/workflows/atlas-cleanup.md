@@ -3,7 +3,7 @@ description: Workspace housekeeping confined to _testatlas/ — orphan removal, 
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="e3239613309a6dd3d723fdaaa8bd2140fe7269cc1ea3b1dbda1d9cb895bdc2b3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="e091a602e67f228b1bd225926e166b65f17603ee888492d59a08915009353743" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-cleanup.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,4 +79,6 @@ Now that the workspace is tidy:
 
 - **`/atlas:update`** — pull the latest suite version on a clean tree
 - **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift
+- **`/atlas:brain-sync`** — re-index brain state after cleanup so brain reflects the cleaned workspace.
+- **`/atlas:maintain-validate-artifacts`** — V2 cleanup completion check; validates remaining artifacts are coherent.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

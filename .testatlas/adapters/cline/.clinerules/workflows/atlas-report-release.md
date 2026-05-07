@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-release. Invoke as /atlas-report-release.md. Description: Render a release readiness report with go/no-go assessment combining quality_scores.json, drift.json, open issues, and council consolidations into _testatlas/reports/release_readiness.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="07333fa5ceadab22e1707d524604659434f9981e7651dec94b5b10235a15f461" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="238544dca3b2d1f35f11f01ddeb4f60c631d2d9b3f2ef7702af7de034694ea66" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-report-release.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,4 +79,12 @@ else: verdict = "go"
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
+
+## What's Next
+
+Now that the release verdict is published:
+
+- **`/atlas:handoff`** — package the workspace for the next operator now that the release report is final.
+- **`/atlas:cleanup`** — prune transient artifacts before handoff.
+- **`/atlas:council-release-readiness`** — escalate to a council if the release verdict is contested.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

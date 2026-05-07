@@ -9,12 +9,12 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="8b8fc10b6231ad41dde70122b928b2cdace6f794166ed38b9013cad451d0c2bf" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="a352252f738755c1de38ac435f40be80c3dd3c029d90fb14c451c2a137fec84e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Answer questions about the workspace using only what is written down — `_testatlas/brain/*.json`, `*.jsonl`, plus the canonical artifacts those indexes point at. Every assertion in the answer must cite a file path. If the answer cannot be derived from the brain, the agent says so explicitly and proposes a `/atlas:explore-*` follow-up.
+Answer questions about the workspace using only what is written down — `_testatlas/brain/*.json`, `*.jsonl`, plus the canonical artifacts those indexes point at. Every assertion in the answer must cite a file path. If the answer cannot be derived from the brain, the agent says so explicitly and proposes a `/atlas:explore-<area>` follow-up.
 
 ## Required First Reads
 
@@ -65,6 +65,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query
 
 ## What's Next
 
-- Question revealed a coverage gap → `/atlas:explore-*` for the missing area.
+- Question revealed a coverage gap → `/atlas:explore-<area>` for the missing area.
 - Question revealed stale data → `/atlas:brain-sync` then re-query.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

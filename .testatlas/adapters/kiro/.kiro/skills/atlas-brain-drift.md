@@ -4,7 +4,7 @@ description: Detect drift between the last exploration and the current repositor
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="0b5532a44b9e23aa497126466aebbcf85cf41517f8436dd9b0166fa721266fb1" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="b6882cf86980e759aef50ef67105b8474c70de54d03f1378b73b8b1c53fbec06" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-brain-drift.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -74,4 +74,12 @@ Detect drift between when each domain/flow/route was last explored and what has 
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that drift signals are computed:
+
+- **`/atlas:brain-score`** — score the workspace against the drift signals you just computed.
+- **`/atlas:report-dashboard-data`** — assemble dashboard JSON for downstream reports.
+- **`/atlas:report`** — run the V1 readiness report consuming brain drift + scores.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

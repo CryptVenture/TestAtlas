@@ -4,7 +4,7 @@ description: Red Team Challenge — adversarial personas attempt to find hidden 
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="6e8f10463b43cc0a85ee0d5280d00bfe0972e0457ea5bc9c04bb939ee2b130d9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="a6629653f341189b8321324029424ac725a1579657a63e678ac2d1a4bf5936d6" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-red-team.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -75,7 +75,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:retest issue <id>` for any newly invalidated claim that maps to an issue.
+- `/atlas:retest --issue <id>` for any newly invalidated claim that maps to an issue.
 - `/atlas:report` to surface the recalibrated confidence map.
-- `/atlas:council brain-audit` if many claims were invalidated (likely systemic doc drift).
+- `/atlas:council-brain-audit` if many claims were invalidated (likely systemic doc drift).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

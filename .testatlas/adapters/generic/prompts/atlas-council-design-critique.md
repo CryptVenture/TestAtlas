@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-design-critique. Paste .testatlas/bootstrap.md first; description: Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="c72b16695f390f18db1f92da5f47e1947b7fb3b37c56ea2004f18dae0f39ed66" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="a967dc04f70c7c0d34af81174f6244fbe72b9fbf52100d70057ada464331c21c" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,7 +71,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:test flow <flow-id>` to validate any proposed regression scenarios.
+- `/atlas:test-flow scenario=<id>` to validate any proposed regression scenarios.
 - `/atlas:report` to surface UX/A11y findings in the next quality report.
 - Project-side: route critiques to design / engineering.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

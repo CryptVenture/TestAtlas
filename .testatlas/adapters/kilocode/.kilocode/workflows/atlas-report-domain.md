@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="49651dedc2d0774afa5158433b0987118c4d677b00f1058481e5ad6321d23ffc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="d9528eccfe877391a868867c0d3808c6da22508b0197667fecf019696203a85e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,4 +71,12 @@ Produce a focused, human-readable report for a single domain. The report combine
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
+
+## What's Next
+
+Now that the domain report is generated:
+
+- **`/atlas:test-domain`** — re-test the domain after report findings surface gaps.
+- **`/atlas:council-domain-review`** — escalate to a council if the domain report flags contested risks.
+- **`/atlas:report`** — roll the domain report into the workspace-wide V1 readiness assessment.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

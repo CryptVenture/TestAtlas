@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="8e281d27db829d023077001463b4ae528436d37d6cccc4d3a37a0e29f37c37ce" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="e2dcab6408f1535d2c97ec82a1a26648df6510ef024039060fa5ac7e5f705348" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-maintain-migrate.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -93,4 +93,12 @@ produces a no-op success. Always safe to retry.
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that the workspace has migrated to V2:
+
+- **`/atlas:brain-validate`** — confirm the migrated workspace's brain layer is intact.
+- **`/atlas:status`** — refresh the V2 status snapshot for the migrated workspace.
+- **`/atlas:explore`** — re-run exploration on the V2 layout.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

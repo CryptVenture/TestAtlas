@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf89e6a0652ef599a63c715d8a795c6d2d315ea097b1cb882d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="10e17dae1dc83e8bcc29e6d100d0a8a557223d2de19c6a57dd69585de14c6269" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-retest.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,4 +82,5 @@ Now that the retest pass has run:
 - **`/atlas:triage`** — re-classify any reopened regressions back into the queue
 - **`/atlas:report`** — fold retest outcomes into the next aggregate report
 - **`/atlas:log-issue`** — file new issues if retest surfaced fresh symptoms
+- **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested or coverage is unclear.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

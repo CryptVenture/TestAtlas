@@ -4,7 +4,7 @@ description: Compute the 11 PRD §7.15 quality scores from documented brain evid
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="f43fb0aa8ebc6c4507dbab62ece9d0e82144ffb0e5f34312224feb482f707a05" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="0ebcf2f6eba6d564bce6df4ec8b9484a84c39b7b305c36d7790896c825592722" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-brain-score.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,4 +77,12 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+
+## What's Next
+
+Now that the workspace has been scored:
+
+- **`/atlas:report-dashboard-data`** — materialize dashboard data from the score you just computed.
+- **`/atlas:report-release`** — produce a V2 release report incorporating quality scores.
+- **`/atlas:report`** — V1 readiness report; reads `brain/quality_scores.json`.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-domain-review. Paste .testatlas/bootstrap.md first; description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="fa0a6c569092aa83d5758dfc3382a66de01f9375c2513c3c8056ce67dc042bbe" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="1a90d394757003f778a88a0f9e3ca83d480794ef38162ce0059911ca29e1d911" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,5 +77,5 @@ Every council session produces:
 
 - `/atlas:report` to refresh the latest quality report.
 - `/atlas:brain-validate` to confirm consolidation produced valid brain state.
-- If disputed claims remain, queue a `/atlas:council red-team <domain>` to challenge them.
+- If disputed claims remain, queue a `/atlas:council-red-team` to challenge them.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

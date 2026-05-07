@@ -3,7 +3,7 @@ description: Squash issue duplicates per triage groupings; inherit highest sever
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="61203dea83b17ff7f98d1b3f2a2dc9820bed504670a02877a6a3da814973ef8f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="7c4c275fb878a38cc9c0eee17e7811102fc5f377851ca0e9f051c2b13506a979" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -108,4 +108,6 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - **`/atlas:report`** — fold the consolidated set into the next REPORT
 - **`/atlas:handoff`** — package the workspace for another operator
+- **`/atlas:brain-sync`** — re-index brain state after consolidation to reflect new artifacts.
+- **`/atlas:brain-validate`** — confirm the brain layer remains coherent after consolidation.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

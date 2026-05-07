@@ -3,7 +3,7 @@ description: Export the V2 brain as a JSON dump, a graph snapshot, or a full arc
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="bd2d11b3de56b68ec2001b0e13c232ba1f03d9c9e601015f5fd5c71997e14b63" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="20e23c4ee1d0240662e476c99154e0d6f50fc5f77e4caf1e093e758b5b4a36d3" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-brain-export.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -62,6 +62,7 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-expor
 
 ## What's Next
 
-- `--mode json` → feed the file into a dashboard.
-- `--mode archive` → ship the directory to the next agent or back up off-repo.
+- `--mode json` → feed the file into a dashboard; pair with **`/atlas:report-dashboard-data`** to refresh the canonical dashboard.
+- `--mode archive` → ship the directory to the next agent or back up off-repo; follow with **`/atlas:handoff`** to package the workspace.
+- After export, run **`/atlas:brain-sync`** to ensure the live brain stays in lockstep with what was exported.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
