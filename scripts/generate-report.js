@@ -550,11 +550,30 @@ function countBy(items, keyFn) {
 }
 
 /**
+ * Phase 18-04 (ISSUE-009) — `generateReport()` now dispatches by `kind`.
+ *
+ *   - `kind === 'default'` (or undefined): the existing monolithic V1 report
+ *     path — implemented in `buildMonolithicReport()` below. Behavior is
+ *     preserved 1:1; existing callers / tests are unaffected.
+ *   - `kind === 'release-readiness'`: routes to `buildReleaseReadinessReport()`
+ *     (called from `/atlas:report-release`).
+ *   - `kind === 'domain'`: routes to `buildDomainReport()` (called from
+ *     `/atlas:report-domain`); requires `domain` to be set.
+ *
+ * The release-readiness and domain builders are dispatch-contract stubs —
+ * they delegate to the monolithic report and decorate it with `kind` (and
+ * `domain` when applicable) so the spec command call sites stop hitting the
+ * `runCli` unknown-arg `process.exit(2)` gate. Fleshing out flavor-specific
+ * report bodies is post-Phase-18 work (see `prd/reviews/dogfood-tmpv2-...md`
+ * ISSUE-009 fix sketch — this plan only commits to the dispatch contract).
+ *
  * @param {{
  *   workspaceDir?: string,
  *   cwd?: string,
  *   dryRun?: boolean,
  *   reportPath?: string,
+ *   kind?: 'default'|'release-readiness'|'domain',
+ *   domain?: string,
  * }} args
  * @param {{
  *   assertNotUpdate?: typeof assertNotUpdate,
@@ -563,6 +582,68 @@ function countBy(items, keyFn) {
  * }} _inject
  */
 export async function generateReport(args = {}, _inject = {}) {
+  const kind = args.kind ?? 'default';
+  if (kind === 'domain' && !args.domain) {
+    throw new Error('--kind domain requires --domain <slug>');
+  }
+  switch (kind) {
+    case 'release-readiness':
+      return buildReleaseReadinessReport(args, _inject);
+    case 'domain':
+      return buildDomainReport(args, _inject);
+    case 'default':
+      return buildMonolithicReport(args, _inject);
+    default:
+      throw new Error(
+        `--kind ${kind} is not recognized; expected one of: default, release-readiness, domain`,
+      );
+  }
+}
+
+/**
+ * Phase 18-04 — release-readiness flavor stub. Delegates to the monolithic
+ * builder and tags the result with `kind: 'release-readiness'` so consumers
+ * can branch on flavor. The dispatch contract is the deliverable; flavor-
+ * specific content tailoring is post-Phase-18.
+ *
+ * TODO(post-Phase-18): flesh out release-readiness-specific filtering /
+ * sectioning (e.g. tighter readinessAssessment headline, blocker-first
+ * ordering) per the spec at `.testatlas/commands/report/report-release.md`.
+ *
+ * @param {Parameters<typeof generateReport>[0]} args
+ * @param {Parameters<typeof generateReport>[1]} _inject
+ */
+async function buildReleaseReadinessReport(args = {}, _inject = {}) {
+  const base = await buildMonolithicReport(args, _inject);
+  return { ...base, kind: 'release-readiness' };
+}
+
+/**
+ * Phase 18-04 — domain flavor stub. Delegates to the monolithic builder and
+ * tags the result with `kind: 'domain'` and `domain: args.domain`. Requires
+ * `args.domain` (validated upstream in `generateReport()`).
+ *
+ * TODO(post-Phase-18): flesh out per-domain filtering (issues/flows/tests
+ * scoped to `args.domain`) per the spec at
+ * `.testatlas/commands/report/report-domain.md`.
+ *
+ * @param {Parameters<typeof generateReport>[0]} args
+ * @param {Parameters<typeof generateReport>[1]} _inject
+ */
+async function buildDomainReport(args = {}, _inject = {}) {
+  const base = await buildMonolithicReport(args, _inject);
+  return { ...base, kind: 'domain', domain: args.domain };
+}
+
+/**
+ * V1 monolithic report path. Pre-Phase-18-04 this was the body of
+ * `generateReport()`; it has been factored out unchanged so the new
+ * `generateReport()` can dispatch by `kind`. Behavior is identical.
+ *
+ * @param {Parameters<typeof generateReport>[0]} args
+ * @param {Parameters<typeof generateReport>[1]} _inject
+ */
+async function buildMonolithicReport(args = {}, _inject = {}) {
   const _assertNotUpdate = _inject.assertNotUpdate ?? assertNotUpdate;
   const _atomicWrite = _inject.atomicWrite ?? atomicWrite;
   const _loadAllSchemas = _inject.loadAllSchemas ?? loadAllSchemas;
@@ -683,6 +764,7 @@ export async function generateReport(args = {}, _inject = {}) {
   }
 
   return {
+    kind: 'default',
     wsDir,
     markdownPath,
     jsonPath,
@@ -710,13 +792,29 @@ async function runCli(argv) {
     if (a === '--workspace') opts.workspaceDir = argv[++i];
     else if (a === '--cwd') opts.cwd = argv[++i];
     else if (a === '--dry-run') opts.dryRun = true;
+    else if (a === '--kind') opts.kind = argv[++i];
+    else if (a === '--domain') opts.domain = argv[++i];
     else if (a === '--report-path' || a.startsWith('--report-path=')) {
       opts.reportPath = a.startsWith('--report-path=')
         ? a.slice('--report-path='.length)
         : argv[++i];
     } else if (a === '--help' || a === '-h') {
       console.log(
-        'Usage: node scripts/generate-report.js [--workspace <p>] [--cwd <p>] [--report-path=<custom>] [--dry-run]',
+        [
+          'Usage: node scripts/generate-report.js [--workspace <p>] [--cwd <p>]',
+          '                                       [--report-path=<custom>] [--dry-run]',
+          '                                       [--kind <default|release-readiness|domain>]',
+          '                                       [--domain <slug>]',
+          '',
+          'Options:',
+          '  --workspace <p>                              workspace dir (default: from config)',
+          '  --cwd <p>                                    project root (default: cwd)',
+          '  --report-path=<custom>                       custom output markdown path',
+          '  --dry-run                                    do not write to disk',
+          '  --kind <default|release-readiness|domain>    report flavor (default: default)',
+          '  --domain <slug>                              required when --kind=domain',
+          '  --help, -h                                   show this help and exit',
+        ].join('\n'),
       );
       process.exit(0);
     } else {
