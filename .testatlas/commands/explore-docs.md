@@ -60,7 +60,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every doc-inventory entry, stale flag, and conflict report this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-docs/<timestamp>/`. Fabricated paths and invented document content fail `validate-workspace`.
-2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. No shell / browser / MCP fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
+2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. Pure-reasoning command — no accelerator-tool fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
 3. Enumerate doc sources, in this order:
    - `README.md` (root) and any nested READMEs
    - `CHANGELOG.md`, `HISTORY.md`, release notes

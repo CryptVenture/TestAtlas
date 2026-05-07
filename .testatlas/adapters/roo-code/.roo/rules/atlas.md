@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="47933b866fd9722a33cbcc77d952df302a90050c609b85d41910b4d0bbe0f77d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="53ff1368ec3a1e014697f29226691a80782e0723b20eb8676caf9e04bab335c7" -->
 First read `.testatlas/bootstrap.md`. Then read `.roo/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.

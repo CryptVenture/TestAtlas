@@ -1,6 +1,6 @@
 description = "Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="9bf4da2b2e49b2588e9f8e0b0bb97c4101433c368f123153c0a229c4c1eecf0b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="af37b8daa198614b0a45a5e595f20756534d15db4265855523bc9258163ee37d" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,7 +28,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every doc-inventory entry, stale flag, and conflict report this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-docs/<timestamp>/`. Fabricated paths and invented document content fail `validate-workspace`.
-2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. No shell / browser / MCP fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
+2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. Pure-reasoning command — no accelerator-tool fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
 3. Enumerate doc sources, in this order:
    - `README.md` (root) and any nested READMEs
    - `CHANGELOG.md`, `HISTORY.md`, release notes
