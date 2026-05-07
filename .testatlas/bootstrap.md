@@ -74,6 +74,8 @@ You MUST NOT fabricate evidence file paths. `validate-workspace` (Phase 5) check
 
 **Rule:** Exploration is read-only by default. Mark destructive commands `unsafe-without-flag`. CLI Explorer captures help text, exit codes, and stdout but does not invoke commands tagged destructive. UI Explorer (browser capability) prefers Chrome DevTools MCP and falls back to code-reading per §4. Each explorer writes to its assigned domain folder; cross-domain findings are split.
 
+**Mandatory-when-available walkthroughs.** When `browser` AND `MCP` are both available, UI-touching explorers and tests (`explore-ui`, `explore-accessibility`, `explore-performance`, `test-flow`, `test-domain`, `test-accessibility`, `test-performance`) MUST drive Chrome DevTools MCP through the canonical walkthrough patterns in `reference/chrome-devtools-mcp.md`. Code-reading is the documented fallback path when capabilities are unavailable; it is NOT a shortcut when capabilities ARE available. Skipping a walkthrough step when the underlying tool is reachable is a contract violation equivalent to fabricating evidence.
+
 ## 13. Test standards
 
 **Rule:** Test types per PRD §26: smoke, user-flow, exploratory, regression, negative, state, accessibility, performance, integration, setup/testability. Each test run produces `RUN-<timestamp>.md` + `.json` under `_testatlas/runs/`. Tests are deterministic where the system permits; non-determinism is flagged in the run record. Test code that already exists in the target repo is preferred over re-implementation.
