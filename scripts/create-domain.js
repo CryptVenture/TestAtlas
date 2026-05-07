@@ -158,7 +158,7 @@ async function updateV2Brain(wsDir, record) {
       status: record.status ?? 'mapped',
       display_name: record.displayName ?? record.name,
     });
-    idx.last_updated = new Date().toISOString();
+    idx.last_updated = now();
     await atomicWrite(domainsPath, `${JSON.stringify(idx, null, 2)}\n`);
   }
 
@@ -173,7 +173,7 @@ async function updateV2Brain(wsDir, record) {
   if (state?.counts && typeof state.counts.domains === 'number') {
     state.counts.domains = idx.domains.length;
     if (state.status) {
-      state.status.last_updated = new Date().toISOString();
+      state.status.last_updated = now();
       state.status.last_command = 'create-domain';
     }
     await atomicWrite(statePath, `${JSON.stringify(state, null, 2)}\n`);

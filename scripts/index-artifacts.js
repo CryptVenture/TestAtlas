@@ -15,6 +15,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now } from './lib/determinism.js';
 
 async function fileExists(p) {
   try {
@@ -130,7 +131,7 @@ export async function indexArtifacts({ cwd = process.cwd() } = {}) {
   const evidence = await scanEvidence(wsDir);
 
   const changed = [];
-  const stamp = new Date().toISOString();
+  const stamp = now();
 
   await atomicWrite(
     path.join(brainDir, 'domains.json'),

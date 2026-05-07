@@ -26,6 +26,7 @@ import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 import { atomicWrite } from './lib/atomic-write.js';
+import { now } from './lib/determinism.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const COVERAGE_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/coverage.schema.json';
@@ -123,7 +124,7 @@ export async function updateCoverage(opts = {}) {
   if (!coverage || coverage.schema_version !== '2.0.0') {
     coverage = {
       schema_version: '2.0.0',
-      last_updated: new Date().toISOString(),
+      last_updated: now(),
       coverage: { routes: [], components: [], endpoints: [], commands: [] },
     };
   }
@@ -154,7 +155,7 @@ export async function updateCoverage(opts = {}) {
     }
   }
 
-  coverage.last_updated = new Date().toISOString();
+  coverage.last_updated = now();
 
   // Validate before writing.
   let validate;

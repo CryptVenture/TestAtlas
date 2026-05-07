@@ -22,6 +22,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { appendEvent } from './append-event.js';
 import { atomicWrite } from './lib/atomic-write.js';
+import { now } from './lib/determinism.js';
 
 function err(code, msg) {
   const e = new Error(msg);
@@ -82,7 +83,7 @@ export async function updateBrainAfterCommand(args = {}) {
     const state = JSON.parse(await readFile(statePath, 'utf8'));
     if (state.status) {
       state.status.last_command = args.command;
-      state.status.last_updated = new Date().toISOString();
+      state.status.last_updated = now();
       await atomicWrite(statePath, `${JSON.stringify(state, null, 2)}\n`);
     }
   } catch {

@@ -120,6 +120,10 @@ All notable changes to this project will be documented in this file. Format is b
 
 - The code-reading degrade path is preserved verbatim for non-browser hosts (Aider, generic, etc.). `capability-fallback.test.js`, `anti-hallucination.test.js`, and the new `adapter-aider.test.js` Test 9 each assert this. No `vocabulary.json` schema change (Strategy A — existing `evidenceType` enum values cover all walkthrough artifacts). All 18 adapter manifests + the 32-command roster remain intact (no commands added or removed in Phase 13).
 
+### Fixed
+
+- **Phase 15 / Plan 15-01 — V2 brain writers honor `TESTATLAS_FIXED_TIMESTAMP`.** The four V2 writers that emit `_testatlas/brain/{coverage,domains,flows,issues,evidence,state}.json` (`scripts/update-coverage.js`, `scripts/update-brain-after-command.js`, `scripts/index-artifacts.js`, `scripts/create-domain.js`) routed `last_updated` through direct `new Date().toISOString()` calls, bypassing the `now()` determinism contract from Plan 08-01 (`scripts/lib/determinism.js`). Result: `regenerate-example.js --check` reported drift on `brain/domains.json` + `brain/state.json` between back-to-back replays, breaking `test/scripts/regenerate-example.test.js` "regenerateExample: idempotent — replay twice → second run is byte-identical" and blocking the Wave 2 example fixture re-baseline. Fix: each writer now imports `now` from `./lib/determinism.js` and calls it for every `last_updated` emission. When `TESTATLAS_FIXED_TIMESTAMP` is unset, behavior is byte-identical to the prior wall-clock path (zero regression in production / dogfood paths). Drops the failing-tests count from 19 → 18 and unblocks Plan 15-02 fixture re-baseline.
+
 ### Removed
 
 ## [1.2.6] - 2026-05-06
