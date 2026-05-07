@@ -177,6 +177,12 @@ export async function buildSqlite({ cwd = process.cwd(), output, rebuild = false
   await mkdir(path.dirname(dest), { recursive: true });
 
   if (rebuild) {
+    // Capability tag: assertCapability(_, 'destructive-fs'). The caller
+    // explicitly opted into --rebuild which is the consent gate for
+    // dropping the prior .sqlite file. We tolerate ENOENT so a fresh
+    // workspace (no prior file) is a successful no-op. SQLite is OPTIONAL
+    // / cacheable per PRD §7.20 — JSON remains canonical, so unlinking
+    // the derived file is safe.
     await unlink(dest).catch((e) => {
       if (e.code !== 'ENOENT') throw e;
     });

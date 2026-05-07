@@ -31,6 +31,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sortedReaddir } from './lib/determinism.js';
+import { V2_COMMAND_CATEGORIES } from './lib/list-command-files.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -58,21 +59,81 @@ function formatCapabilities(caps) {
   return caps.map((c) => `\`${c}\``).join(', ');
 }
 
+/**
+ * Render a single command entry. Returns the lines to push into the
+ * document. Used for both flat V1 commands and V2 categorized commands.
+ *
+ * @param {string} relPath  Path relative to `.testatlas/commands/` (e.g.
+ *                          `init.md` or `report/report-dashboard-data.md`).
+ * @returns {Promise<string[]>}
+ */
+async function renderEntry(relPath) {
+  const abs = path.join(COMMANDS_DIR, relPath);
+  const text = await readFile(abs, 'utf8');
+  let fm;
+  try {
+    fm = parseFrontmatter(text);
+  } catch (err) {
+    throw new Error(`generate-commands-doc: ${relPath}: ${err.message}`);
+  }
+  const baseName = path.basename(relPath, '.md');
+  const cmdName = fm.command || baseName;
+  const desc = firstSentence(fm.description || '');
+  const caps = formatCapabilities(fm.capabilities);
+  const out = [];
+  out.push(`## /atlas:${cmdName}`);
+  out.push('');
+  if (desc) {
+    out.push(desc);
+    out.push('');
+  }
+  out.push(`**Capabilities:** ${caps}`);
+  out.push('');
+  out.push(`[Source](../.testatlas/commands/${relPath})`);
+  out.push('');
+  out.push('---');
+  out.push('');
+  return out;
+}
+
 async function buildDoc() {
-  const entries = await sortedReaddir(COMMANDS_DIR);
-  const files = entries
+  // V1 flat commands.
+  const flatEntries = await sortedReaddir(COMMANDS_DIR);
+  const flatFiles = flatEntries
     .filter((n) => typeof n === 'string' && n.endsWith('.md') && n !== 'README.md')
     .sort();
+
+  // V2 categorized commands. Each subdirectory in V2_COMMAND_CATEGORIES is
+  // walked; missing subdirs degrade to zero entries (Wave 5 contract).
+  const categorizedFiles = [];
+  for (const cat of V2_COMMAND_CATEGORIES) {
+    const subDir = path.join(COMMANDS_DIR, cat);
+    let entries;
+    try {
+      entries = await sortedReaddir(subDir);
+    } catch (e) {
+      if (e.code === 'ENOENT') continue;
+      throw e;
+    }
+    for (const name of entries) {
+      if (typeof name !== 'string') continue;
+      if (!name.endsWith('.md')) continue;
+      categorizedFiles.push(`${cat}/${name}`);
+    }
+  }
+  categorizedFiles.sort();
+
+  const total = flatFiles.length + categorizedFiles.length;
 
   const lines = [];
   lines.push('# TestAtlas Commands');
   lines.push('');
   lines.push(
-    '_Auto-generated from `.testatlas/commands/*.md` by `scripts/generate-commands-doc.js`. Do not edit by hand._',
+    '_Auto-generated from `.testatlas/commands/*.md` (V1 flat + V2 categorized) by `scripts/generate-commands-doc.js`. Do not edit by hand._',
   );
   lines.push('');
   lines.push(
-    `This index covers every \`/atlas:*\` command shipped with TestAtlas (${files.length} commands). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).`,
+    `This index covers every \`/atlas:*\` command shipped with TestAtlas (${total} commands: ${flatFiles.length} V1 flat + ${categorizedFiles.length} V2 categorized in core/, explore/, test/, council/, brain/, report/, maintain/). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).`,
   );
   lines.push('');
   lines.push(
@@ -82,31 +143,20 @@ async function buildDoc() {
   lines.push('---');
   lines.push('');
 
-  for (const file of files) {
-    const abs = path.join(COMMANDS_DIR, file);
-    const text = await readFile(abs, 'utf8');
-    let fm;
-    try {
-      fm = parseFrontmatter(text);
-    } catch (err) {
-      throw new Error(`generate-commands-doc: ${file}: ${err.message}`);
+  if (flatFiles.length > 0) {
+    lines.push('## V1 Commands (flat)');
+    lines.push('');
+    for (const file of flatFiles) {
+      lines.push(...(await renderEntry(file)));
     }
-    const cmdName = fm.command || file.replace(/\.md$/, '');
-    const desc = firstSentence(fm.description || '');
-    const caps = formatCapabilities(fm.capabilities);
+  }
 
-    lines.push(`## /atlas:${cmdName}`);
+  if (categorizedFiles.length > 0) {
+    lines.push('## V2 Commands (categorized)');
     lines.push('');
-    if (desc) {
-      lines.push(desc);
-      lines.push('');
+    for (const relPath of categorizedFiles) {
+      lines.push(...(await renderEntry(relPath)));
     }
-    lines.push(`**Capabilities:** ${caps}`);
-    lines.push('');
-    lines.push(`[Source](../.testatlas/commands/${file})`);
-    lines.push('');
-    lines.push('---');
-    lines.push('');
   }
 
   // Always end with a single trailing newline (POSIX file convention) — no
