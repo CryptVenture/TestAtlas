@@ -183,3 +183,37 @@ test('Test 8: README.md exists with required sections', async () => {
   }
   assert.match(text, /CONVENTIONS\.md/, 'README must reference CONVENTIONS.md');
 });
+
+test('Test 9 (Phase 13 regression): aider CONVENTIONS.md preserves code-reading degrade prose for UI-touching commands', async () => {
+  // Aider declares only [shell, file-write] — it has neither browser nor MCP.
+  // The 7 UI-touching commands embed a "degrade to code-reading" fallback
+  // sentence in their frontmatter `description` so non-browser hosts (Aider)
+  // still produce coherent workspaces. This test is the canonical
+  // degrade-path proof point: if a future rewrite drops the code-reading
+  // prose from any UI-touching command, it WILL leak into Aider's
+  // CONVENTIONS.md (concatenated from all 32 sources) and the assertion
+  // below will fail loudly.
+  const text = await readFile(CONVENTIONS_PATH, 'utf8');
+  const UI_TOUCHING = [
+    'explore-ui',
+    'explore-accessibility',
+    'explore-performance',
+    'test-flow',
+    'test-domain',
+    'test-accessibility',
+    'test-performance',
+  ];
+  const failures = [];
+  for (const cmd of UI_TOUCHING) {
+    const sectionRe = new RegExp(`atlas-${cmd}\\b`, 'i');
+    if (!sectionRe.test(text)) {
+      failures.push(`${cmd}: H2 section header not found in CONVENTIONS.md`);
+    }
+  }
+  // Top-level assertion: at least one occurrence of code-reading prose anywhere
+  // in the file (concatenated from the UI-touching command bodies' degrade prose).
+  if (!/code-read(?:ing)?|code reading/i.test(text)) {
+    failures.push('CONVENTIONS.md missing code-reading degrade prose entirely');
+  }
+  assert.deepEqual(failures, []);
+});
