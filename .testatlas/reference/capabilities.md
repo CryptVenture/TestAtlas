@@ -55,14 +55,14 @@ The `tool_unavailable` field is part of every finding-bearing schema in Phase 2.
 
 ## Per-capability action matrix
 
-| Capability        | Confirms via                                          | Fallback when unavailable                          |
-|-------------------|-------------------------------------------------------|----------------------------------------------------|
-| `browser`         | Successful navigation + screenshot capture            | Code-read the route handler / static template      |
-| `shell`           | Successful `node --version` (or equivalent)           | Read package scripts and document expected behavior |
-| `web-fetch`       | Successful GET to a known-public endpoint             | Document expected request/response from API docs   |
-| `MCP`             | Successful tool list from the MCP server              | Fall back to `browser` or `shell` capability       |
-| `file-write`      | Successful write + read-back to a temp file           | HALT; without `file-write` no findings persist     |
-| `subagent-spawn`  | Host-specific spawn primitive returns a child handle  | Sequential execution with `executionMode: 'sequential-fallback'` |
+| Capability        | Confirms via                                          | Fallback when unavailable                          | Mandatory action when available                                       |
+|-------------------|-------------------------------------------------------|----------------------------------------------------|-----------------------------------------------------------------------|
+| `browser`         | Successful navigation + screenshot capture            | Code-read the route handler / static template      | Drive UI walkthroughs per `reference/chrome-devtools-mcp.md` patterns |
+| `shell`           | Successful `node --version` (or equivalent)           | Read package scripts and document expected behavior | Execute scenarios that need test runners, dev servers, or fixtures    |
+| `web-fetch`       | Successful GET to a known-public endpoint             | Document expected request/response from API docs   | Issue documented HTTP requests for API explorer / update-check        |
+| `MCP`             | Successful tool list from the MCP server              | Fall back to `browser` or `shell` capability       | Invoke canonical Chrome DevTools MCP toolset per `reference/chrome-devtools-mcp.md` (Tier 1–4) |
+| `file-write`      | Successful write + read-back to a temp file           | HALT; without `file-write` no findings persist     | Persist all command outputs atomically per `bootstrap.md` §5          |
+| `subagent-spawn`  | Host-specific spawn primitive returns a child handle  | Sequential execution with `executionMode: 'sequential-fallback'` | Fan out independent subtasks per umbrella commands' Sub-Agent Orchestration sections |
 
 ## Schema reference
 
