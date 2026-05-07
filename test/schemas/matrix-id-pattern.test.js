@@ -26,11 +26,13 @@ const SUITE_ROOT = path.resolve(__dirname, '..', '..');
 const VOCAB_PATH = path.join(SUITE_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
 const TESTS_DIR = path.join(SUITE_ROOT, '_testatlas', 'tests');
 
-// RED-marker: when present in the scanned-ID set, this list seeds a deliberate
-// non-conforming entry to force the test red. Plan 18-06 Task 2 (GREEN) clears
-// this back to []. Keep the constant exported-shape stable so future drift
-// experiments (e.g., adversarial CI) can re-arm without re-deriving the wiring.
-const PLANTED_OFFENDERS = ['TEST-TAS-001'];
+// Steady-state: empty. The constant is kept (not deleted) so adversarial-CI
+// experiments can re-arm by inserting an offender (e.g. 'TEST-TAS-001' — the
+// original ISSUE-013 fixture symbol) without rediscovering the wiring.
+// History: Plan 18-06 Task 1 (RED) seeded ['TEST-TAS-001']; Task 2 (GREEN)
+// cleared it once the live matrix surface (matrix.md + scenarios/*.json) was
+// verified to conform.
+const PLANTED_OFFENDERS = [];
 
 async function fileExists(p) {
   try {
