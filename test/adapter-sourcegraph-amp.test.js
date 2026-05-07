@@ -11,7 +11,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
-import { listCommandFiles } from '../scripts/lib/list-command-files.js';
+import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -24,13 +24,16 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: 32 derived atlas-*.md command files exist', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 32);
+test('Test 1: every source command (V1 + V2 categorized) has a flat-root atlas-*.md', async () => {
+  // Phase 16: sourcegraph-amp renders flat. Total = V1 flat + V2 categorized.
+  const { total, expectedNames } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 32, `expected 32 derived command files; got ${derived.length}`);
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
+  assert.equal(
+    derived.length,
+    total,
+    `expected ${total} derived command files; got ${derived.length}`,
+  );
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);
 });
@@ -53,20 +56,23 @@ test('Test 2: each command has NO YAML frontmatter; HTML header + envelope prese
   }
 });
 
-test('Test 3: marker source + hash match commands/<name>.md', async () => {
+test('Test 3: marker source + hash match V1-flat or V2-categorized source', async () => {
+  // Phase 16: marker.source carries SOURCE path; output is flat.
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
   for (const name of derived) {
     const text = await readFile(path.join(ADAPTER_DIR, name), 'utf8');
     const marker = parseAdapterMarker(text);
-    assert.ok(marker);
-    const cmdName = name.replace(/^atlas-/, '').replace(/\.md$/, '');
-    assert.equal(marker.source, `commands/${cmdName}.md`);
-    const sourceText = await readFile(
-      path.join(repoRoot, '.testatlas', 'commands', `${cmdName}.md`),
-      'utf8',
+    assert.ok(marker, `${name}: missing marker`);
+    const expected = flatNameToSource.get(name);
+    assert.ok(expected, `${name}: no expected source mapping`);
+    assert.equal(marker.source, expected.sourceRel, `${name}: marker.source mismatch`);
+    assert.equal(
+      marker.hash,
+      hashContent(expected.sourceText),
+      `${name}: hash mismatch with source`,
     );
-    assert.equal(marker.hash, hashContent(sourceText), `${name}: hash mismatch with source`);
   }
 });
 

@@ -11,8 +11,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
-import { listCommandFiles } from '../scripts/lib/list-command-files.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
+import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -25,27 +25,28 @@ const ADAPTER_DIR = path.join(
   'commands',
 );
 
-test('Test 1: K derived atlas-*.md files exist (V1 flat at root, V2 categorized in subdirs)', async () => {
-  // V2 (Phase 14 Wave 5): adapter trees now mirror the categorized source
-  // layout — flat V1 commands at the root, V2 categorized under subdirs
-  // (core/, explore/, council/, ...). Total derived files = flat + categorized.
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  // Flat V1 derived files at the root (excluding any subdirs).
+test('Test 1: every source command (V1 + V2 categorized) has a flat-root atlas-*.md file', async () => {
+  // Phase 16 (Plan 16-01): per `prd/reports/v2-adapter-slash-command-discovery.md`
+  // Option A, all per-command-file adapters render flat. Total derived files
+  // = V1 flat + V2 categorized; no subdirs at the commands root.
+  const { total, expectedNames } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR, { withFileTypes: true });
   const flatDerived = entries
     .filter((e) => e.isFile() && e.name.startsWith('atlas-') && e.name.endsWith('.md'))
     .map((e) => e.name);
+  // Flatness: zero subdirs at the commands root.
+  const subdirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  assert.deepEqual(subdirs, [], `unexpected subdirs at commands root: [${subdirs.join(', ')}]`);
   assert.equal(
     flatDerived.length,
-    sources.length,
-    `expected ${sources.length} flat derived files; got ${flatDerived.length}`,
+    total,
+    `expected ${total} flat derived files; got ${flatDerived.length}`,
   );
 
-  const expectedFlat = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of flatDerived) {
-    assert.ok(expectedFlat.has(name), `unexpected derived file: ${name}`);
+    assert.ok(expectedNames.has(name), `unexpected derived file: ${name}`);
   }
-  for (const name of expectedFlat) {
+  for (const name of expectedNames) {
     assert.ok(flatDerived.includes(name), `missing derived file: ${name}`);
   }
 });
@@ -69,52 +70,57 @@ test('Test 2: each derived file body begins with PRD §23 BOOTSTRAP_PREAMBLE', a
   }
 });
 
-test('Test 3: marker source + hash match `commands/<name>.md` and hashContent(source)', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  for (const sourcePath of sources) {
-    const cmdName = path.basename(sourcePath, '.md');
-    const sourceText = await readFile(sourcePath, 'utf8');
-    const expectedHash = hashContent(sourceText);
-    const derivedPath = path.join(ADAPTER_DIR, `atlas-${cmdName}.md`);
+test('Test 3: marker source + hash match V1-flat or V2-categorized source', async () => {
+  // Phase 16: marker.source carries the SOURCE path
+  // (`commands/<name>.md` for V1 flat, `commands/<category>/<name>.md` for V2).
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
+  for (const [name, expected] of flatNameToSource.entries()) {
+    const derivedPath = path.join(ADAPTER_DIR, name);
     const derivedText = await readFile(derivedPath, 'utf8');
     const marker = parseAdapterMarker(derivedText);
-    assert.ok(marker, `atlas-${cmdName}.md: missing marker`);
+    assert.ok(marker, `${name}: missing marker`);
     assert.equal(marker.section, 'adapter-body');
-    assert.equal(marker.source, `commands/${cmdName}.md`);
-    assert.equal(marker.hash, expectedHash, `atlas-${cmdName}.md: hash mismatch`);
+    assert.equal(marker.source, expected.sourceRel, `${name}: marker.source mismatch`);
+    assert.equal(
+      marker.hash,
+      hashContent(expected.sourceText),
+      `${name}: hash mismatch with source`,
+    );
   }
 });
 
 test('Test 4: each derived file has description + allowed-tools frontmatter', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  for (const sourcePath of sources) {
-    const cmdName = path.basename(sourcePath, '.md');
-    const sourceFm = parseFrontmatter(await readFile(sourcePath, 'utf8'));
-    const derivedPath = path.join(ADAPTER_DIR, `atlas-${cmdName}.md`);
+  // Phase 16: walk every derived file at the flat root (V1 flat + V2
+  // categorized) and validate its frontmatter against the corresponding
+  // source's frontmatter.
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
+  for (const [name, expected] of flatNameToSource.entries()) {
+    const sourceFm = parseFrontmatter(expected.sourceText);
+    const derivedPath = path.join(ADAPTER_DIR, name);
     const derivedText = await readFile(derivedPath, 'utf8');
     const derivedFm = parseFrontmatter(derivedText);
 
     assert.equal(
       derivedFm.description,
       sourceFm.description,
-      `atlas-${cmdName}.md: description must match source`,
+      `${name}: description must match source`,
     );
     assert.ok(
       typeof derivedFm['allowed-tools'] === 'string',
-      `atlas-${cmdName}.md: allowed-tools must be a string`,
+      `${name}: allowed-tools must be a string`,
     );
     // Baseline tools are always granted.
     for (const baseline of ['Read', 'Write', 'Edit', 'Glob', 'Grep']) {
       assert.ok(
         derivedFm['allowed-tools'].includes(baseline),
-        `atlas-${cmdName}.md: missing baseline tool ${baseline}`,
+        `${name}: missing baseline tool ${baseline}`,
       );
     }
     // shell capability → Bash
     if (Array.isArray(sourceFm.capabilities) && sourceFm.capabilities.includes('shell')) {
       assert.ok(
         derivedFm['allowed-tools'].includes('Bash'),
-        `atlas-${cmdName}.md: source declares shell but Bash missing`,
+        `${name}: source declares shell but Bash missing`,
       );
     }
     // browser or MCP → mcp__*
@@ -124,7 +130,7 @@ test('Test 4: each derived file has description + allowed-tools frontmatter', as
     ) {
       assert.ok(
         derivedFm['allowed-tools'].includes('mcp__*'),
-        `atlas-${cmdName}.md: source declares browser/MCP but mcp__* missing`,
+        `${name}: source declares browser/MCP but mcp__* missing`,
       );
     }
   }

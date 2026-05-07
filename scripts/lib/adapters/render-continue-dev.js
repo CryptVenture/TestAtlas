@@ -15,9 +15,13 @@
 // Input  : raw text of `.testatlas/commands/<name>.md` (frontmatter + body).
 // Output : derived `.continue/prompts/atlas-<name>.prompt.md` content as a string.
 
-import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, serializeFrontmatter, wrapInAdapterEnvelope } from './_shared.js';
+import {
+  BOOTSTRAP_PREAMBLE,
+  commandBaseNameFromSource,
+  serializeFrontmatter,
+  wrapInAdapterEnvelope,
+} from './_shared.js';
 
 function stripExistingPreamble(body) {
   const sentinelRe = /^Before doing anything else:\s*$/m;
@@ -26,11 +30,6 @@ function stripExistingPreamble(body) {
   const headingIdx = body.search(/^##\s+/m);
   if (headingIdx === -1) return body.trimStart();
   return body.slice(headingIdx);
-}
-
-function commandBaseName(sourcePath) {
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 
 /**
@@ -44,7 +43,9 @@ export function renderContinueDev({ sourceText, sourcePath }) {
   const { body } = extractFrontmatter(sourceText);
 
   const description = fm.description ?? '';
-  const cmdName = commandBaseName(sourcePath);
+  // Phase 16: V2-aware unique flat name keeps the rendered `name:` field in
+  // lockstep with the on-disk filename across V1 + V2 categorized commands.
+  const cmdName = commandBaseNameFromSource(sourcePath);
 
   const targetFm = serializeFrontmatter({
     name: `atlas-${cmdName}`,

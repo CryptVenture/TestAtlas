@@ -20,8 +20,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
-import { listCommandFiles } from '../scripts/lib/list-command-files.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
+import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -34,15 +34,13 @@ const ADAPTER_DIR = path.join(
   'workflows',
 );
 
-test('Test 1: 32 derived atlas-*.md agent files exist (one per source command)', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 32, `expected 32 source commands; got ${sources.length}`);
-
+test('Test 1: every source command (V1 + V2 categorized) has a flat-root atlas-*.md', async () => {
+  // Phase 16: kilocode renders flat. Total = V1 flat + V2 categorized.
+  const { total, expectedNames } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 32, `expected 32 derived files; got ${derived.length}`);
+  assert.equal(derived.length, total, `expected ${total} derived files; got ${derived.length}`);
 
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
   for (const name of derived) {
     assert.ok(expectedNames.has(name), `unexpected derived file: ${name}`);
   }
@@ -52,41 +50,40 @@ test('Test 1: 32 derived atlas-*.md agent files exist (one per source command)',
 });
 
 test('Test 2: each file has description + mode:primary + permission block honoring two-tree invariant', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  for (const sourcePath of sources) {
-    const cmdName = path.basename(sourcePath, '.md');
-    const sourceText = await readFile(sourcePath, 'utf8');
-    const sourceFm = parseFrontmatter(sourceText);
-    const derivedPath = path.join(ADAPTER_DIR, `atlas-${cmdName}.md`);
+  // Phase 16: walk every flat-root derived file (V1 + V2).
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
+  for (const [name, expected] of flatNameToSource.entries()) {
+    const sourceFm = parseFrontmatter(expected.sourceText);
+    const derivedPath = path.join(ADAPTER_DIR, name);
     const derivedText = await readFile(derivedPath, 'utf8');
 
     // Check the YAML frontmatter as raw text — the simple parser does not
     // handle nested objects, so we assert against the literal YAML shape.
-    assert.ok(derivedText.startsWith('---\n'), `atlas-${cmdName}.md: missing frontmatter fence`);
+    assert.ok(derivedText.startsWith('---\n'), `${name}: missing frontmatter fence`);
     const fmEnd = derivedText.indexOf('\n---\n', 4);
-    assert.ok(fmEnd !== -1, `atlas-${cmdName}.md: missing closing frontmatter fence`);
+    assert.ok(fmEnd !== -1, `${name}: missing closing frontmatter fence`);
     const fm = derivedText.slice(4, fmEnd);
 
     assert.match(
       fm,
       new RegExp(`^description:\\s*${escapeRegex(sourceFm.description)}\\s*$`, 'm'),
-      `atlas-${cmdName}.md: description must match source verbatim`,
+      `${name}: description must match source verbatim`,
     );
-    assert.match(fm, /^mode:\s*primary\s*$/m, `atlas-${cmdName}.md: missing 'mode: primary'`);
-    assert.match(fm, /^permission:\s*$/m, `atlas-${cmdName}.md: missing 'permission:' key`);
-    assert.match(fm, /^\s+edit:\s*$/m, `atlas-${cmdName}.md: missing 'permission.edit' subkey`);
+    assert.match(fm, /^mode:\s*primary\s*$/m, `${name}: missing 'mode: primary'`);
+    assert.match(fm, /^permission:\s*$/m, `${name}: missing 'permission:' key`);
+    assert.match(fm, /^\s+edit:\s*$/m, `${name}: missing 'permission.edit' subkey`);
     // Two-tree invariant — exact YAML lockdown:
     assert.match(
       fm,
       /"_testatlas\/\*\*":\s*allow/,
-      `atlas-${cmdName}.md: permission.edit must allow _testatlas/**`,
+      `${name}: permission.edit must allow _testatlas/**`,
     );
     assert.match(
       fm,
       /"\.testatlas\/\*\*":\s*deny/,
-      `atlas-${cmdName}.md: permission.edit must deny .testatlas/**`,
+      `${name}: permission.edit must deny .testatlas/**`,
     );
-    assert.match(fm, /"\*":\s*ask/, `atlas-${cmdName}.md: permission.edit must ask for "*"`);
+    assert.match(fm, /"\*":\s*ask/, `${name}: permission.edit must ask for "*"`);
 
     // permission.bash mirrors the source's `shell` capability.
     const hasShell =
@@ -95,35 +92,33 @@ test('Test 2: each file has description + mode:primary + permission block honori
     assert.match(
       fm,
       new RegExp(`^\\s+bash:\\s*${expectedBash}\\s*$`, 'm'),
-      `atlas-${cmdName}.md: permission.bash must be '${expectedBash}' (source shell=${hasShell})`,
+      `${name}: permission.bash must be '${expectedBash}' (source shell=${hasShell})`,
     );
   }
 });
 
 test('Test 3: envelope present; line after START is BOOTSTRAP_PREAMBLE; marker source/hash valid', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  for (const sourcePath of sources) {
-    const cmdName = path.basename(sourcePath, '.md');
-    const sourceText = await readFile(sourcePath, 'utf8');
-    const expectedHash = hashContent(sourceText);
-    const derivedPath = path.join(ADAPTER_DIR, `atlas-${cmdName}.md`);
+  // Phase 16: marker.source carries the SOURCE path; output is flat.
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
+  for (const [name, expected] of flatNameToSource.entries()) {
+    const derivedPath = path.join(ADAPTER_DIR, name);
     const derivedText = await readFile(derivedPath, 'utf8');
 
     const marker = parseAdapterMarker(derivedText);
-    assert.ok(marker, `atlas-${cmdName}.md: missing GENERATED:START marker`);
+    assert.ok(marker, `${name}: missing GENERATED:START marker`);
     assert.equal(marker.section, 'adapter-body');
-    assert.equal(marker.source, `commands/${cmdName}.md`);
-    assert.equal(marker.hash, expectedHash, `atlas-${cmdName}.md: hash mismatch`);
+    assert.equal(marker.source, expected.sourceRel, `${name}: marker.source mismatch`);
+    assert.equal(marker.hash, hashContent(expected.sourceText), `${name}: hash mismatch`);
 
     const lines = derivedText.split('\n');
     const startIdx = lines.findIndex((l) =>
       l.includes('TESTATLAS:GENERATED:START section="adapter-body"'),
     );
-    assert.ok(startIdx !== -1, `atlas-${cmdName}.md: missing GENERATED:START marker line`);
+    assert.ok(startIdx !== -1, `${name}: missing GENERATED:START marker line`);
     assert.equal(
       lines[startIdx + 1],
       BOOTSTRAP_PREAMBLE,
-      `atlas-${cmdName}.md: line after START must be BOOTSTRAP_PREAMBLE verbatim`,
+      `${name}: line after START must be BOOTSTRAP_PREAMBLE verbatim`,
     );
   }
 });

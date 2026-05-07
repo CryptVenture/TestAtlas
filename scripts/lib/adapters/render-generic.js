@@ -24,9 +24,8 @@
 //     BEFORE pasting any individual prompt; the HTML comment reinforces it
 //     in-band as a soft reminder.
 
-import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
+import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource, wrapInAdapterEnvelope } from './_shared.js';
 
 /**
  * Strip the prior bootstrap-first preamble from a source body, if it begins
@@ -47,18 +46,6 @@ function stripExistingPreamble(body) {
 }
 
 /**
- * Derive the command base name (e.g. "init") from the absolute source path.
- *
- * @param {string} sourcePath
- * @returns {string}
- */
-function commandBaseName(sourcePath) {
-  // path.basename handles both `/` (POSIX) and `\` (Windows) separators.
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
-}
-
-/**
  * Render a Generic paste-able prompt file from a source command's text.
  *
  * @param {{ sourceText: string, sourcePath: string }} opts
@@ -69,7 +56,9 @@ export function renderGeneric({ sourceText, sourcePath }) {
   const { body } = extractFrontmatter(sourceText);
 
   const description = fm.description ?? '';
-  const cmdName = commandBaseName(sourcePath);
+  // Phase 16: V2-aware unique flat name keeps the HTML-comment header in
+  // lockstep with the rendered file's flat-root filename.
+  const cmdName = commandBaseNameFromSource(sourcePath);
 
   // Soft, paste-friendly HTML comment — humans read it; agents ignore it.
   const headerComment = `<!-- TestAtlas command: atlas-${cmdName}. Paste .testatlas/bootstrap.md first; description: ${description} -->`;

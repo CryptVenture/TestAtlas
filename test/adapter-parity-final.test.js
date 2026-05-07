@@ -50,20 +50,24 @@ const EXPECTED_ADAPTERS = [
   'zed',
 ];
 
+// Phase 16 Plan 16-01: per-command-file adapters render every command FLAT
+// at the adapter commands root. The V2 `report/dashboard-data.md` source maps
+// to `atlas-report-dashboard-data.<ext>` at the FLAT root (no `report/`
+// subdir) — see prd/reports/v2-adapter-slash-command-discovery.md Option A.
 const PER_COMMAND_FILE_ADAPTERS_DASHBOARD = {
-  'claude-code': '.claude/commands/report/atlas-report-dashboard-data.md',
-  opencode: '.opencode/commands/report/atlas-report-dashboard-data.md',
-  kilocode: '.kilocode/workflows/report/atlas-report-dashboard-data.md',
-  cursor: '.cursor/rules/report/atlas-report-dashboard-data.mdc',
-  codex: '.codex/prompts/report/atlas-report-dashboard-data.md',
-  'gemini-cli': '.gemini/commands/report/atlas-report-dashboard-data.toml',
-  cline: '.clinerules/workflows/report/atlas-report-dashboard-data.md',
-  windsurf: '.windsurf/workflows/report/atlas-report-dashboard-data.md',
-  kiro: '.kiro/skills/report/atlas-report-dashboard-data.md',
-  'continue-dev': '.continue/prompts/report/atlas-report-dashboard-data.prompt.md',
-  'github-copilot': '.github/prompts/report/atlas-report-dashboard-data.prompt.md',
-  'sourcegraph-amp': '.agents/commands/report/atlas-report-dashboard-data.md',
-  generic: 'prompts/report/atlas-report-dashboard-data.md',
+  'claude-code': '.claude/commands/atlas-report-dashboard-data.md',
+  opencode: '.opencode/commands/atlas-report-dashboard-data.md',
+  kilocode: '.kilocode/workflows/atlas-report-dashboard-data.md',
+  cursor: '.cursor/rules/atlas-report-dashboard-data.mdc',
+  codex: '.codex/prompts/atlas-report-dashboard-data.md',
+  'gemini-cli': '.gemini/commands/atlas-report-dashboard-data.toml',
+  cline: '.clinerules/workflows/atlas-report-dashboard-data.md',
+  windsurf: '.windsurf/workflows/atlas-report-dashboard-data.md',
+  kiro: '.kiro/skills/atlas-report-dashboard-data.md',
+  'continue-dev': '.continue/prompts/atlas-report-dashboard-data.prompt.md',
+  'github-copilot': '.github/prompts/atlas-report-dashboard-data.prompt.md',
+  'sourcegraph-amp': '.agents/commands/atlas-report-dashboard-data.md',
+  generic: 'prompts/atlas-report-dashboard-data.md',
 };
 
 const MULTI_SOURCE_ADAPTERS = {

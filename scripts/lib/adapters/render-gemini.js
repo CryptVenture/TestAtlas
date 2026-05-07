@@ -22,10 +22,9 @@
 // re-read commands via `/commands reload` (or restart). Documented for the
 // user in the adapter README.
 
-import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, sourceRelFromAbs } from './_shared.js';
+import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource, sourceRelFromAbs } from './_shared.js';
 
 function stripExistingPreamble(body) {
   const sentinelRe = /^Before doing anything else:\s*$/m;
@@ -34,11 +33,6 @@ function stripExistingPreamble(body) {
   const headingIdx = body.search(/^##\s+/m);
   if (headingIdx === -1) return body.trimStart();
   return body.slice(headingIdx);
-}
-
-function commandBaseName(sourcePath) {
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 
 /**
@@ -88,7 +82,9 @@ export function renderGemini({ sourceText, sourcePath }) {
   const { body } = extractFrontmatter(sourceText);
 
   const description = fm.description ?? '';
-  const cmdName = commandBaseName(sourcePath);
+  // Phase 16: V2-aware unique flat name; only used as a fallback for the
+  // marker `source` attribute (the primary path is sourceRelFromAbs below).
+  const cmdName = commandBaseNameFromSource(sourcePath);
   const cleanedBody = stripExistingPreamble(body);
 
   // Marker envelope — emit by hand because wrapInAdapterEnvelope writes

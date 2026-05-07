@@ -15,9 +15,8 @@
 //          and its absolute filesystem path.
 // Output : derived `.clinerules/workflows/atlas-<name>.md` content as a string.
 
-import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
+import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource, wrapInAdapterEnvelope } from './_shared.js';
 
 function stripExistingPreamble(body) {
   const sentinelRe = /^Before doing anything else:\s*$/m;
@@ -26,11 +25,6 @@ function stripExistingPreamble(body) {
   const headingIdx = body.search(/^##\s+/m);
   if (headingIdx === -1) return body.trimStart();
   return body.slice(headingIdx);
-}
-
-function commandBaseName(sourcePath) {
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
 }
 
 /**
@@ -44,7 +38,10 @@ export function renderCline({ sourceText, sourcePath }) {
   const { body } = extractFrontmatter(sourceText);
 
   const description = fm.description ?? '';
-  const cmdName = commandBaseName(sourcePath);
+  // Phase 16: V2-aware unique flat name (e.g. `core-init` for `core/init.md`,
+  // bare basename for V1 flat sources). Keeps the slash-invoke command name
+  // in the HTML header in lockstep with the on-disk filename.
+  const cmdName = commandBaseNameFromSource(sourcePath);
 
   // Cline workflows have no YAML frontmatter; an HTML comment carries the
   // description for humans browsing the file.

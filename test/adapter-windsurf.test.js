@@ -11,8 +11,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
-import { listCommandFiles } from '../scripts/lib/list-command-files.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
+import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -25,34 +25,39 @@ const ADAPTER_DIR = path.join(
   'workflows',
 );
 
-test('Test 1: 32 derived atlas-*.md workflow files exist', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  assert.equal(sources.length, 32);
+test('Test 1: every source command (V1 + V2 categorized) has a flat-root atlas-*.md', async () => {
+  // Phase 16: windsurf renders flat. Total = V1 flat + V2 categorized.
+  const { total, expectedNames } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
-  assert.equal(derived.length, 32, `expected 32 derived workflow files; got ${derived.length}`);
-  const expectedNames = new Set(sources.map((p) => `atlas-${path.basename(p, '.md')}.md`));
+  assert.equal(
+    derived.length,
+    total,
+    `expected ${total} derived workflow files; got ${derived.length}`,
+  );
   for (const name of derived) assert.ok(expectedNames.has(name), `unexpected file: ${name}`);
   for (const name of expectedNames) assert.ok(derived.includes(name), `missing: ${name}`);
 });
 
 test('Test 2: frontmatter has description + auto_execution_mode: 1', async () => {
-  const sources = await listCommandFiles({ cwd: repoRoot });
-  for (const sourcePath of sources) {
-    const cmdName = path.basename(sourcePath, '.md');
-    const sourceFm = parseFrontmatter(await readFile(sourcePath, 'utf8'));
-    const derivedText = await readFile(path.join(ADAPTER_DIR, `atlas-${cmdName}.md`), 'utf8');
+  // Phase 16: walk every flat-root derived file (V1 + V2).
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
+  for (const [name, expected] of flatNameToSource.entries()) {
+    const sourceFm = parseFrontmatter(expected.sourceText);
+    const derivedText = await readFile(path.join(ADAPTER_DIR, name), 'utf8');
     const derivedFm = parseFrontmatter(derivedText);
-    assert.equal(derivedFm.description, sourceFm.description, `atlas-${cmdName}: description`);
+    assert.equal(derivedFm.description, sourceFm.description, `${name}: description`);
     assert.equal(
       String(derivedFm.auto_execution_mode),
       '1',
-      `atlas-${cmdName}: auto_execution_mode must be 1`,
+      `${name}: auto_execution_mode must be 1`,
     );
   }
 });
 
-test('Test 3: envelope present; marker source + hash match source', async () => {
+test('Test 3: envelope present; marker source + hash match V1-flat or V2-categorized source', async () => {
+  // Phase 16: marker.source carries SOURCE path; output is flat.
+  const { flatNameToSource } = await buildAdapterSourceSet({ cwd: repoRoot, ext: '.md' });
   const entries = await readdir(ADAPTER_DIR);
   const derived = entries.filter((n) => n.startsWith('atlas-') && n.endsWith('.md'));
   for (const name of derived) {
@@ -60,13 +65,14 @@ test('Test 3: envelope present; marker source + hash match source', async () => 
     const marker = parseAdapterMarker(text);
     assert.ok(marker, `${name}: missing GENERATED:START marker`);
     assert.equal(marker.section, 'adapter-body');
-    const cmdName = name.replace(/^atlas-/, '').replace(/\.md$/, '');
-    assert.equal(marker.source, `commands/${cmdName}.md`);
-    const sourceText = await readFile(
-      path.join(repoRoot, '.testatlas', 'commands', `${cmdName}.md`),
-      'utf8',
+    const expected = flatNameToSource.get(name);
+    assert.ok(expected, `${name}: no expected source mapping`);
+    assert.equal(marker.source, expected.sourceRel, `${name}: marker.source mismatch`);
+    assert.equal(
+      marker.hash,
+      hashContent(expected.sourceText),
+      `${name}: hash mismatch with source`,
     );
-    assert.equal(marker.hash, hashContent(sourceText), `${name}: hash mismatch with source`);
     assert.ok(text.includes(BOOTSTRAP_PREAMBLE), `${name}: must contain bootstrap preamble`);
   }
 });

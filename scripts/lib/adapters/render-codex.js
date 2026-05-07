@@ -28,9 +28,8 @@
 //   <source body, with leading bootstrap-first preamble stripped>
 //   <!-- TESTATLAS:GENERATED:END section="adapter-body" -->
 
-import path from 'node:path';
 import { extractFrontmatter, parseFrontmatter } from '../parse-frontmatter.js';
-import { BOOTSTRAP_PREAMBLE, wrapInAdapterEnvelope } from './_shared.js';
+import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource, wrapInAdapterEnvelope } from './_shared.js';
 
 /**
  * Strip the prior bootstrap-first preamble from a source body, if present.
@@ -51,15 +50,6 @@ function stripExistingPreamble(body) {
 }
 
 /**
- * @param {string} sourcePath
- * @returns {string}
- */
-function commandBaseName(sourcePath) {
-  const file = path.basename(sourcePath);
-  return file.endsWith('.md') ? file.slice(0, -3) : file;
-}
-
-/**
  * Render a Codex CLI prompt file from a source command's text.
  *
  * @param {{ sourceText: string, sourcePath: string }} opts
@@ -70,7 +60,9 @@ export function renderCodex({ sourceText, sourcePath }) {
   const { body } = extractFrontmatter(sourceText);
 
   const description = fm.description ?? '';
-  const cmdName = commandBaseName(sourcePath);
+  // Phase 16: V2-aware unique flat name keeps the slash-invoke command name
+  // in the HTML header in lockstep with the on-disk filename.
+  const cmdName = commandBaseNameFromSource(sourcePath);
 
   // Codex ignores YAML frontmatter; an HTML comment carries the description
   // for humans browsing the file without affecting the prompt content.
