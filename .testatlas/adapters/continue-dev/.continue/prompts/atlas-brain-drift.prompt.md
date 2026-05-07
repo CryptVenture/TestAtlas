@@ -4,7 +4,7 @@ description: Detect drift between the last exploration and the current repositor
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="f98966a6e735136361fd3b5a7e129c256ffb1328975d14745ebd88bc19a7ccd5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="0b5532a44b9e23aa497126466aebbcf85cf41517f8436dd9b0166fa721266fb1" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-brain-drift.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -34,7 +34,7 @@ Detect drift between when each domain/flow/route was last explored and what has 
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/detect-drift.js`. Optional flags: `--since <ref>` (git ref to diff against; defaults to brain's last-run timestamp), `--category {all|domains|flows|apis|routes}`, `--output <path>`.
+   - Run `node .testatlas/scripts/detect-drift.js`. Optional flags: `--since <ref>` (git ref to diff against; defaults to brain's last-run timestamp), `--category {all|domains|flows|apis|routes}`, `--output <path>`.
    - The script computes git diff, watches the 7 input categories, maps changed files to affected domains/flows, assigns drift status per record (`fresh`, `possibly_stale`, `stale_requires_review`, `unknown`), and writes the JSON + report atomically.
 2. **Fallback path (no `shell`):**
    - Read git history with `git log` if available; otherwise inspect file mtimes under each input category.
@@ -73,5 +73,5 @@ Detect drift between when each domain/flow/route was last explored and what has 
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="99847ef29e5876fda90955c4b4757ab7aa2e38010f82956166d61298bde04154" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="648fa1e13ca64379eb8ff439e23c52429e31d0b74ed9dba8c8f234ddc15e125d" -->
 First read `.testatlas/bootstrap.md`. Then read `CONVENTIONS.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Aider. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.

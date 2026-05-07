@@ -3,7 +3,7 @@ description: Retest council — personas evaluate whether a claimed fix satisfie
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="910b21f1f38ac2fed6bdb575c67a08e3bfaaf90bad7bc7d9d0d0bccefea40480" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="089fc00a35826ecf56864cb70f10f2dae51bc55f7430c226ab7cdf098e958859" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-council-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -33,18 +33,18 @@ Recommended slate: QA Lead (lead), Automation Engineer, Adversarial Red Team Tes
 6. **Rebuttal or evidence request.** Personas may request additional retest runs (`/atlas:retest issue <id>`).
 7. **Vote.** On the overall verdict (passed / failed / needs-more-evidence), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the verdict in `consolidation.{md,json}`.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. If verdict is `passed`, the issue's status updates to `closed_verified`; if `failed`, status updates to `regression_confirmed`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. If verdict is `passed`, the issue's status updates to `closed_verified`; if `failed`, status updates to `regression_confirmed`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Retest: <issue-id>" \
   --mode retest \
   --participants qa-lead,automation-engineer,adversarial-red-team-tester
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

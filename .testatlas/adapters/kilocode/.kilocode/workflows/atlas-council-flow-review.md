@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="ed322551957baedf093ee52c8da296113d6669a20245188dcbe5dfb8468c5b81" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="c7f534e14547ead350d780fa079aba4a33b221e9af43d886d5c80f9df410a66e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-flow-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -39,18 +39,18 @@ Recommended slate: User Advocate, QA Lead, Performance Skeptic, Accessibility Re
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per motion, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Flow review: <flow-id>" \
   --mode roundtable-review \
   --participants user-advocate,qa-lead,performance-skeptic,accessibility-reviewer,documentation-curator
 ```
 
-Then run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

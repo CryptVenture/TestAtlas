@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-domain. Invoke as /atlas-report-domain. Description: Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="b6f89c057e54edda6f3fc225ed676da63d24290e1a361bcd4e38e0195985996d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="49651dedc2d0774afa5158433b0987118c4d677b00f1058481e5ad6321d23ffc" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -32,7 +32,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `domains.json`.
 2. Read the canonical brain inputs.
 3. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
+   - Run `node .testatlas/scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
 4. **Fallback path (no `shell`):**
    - Render `_testatlas/reports/domain-<slug>.md` by hand using `.testatlas/templates/reports/quality_scores.md` as the section skeleton.
 5. Mark every score `confidence: needs_validation` if `quality_scores.json` has not been refreshed in the current session.
@@ -61,5 +61,5 @@ Produce a focused, human-readable report for a single domain. The report combine
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command report-domain --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

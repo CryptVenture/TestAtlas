@@ -3,7 +3,7 @@ mode: agent
 description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="248b3a339befe430a58ebf57415d53589b874a1104c1a680515d07e6be634de0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="062fd51aa075bef7475b578fca5178d82d0f8cac95092a75aee14b7c8cafafa4" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-tests.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -68,7 +68,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Inventoried `<n>` tests across `<m>` runners; coverage `<p>%`; flagged `<k>` flakes / `<g>` gaps."
 
-Then run `node scripts/update-brain-after-command.js --command explore-tests --actor agent --status completed --reindex` followed by `node scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-tests --actor agent --status completed --reindex` followed by `node .testatlas/scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
 
 ## Stop Conditions
 

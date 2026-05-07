@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-red-team. Invoke as /atlas-council-red-team. Description: Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="43cae98dacfe96957d89120ecac939eb75bd0124420bf961b495664918b29f04" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="6e8f10463b43cc0a85ee0d5280d00bfe0972e0457ea5bc9c04bb939ee2b130d9" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-red-team.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -30,18 +30,18 @@ Recommended slate: Adversarial Red Team Tester (lead), Security and Privacy Revi
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per claim under attack, vote on whether it should be re-classified (stay accepted, downgrade to disputed, mark invalidated). +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}`; Red Team Tester writes the recalibration narrative.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. Invalidated claims update `_testatlas/brain/claims.jsonl` status to `invalidated` or `disputed`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. Invalidated claims update `_testatlas/brain/claims.jsonl` status to `invalidated` or `disputed`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Red team: <scope>" \
   --mode red-team \
   --participants adversarial-red-team-tester,security-privacy-reviewer,qa-lead
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

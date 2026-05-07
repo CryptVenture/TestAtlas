@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-test-plan. Invoke as /prompts:atlas-council-test-plan. Description: Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="416ba45cdfff23533507933f8b7f078aab940eb28b5e6c9d4ef1ef8cfdfb1213" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="438c0d10079d2ce04aa0a0c24ea348724d0b4cddf7169ffac4a1d3a784e4226b" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,21 +28,21 @@ Recommended slate: QA Lead (lead), Automation Engineer, Codebase Mapper, Data St
 3. **Initial findings.** Personas emit `message_type: "finding"` with their layer plan.
 4. **Cross-questioning.** Personas challenge layer boundaries (e.g., "this should be unit, not E2E") via `message_type: "question"`.
 5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
-6. **Rebuttal or evidence request.** Personas may request a fresh `node scripts/update-coverage.js --category all` run before voting.
+6. **Rebuttal or evidence request.** Personas may request a fresh `node .testatlas/scripts/update-coverage.js --category all` run before voting.
 7. **Vote.** Per scenario motion (include / exclude / move-to-different-layer), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the test plan in `consolidation.{md,json}`. Automation Engineer drafts the automation candidates list.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`. The plan lands as `_testatlas/02_test_strategy.md` proposed updates.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. The plan lands as `_testatlas/02_test_strategy.md` proposed updates.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Test plan: <scope>" \
   --mode test-plan \
   --participants qa-lead,automation-engineer,codebase-mapper,data-steward,runtime-investigator
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

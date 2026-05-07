@@ -3,7 +3,7 @@ description: Run comprehensive artifact validation beyond `validate-workspace` �
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="a5235444fef4a7738dc19cec120756867754e5b02692f5c7fd598e9cb7abf53f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="1b0470dadb0bed9d3b9e3634cd7d43bef0bcd0c62b2e78de768e72a19c4fb462" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -54,11 +54,11 @@ The four validation dimensions:
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/validate-workspace.js --strict` — produces the
+   - Run `node .testatlas/scripts/validate-workspace.js --strict` — produces the
      base-layer pass/fail.
-   - Run `node scripts/validate-brain.js --strict` — checks brain JSON
+   - Run `node .testatlas/scripts/validate-brain.js --strict` — checks brain JSON
      consistency (cross-reference resolution).
-   - Run `node scripts/sync-markdown-json.js --check` — reports drift
+   - Run `node .testatlas/scripts/sync-markdown-json.js --check` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
      the brain indexes; collect orphans + danglers.
@@ -100,5 +100,5 @@ The four validation dimensions:
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

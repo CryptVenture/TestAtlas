@@ -2,7 +2,7 @@
 description: Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="3d9d32aa38944f68a44091a0b535360df75c4e1d389aea977ae15ef781615d9a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="8e281d27db829d023077001463b4ae528436d37d6cccc4d3a37a0e29f37c37ce" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-maintain-migrate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -38,7 +38,7 @@ produces a no-op success. Always safe to retry.
    - The migration script tolerates missing backups but the operator SHOULD
      always pre-create one. CI flows can pin a deterministic timestamp.
 2. **Preferred path (if `shell` available):**
-   - Run `node scripts/v2-migrate.js [--workspace <path>] [--cwd <path>] [--force]`.
+   - Run `node .testatlas/scripts/v2-migrate.js [--workspace <path>] [--cwd <path>] [--force]`.
    - The script:
      - Detects V1 workspace (`schema_version: 1.x` in
        `11_workspace_manifest.json`).
@@ -90,5 +90,5 @@ produces a no-op success. Always safe to retry.
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

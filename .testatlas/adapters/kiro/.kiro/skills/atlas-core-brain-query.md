@@ -4,7 +4,7 @@ description: Answer a question about the workspace by reading brain JSON; cite f
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="d548e65d5844fdad389cc74b1e9a5f5eba7e5b05e07057d44df25d01ee2e03a0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="8b8fc10b6231ad41dde70122b928b2cdace6f794166ed38b9013cad451d0c2bf" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -56,7 +56,7 @@ None required — all reads are local filesystem.
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
 
 ## What's Next
 

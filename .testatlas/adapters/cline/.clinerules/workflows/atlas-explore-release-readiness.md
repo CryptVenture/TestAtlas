@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-release-readiness. Invoke as /atlas-explore-release-readiness.md. Description: Map release artifacts, blockers, readiness state, version tags, and gates. Synthesizes signal from prior explorers into a release/no-go decision report. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="ddf628d0ac4b1104b6381a6bcc40893d4c5028cef1d72fe000c71f75776e5c81" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="69672431c7593026cd2e2a91476f7b670f99d5a9fd8cd522320a50a5c18cc152" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -38,7 +38,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - **Coverage:** if `coverage.json` shows aggregate coverage < release threshold (default 60%, configurable), flag as blocker.
    - **Drift:** if `brain/drift.json` shows `state in [stale_requires_review]` for any release-blocking artifact, flag as blocker.
    - **Brain audit:** if `evidence/explore-brain/<latest>/audit-report.md` shows validation findings, flag as blocker.
-   - **Schema invariants:** if `node scripts/validate-workspace.js` exits non-zero, flag as blocker.
+   - **Schema invariants:** if `node .testatlas/scripts/validate-workspace.js` exits non-zero, flag as blocker.
    - Capture all into `evidence/blockers.json`.
 
 5. **Readiness decision.**
@@ -47,7 +47,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - **no-go:** ≥1 blocker.
    Record the decision + reasoning into `evidence/decision.json` with `{state, reasons, blockers, evaluatedAt}`.
 
-6. **Report generation.** Invoke `node scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --type release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
+6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --type release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
 
 7. **Cross-reference Council decisions.** Read `_testatlas/agents/sessions/council_*/consolidation.md` for any `release-blocking` consensus claims. Surface those in the report's Blockers section.
 
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Release readiness: `<state>` — `<n>` blockers / suggested bump `<bump>` — report at `_testatlas/reports/REPORT-release-readiness-<ts>.md`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-release-readiness --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-release-readiness --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -96,5 +96,5 @@ Then run `node scripts/update-brain-after-command.js --command explore-release-r
 
 - **`/atlas:report`** — produce the full quality report tying readiness to coverage and quality.
 - **`/atlas:brain-export --mode archive`** — snapshot the brain alongside the release.
-- (When ready) `node scripts/bump-version.js` — actually bump (manual step; this command does not auto-bump).
+- (When ready) `node .testatlas/scripts/bump-version.js` — actually bump (manual step; this command does not auto-bump).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

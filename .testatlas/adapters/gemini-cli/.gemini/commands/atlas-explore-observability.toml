@@ -1,6 +1,6 @@
 description = "Map logging setup, metrics, alerts, and tracing — verify log generation, metric collection, alert triggers, and distributed-trace propagation. Static audit + live probe when shell available."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="dc9e82298dc6dbb6047febe0c88579dc28fd34d05e1b8bac8e39d715e98389f1" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="7dfef71d92f57d4225ab96b8bfd3b5ff2b4704320c40a7efddcef858b2adeea6" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -26,7 +26,7 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
    - **Sink enumeration:** stdout-only, file rotation, syslog, vendor (Datadog, Sumo, Splunk, ELK, Loki). Capture credentials only by reference (path / env var name); NEVER copy credentials into evidence.
    - **Level distribution:** generate a sample run (`shell` invocation that exercises a representative endpoint) → capture stdout/stderr to `evidence/log-sample.txt` → count log lines per level (debug/info/warn/error/fatal).
    - **Structured-log fields:** confirm each line is JSON or key-value structured. Record the standard fields (`timestamp`, `level`, `service`, `traceId`, `spanId`, `userId`, `requestId`).
-   - **Redaction:** run `node scripts/redact-evidence.js --scan <evidence-path>` on captured logs to flag any secret / PII leak.
+   - **Redaction:** run `node .testatlas/scripts/redact-evidence.js --scan <evidence-path>` on captured logs to flag any secret / PII leak.
 
 4. **Metrics audit.**
    - **Library detection:** identify the metrics surface (`prom-client`, `@opentelemetry/sdk-metrics`, `statsd-client`, `micrometer`, `dropwizard`).
@@ -66,7 +66,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Audited logging / metrics / alerts / tracing in `_testatlas/evidence/explore-observability/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

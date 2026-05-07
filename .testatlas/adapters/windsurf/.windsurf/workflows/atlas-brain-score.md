@@ -3,7 +3,7 @@ description: Compute the 11 PRD §7.15 quality scores from documented brain evid
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="2fff8bf103f2d4a3c3c95f6d7d6a8a4e56eb6d75b541fe30dc45856017848d3b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="f43fb0aa8ebc6c4507dbab62ece9d0e82144ffb0e5f34312224feb482f707a05" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-brain-score.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -27,7 +27,7 @@ Compute the 11 PRD §7.15 quality scores from documented brain state and write t
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/score-quality.js`. Add `--category <name>` to compute a single metric (`domain`, `flow`, `evidence`, `issue`, `test`, `ux`, `a11y`, `perf`, `security`, `freshness`, `council`).
+   - Run `node .testatlas/scripts/score-quality.js`. Add `--category <name>` to compute a single metric (`domain`, `flow`, `evidence`, `issue`, `test`, `ux`, `a11y`, `perf`, `security`, `freshness`, `council`).
    - The script atomically writes `_testatlas/brain/quality_scores.json` with `schema_version`, `last_updated`, `disclaimer`, and a `scores[]` array.
    - On error, halt and surface the script exit code.
 2. **Fallback path (no `shell`):**
@@ -75,5 +75,5 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

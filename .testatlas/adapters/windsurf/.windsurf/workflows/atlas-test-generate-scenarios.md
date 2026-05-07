@@ -3,7 +3,7 @@ description: Generate exploratory charters and manual test scenarios from docume
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="01e36bc8a557bbe4df67ce92d8f54030b6c9725276b3c9165f89538236ca0825" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="3982db889264105645b39a3e0eff7a675fb73513829804b612d9af1ec4f1c783" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -35,7 +35,7 @@ after `/atlas:test-flow` (or equivalent) executes it and captures evidence.
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-scenarios.js`. Flags:
+   - Run `node .testatlas/scripts/generate-scenarios.js`. Flags:
      - `--flow <FLOW-id>` — generate scenarios for a single flow.
      - `--domain <domain-slug>` — restrict to flows in one domain.
      - `--all` — every flow under `_testatlas/flows/`.
@@ -80,5 +80,5 @@ Every scenario this command produces carries `status: "generated-not-yet-validat
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

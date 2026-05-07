@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-release. Invoke as /atlas-report-release.md. Description: Render a release readiness report with go/no-go assessment combining quality_scores.json, drift.json, open issues, and council consolidations into _testatlas/reports/release_readiness.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="592a7c23be4f66df25ecc48f6d1f74a7b8d7245493340b5e69508bf87e19f1e6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="07333fa5ceadab22e1707d524604659434f9981e7651dec94b5b10235a15f461" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-report-release.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -36,7 +36,7 @@ Render the canonical release readiness report — a go / conditional / no-go ass
    - **conditional** — at most 3 high issues with documented mitigations, possibly_stale drift only, all other thresholds met.
    - **no-go** — any critical issue, OR any `stale_requires_review` drift, OR security_privacy_confidence_score < 50.
 3. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-report.js --kind release-readiness` to render the file. The renderer fills the TESTATLAS:GENERATED markers in `_testatlas/reports/release_readiness.md`.
+   - Run `node .testatlas/scripts/generate-report.js --kind release-readiness` to render the file. The renderer fills the TESTATLAS:GENERATED markers in `_testatlas/reports/release_readiness.md`.
 4. **Fallback path (no `shell`):**
    - Hand-render the file using `.testatlas/templates/reports/release_readiness.md` as the skeleton. Embed the disclaimer from `quality_scores.json` verbatim. Mark every score `confidence: needs_validation` because hand-rendered totals are not deterministic.
 5. Append a brain event with `command: report-release` and the verdict.
@@ -78,5 +78,5 @@ else: verdict = "go"
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command report-release --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

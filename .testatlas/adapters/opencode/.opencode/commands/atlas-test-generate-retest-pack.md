@@ -2,7 +2,7 @@
 description: Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="c62993a2c64bed7e2ecda64103d72a19bfa4d3f79469da67afe507aac62b97e9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="acd8bbb5a1f9dfdc77bdff5705dd22cf9b505ee94566e0319ef2071b089e0c3e" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-test-generate-retest-pack.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -35,7 +35,7 @@ and is paired with a human-readable markdown sibling. Packs live under
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-retest-pack.js`. Flags:
+   - Run `node .testatlas/scripts/generate-retest-pack.js`. Flags:
      - `--issue-id <ISSUE-id>` — generate a pack for one issue.
      - `--all-open` — generate packs for every issue whose `status` is not `closed` or `obsolete`.
    - The script writes `RET-<issue-id>/RETEST-<NNNN>.{md,json}` and increments `RETEST-NNNN` deterministically against any existing packs.
@@ -77,5 +77,5 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

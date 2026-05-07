@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-export. Invoke as /prompts:atlas-core-brain-export. Description: Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for handoff, dashboards, or backup. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="44253524aa1b19fd4fdc547ff5b10d56f026c442dcd9b6c344f0614a8b4d637a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="bd2d11b3de56b68ec2001b0e13c232ba1f03d9c9e601015f5fd5c71997e14b63" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-core-brain-export.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,7 +19,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Required Actions
 
-1. Validate the brain first via `node scripts/validate-brain.js` — never export an invalid brain.
+1. Validate the brain first via `node .testatlas/scripts/validate-brain.js` — never export an invalid brain.
 2. Based on `--mode`:
    - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`).
    - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`).
@@ -55,7 +55,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Post-Operation Brain Update
 
-Run `node scripts/update-brain-after-command.js --command brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
 
 ## What's Next
 

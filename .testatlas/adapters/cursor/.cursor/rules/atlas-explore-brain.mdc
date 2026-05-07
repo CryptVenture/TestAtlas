@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="9e72f08be2c7b6df15fa3408c7668c5313d087fab21e58405f0c4dc8855eba68" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="7145a0f5eb97fd978e398ed83465d6800dc4358fca752d45d5e047914ff38b96" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-explore-brain.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -30,9 +30,9 @@ This command runs read-only audits and surfaces findings; it never auto-fixes. U
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8.
 
-2. **Capability check.** Requires `shell` to invoke `node scripts/validate-brain.js` and walk the workspace tree. If unavailable, degrade to a single-file scan starting at `manifest.json`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`.
+2. **Capability check.** Requires `shell` to invoke `node .testatlas/scripts/validate-brain.js` and walk the workspace tree. If unavailable, degrade to a single-file scan starting at `manifest.json`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`.
 
-3. **Phase 1 — Validation sweep.** Invoke `node scripts/validate-brain.js --suite-cwd <repo-root>`. Capture stdout/stderr to `evidence/validate-brain.txt`. Each finding from `validate-brain.js` (`BRAIN_DIR_MISSING`, `BRAIN_FILE_MISSING`, `BRAIN_JSON_PARSE_ERROR`, `BRAIN_JSONL_PARSE_ERROR`, `BRAIN_REQUIRED_FIELD_MISSING`, `BRAIN_SCHEMA_VIOLATION`) becomes a row in the audit report.
+3. **Phase 1 — Validation sweep.** Invoke `node .testatlas/scripts/validate-brain.js --suite-cwd <repo-root>`. Capture stdout/stderr to `evidence/validate-brain.txt`. Each finding from `validate-brain.js` (`BRAIN_DIR_MISSING`, `BRAIN_FILE_MISSING`, `BRAIN_JSON_PARSE_ERROR`, `BRAIN_JSONL_PARSE_ERROR`, `BRAIN_REQUIRED_FIELD_MISSING`, `BRAIN_SCHEMA_VIOLATION`) becomes a row in the audit report.
 
 4. **Phase 2 — Stale-doc detection.** For each pair `(domains/<slug>/domain.md, domains/<slug>/domain.json)`, `(flows/<slug>/flow.md, flow.json)`, `(to_fix/<id>/issue.md, issue.json)`:
    - Compare file mtimes.
@@ -48,7 +48,7 @@ This command runs read-only audits and surfaces findings; it never auto-fixes. U
 
 6. **Phase 4 — Cross-reference resolution.** Walk every artifact JSON and resolve every cross-ref field (`requires`, `affects`, `causedBy`, `evidenceRefs`, `relatedClaimIds`, `routeCoverage`, etc.) against the brain index. Unresolved refs become dangling-ref findings. Append to `evidence/dangling-refs.json` with `{from, fieldName, targetId}`.
 
-7. **Phase 5 — Generated-block drift.** For each markdown with a `<!-- TESTATLAS:GENERATED:START section="X" -->...<!-- TESTATLAS:GENERATED:END section="X" -->` block, recompute the expected content from the JSON source by invoking `node scripts/sync-markdown-json.js --dry-run`. Diff the dry-run output against the on-disk markdown. Append diffs to `evidence/generated-drift.json`.
+7. **Phase 5 — Generated-block drift.** For each markdown with a `<!-- TESTATLAS:GENERATED:START section="X" -->...<!-- TESTATLAS:GENERATED:END section="X" -->` block, recompute the expected content from the JSON source by invoking `node .testatlas/scripts/sync-markdown-json.js --dry-run`. Diff the dry-run output against the on-disk markdown. Append diffs to `evidence/generated-drift.json`.
 
 8. **Phase 6 — Orphaned evidence.** Walk `_testatlas/evidence/`. For each file, search `brain/evidence.json` and every artifact JSON for a citation. Files not cited anywhere are orphans. Append to `evidence/orphans.json`.
 
@@ -73,7 +73,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
 - `_testatlas/history/run_log.md` — narrative: "Audited brain — `<n>` validation findings / `<s>` stale / `<d>` dangling refs / `<o>` orphans in `_testatlas/evidence/explore-brain/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-brain --actor agent --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:brain-sync` runs and would mask drift this audit just surfaced.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:brain-sync` runs and would mask drift this audit just surfaced.
 
 ## Stop Conditions
 

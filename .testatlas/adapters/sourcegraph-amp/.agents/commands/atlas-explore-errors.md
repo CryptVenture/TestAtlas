@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-errors. Invoke as /atlas-explore-errors. Description: Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="2e877101fcb41aaa335327e1a59a592aeacd75288f372021e120b984a39055be" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="fa2b1aae72f468b297c7618ee6451589685bafae22d44bf73c1f27577a429a10" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-errors.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -37,14 +37,14 @@ Map the target product's error-handling surface: error boundaries (component-tre
 6. **Logging audit.** After each injection, capture `list_console_messages` and `list_network_requests` to detect:
    - Does `console.error` fire? Is the message human-readable or a stack-trace dump?
    - Are errors POSTed to a telemetry sink (Sentry, Rollbar, custom `/api/log`)? Capture the request payload.
-   - Are PII / secrets leaked into log lines? Run `node scripts/redact-evidence.js <evidence-path>` on each captured log file.
+   - Are PII / secrets leaked into log lines? Run `node .testatlas/scripts/redact-evidence.js <evidence-path>` on each captured log file.
 
 7. **Retry-pattern catalog.** For each error captured, document the recovery primitive:
    - Manual retry button (label + selector).
    - Auto-retry (count + backoff timing).
    - Page reload prompt (modal / banner).
    - Silent fallback (cached data displayed with stale indicator).
-   - None (the user is stuck — file as an issue via `node scripts/create-issue.js` per `.testatlas/commands/log-issue.md`).
+   - None (the user is stuck — file as an issue via `node .testatlas/scripts/create-issue.js` per `.testatlas/commands/log-issue.md`).
 
 8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` route+component `errorBoundaries`, `errorLogging`, `retryPatterns` fields. If any cited evidence path does not exist on disk, halt.
 
@@ -67,7 +67,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{evidence,issues}`.
 - `_testatlas/history/run_log.md` — narrative: "Probed `<n>` error paths across `<m>` surfaces; filed `<k>` issues; evidence at `_testatlas/evidence/explore-errors/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-errors --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-errors --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

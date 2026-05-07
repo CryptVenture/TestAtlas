@@ -3,7 +3,7 @@ description: Render a machine-readable dashboard data export (PRD §16) at _test
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="ddf0b66d491f1cb9192965d0d2bb0970e433604911979b8ee24e3c4f9d3a9a04" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="fd80fc087146968e7d8e45797db1938fa63d2e0233e5832f80537ffe040116a2" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-report-dashboard-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -40,7 +40,7 @@ The dashboard is a pure projection from existing brain JSON — re-running on th
 
 1. Verify `quality_scores.json` and `drift.json` are present. If either is missing, log a warning and continue with degraded values (all scores default to 0; `stale_domains` is empty). The output is still a valid dashboard but consumers see the blanks.
 2. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js`).
+   - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js`).
    - The generator atomically writes the JSON, AJV-validates against `dashboard_data.schema.json` before write, and exits 0 on success.
 3. **Fallback path (no `shell`):**
    - Hand-render the JSON using the field shape above. Validate against `.testatlas/schemas/dashboard_data.schema.json`. Mark the export as `confidence: needs_validation` in any consuming report because hand-rendered totals are not deterministic.
@@ -82,13 +82,13 @@ The contract is: a downstream consumer can render the full quality state from th
 
 ```
 # Default — write to _testatlas/reports/dashboard-data.json
-node scripts/generate-dashboard-data.js
+node .testatlas/scripts/generate-dashboard-data.js
 
 # Custom output path
-node scripts/generate-dashboard-data.js --output /tmp/atlas-dashboard.json
+node .testatlas/scripts/generate-dashboard-data.js --output /tmp/atlas-dashboard.json
 
 # From a non-current cwd
-node scripts/generate-dashboard-data.js --cwd /path/to/target-repo
+node .testatlas/scripts/generate-dashboard-data.js --cwd /path/to/target-repo
 ```
 
 The dashboard data export is the V2 brain machine-readable face — JSON remains canonical; everything downstream is derived.

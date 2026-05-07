@@ -4,7 +4,7 @@ description: Debate-mode council on product priority, feature coherence, and tra
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="49c1365d8b0fd8adf39842ec5669ab79ad72d90390519cfc3e8990c31fae2491" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="1d8e198a379ea1b13f9f58bec210df9bce9cf05161537c822079bbc6ffdafb7f" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-product-review.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -33,18 +33,18 @@ Recommended slate: Product Strategist, QA Lead, User Advocate, Adversarial Red T
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per motion, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Product debate: <question>" \
   --mode debate \
   --participants product-strategist,qa-lead,user-advocate,adversarial-red-team-tester
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

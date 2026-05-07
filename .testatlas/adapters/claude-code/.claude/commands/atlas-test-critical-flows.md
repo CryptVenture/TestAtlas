@@ -3,7 +3,7 @@ description: Identify and execute the highest-value flows based on documented pr
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="f02425d0c8539740bd5515abc040681db92fe311c4388d03e8ef4e81ea976a0e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="286ab3232e24fed421e218c192a8bc5f6fb1b411f1a0eb467351e5836afd46f2" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,7 +70,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
    `last_updated`), the **evidence index**
    (`_testatlas/09_artifact_index.md`), **issues**
    (`_testatlas/to_fix/<ISSUE-id>.json` `retestNotes`/`history`), and
-   **brain events** (append via `node scripts/append-event.js`).
+   **brain events** (append via `node .testatlas/scripts/append-event.js`).
 4. Write `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` with summary
    counts (total / passed / failed / skipped / blocked) and a
    `prioritisation` field listing why each flow was in scope. Validates
@@ -109,5 +109,5 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

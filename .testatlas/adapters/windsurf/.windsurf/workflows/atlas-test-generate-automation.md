@@ -3,7 +3,7 @@ description: Generate framework-specific automation skeletons (Playwright, Cypre
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="093679e016e208f38f7b43f8ceda67ba3846c6b28c62da63092b5f3bac3d0cda" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="974fc8aa72d69f804e0046abb4f95d60a714c4f23e12fe998baa09784796f473" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-generate-automation.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -42,7 +42,7 @@ suite:
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node scripts/generate-automation.js --<framework>` — exactly one of `--playwright`, `--cypress`, `--api`, `--cli`, `--contract`, `--smoke`. Equivalent: `--framework <name>`.
+   - Run `node .testatlas/scripts/generate-automation.js --<framework>` — exactly one of `--playwright`, `--cypress`, `--api`, `--cli`, `--contract`, `--smoke`. Equivalent: `--framework <name>`.
    - Optional flags:
      - `--flow <FLOW-id>` — scaffold a single flow.
      - `--issue <ISSUE-id>` — scaffold from an issue's reproduction steps (regression seed).
@@ -93,5 +93,5 @@ Downstream automation MUST inspect the companion meta to decide what is real cov
 
 ## Update Brain After Command
 
-Run `node scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

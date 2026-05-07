@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="32a23401fbeb7c607313588e579e3f6da2abad13b1452960331329bb56d5fd81" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="c72b16695f390f18db1f92da5f47e1947b7fb3b37c56ea2004f18dae0f39ed66" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-council-design-critique.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -34,18 +34,18 @@ Recommended slate: Product Strategist, User Advocate, Accessibility Reviewer. Op
 6. **Rebuttal or evidence request.** Personas may request additional walkthrough captures.
 7. **Vote.** Per critique motion (e.g., "this copy needs revision", "this flow needs a clearer success state"), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts the critique narrative in `consolidation.{md,json}`.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Design critique: <flow-id>" \
   --mode design-critique \
   --participants product-strategist,user-advocate,accessibility-reviewer
 ```
 
-Run `node scripts/extract-claims.js --session-id <id>` after round 3.
+Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Outputs (PRD §12.7)
 

@@ -1,6 +1,6 @@
 description = "Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="a43e845ea810e84285e896905d2551418bacf65517236297e238da033581dadb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="f9e0542bec20364d7184f8b2f067676197e37c9ea986437f1cf44bef0c199c25" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -15,7 +15,7 @@ Bootstrap the `_testatlas/` workspace tree in the target repository: 23 top-leve
 
 ## Required Actions
 
-1. **Preferred path (if `shell` is available):** run `node scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-initialized repos report `status: already-initialized` and write nothing; partial workspaces are filled in non-destructively (`status: partial-fill`). After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
+1. **Preferred path (if `shell` is available):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-initialized repos report `status: already-initialized` and write nothing; partial workspaces are filled in non-destructively (`status: partial-fill`). After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
 2. **Fallback path (if `shell` is unavailable):** mark the run `confidence: needs-validation` per `bootstrap.md` §4 because shell-derived runtime detection is unavailable. Then perform the layout manually: create `_testatlas/` plus the 23 top-level subdirectories per PRD §8. Copy each `.testatlas/templates/canonical/<file>` to `_testatlas/<file>` (14 canonical files). Render `_testatlas/11_workspace_manifest.json` with `initializedAt` and `lastUpdatedAt` set to the current ISO-8601 timestamp, `status: initialized`, project name from the target repo, and zeroed `counts` for domains/flows/issues/evidence/runs/reports.
 3. Validate the resulting manifest against `.testatlas/schemas/workspace-manifest.schema.json`. If validation fails, halt and surface the AJV errors verbatim.
 4. Append the run record (command, started/finished timestamps, status, capability set used) to `_testatlas/history/run_log.md`.

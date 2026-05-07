@@ -3,7 +3,7 @@ description: Map every route, navigation paths, guards, redirects, deep-link beh
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="100dea75f3c91bb40d6c9c79a88c34c1b117c0c7ac44f8fd794f028dc182b17d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="f84b8b0abbd970e3d07aaeecaa99cdb3e4d91369fed0f69a5a7e37a7359bd779" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-routes.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -38,7 +38,7 @@ Map the full route surface: every URL the app responds to, the navigation paths 
 
 6. **Per-route metadata.** Record for each entry: `path`, `name`, `owning_domain` (cross-reference `_testatlas/domains/`), `methods`, `personas` (which personas reach this route), `purpose`, `entryPoints` (where this route is linked from), `actions` (interactive controls), `states[]` (cross-reference `_testatlas/maps/states.json`), `evidence[]`, `issues[]`, `confidence`.
 
-7. **Coverage gap detection.** Compare enumerated routes against `12_app_map.json.routes[]`. Routes that exist in code but were never reachable at runtime → file findings (likely dead routes or guard misconfigurations) via `node scripts/create-issue.js`. Routes that exist at runtime but missing from `12_app_map.json` → flag as out-of-date map and re-run `/atlas:explore-codebase`.
+7. **Coverage gap detection.** Compare enumerated routes against `12_app_map.json.routes[]`. Routes that exist in code but were never reachable at runtime → file findings (likely dead routes or guard misconfigurations) via `node .testatlas/scripts/create-issue.js`. Routes that exist at runtime but missing from `12_app_map.json` → flag as out-of-date map and re-run `/atlas:explore-codebase`.
 
 8. **Persist + write.** Validate each route entry against `route.schema.json` before writing. Write `_testatlas/maps/routes.json` (atomic, AJV-validated) and regenerate `_testatlas/maps/routes.md`. Update `_testatlas/12_app_map.json.routes[]` with new fields. If any cited evidence path fails to materialize on disk, halt.
 
@@ -60,7 +60,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{routes,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` routes / `<m>` redirects / `<k>` guarded paths in `_testatlas/evidence/explore-routes/<ts>/`."
 
-Then run `node scripts/update-brain-after-command.js --command explore-routes --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-routes --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

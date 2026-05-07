@@ -3,7 +3,7 @@ mode: agent
 description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="ffe43e16d620392cd3669eec4376ad515483eadb4aa36430a8f29d81aac066a2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="fa0a6c569092aa83d5758dfc3382a66de01f9375c2513c3c8056ce67dc042bbe" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-council-domain-review.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -33,18 +33,18 @@ Recommended slate (per `council-protocol.md` §5): all available personas, weigh
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** For each motion, each persona casts a vote on the +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js --session-id <id>` to produce `followups.md` and update brain indexes.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>` to produce `followups.md` and update brain indexes.
 
 ## Setup
 
 ```sh
-node scripts/create-council-session.js \
+node .testatlas/scripts/create-council-session.js \
   --topic "Domain review: <domain-slug>" \
   --mode roundtable-review \
   --participants qa-lead,user-advocate,codebase-mapper,documentation-curator,adversarial-red-team-tester
 ```
 
-Then run `node scripts/extract-claims.js --session-id <id>` after round 3 to materialize claims.jsonl.
+Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3 to materialize claims.jsonl.
 
 ## Outputs (PRD §12.7)
 
