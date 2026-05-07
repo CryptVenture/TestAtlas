@@ -1,7 +1,7 @@
 ---
 command: test-flow
 version: 1.0.0
-description: Execute scenarios from tests/matrix.json against the running target product, capture per-state evidence, and emit RUN-<timestamp>.{md,json} per PRD §12.15 and §13.
+description: Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13.
 capabilities: [shell, browser, MCP, file-write]
 produces:
   - test-run

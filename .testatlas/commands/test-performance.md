@@ -1,7 +1,7 @@
 ---
 command: test-performance
 version: 1.0.0
-description: Execute performance-typed scenarios using Chrome DevTools MCP performance traces + emulate for throttling; assert against PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario perf findings.
+description: Execute performance-typed scenarios via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight, emulate); assert PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with perf findings.
 capabilities: [browser, MCP, shell, file-write]
 produces:
   - test-run

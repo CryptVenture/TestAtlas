@@ -1,7 +1,7 @@
 ---
 command: explore-accessibility
 version: 1.0.0
-description: Evaluate keyboard nav, focus, labels, semantics, contrast, and dynamic feedback per PRD §13.9 using Chrome DevTools MCP lighthouse_audit + ARIA introspection; degrade to code-reading without MCP.
+description: Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.
 capabilities: [browser, MCP, file-write]
 produces:
   - evidence

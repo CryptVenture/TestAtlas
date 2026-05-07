@@ -1,7 +1,7 @@
 ---
 command: explore-performance
 version: 1.0.0
-description: Detect user-visible slowness, blocking interactions, retries, and reliability per PRD §13.10 using Chrome DevTools MCP performance traces + emulate for throttling; degrade to source-code reading without MCP.
+description: Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP.
 capabilities: [browser, MCP, shell, file-write]
 produces:
   - evidence

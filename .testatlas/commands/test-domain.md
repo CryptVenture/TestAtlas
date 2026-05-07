@@ -1,7 +1,7 @@
 ---
 command: test-domain
 version: 1.0.0
-description: Execute domain-scoped test scenarios across PRD §26 modes (negative / state / integration / setup-testability); the scenario's `type` field selects the mode.
+description: Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode.
 capabilities: [shell, file-write]
 produces:
   - test-run
