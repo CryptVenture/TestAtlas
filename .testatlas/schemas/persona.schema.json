@@ -3,6 +3,7 @@
   "$id": "https://testatlas.dev/schemas/v2/persona.schema.json",
   "type": "object",
   "properties": {
+    "$schema": { "type": "string", "format": "uri" },
     "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
     "name": { "type": "string" },
     "type": { "type": "string", "enum": ["system", "generated", "project"] },

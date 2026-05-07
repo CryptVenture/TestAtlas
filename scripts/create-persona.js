@@ -56,6 +56,7 @@ export async function createPersona(args = {}) {
   const wsDir = path.join(cwd, '_testatlas');
   const id = slugify(args.name);
   const record = {
+    $schema: PERSONA_SCHEMA_ID,
     id,
     name: args.name,
     type: args.type,
