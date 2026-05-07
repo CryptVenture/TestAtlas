@@ -39,7 +39,7 @@ import addFormats from 'ajv-formats';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '../..');
 const SCHEMA_PATH = path.join(REPO_ROOT, '.testatlas/schemas/command-result.schema.json');
-const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas/vocabulary.json');
+const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas/schemas/vocabulary.schema.json');
 
 const EXPECTED_ENUM = [
   'classify-only',

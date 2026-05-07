@@ -2,8 +2,8 @@
 //
 // These tests are the TDD red-bar contract for Plan 09-02. They assert on the
 // EXPECTED post-09-02 shape of:
-//   - .testatlas/vocabulary.json — must declare $defs.capability.enum as the
-//     6-entry canonical capability set INCLUDING the new "subagent-spawn".
+//   - .testatlas/schemas/vocabulary.schema.json — must declare $defs.capability.enum
+//     as the 6-entry canonical capability set INCLUDING the new "subagent-spawn".
 //   - .testatlas/adapters/adapter-capabilities.json — exactly 9 named adapters
 //     must include "subagent-spawn" in their capabilities array; the other 9
 //     must NOT include it.
@@ -18,7 +18,7 @@ import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 
-const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
+const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
 const ADAPTERS_PATH = path.join(REPO_ROOT, '.testatlas', 'adapters', 'adapter-capabilities.json');
 
 // Phase 14 Wave 5 (V2): canonical capability set extends from 6 to 9.
@@ -67,12 +67,15 @@ async function readJson(p) {
   return JSON.parse(await readFile(p, 'utf8'));
 }
 
-test('vocabulary.json declares the 9-entry capability enum (V1 6 + V2 council-orchestration/brain-sync/persona-context)', async () => {
+test('vocabulary.schema.json declares the 9-entry capability enum (V1 6 + V2 council-orchestration/brain-sync/persona-context)', async () => {
   const vocab = await readJson(VOCAB_PATH);
-  assert.ok(vocab.$defs && typeof vocab.$defs === 'object', 'vocabulary.json must define $defs');
+  assert.ok(
+    vocab.$defs && typeof vocab.$defs === 'object',
+    'vocabulary.schema.json must define $defs',
+  );
   assert.ok(
     vocab.$defs.capability && typeof vocab.$defs.capability === 'object',
-    'vocabulary.json must define $defs.capability (added in Plan 09-02)',
+    'vocabulary.schema.json must define $defs.capability (added in Plan 09-02)',
   );
   assert.ok(Array.isArray(vocab.$defs.capability.enum), '$defs.capability.enum must be an array');
   assert.deepEqual(

@@ -1,50 +1,54 @@
 // test/schemas/vocabulary-dual-path.test.js
 //
-// ISSUE-001 follow-up: `.testatlas/vocabulary.json` (canonical, referenced
-// by command bodies) and `.testatlas/schemas/vocabulary.schema.json` (static
-// checker / dogfood-audit compatibility copy) MUST stay byte-identical.
+// Quick-260507-vn2 follow-up: vocabulary lives at a SINGLE canonical path
+// — `.testatlas/schemas/vocabulary.schema.json` — alongside every other
+// schema. The legacy `.testatlas/vocabulary.json` top-level path was removed.
 //
-// Background:
-//   AJV resolves $ref by registered $id. Both files declare the same $id
-//   (`https://testatlas.dev/schemas/v1/vocabulary.schema.json`) so AJV
-//   double-add is prevented by `schema-loader.js` `addIfMissing`. Functionally
-//   redundant. But a dogfood audit ran a static `$ref → filename` check and
-//   flagged the absence of `.testatlas/schemas/vocabulary.schema.json` as a
-//   defect. We added the copy to satisfy that check; this test guards against
-//   drift between the two files (an editor changing one and not the other
-//   would silently desync the schema set).
-//
-// On any drift: `cp .testatlas/vocabulary.json .testatlas/schemas/vocabulary.schema.json`.
+// This test guards against:
+//   1. The canonical schema file going missing.
+//   2. The canonical schema's `$id` drifting from the URI all other schemas
+//      `$ref` (`https://testatlas.dev/schemas/v1/vocabulary.schema.json`).
+//   3. The legacy top-level path being re-introduced (would silently
+//      reintroduce the drift risk that Quick-260507-vn2 eliminated).
 
 import { strict as assert } from 'node:assert';
-import { readFile } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
-const CANONICAL = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
-const COPY = path.join(REPO_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
+const CANONICAL = path.join(REPO_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
+const LEGACY = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
 
-test('vocabulary.json and schemas/vocabulary.schema.json are byte-identical', async () => {
-  const canonical = await readFile(CANONICAL, 'utf8');
-  const copy = await readFile(COPY, 'utf8');
-  assert.equal(
-    copy,
-    canonical,
-    'Drift detected. Run: cp .testatlas/vocabulary.json .testatlas/schemas/vocabulary.schema.json',
-  );
+test('vocabulary schema exists at the canonical path .testatlas/schemas/vocabulary.schema.json', async () => {
+  await access(CANONICAL);
 });
 
-test('vocabulary copy declares the canonical $id (matching $ref targets across all schemas)', async () => {
-  const text = await readFile(COPY, 'utf8');
+test('vocabulary schema declares the canonical $id (matching $ref targets across all schemas)', async () => {
+  const text = await readFile(CANONICAL, 'utf8');
   const parsed = JSON.parse(text);
   assert.equal(parsed.$id, 'https://testatlas.dev/schemas/v1/vocabulary.schema.json');
+  assert.equal(parsed.$schema, 'https://json-schema.org/draft/2020-12/schema');
 });
 
-test('vocabulary copy has the expected $defs entries (severity, confidence, issueStatus, issueType, kebabSlug)', async () => {
-  const text = await readFile(COPY, 'utf8');
+test('vocabulary schema has the expected $defs entries (severity, confidence, issueStatus, issueType, kebabSlug)', async () => {
+  const text = await readFile(CANONICAL, 'utf8');
   const parsed = JSON.parse(text);
   for (const key of ['severity', 'confidence', 'issueStatus', 'issueType', 'kebabSlug']) {
-    assert.ok(parsed.$defs?.[key], `expected $defs.${key} in vocabulary schema copy`);
+    assert.ok(parsed.$defs?.[key], `expected $defs.${key} in vocabulary schema`);
   }
+});
+
+test('legacy top-level path .testatlas/vocabulary.json is absent (single source of truth)', async () => {
+  let exists = true;
+  try {
+    await access(LEGACY);
+  } catch {
+    exists = false;
+  }
+  assert.equal(
+    exists,
+    false,
+    'Legacy .testatlas/vocabulary.json detected. The canonical path is .testatlas/schemas/vocabulary.schema.json (Quick-260507-vn2 consolidation).',
+  );
 });

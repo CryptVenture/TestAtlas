@@ -18,8 +18,7 @@ const repoRoot = path.resolve(__dirname, '..');
 
 /**
  * Build a minimal workspace mirror containing the bits assembleAdapter needs:
- *   - .testatlas/vocabulary.json (schema-loader prereq)
- *   - .testatlas/schemas/*.schema.json (all 17)
+ *   - .testatlas/schemas/*.schema.json (all 17 — incl. vocabulary.schema.json)
  *   - .testatlas/commands/*.md (the 32 sources)
  *   - .testatlas/adapters/adapter-capabilities.json
  *
@@ -31,10 +30,6 @@ async function buildWorkspace() {
   await mkdir(path.join(dir, '.testatlas', 'commands'), { recursive: true });
   await mkdir(path.join(dir, '.testatlas', 'adapters'), { recursive: true });
 
-  await cp(
-    path.join(repoRoot, '.testatlas', 'vocabulary.json'),
-    path.join(dir, '.testatlas', 'vocabulary.json'),
-  );
   await cp(path.join(repoRoot, '.testatlas', 'schemas'), path.join(dir, '.testatlas', 'schemas'), {
     recursive: true,
   });

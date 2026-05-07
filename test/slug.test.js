@@ -1,6 +1,6 @@
 // test/slug.test.js
 //
-// WORK-05: slug helpers + schema-helper sync with vocabulary.json.
+// WORK-05: slug helpers + schema-helper sync with vocabulary.schema.json.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -96,7 +96,7 @@ test('WORK-05: ID_PATTERNS match PRD §32 examples', () => {
 });
 
 test('WORK-05: schema-helper sync — every ID_PATTERNS source equals vocabulary $defs pattern', async () => {
-  const vocab = await readJson(path.join(repoRoot, '.testatlas/vocabulary.json'));
+  const vocab = await readJson(path.join(repoRoot, '.testatlas/schemas/vocabulary.schema.json'));
   const map = [
     ['domain', 'domainId'],
     ['flow', 'flowId'],

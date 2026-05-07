@@ -43,7 +43,7 @@ Capture a quality finding (functional bug, regression, accessibility issue, perf
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` (especially §8 — no-evidence-no-finding rule).
-- `.testatlas/vocabulary.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs` (the only allowed values).
+- `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs` (the only allowed values).
 - `.testatlas/schemas/issue.schema.json` — required JSON shape this command must satisfy.
 - `.testatlas/schemas/evidence.schema.json` — required shape for evidence sidecars.
 - `_testatlas/11_workspace_manifest.json` — current `counts.issues` for next-ID allocation.
@@ -56,7 +56,7 @@ Capture a quality finding (functional bug, regression, accessibility issue, perf
 3. Verify each evidence file exists on disk via direct read — not just by reference. If the resulting `evidence: []` array would be empty, REFUSE to log the issue and surface a stop condition per `bootstrap.md` §24. The framework would rather have zero issues than a fabricated one.
 4. Determine **severity** from PRD §28 — exactly one of: `critical`, `high`, `medium`, `low`, `enhancement`. Severity reflects user impact + reach + reversibility, not technical complexity. A typo in a marketing footer is `low`; a payment-flow data-loss bug is `critical`. Never inflate; never deflate.
 5. Determine **confidence** from PRD §28 — exactly one of: `confirmed`, `strong-suspect`, `needs-validation`. If you reproduced the failure first-hand against running product behavior with captured evidence, `confirmed`. If you have indirect evidence (logs, third-party reports, partial repro), `strong-suspect`. If you suspect a defect but cannot verify (e.g., `shell` or `browser` capability unavailable for repro), `needs-validation`.
-6. Determine **issue type** per `.testatlas/vocabulary.json` `$defs.issueType`: one of `functional`, `regression`, `ux`, `copy`, `accessibility`, `performance`, `reliability`, `state`, `validation`, `integration` (full enum lives in `vocabulary.json`).
+6. Determine **issue type** per `.testatlas/schemas/vocabulary.schema.json` `$defs.issueType`: one of `functional`, `regression`, `ux`, `copy`, `accessibility`, `performance`, `reliability`, `state`, `validation`, `integration` (full enum lives in the schema).
 7. Allocate the next issue ID per PRD §32 — zero-padded format `ISSUE-0001`, `ISSUE-0002`, etc. Read the manifest's `counts.issues`, increment by one, then verify no on-disk file at that ID already exists (manifest-corruption check).
 8. Write the issue pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.md` (human-readable) and `_testatlas/to_fix/ISSUE-<id>-<slug>.json` (schema-validated sidecar). Required fields per `issue.schema.json`: `id`, `slug`, `title`, `description`, `severity`, `confidence`, `type`, `status` (set to `new`), `domain`, `flow` (optional), `evidence` (non-empty array of paths under `_testatlas/evidence/`), `foundAt` (ISO-8601 UTC), `reproSteps`, `expected`, `actual`.
 9. Add back-references: append the issue ID to `_testatlas/domains/<domain-slug>/issues.md` (per-domain index) and to `_testatlas/flows/<flow-slug>/issues.md` if a flow is named.

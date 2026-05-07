@@ -44,7 +44,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `prd/prd.md` §17 (issue lifecycle) and §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
+- `.testatlas/schemas/vocabulary.schema.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every retested issue must continue to satisfy.
 - The target issue file pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}`.
 - `.testatlas/default.config.json` — adapter capability profile (whether `shell` is available).

@@ -104,7 +104,7 @@ The `category` parameter has been removed entirely from `computeOutputPath` (`sc
 
 ## Capabilities Matrix
 
-The capability vocabulary is locked in `.testatlas/vocabulary.json`. V1 declared 6 capabilities; V2 (Phase 14 Wave 5) adds 3 more for a total of 9.
+The capability vocabulary is locked in `.testatlas/schemas/vocabulary.schema.json`. V1 declared 6 capabilities; V2 (Phase 14 Wave 5) adds 3 more for a total of 9.
 
 | Capability | V1/V2 | Description |
 | --- | --- | --- |
@@ -190,7 +190,7 @@ malformed envelope is `no-marker`.
 
 - `.testatlas/adapters/<name>/README.md` — per-adapter docs (install, regen, V2 strategy)
 - `.testatlas/adapters/adapter-capabilities.json` — single source of truth for adapter capability declarations
-- `.testatlas/vocabulary.json` — capability vocabulary enum
+- `.testatlas/schemas/vocabulary.schema.json` — capability vocabulary enum
 - `scripts/assemble-adapter.js` — generator
 - `scripts/check-adapter-parity.js` — parity gate (strict mode)
 - `scripts/lib/adapters/_shared.js` — `commandBaseNameFromSource` + `sourceRelFromAbs` + `wrapInAdapterEnvelope`

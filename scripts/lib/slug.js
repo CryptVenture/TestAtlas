@@ -1,7 +1,7 @@
 // scripts/lib/slug.js
 //
 // PRD §32 ID/slug helpers. The ID_PATTERNS regex sources MUST stay
-// byte-identical to .testatlas/vocabulary.json $defs.<id>.pattern;
+// byte-identical to .testatlas/schemas/vocabulary.schema.json $defs.<id>.pattern;
 // test/slug.test.js asserts this on every run, so drift fails CI.
 //
 // All slugs are kebab-case: ^[a-z0-9]+(-[a-z0-9]+)*$
@@ -9,7 +9,7 @@
 // no leading/trailing hyphen; no double hyphens).
 
 /**
- * Canonical kebab-slug regex (matches vocabulary.json $defs.kebabSlug.pattern).
+ * Canonical kebab-slug regex (matches vocabulary.schema.json $defs.kebabSlug.pattern).
  */
 export const KEBAB_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
@@ -47,7 +47,7 @@ export function slugify(input) {
 /**
  * Zero-pad a numeric ID. Defaults to 3-digit width per PRD §32 (`ISSUE-001-...`).
  * Numbers wider than `width` are returned unmodified (still valid against the
- * `\d{3,}` pattern in vocabulary.json).
+ * `\d{3,}` pattern in vocabulary.schema.json).
  *
  * @param {number | string} n
  * @param {number} [width=3]
@@ -59,7 +59,7 @@ export function padIssueNumber(n, width = 3) {
 
 /**
  * ID validators per PRD §32. Each `.source` is byte-identical to the
- * matching `vocabulary.json` `$defs.<id>.pattern` — kept in sync by
+ * matching `vocabulary.schema.json` `$defs.<id>.pattern` — kept in sync by
  * the WORK-05 schema-helper-sync test.
  */
 export const ID_PATTERNS = {

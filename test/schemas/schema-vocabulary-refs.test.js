@@ -1,6 +1,6 @@
 // test/schemas/schema-vocabulary-refs.test.js
 //
-// TPL-04: vocabulary.json structure + AJV registration via schema-loader.
+// TPL-04: vocabulary.schema.json structure + AJV registration via schema-loader.
 
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -16,7 +16,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 
 const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'));
 
-const VOCAB_PATH = path.join(repoRoot, '.testatlas/vocabulary.json');
+const VOCAB_PATH = path.join(repoRoot, '.testatlas/schemas/vocabulary.schema.json');
 const VOCAB_ID = 'https://testatlas.dev/schemas/v1/vocabulary.schema.json';
 
 // V1 vocabulary keys — must be present and stable.
@@ -72,12 +72,12 @@ test('TPL-04: vocabulary present at canonical path', async () => {
 test('TPL-04: vocabulary structure has all required $defs entries', async () => {
   const vocab = await readJson(VOCAB_PATH);
   for (const key of REQUIRED_DEFS) {
-    assert.ok(key in vocab.$defs, `vocabulary.json $defs missing key "${key}"`);
+    assert.ok(key in vocab.$defs, `vocabulary.schema.json $defs missing key "${key}"`);
   }
   assert.equal(
     Object.keys(vocab.$defs).length,
     REQUIRED_DEFS.length,
-    `vocabulary.json should have exactly ${REQUIRED_DEFS.length} $defs entries`,
+    `vocabulary.schema.json should have exactly ${REQUIRED_DEFS.length} $defs entries`,
   );
 });
 

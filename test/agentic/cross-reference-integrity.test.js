@@ -183,30 +183,21 @@ test('every schema $id URL maps to a real schema file', async () => {
   const all = [...mdFiles, ...schemaFiles];
   const missing = [];
   const idRe = /https:\/\/testatlas\.dev\/schemas\/v1\/([a-z][a-z0-9-]*)\.schema\.json/g;
-  // Resolution order: prefer the conventional `.testatlas/schemas/<name>.schema.json`
-  // (where 19 of the 20 schemas live); fall back to `.testatlas/<name>.json`
-  // for the lone vocabulary file which is intentionally root-anchored because
-  // every schema-loader, slug helper, and adapter render-pass treats
-  // `.testatlas/vocabulary.json` as canonical (see scripts/lib/schema-loader.js
-  // VOCABULARY_PATH and the 100+ tracked references). Both forms count as
-  // "the file exists on disk" for cross-reference integrity.
+  // Resolution: every schema (incl. vocabulary) lives at
+  // `.testatlas/schemas/<name>.schema.json` — single source of truth.
+  // (Quick-260507-vn2 consolidated; the legacy `.testatlas/vocabulary.json`
+  // top-level path was removed.)
   for (const file of all) {
     const text = await readFile(file, 'utf8');
     for (const m of text.matchAll(idRe)) {
       const name = m[1];
-      const primary = path.join(REPO_ROOT, '.testatlas', 'schemas', `${name}.schema.json`);
-      const fallback = path.join(REPO_ROOT, '.testatlas', `${name}.json`);
+      const schemaPath = path.join(REPO_ROOT, '.testatlas', 'schemas', `${name}.schema.json`);
       let resolved = false;
       try {
-        await access(primary);
+        await access(schemaPath);
         resolved = true;
       } catch {
-        try {
-          await access(fallback);
-          resolved = true;
-        } catch {
-          /* still missing */
-        }
+        /* missing */
       }
       if (!resolved) {
         missing.push(`${path.relative(REPO_ROOT, file)} → schemas/v1/${name}.schema.json`);

@@ -45,7 +45,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `prd/prd.md` §17 (issue layer), §20 (report sections), §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
+- `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The most-recent `_testatlas/to_fix/triage-report-*.md` and `_testatlas/to_fix/groups.md`.
 - `_testatlas/13_quality_scorecard.md` (append-only longitudinal target).

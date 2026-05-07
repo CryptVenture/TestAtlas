@@ -1,9 +1,13 @@
 // scripts/lib/schema-loader.js
 //
-// Loads `.testatlas/vocabulary.json` FIRST, then every `*.schema.json` under
-// `.testatlas/schemas/`, into the Phase 1 AJV singleton. Vocabulary must be
-// registered before any schema that `$ref`s it; otherwise AJV's lazy resolver
-// throws at first `getSchema()`.
+// Loads every `*.schema.json` under `.testatlas/schemas/` into the Phase 1
+// AJV singleton. Vocabulary loads FIRST (defensive — many schemas `$ref` it
+// and explicit ordering avoids surprises with AJV's resolver).
+//
+// The vocabulary schema lives at `.testatlas/schemas/vocabulary.schema.json`
+// alongside every other schema (single source of truth — quick-260507-vn2
+// consolidated; the legacy `.testatlas/vocabulary.json` top-level path was
+// removed as a copy-leak).
 //
 // Usage:
 //   import { loadAllSchemas } from './schema-loader.js';
@@ -17,8 +21,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { getAjv } from './ajv-instance.js';
 
-const VOCABULARY_PATH = '.testatlas/vocabulary.json';
 const SCHEMAS_DIR = '.testatlas/schemas';
+const VOCABULARY_FILE = 'vocabulary.schema.json';
 
 /** @type {WeakSet<object>} */
 const _loadedAjvs = new WeakSet();
@@ -42,7 +46,8 @@ function addIfMissing(ajv, schema) {
 }
 
 /**
- * Load vocabulary + every schema in `.testatlas/schemas/` into the AJV singleton.
+ * Load every schema in `.testatlas/schemas/` into the AJV singleton.
+ * Vocabulary (`vocabulary.schema.json`) loads first; all others alphabetical.
  *
  * @param {{ cwd?: string }} [opts]
  * @returns {Promise<ReturnType<typeof getAjv>>}
@@ -51,33 +56,29 @@ export async function loadAllSchemas({ cwd = process.cwd() } = {}) {
   const ajv = getAjv();
   if (_loadedAjvs.has(ajv)) return ajv;
 
-  // 1. Vocabulary FIRST (so subsequent $refs resolve at compile time).
-  const vocabPath = path.join(cwd, VOCABULARY_PATH);
-  const vocabText = await readFile(vocabPath, 'utf8');
-  const vocab = JSON.parse(vocabText);
-  addIfMissing(ajv, vocab);
-
-  // 2. Iterate `.testatlas/schemas/*.schema.json`.
   const schemasDir = path.join(cwd, SCHEMAS_DIR);
   let entries;
   try {
     entries = await readdir(schemasDir, { withFileTypes: true });
   } catch (err) {
     if (err.code === 'ENOENT') {
-      // No schemas directory yet — vocabulary alone is fine.
+      // No schemas directory present — nothing to register.
       _loadedAjvs.add(ajv);
       return ajv;
     }
     throw err;
   }
 
-  // Sort for deterministic load order across platforms.
-  const files = entries
+  const allFiles = entries
     .filter((e) => e.isFile() && e.name.endsWith('.schema.json'))
-    .map((e) => e.name)
-    .sort();
+    .map((e) => e.name);
 
-  for (const fileName of files) {
+  // Vocabulary FIRST (defensive ordering), then alphabetical for everything else.
+  const orderedFiles = allFiles.includes(VOCABULARY_FILE)
+    ? [VOCABULARY_FILE, ...allFiles.filter((f) => f !== VOCABULARY_FILE).sort()]
+    : allFiles.sort();
+
+  for (const fileName of orderedFiles) {
     const filePath = path.join(schemasDir, fileName);
     const text = await readFile(filePath, 'utf8');
     const schema = JSON.parse(text);
