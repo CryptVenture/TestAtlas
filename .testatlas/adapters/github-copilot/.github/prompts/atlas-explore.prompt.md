@@ -3,7 +3,7 @@ mode: agent
 description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="7f45b59fbe276bf886a01b641f32e02d745908c270879d606eaf988397c34922" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="e86a7eeffbc58409bcb96fb717242c3bd149d302d024fd7ecc8e1f15cff9d7f0" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,6 +87,41 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - The 5 lifecycle files updated (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) plus the 2 command-specific outputs (`explore-plan.md`, `02_product_overview.md`).
 - `10_command_log.md` row records `executionMode` matching the selected mode.
 - Zero stop conditions triggered.
+
+## Explorer Classification
+
+Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps the concern to its slash command; invoke directly or via `/atlas:explore-all`.
+
+### V1
+
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-codebase` | Repository structure, package signals, app map |
+| `/atlas:explore-ui` | User-facing routes, pages, components |
+| `/atlas:explore-cli` | Binaries, scripts, CLI entry points |
+| `/atlas:explore-api` | HTTP/RPC/GraphQL endpoints, contracts |
+| `/atlas:explore-docs` | Project docs, READMEs, guides |
+| `/atlas:explore-runtime` | Runtime tooling, CI, package managers |
+| `/atlas:explore-data` | Models, migrations, persistent stores |
+| `/atlas:explore-integrations` | External services (auth, payment, analytics) |
+| `/atlas:explore-accessibility` | A11y compliance, ARIA, keyboard surfaces |
+| `/atlas:explore-performance` | Budgets, slow-path heuristics, bundle cost |
+| `/atlas:explore-security` | Auth surfaces, credentials, secret handling |
+
+### V2
+
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-state` | UI state machines, hydration (PRD §13.1) |
+| `/atlas:explore-errors` | Error boundaries, fallback UI, retry |
+| `/atlas:explore-components` | Component inventory, prop contracts |
+| `/atlas:explore-routes` | Route table, guards, redirects |
+| `/atlas:explore-jobs` | Workers, queues, schedulers |
+| `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
+| `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates |
+| `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
+| `/atlas:explore-release-readiness` | Release-readiness signals |
 
 ## What's Next
 

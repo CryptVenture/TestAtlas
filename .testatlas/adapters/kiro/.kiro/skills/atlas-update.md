@@ -4,7 +4,7 @@ description: Invoke the suite self-update flow — checks GitHub Releases per UP
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="b53bbcfc58bab7e8040647f4c8fddd27bea4d021d5a57a64efcec75018ad9968" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="98206ebd5ba39df4cddd880c52de8c66445c9fc2bc66c4eacaed75a5a9b9d985" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-update.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -75,4 +75,5 @@ Now that the suite is on the latest version:
 
 - **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
 - **`/atlas:bootstrap`** — reload the constitution if §-numbering or rules changed
+- **`/atlas:maintain-migrate`** — after a major-version suite update, run migration to align workspace artifacts with the new schema layout.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

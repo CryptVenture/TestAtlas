@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/commands/*.md` (V1 flat + V2 categorized) by `scripts/generate-commands-doc.js`. Do not edit by hand._
 
-This index covers every `/atlas:*` command shipped with TestAtlas (72 commands: 31 V1 flat + 41 V2 categorized in core/, explore/, test/, council/, brain/, report/, maintain/). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
+This index covers every `/atlas:*` command shipped with TestAtlas (73 commands: 32 V1 flat + 41 V2 categorized in core/, explore/, test/, council/, brain/, report/, maintain/). Click the source link under each entry for the full instruction file (rules, lifecycle, stop conditions).
 
 See [docs/SCHEMAS.md](./SCHEMAS.md) for the JSON Schemas these commands consume and produce.
 
@@ -37,6 +37,16 @@ Squash issue duplicates per triage groupings; inherit highest severity + lowest-
 **Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/consolidate.md)
+
+---
+
+## /atlas:create-persona
+
+Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
+
+**Capabilities:** `shell`, `file-write`
+
+[Source](../.testatlas/commands/create-persona.md)
 
 ---
 

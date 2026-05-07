@@ -3,7 +3,7 @@ description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="5e3dda031d7760aa6b5bfd395bfde9294c4ea914824e64d1799d377ce770df5d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="1199e0d6bdfb09b9b75a80bc8f70d4621558ed45c85228f03dcc4a9bc47de666" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-report.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -86,8 +86,8 @@ Now that the report is generated:
 
 - **`/atlas:consolidate`** — merge with prior reports for trend analysis
 - **`/atlas:handoff`** — package the workspace for another agent or engineer
-- **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
 - **`/atlas:council-release-readiness`** — formalize the readiness verdict via council when the report flags contested risks.
-- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals.
+- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals; pair with `/atlas:report-domain` to drill into a single domain's quality score, drift, issues, and coverage.
+- **`/atlas:report-domain`** — domain-scoped quality report (drift, issues, coverage) when one domain needs targeted attention.
 - **`/atlas:brain-score`** — re-score the workspace using the report's findings as input.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

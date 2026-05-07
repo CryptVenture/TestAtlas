@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="055252fc3faa61e6ea3f2f64d8e44dd2be69df038909fb52f6c46d204bd9ed83" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="0470e30796791feacdc833273f1c970ba065fc2ed98ad6c483a5c3e469935270" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-core-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,4 +87,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command init --acto
 - `/atlas:brain-validate` — confirm V2 brain integrity.
 - `/atlas:explore` — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available).
 - `/atlas:bootstrap` — re-load the constitution if you suspect context drift.
+- `/atlas:create-persona` — author new system or project personas for V2 council protocols.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

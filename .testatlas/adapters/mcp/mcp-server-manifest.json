@@ -128,6 +128,11 @@
       "arguments": []
     },
     {
+      "name": "atlas-create-persona",
+      "description": "Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.",
+      "arguments": []
+    },
+    {
       "name": "atlas-explore-accessibility",
       "description": "Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.",
       "arguments": []

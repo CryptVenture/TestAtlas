@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-bootstrap. Invoke as /atlas-bootstrap.md. Description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="63ecca13537c2ac6315115cbdd92b6240849bc979f757c2d121d12b4fc034896" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="cf013da35e9682172d8c29411d0605fc9afb242e983c26839936bb4ee83d160e" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-bootstrap.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -66,6 +66,14 @@ marked `sequential` or `no` always take the sequential-fallback path; hosts
 marked `runtime-probe` default to false until the host's runtime confirms
 subagent capability is present.
 
+Note: sub-agents are a host-runtime concept (Claude sub-agents, KiloCode
+workflow steps, OpenCode subagent files, Codex `@subagent-name` invocations,
+etc.); the suite no longer ships a `templates/sub_agents/` directory because
+there is no workspace artifact for them. The sub-agent handoff template
+(`templates/handoffs/HANDOFF.md`) writes to `_testatlas/handoffs/` per
+`/atlas:handoff` — the workspace owns the contract record, not the runtime
+spawn primitive.
+
 ## Acceleration Scripts
 
 When `shell` is available, the suite ships idempotent, schema-validating accelerators under `.testatlas/scripts/`. Each named command below MAY invoke its accelerator instead of hand-rolling the artifact emission; manual fallback steps in every command remain intact for shell-less hosts (PRD §22).
@@ -119,4 +127,5 @@ Now that the constitution is reloaded:
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
 - **`/atlas:brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
 - **`/atlas:status`** — V2 status snapshot of the freshly bootstrapped workspace.
+- **`/atlas:bootstrap-refresh`** — long-running session shard refresh (V2 token-budget audit + bootstrap-shard regeneration).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

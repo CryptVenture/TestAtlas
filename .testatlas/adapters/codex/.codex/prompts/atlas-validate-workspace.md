@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-validate-workspace. Invoke as /prompts:atlas-validate-workspace. Description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="ed2ca627bfcb0235abecc16d476359b5620cf390b0d26006b40d75f8922db12c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="892068b08287ec92d98512477f8f9a26c109883030ad66fa3ba2df239d9be0bb" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-validate-workspace.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -60,6 +60,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - More than 50 critical findings → halt; require operator review before continuing the session per `bootstrap.md` §24.
 - Schema files missing under `.testatlas/schemas/` → halt; the suite is corrupted and must be reinstalled.
 - Manifest fails its own schema validation → halt; refuse to validate downstream artifacts against a broken manifest.
+- If manifest `schema_version` is `1.x` on a V2 suite, halt and run `/atlas:maintain-migrate` to upgrade workspace artifacts to V2 layout.
 
 ## Completion Criteria
 

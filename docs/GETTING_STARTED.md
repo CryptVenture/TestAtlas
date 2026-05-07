@@ -4,7 +4,7 @@
 
 # Getting Started with TestAtlas
 
-This is the first-hour, runnable walkthrough of the 31 V1 + 41 V2 `/atlas:*` commands. It assumes you have already installed the suite into your repo (e.g., `npx @webventures/testatlas init` — see [docs/INSTALL.md](INSTALL.md) if not). Everything below is what you run *inside your AI agent* once `.testatlas/` and `_testatlas/` are on disk. Read top-to-bottom and you'll go from a cold repo to a schema-validated, evidence-backed `_testatlas/REPORT-latest.md` without consulting any other doc first.
+This is the first-hour, runnable walkthrough of the 32 V1 + 41 V2 `/atlas:*` commands. It assumes you have already installed the suite into your repo (e.g., `npx @webventures/testatlas init` — see [docs/INSTALL.md](INSTALL.md) if not). Everything below is what you run *inside your AI agent* once `.testatlas/` and `_testatlas/` are on disk. Read top-to-bottom and you'll go from a cold repo to a schema-validated, evidence-backed `_testatlas/REPORT-latest.md` without consulting any other doc first.
 
 The pipeline is linear: **Setup → Discovery → Organize → Plan → Test → Findings → Reporting → Lifecycle**. Each phase below names the commands you run, in the order you run them, and points at the artifacts under `_testatlas/` they produce. For exhaustive per-command behavior, flags, and schemas, see [docs/COMMANDS.md](COMMANDS.md).
 

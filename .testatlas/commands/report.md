@@ -119,8 +119,7 @@ Now that the report is generated:
 
 - **`/atlas:consolidate`** — merge with prior reports for trend analysis
 - **`/atlas:handoff`** — package the workspace for another agent or engineer
-- **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
 - **`/atlas:council-release-readiness`** — formalize the readiness verdict via council when the report flags contested risks.
-- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals.
-- **`/atlas:report-domain`** — drill into a single domain's quality score, drift, issues, and coverage in a domain-scoped report.
+- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals; pair with `/atlas:report-domain` to drill into a single domain's quality score, drift, issues, and coverage.
+- **`/atlas:report-domain`** — domain-scoped quality report (drift, issues, coverage) when one domain needs targeted attention.
 - **`/atlas:brain-score`** — re-score the workspace using the report's findings as input.

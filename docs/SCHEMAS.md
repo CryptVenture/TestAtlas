@@ -12,7 +12,7 @@ See [docs/COMMANDS.md](./COMMANDS.md) for the commands that consume and produce 
 
 Per-adapter capability declarations. Each TestAtlas command declares required capabilities in its frontmatter; an adapter is allowed to render the command only if it declares all of those capabilities (or provides a capability-degradation render for the missing ones).
 
-**`$id`:** `https://testatlas.dev/schemas/adapter-capabilities.schema.json`
+**`$id`:** `https://testatlas.dev/schemas/v1/adapter-capabilities.schema.json`
 
 **Top-level properties:** `version`, `adapters`
 
@@ -432,7 +432,7 @@ Schema for _testatlas/11_workspace_manifest.json (PRD §14.11).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/workspace-manifest.schema.json`
 
-**Top-level properties:** `suite`, `workspaceVersion`, `workspaceDir`, `initializedAt`, `lastUpdatedAt`, `project`, `counts`, `latestReport`, `status`, `generatedSections`
+**Top-level properties:** `suite`, `workspaceVersion`, `schema_version`, `workspaceDir`, `initializedAt`, `lastUpdatedAt`, `project`, `counts`, `latestReport`, `status`, `generatedSections`
 
 [Source](../.testatlas/schemas/workspace-manifest.schema.json)
 

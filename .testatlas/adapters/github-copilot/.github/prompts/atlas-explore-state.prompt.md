@@ -3,7 +3,7 @@ mode: agent
 description: Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="68d08a46bfb2612caf0924f5ee13d5374db6765344405236613164f98d6c8ec7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="813516781f9b6bedfe9f4760f7b9d7cac9f2bbebbef92db7fdf4146374a7e7b6" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-state.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -80,6 +80,18 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 - 5-state matrix observed (or skip rationale recorded) for ≥1 surface per user-facing route.
 - `maps/states.md` regenerated; `maps/states.json` validates against the states-map schema fragment.
 - The 5 lifecycle files updated; `update-brain-after-command.js` ran with `--reindex`.
+
+## State Writer
+
+For each distinct UI/process state surfaced during exploration, materialize a state record so the workspace carries a durable, machine-readable index of state coverage:
+
+1. Choose a slug for the state (kebab-case, e.g. `cart-checkout`, `user-onboarding-step-2`).
+2. Create directory `_testatlas/states/<slug>/`.
+3. Write `_testatlas/states/<slug>/state.md` (human-readable narrative — preconditions, transitions, postconditions, recovery paths, evidence references).
+4. Write `_testatlas/states/<slug>/state.json` (machine-readable record conforming to `.testatlas/schemas/state.schema.json` — name, slug, transitions[], persistence, recovery[]).
+5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm `state.json` matches schema.
+
+State coverage was previously aspirational — `_testatlas/states/` had a schema but no writer. PRD §13 mandates explore-state materializes the schema; this writer block closes that gap.
 
 ## What's Next
 

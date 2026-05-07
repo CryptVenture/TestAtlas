@@ -4,7 +4,7 @@ description: Umbrella router for V2 council commands. Selects a conversation mod
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="c0920b2a7fe0c10ad3fd6c8abacc5098d3c0d29c35ba2c456a587e8fac0ef1c2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="7795eeaeac3a3c30288d24a904698d2760d6ad3b8e4b98eb39f5e0ec80c60f4c" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -80,5 +80,18 @@ Every dispatched session emits: a final summary, accepted findings, rejected fin
 
 ## What's Next
 
-- The chosen sub-command. Each sub-command embeds the 9-round protocol, the disagreement classification, the +2 / -2 voting scale, and the consolidation requirement. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:brain-validate` to confirm the council's brain updates.
+Council is a dispatcher; pick the appropriate sub-command:
+
+- **`/atlas:council-bug-triage`** — escalate contested severity or large triage queues to a council quality gate.
+- **`/atlas:council-test-plan`** — ratify test matrix decisions via council protocol.
+- **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
+- **`/atlas:council-domain-review`** — quality gate after domain mapping or domain-specific work.
+- **`/atlas:council-design-critique`** — escalate UX/architecture decisions for multi-persona critique.
+- **`/atlas:council-product-review`** — broader product-shape review across domains.
+- **`/atlas:council-red-team`** — adversarial security/quality review.
+- **`/atlas:council-release-readiness`** — formalize release verdict (go / conditional / no-go) via council.
+- **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested.
+- **`/atlas:council-brain-audit`** — audit the brain layer's signals (drift, scores, graph) via council.
+
+Each sub-command embeds the 9-round protocol, the PRD §12.5 disagreement classification, the +2 / -2 voting scale, and the consolidation requirement described in this dispatcher. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:brain-validate` to confirm the council's brain updates.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -4,7 +4,7 @@ description: Detect and reconcile drift between markdown artifacts and brain JSO
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="82e6621c7a321e2622f40560ec25db79519080c6a89860047ffcd9e0777eba61" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="3bdfa3521cf395d1de7ee921af70408adaa09f7cd4ce1dbace9d1625c9230908" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-core-brain-sync.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,4 +70,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync 
 
 - `/atlas:brain-validate` — confirm clean state.
 - `/atlas:status` — view the refreshed brain summary.
+- `/atlas:brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
+- `/atlas:brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -118,40 +118,38 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Explorer Classification
 
-The full set of sub-explorers — V1 (already shipped per PRD §13 / §6.5) and V2 (PRD V2 surfaces). Use this table to classify them when building `_testatlas/explore-plan.md`. Each row maps the surface concern to its slash command — invoke directly or surface via `/atlas:explore-all`.
+Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps the concern to its slash command; invoke directly or via `/atlas:explore-all`.
 
-### V1 Sub-Explorers (already routed in Required Actions step 3 above)
+### V1
 
-| Explorer | Slash | Concern |
-|---|---|---|
-| Codebase | `/atlas:explore-codebase` | Repository structure, package signals, the canonical app map |
-| UI | `/atlas:explore-ui` | User-facing routes, pages, components, visual surfaces |
-| CLI | `/atlas:explore-cli` | Binaries, scripts, command-line entry points, argv conventions |
-| API | `/atlas:explore-api` | HTTP/RPC/GraphQL endpoints, route handlers, payload contracts |
-| Docs | `/atlas:explore-docs` | Project documentation tree, READMEs, in-repo guides |
-| Runtime | `/atlas:explore-runtime` | Runtime tooling — compilers, linkers, package managers, CI |
-| Data | `/atlas:explore-data` | Models, migrations, schemas, persistent stores |
-| Integrations | `/atlas:explore-integrations` | External services — auth, payment, email, analytics SDKs |
-| Accessibility | `/atlas:explore-accessibility` | A11y compliance signals, ARIA usage, keyboard surfaces |
-| Performance | `/atlas:explore-performance` | Performance budgets, slow-path heuristics, bundle/build cost |
-| Security | `/atlas:explore-security` | Auth surfaces, credential paths, secret-handling patterns |
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-codebase` | Repository structure, package signals, app map |
+| `/atlas:explore-ui` | User-facing routes, pages, components |
+| `/atlas:explore-cli` | Binaries, scripts, CLI entry points |
+| `/atlas:explore-api` | HTTP/RPC/GraphQL endpoints, contracts |
+| `/atlas:explore-docs` | Project docs, READMEs, guides |
+| `/atlas:explore-runtime` | Runtime tooling, CI, package managers |
+| `/atlas:explore-data` | Models, migrations, persistent stores |
+| `/atlas:explore-integrations` | External services (auth, payment, analytics) |
+| `/atlas:explore-accessibility` | A11y compliance, ARIA, keyboard surfaces |
+| `/atlas:explore-performance` | Budgets, slow-path heuristics, bundle cost |
+| `/atlas:explore-security` | Auth surfaces, credentials, secret handling |
 
-### V2 Sub-Explorers
+### V2
 
-| Explorer | Slash | Concern |
-|---|---|---|
-| State | `/atlas:explore-state` | UI state machines, persistence, hydration, recovery (PRD §13.1 5-state matrix) |
-| Errors | `/atlas:explore-errors` | Error boundaries, exception handling, fallback UI, retry patterns |
-| Components | `/atlas:explore-components` | Reusable component inventory, prop contracts, design system map |
-| Routes | `/atlas:explore-routes` | Route table, params, guards, redirects, public/private split |
-| Jobs | `/atlas:explore-jobs` | Background workers, queues, schedulers, retry policies |
-| Security & Privacy | `/atlas:explore-security-privacy` | Auth flows, secrets handling, PII paths, privacy controls |
-| Observability | `/atlas:explore-observability` | Logging, metrics, tracing, alerting, dashboards |
-| Tests | `/atlas:explore-tests` | Test coverage, frameworks, harnesses, CI gates |
-| Brain | `/atlas:explore-brain` | V2 brain layer state — drift, scores, knowledge graph |
-| Release Readiness | `/atlas:explore-release-readiness` | Release-readiness signals across the workspace |
-
-Recommendation rule of thumb: every product → `recommended` for `explore-state` + `explore-errors` + `explore-tests`; web/UI products → also `recommended` for `explore-routes` + `explore-components`; backend/job-heavy products → also `recommended` for `explore-jobs` + `explore-observability`; multi-tenant or auth-bearing products → also `recommended` for `explore-security-privacy`; release candidates → also `recommended` for `explore-release-readiness`; long-running workspaces → also `recommended` for `explore-brain` (drift hygiene).
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-state` | UI state machines, hydration (PRD §13.1) |
+| `/atlas:explore-errors` | Error boundaries, fallback UI, retry |
+| `/atlas:explore-components` | Component inventory, prop contracts |
+| `/atlas:explore-routes` | Route table, guards, redirects |
+| `/atlas:explore-jobs` | Workers, queues, schedulers |
+| `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
+| `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates |
+| `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
+| `/atlas:explore-release-readiness` | Release-readiness signals |
 
 ## What's Next
 

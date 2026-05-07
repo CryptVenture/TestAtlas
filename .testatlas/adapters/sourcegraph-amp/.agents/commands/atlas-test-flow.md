@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-flow. Invoke as /atlas-test-flow. Description: Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="143adaaa428563b7cdb68880b36be37093eeada8d72d656b3e3739753dcc57e7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="8f8311b986129dde9409012e6740e04370c333a6cc29e48e1d5d277bbde5e06a" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-test-flow.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -110,4 +110,5 @@ Now that the flow run is complete:
 - **`/atlas:report`** — fold the run into the next aggregate report
 - **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
 - **`/atlas:generate-automation`** — produce reproducible automation scaffolds from this flow.
+- **`/atlas:test-all`** — run every flow + every domain in one orchestrated sweep, aggregating per-child runs into a single merged RUN-<timestamp>.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

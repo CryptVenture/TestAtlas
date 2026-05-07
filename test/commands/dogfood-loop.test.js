@@ -36,6 +36,10 @@ const EXPECTED_ROSTER = [
   'bootstrap.md',
   'cleanup.md',
   'consolidate.md',
+  // Phase 17 Plan 17-05: surfaces scripts/create-persona.js as a top-level
+  // /atlas:create-persona command (mesh fix #9). Reachable from core/init.md
+  // What's Next so it is not a mesh-graph orphan.
+  'create-persona.md',
   'explore-accessibility.md',
   'explore-api.md',
   'explore-cli.md',
@@ -66,7 +70,7 @@ const EXPECTED_ROSTER = [
   'validate-workspace.md',
 ];
 
-test('CMD-01: dogfood loop ships exactly 31 flat command files (V1 init.md deleted in Plan 17-04)', async () => {
+test('CMD-01: dogfood loop ships exactly 32 flat command files (V1 init.md deleted in Plan 17-04; create-persona.md added in Plan 17-05)', async () => {
   const files = await listCommandFiles();
   const basenames = files.map((f) => path.basename(f)).filter((name) => name !== 'README.md');
   assert.equal(

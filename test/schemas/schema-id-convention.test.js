@@ -19,13 +19,17 @@ const readJson = async (p) => JSON.parse(await readFile(p, 'utf8'));
 const V1_ID_RE = /^https:\/\/testatlas\.dev\/schemas\/v1\/[a-z][a-z0-9_-]*\.schema\.json$/;
 // V2 artifact schemas use the /v2/ namespace (Phase 14).
 const V2_ID_RE = /^https:\/\/testatlas\.dev\/schemas\/v2\/[a-z][a-z0-9_-]*\.schema\.json$/;
-// Suite-config schemas (e.g., adapter-capabilities, Plan 06-01) live outside
-// the artifact namespaces because they describe suite configuration, not
-// workspace artifacts.
+// Suite-config schemas (e.g., Plan 06-01) live outside the artifact
+// namespaces because they describe suite configuration, not workspace
+// artifacts. Phase 17 Plan 17-05 (ISSUE-005) moved adapter-capabilities
+// into the /v1/ namespace per the documented v1/v2 versioning policy.
 const SUITE_ID_RE = /^https:\/\/testatlas\.dev\/schemas\/[a-z][a-z0-9-]*\.schema\.json$/;
 const DRAFT_2020_12 = 'https://json-schema.org/draft/2020-12/schema';
 
-const SUITE_CONFIG_SCHEMAS = new Set(['adapter-capabilities.schema.json']);
+// Phase 17 Plan 17-05 (ISSUE-005): adapter-capabilities relocated to /v1/.
+// This set is intentionally empty; preserved as the named constant so future
+// Suite-config schemas (if any) can be added without resurfacing the regex.
+const SUITE_CONFIG_SCHEMAS = new Set();
 
 // V2 schemas (Phase 14) — registered via $id `/v2/...`. Title is recommended
 // but not yet enforced for schemas inherited from Wave 0 stubs (Wave 1 fleshes

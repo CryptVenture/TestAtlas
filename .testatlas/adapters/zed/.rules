@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="a855693a25e9ba3043b97f319e8c59078bf682a05404acebfbb9f103c4f44e5d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="3de4426f4ff3dfdf911798196c6092cbbd1be0339487546b0c94a2d866de2532" -->
 First read `.testatlas/bootstrap.md`. Then read `.rules` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Zed. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -144,6 +144,12 @@ Test Plan Council — QA, automation, codebase, data, and runtime personas propo
 ## /atlas-council
 
 Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. Read `.testatlas/commands/council/council.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-create-persona
+
+Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json. Read `.testatlas/commands/create-persona.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

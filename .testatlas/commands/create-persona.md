@@ -17,7 +17,7 @@ lifecycle:
 boundary: Does NOT modify existing personas other than the named target. Does NOT auto-generate roles/traits — those are operator-supplied. Read-only over everything except the new persona files and brain/personas.json index.
 ---
 
-# TestAtlas Command (V2): create-persona
+# TestAtlas Command: create-persona
 
 Before doing anything else:
 

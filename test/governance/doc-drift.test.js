@@ -140,21 +140,22 @@ test('README.md does not name the legacy 7-adapter list', async () => {
   );
 });
 
-test('docs/GETTING_STARTED.md command count reflects post-Plan-17-04 V1+V2 totals', async () => {
+test('docs/GETTING_STARTED.md command count reflects post-Plan-17-05 V1+V2 totals', async () => {
   const src = await readFile(GETTING_STARTED_PATH, 'utf8');
   assert.ok(!src.includes('30 /atlas:'), 'docs/GETTING_STARTED.md must not say "30 /atlas:"');
   assert.ok(!src.includes('30 `/atlas'), 'docs/GETTING_STARTED.md must not say "30 `/atlas"');
-  // Phase 17 Plan 17-04 deleted V1 init.md; V1 flat surface dropped 32 → 31.
+  // Phase 17 Plan 17-04 deleted V1 init.md (V1 flat: 32 → 31).
+  // Phase 17 Plan 17-05 added create-persona.md (V1 flat: 31 → 32).
   // V2 categorized surface is 41 (post-Phase-16 flatten). The doc must
-  // surface BOTH numbers — no bare "32" claim in the post-17-04 era.
+  // surface BOTH numbers — no bare "31" claim in the post-17-05 era.
   assert.ok(
-    !src.includes('32 /atlas:') && !src.includes('32 `/atlas'),
-    'docs/GETTING_STARTED.md must not say "32 /atlas:" — post-Plan-17-04 V1 flat count is 31, not 32.',
+    !src.includes('31 /atlas:') && !src.includes('31 `/atlas'),
+    'docs/GETTING_STARTED.md must not say "31 /atlas:" — post-Plan-17-05 V1 flat count is 32, not 31 (create-persona.md added in Plan 17-05).',
   );
-  const has31 = src.includes('31 V1') || src.includes('31 /atlas:') || src.includes('31 `/atlas');
+  const has32 = src.includes('32 V1') || src.includes('32 /atlas:') || src.includes('32 `/atlas');
   assert.ok(
-    has31,
-    'docs/GETTING_STARTED.md must reference the post-Plan-17-04 31-command V1 surface (e.g. "31 V1 + 41 V2 /atlas:*").',
+    has32,
+    'docs/GETTING_STARTED.md must reference the post-Plan-17-05 32-command V1 surface (e.g. "32 V1 + 41 V2 /atlas:*").',
   );
 });
 
