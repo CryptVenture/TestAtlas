@@ -54,7 +54,11 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 3. **Runner detection.** Read `package.json` scripts, `pyproject.toml`, `Cargo.toml`, `Gemfile`, `go.mod`, `pom.xml`. Identify each runner with version. Capture into `evidence/runners.json`.
 
-4. **Test inventory.** Walk the repo with `git ls-files` filtered to test paths:
+4. **Test inventory.**
+
+   **Preferred path (if `shell` is available):** run `node .testatlas/scripts/explore-tests.js --out _testatlas/evidence/explore-tests/<timestamp>/inventory.json`. The script deterministically walks the repo, detects runners from manifest files (package.json, pyproject.toml, Cargo.toml, Gemfile, go.mod), inventories every test file by language pattern, categorises by directory token (unit / integration / e2e / contract / performance / smoke), infers runner per file, and emits a `{runners, inventory, summary, refreshedAt}` slice. Use `--refresh` to emit only the slice (without merging into `12_app_map.json`) — this is the form council-release-readiness round-6 invokes.
+
+   **Manual fallback (no `shell`):** Walk the repo with `git ls-files` filtered to test paths:
    - `**/*.test.{js,jsx,ts,tsx,mjs,cjs}` for Jest/Vitest/node:test.
    - `**/*.spec.{js,jsx,ts,tsx,mjs,cjs}` for Mocha/Jasmine/Karma.
    - `tests/**/test_*.py` + `**/*_test.py` for Pytest.
