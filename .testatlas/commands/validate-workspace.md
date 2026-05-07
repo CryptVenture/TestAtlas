@@ -89,6 +89,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - More than 50 critical findings → halt; require operator review before continuing the session per `bootstrap.md` §24.
 - Schema files missing under `.testatlas/schemas/` → halt; the suite is corrupted and must be reinstalled.
 - Manifest fails its own schema validation → halt; refuse to validate downstream artifacts against a broken manifest.
+- If manifest `schema_version` is `1.x` on a V2 suite, halt and run `/atlas:maintain-migrate` to upgrade workspace artifacts to V2 layout.
 
 ## Completion Criteria
 

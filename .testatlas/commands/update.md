@@ -101,3 +101,4 @@ Now that the suite is on the latest version:
 
 - **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
 - **`/atlas:bootstrap`** — reload the constitution if §-numbering or rules changed
+- **`/atlas:maintain-migrate`** — after a major-version suite update, run migration to align workspace artifacts with the new schema layout.
