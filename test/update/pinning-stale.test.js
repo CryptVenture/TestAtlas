@@ -35,8 +35,9 @@ async function setupTarget(opts = {}) {
     workspaceDir: './_testatlas',
     instructionDir: './.testatlas',
     defaultEnvironment: 'local',
-    safeMode: true,
-    allowDestructiveActions: false,
+    // Phase 18-01 / ISSUE-011: permissive for runUpdate gate. Override-friendly.
+    safeMode: false,
+    allowDestructiveActions: true,
     allowProductionTesting: false,
     evidence: {
       screenshots: true,

@@ -13,12 +13,16 @@
 
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import * as tarballMod from '../../scripts/lib/tarball.js';
 import * as updateCoreMod from '../../scripts/lib/update-core.js';
+
+const __dirname2 = path.dirname(fileURLToPath(import.meta.url));
+const SUITE_ROOT_FOR_CONFIG = path.resolve(__dirname2, '..', '..');
 
 let tmp;
 
@@ -28,6 +32,20 @@ function sha256(buf) {
 
 beforeEach(async () => {
   tmp = await mkdtemp(path.join(os.tmpdir(), 'verify-checksum-'));
+  // Phase 18-01 / ISSUE-011: seed gate prerequisites + permissive override.
+  await mkdir(path.join(tmp, '.testatlas'), { recursive: true });
+  await cp(
+    path.join(SUITE_ROOT_FOR_CONFIG, '.testatlas', 'default.config.json'),
+    path.join(tmp, '.testatlas', 'default.config.json'),
+  );
+  await cp(
+    path.join(SUITE_ROOT_FOR_CONFIG, '.testatlas', 'config.schema.json'),
+    path.join(tmp, '.testatlas', 'config.schema.json'),
+  );
+  await writeFile(
+    path.join(tmp, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
 });
 
 afterEach(async () => {

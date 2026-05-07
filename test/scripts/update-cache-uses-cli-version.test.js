@@ -50,6 +50,11 @@ test('runUpdate bypasses stale cache when CLI version is newer than cached.lates
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   // Cache pretends "latest is 1.1.0" (stale; real latest is 1.1.2).
@@ -100,6 +105,11 @@ test('runUpdate passes CLI version (opts.currentVersion) to checkForUpdate for c
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
   await writeUpdateCache(target, {
     checkedAt: Date.now() - 1,

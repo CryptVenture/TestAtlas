@@ -68,6 +68,11 @@ test('regenerated manifest excludes .update-cache.json (runtime state)', async (
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   // Plant a stale update-cache.json before the swap (simulating a real-world
@@ -114,6 +119,11 @@ test('subsequent update-check + drift-check chain is stable (no spurious drift o
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   installTarballHooks();

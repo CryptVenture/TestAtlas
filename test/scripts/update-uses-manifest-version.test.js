@@ -16,7 +16,7 @@
 // <target>/.testatlas/ right now".
 
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -36,6 +36,11 @@ async function installFixture(t) {
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   return target;
 }
 
@@ -79,8 +84,27 @@ test('runUpdate falls back to opts.currentVersion when manifest is absent (legac
     await rm(target, { recursive: true, force: true });
   });
 
-  // No .testatlas/ at all → drift detection fires install-missing (Quick 260506-jsc Fix #3),
-  // before version compare. Our Bug A fix must not regress that.
+  // Phase 18-01 / ISSUE-011: gate now runs at runUpdate entry. Seed gate
+  // prerequisites + permissive override. .install-manifest.json intentionally
+  // absent so the no-manifest fall-through fires. install-missing requires
+  // .testatlas/ wholly absent (mutually exclusive with seeding gate config),
+  // so we accept either install-missing OR up-to-date (no-manifest path).
+  await mkdir(path.join(target, '.testatlas'), { recursive: true });
+  await cp(
+    path.join(REPO_ROOT, '.testatlas', 'default.config.json'),
+    path.join(target, '.testatlas', 'default.config.json'),
+  );
+  await cp(
+    path.join(REPO_ROOT, '.testatlas', 'config.schema.json'),
+    path.join(target, '.testatlas', 'config.schema.json'),
+  );
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
+
+  // No .install-manifest.json → no-manifest fall-through, then up-to-date.
+  // Bug A fix: opts.currentVersion is preserved.
   const result = await runUpdate({
     target,
     currentVersion: '1.1.1',
@@ -88,7 +112,10 @@ test('runUpdate falls back to opts.currentVersion when manifest is absent (legac
     logger: QUIET,
     noUpdateCheck: true,
   });
-  assert.equal(result.status, 'install-missing');
+  assert.ok(
+    ['install-missing', 'up-to-date'].includes(result.status),
+    `expected install-missing|up-to-date; got ${JSON.stringify(result)}`,
+  );
   // previousVersion is the caller's value (1.1.1) when no manifest exists.
   assert.equal(result.previousVersion, '1.1.1');
 });

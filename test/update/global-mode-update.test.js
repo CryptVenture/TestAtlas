@@ -19,11 +19,32 @@
 // `lockTarget` plumbing (a structural guard that is cheap to keep green).
 
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { runUpdate } from '../../scripts/lib/update-core.js';
+
+const __dirname2 = path.dirname(fileURLToPath(import.meta.url));
+const SUITE_ROOT_FOR_CONFIG = path.resolve(__dirname2, '..', '..');
+
+// Phase 18-01 / ISSUE-011: seed the destructive-fs gate prerequisites in `tmp`.
+async function seedPermissiveConfig(tmp) {
+  await mkdir(path.join(tmp, '.testatlas'), { recursive: true });
+  await cp(
+    path.join(SUITE_ROOT_FOR_CONFIG, '.testatlas', 'default.config.json'),
+    path.join(tmp, '.testatlas', 'default.config.json'),
+  );
+  await cp(
+    path.join(SUITE_ROOT_FOR_CONFIG, '.testatlas', 'config.schema.json'),
+    path.join(tmp, '.testatlas', 'config.schema.json'),
+  );
+  await writeFile(
+    path.join(tmp, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
+}
 
 async function makeGlobalInstall() {
   const tmp = await mkdtemp(path.join(os.tmpdir(), 'testatlas-global-update-'));
@@ -48,6 +69,8 @@ async function makeGlobalInstall() {
 test('runUpdate against a global install does not throw ENOENT (dry-run path)', async (t) => {
   const tmp = await makeGlobalInstall();
   t.after(() => rm(tmp, { recursive: true, force: true }));
+
+  await seedPermissiveConfig(tmp);
 
   // dryRun:true exits BEFORE acquireLock, so this only confirms the very
   // first part of the flow doesn't trip over the missing _testatlas/.

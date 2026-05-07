@@ -73,6 +73,11 @@ test('runUpdate regenerates .install-manifest.json after atomic swap', async (t)
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   installTarballHooks();
@@ -117,6 +122,11 @@ test('regenerated manifest preserves adapters list from backup', async (t) => {
   // Pretend claude-code adapter was installed
   await mkdir(path.join(target, '.claude'), { recursive: true });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   // Capture original adapters list before update
@@ -154,6 +164,11 @@ test('regenerated manifest preserves mode:global when backup had it', async (t) 
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET, global: true });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   // Hand-set suiteVersion + add mode:global (runInit may have set already; defensive)
   const manifestPath = path.join(target, '.testatlas', '.install-manifest.json');
   const m = JSON.parse(await readFile(manifestPath, 'utf8'));
@@ -186,6 +201,11 @@ test('subsequent update against regenerated manifest detects drift correctly (dr
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '1.0.0');
 
   installTarballHooks();

@@ -38,6 +38,11 @@ async function installFixture(t) {
     await rm(target, { recursive: true, force: true });
   });
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   return target;
 }
 

@@ -106,6 +106,11 @@ test('update-atomic: full flow — stage → swap → backup → prune → lock 
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-atomic-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();
@@ -142,6 +147,11 @@ test('update-atomic: _testatlas/ workspace untouched when no migrations', async 
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-atomic-ws-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant a marker file in _testatlas/ to prove it survives.
@@ -167,6 +177,11 @@ test('update-atomic: with migrations, schemaVersion bumps and _testatlas/ transf
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-mig-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant scratch/ so v1-to-v2 has work.
@@ -204,6 +219,11 @@ test('update-atomic: backup pruning keeps last 3 .testatlas.backup-* dirs', asyn
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-prune-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   // Plant 5 fake backup dirs with sortable timestamps.
@@ -246,6 +266,11 @@ test('update-atomic: already-up-to-date short-circuits with no swap', async (t) 
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-uptodate-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   // No tarball hooks installed — should never be called.
@@ -274,6 +299,11 @@ test('update-atomic: --force-reinstall proceeds even when versions match', async
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-force-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();
@@ -297,6 +327,11 @@ test('update-atomic: lock held by another fresh PID throws Lock held', async (t)
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-locked-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   // Pre-acquire lock as current process (alive PID).
@@ -328,6 +363,11 @@ test('update-atomic: dry-run prints plan, no writes, no lock leftover', async (t
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-dry-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
   await setManifestSuiteVersion(target, '0.1.0');
 
   installTarballHooks();

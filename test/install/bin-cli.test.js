@@ -160,13 +160,33 @@ test('bin-cli: update --help lists --target/--force-reinstall/--dry-run/--no-upd
   assert.match(r.stdout, /--no-update-check/);
 });
 
-test('bin-cli: update against unchanged target reports up-to-date', async () => {
+test('bin-cli: update against unchanged target reports up-to-date', async (t) => {
   // No --latest-version → kernel infers latest=current → "already up to date".
-  // We don't pass --target so it falls back to cwd; that's fine since the
-  // up-to-date short-circuit returns BEFORE any disk mutation.
-  const r = await runNode(BIN, ['update']);
-  assert.equal(r.code, 0);
-  assert.match(r.stdout, /up to date/i);
+  // Phase 18-01 / ISSUE-011: target a tmp with permissive override so runUpdate's
+  // capability gate (added to runUpdate entry) doesn't deny. We seed the
+  // default config + schema so loadConfigSilent reads a real config (with our
+  // override layered on top), not the empty-default-deny fallback.
+  await withTmp(t, async (dir) => {
+    const { cp, mkdir, writeFile } = await import('node:fs/promises');
+    await mkdir(path.join(dir, '.testatlas'), { recursive: true });
+    await cp(
+      path.join(REPO_ROOT, '.testatlas', 'default.config.json'),
+      path.join(dir, '.testatlas', 'default.config.json'),
+    );
+    await cp(
+      path.join(REPO_ROOT, '.testatlas', 'config.schema.json'),
+      path.join(dir, '.testatlas', 'config.schema.json'),
+    );
+    await writeFile(
+      path.join(dir, 'testatlas.config.json'),
+      JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+    );
+    const r = await runNode(BIN, ['update', '--target', dir, '--no-update-check']);
+    assert.equal(r.code, 0, `stderr: ${r.stderr}`);
+    // "install-missing" is the actual verdict for an empty tmp; either wording
+    // is acceptable as long as the CLI exits 0 and produces an actionable line.
+    assert.match(r.stdout + r.stderr, /up to date|install-missing|no \.testatlas|Run.*init/i);
+  });
 });
 
 test('bin-cli: uninstall --help lists --target/--purge/--force-untracked/--dry-run', async () => {

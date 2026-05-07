@@ -40,6 +40,7 @@ import { acquireLock, releaseLock } from './lockfile.js';
 import { detectInstallDrift, writeManifest } from './manifest.js';
 import { applyMigrations } from './migrate.js';
 import { evaluatePin, shouldWarn } from './pinning.js';
+import { requireCapability } from './safety.js';
 import {
   fetchExpectedSha,
   fetchSigstoreBundle,
@@ -451,6 +452,16 @@ export async function runUpdate(opts) {
   // ttlHours. If `latestVersion` was not explicitly passed, consult
   // checkForUpdate (TTL cache + GH Releases) when not disabled.
   const config = await loadConfigSilent(target);
+
+  // Phase 18-01 / ISSUE-011: enforce the destructive-fs capability gate at
+  // function entry, before any rm/cp/rename. The downstream destructive ops
+  // (orphan prune, backup prune, atomic swap rename, post-swap cleanup) are
+  // unreachable without this passing. Throws CAPABILITY_DENIED on denial.
+  // Per PRD review §ISSUE-011 fix sketch: gate uses the on-disk config
+  // (loadConfigSilent verdict). Callers that need to bypass for host-managed
+  // flows MUST seed `<target>/testatlas.config.json` with the override.
+  requireCapability(config, 'destructive-fs');
+
   const disableUpdateCheck = Boolean(opts.noUpdateCheck) || Boolean(config.disableUpdateCheck);
   const ttlHours = typeof config.updateCheckTtlHours === 'number' ? config.updateCheckTtlHours : 24;
   const pinnedVersion = config.pinnedVersion ?? null;

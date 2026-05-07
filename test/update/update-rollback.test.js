@@ -56,6 +56,11 @@ test('update-rollback: swap-rename failure reverses the backup-rename and rethro
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-rollback-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
 
   installSuccessfulTarballHooks();
 
@@ -103,6 +108,11 @@ test('update-rollback: migration failure leaves suite untouched (abort BEFORE sw
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-mig-fail-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
 
   // Build a stage with a migrations dir containing a deliberately-broken file.
   tarballHooks.downloadTarball = async (_v, dst) => {
@@ -156,6 +166,11 @@ test('update-rollback: download failure releases lock + leaves .testatlas/ intac
   const target = await mkdtemp(path.join(tmpdir(), 'testatlas-update-dl-fail-'));
   t.after(() => rm(target, { recursive: true, force: true }));
   await runInit({ target, suiteRoot: REPO_ROOT, logger: QUIET });
+  // Phase 18-01 / ISSUE-011: seed permissive override so runUpdate's gate passes.
+  await writeFile(
+    path.join(target, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }),
+  );
 
   tarballHooks.downloadTarball = async () => {
     throw new Error('synthetic network failure');
