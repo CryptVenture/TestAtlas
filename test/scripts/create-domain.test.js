@@ -10,7 +10,7 @@
 // pass cwd, but expect the side-effects in the V2 brain too).
 
 import { strict as assert } from 'node:assert';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -20,6 +20,8 @@ const SCRIPT = path.join(REPO_ROOT, 'scripts', 'create-domain.js');
 
 async function setupV2Workspace() {
   const dir = await mkdtemp(path.join(tmpdir(), 'tb-create-domain-v2-'));
+  // create-domain.js calls loadConfig() which requires the suite tree.
+  await cp(path.join(REPO_ROOT, '.testatlas'), path.join(dir, '.testatlas'), { recursive: true });
   const wsDir = path.join(dir, '_testatlas');
   await mkdir(path.join(wsDir, 'brain'), { recursive: true });
   await mkdir(path.join(wsDir, 'domains'), { recursive: true });

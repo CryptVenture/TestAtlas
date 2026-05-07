@@ -9,7 +9,7 @@
 // markdown files are written directly via atomicWrite — they have no JSON
 // counterpart and no schema.
 
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
@@ -107,6 +107,11 @@ export async function createDomain(args = {}, _inject = {}) {
       `# Issues for ${id}\n\n(no issues filed yet)\n`,
     );
     await incrementManifestCount(wsDir, 'domains');
+
+    // V2 brain side-effects (Plan 14-02): when _testatlas/brain/ is present,
+    // also update brain/domains.json and brain/state.json counts. Tolerate
+    // absence so V1-only consumers see no behavior change.
+    await updateV2Brain(wsDir, record);
   }
 
   return {
@@ -122,6 +127,57 @@ function err(code, msg) {
   const e = new Error(msg);
   e.code = code;
   return e;
+}
+
+/**
+ * V2 brain update — best-effort. If `_testatlas/brain/` is missing, does
+ * nothing (V1-only workspace). Otherwise updates domains.json index and
+ * bumps state.json counts.domains.
+ */
+async function updateV2Brain(wsDir, record) {
+  const brainDir = path.join(wsDir, 'brain');
+  try {
+    await stat(brainDir);
+  } catch {
+    return;
+  }
+
+  // domains.json index entry
+  const domainsPath = path.join(brainDir, 'domains.json');
+  let idx;
+  try {
+    idx = JSON.parse(await readFile(domainsPath, 'utf8'));
+  } catch {
+    idx = { schema_version: '2.0.0', last_updated: '', domains: [] };
+  }
+  if (!Array.isArray(idx.domains)) idx.domains = [];
+  if (!idx.domains.some((d) => d.id === record.id)) {
+    idx.domains.push({
+      id: record.id,
+      slug: record.name,
+      status: record.status ?? 'mapped',
+      display_name: record.displayName ?? record.name,
+    });
+    idx.last_updated = new Date().toISOString();
+    await atomicWrite(domainsPath, `${JSON.stringify(idx, null, 2)}\n`);
+  }
+
+  // state.json counts
+  const statePath = path.join(brainDir, 'state.json');
+  let state;
+  try {
+    state = JSON.parse(await readFile(statePath, 'utf8'));
+  } catch {
+    return; // No state.json — leave alone.
+  }
+  if (state?.counts && typeof state.counts.domains === 'number') {
+    state.counts.domains = idx.domains.length;
+    if (state.status) {
+      state.status.last_updated = new Date().toISOString();
+      state.status.last_command = 'create-domain';
+    }
+    await atomicWrite(statePath, `${JSON.stringify(state, null, 2)}\n`);
+  }
 }
 
 const __thisFile = fileURLToPath(import.meta.url);
