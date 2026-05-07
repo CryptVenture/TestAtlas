@@ -12,7 +12,7 @@ import { test } from 'node:test';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCHEMAS_DIR = path.join(REPO_ROOT, '.testatlas', 'schemas');
-const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'vocabulary.json');
+const VOCAB_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
 
 // V2 schemas (Wave 0 + Wave 1). 18 total.
 const V2_SCHEMAS = [

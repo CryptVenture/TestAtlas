@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-retest. Paste .testatlas/bootstrap.md first; description: Re-execute the original repro for issues with status=fixed_pending_retest; transition to closed (recovered) or reopened (still failing); append append-only retest history; capture new evidence. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="10e17dae1dc83e8bcc29e6d100d0a8a557223d2de19c6a57dd69585de14c6269" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="d811493df3e9624ddbc54e7d519577d6adc95a8018471e933588ceab74655469" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -11,7 +11,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `prd/prd.md` §17 (issue lifecycle) and §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
+- `.testatlas/schemas/vocabulary.schema.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every retested issue must continue to satisfy.
 - The target issue file pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}`.
 - `.testatlas/default.config.json` — adapter capability profile (whether `shell` is available).

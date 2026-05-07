@@ -154,11 +154,10 @@ export function resolveOutputRel(cap, sourceRel, isGlobal) {
 }
 
 /**
- * Copy the live `<repo>/.testatlas/schemas/` + `vocabulary.json` into the
- * target's `.testatlas/`. Required only for tests that exercise
- * `regenerateInstallManifest` (which AJV-validates the written manifest;
- * the schema-loader reads vocabulary.json first, then every schema). Pure-
- * restage tests skip this.
+ * Copy the live `<repo>/.testatlas/schemas/` (incl. `vocabulary.schema.json`)
+ * into the target's `.testatlas/`. Required only for tests that exercise
+ * `regenerateInstallManifest` (which AJV-validates the written manifest via
+ * the schema-loader). Pure-restage tests skip this.
  *
  * @param {string} target
  */
@@ -167,10 +166,6 @@ export async function seedSchemas(target) {
     path.join(REPO_ROOT, '.testatlas', 'schemas'),
     path.join(target, '.testatlas', 'schemas'),
     { recursive: true },
-  );
-  await cp(
-    path.join(REPO_ROOT, '.testatlas', 'vocabulary.json'),
-    path.join(target, '.testatlas', 'vocabulary.json'),
   );
 }
 

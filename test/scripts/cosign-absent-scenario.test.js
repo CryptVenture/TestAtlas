@@ -55,20 +55,13 @@ test('scenario: JSON validates against test-scenario.schema.json', async (t) => 
   addFormats.default(ajv);
 
   // Load + register all schemas in .testatlas/schemas/ so $refs resolve.
+  // (vocabulary.schema.json lives here too post-Quick-260507-vn2.)
   const { readdir } = await import('node:fs/promises');
   for (const entry of await readdir(SCHEMAS_DIR)) {
     if (!entry.endsWith('.schema.json')) continue;
     const buf = await readFile(path.join(SCHEMAS_DIR, entry), 'utf8');
     ajv.addSchema(JSON.parse(buf));
   }
-  // The vocabulary file is a schema even though it sits outside schemas/.
-  const vocab = JSON.parse(
-    await readFile(
-      path.join(import.meta.dirname, '..', '..', '.testatlas', 'vocabulary.json'),
-      'utf8',
-    ),
-  );
-  ajv.addSchema(vocab);
 
   const validate = ajv.getSchema('https://testatlas.dev/schemas/v1/test-scenario.schema.json');
   assert.ok(validate, 'test-scenario schema must be registered');

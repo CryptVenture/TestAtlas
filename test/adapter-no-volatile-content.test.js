@@ -22,10 +22,6 @@ async function buildWorkspace() {
   await mkdir(path.join(dir, '.testatlas', 'schemas'), { recursive: true });
   await mkdir(path.join(dir, '.testatlas', 'commands'), { recursive: true });
   await mkdir(path.join(dir, '.testatlas', 'adapters'), { recursive: true });
-  await cp(
-    path.join(repoRoot, '.testatlas', 'vocabulary.json'),
-    path.join(dir, '.testatlas', 'vocabulary.json'),
-  );
   await cp(path.join(repoRoot, '.testatlas', 'schemas'), path.join(dir, '.testatlas', 'schemas'), {
     recursive: true,
   });

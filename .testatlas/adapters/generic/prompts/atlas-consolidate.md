@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-consolidate. Paste .testatlas/bootstrap.md first; description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="7c4c275fb878a38cc9c0eee17e7811102fc5f377851ca0e9f051c2b13506a979" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="8619d73a67d542a34df0faa43de3df720077e19614148b3f107860a47d0fd8d4" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -11,7 +11,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `prd/prd.md` §17 (issue layer), §20 (report sections), §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
+- `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The most-recent `_testatlas/to_fix/triage-report-*.md` and `_testatlas/to_fix/groups.md`.
 - `_testatlas/13_quality_scorecard.md` (append-only longitudinal target).

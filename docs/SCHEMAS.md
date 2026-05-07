@@ -2,7 +2,7 @@
 
 _Auto-generated from `.testatlas/schemas/*.schema.json` by `scripts/generate-schemas-doc.js`. Do not edit by hand._
 
-Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 38 schemas shipped with v1.
+Every machine-readable artifact in TestAtlas is governed by a JSON Schema (Draft 2020-12). `validate-workspace` enforces these schemas across the `_testatlas/` workspace tree. This index covers all 39 schemas shipped with v1.
 
 See [docs/COMMANDS.md](./COMMANDS.md) for the commands that consume and produce these schemas.
 
@@ -423,6 +423,18 @@ Schema for tests/scenarios/TEST-<domain>-<slug>.{md,json} (PRD §19).
 **Top-level properties:** `id`, `session_id`, `round`, `speaker`, `speaker_type`, `timestamp`, `message_type`, `content`, `claims`, `evidence`, `confidence`
 
 [Source](../.testatlas/schemas/transcript.schema.json)
+
+---
+
+## TestAtlas Shared Vocabularies
+
+Single source of truth for severity, confidence, status enums, and ID patterns referenced by every TestAtlas schema. PRD §28 + §32.
+
+**`$id`:** `https://testatlas.dev/schemas/v1/vocabulary.schema.json`
+
+**Top-level properties:** _(none)_
+
+[Source](../.testatlas/schemas/vocabulary.schema.json)
 
 ---
 

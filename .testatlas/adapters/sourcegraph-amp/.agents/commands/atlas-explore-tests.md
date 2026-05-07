@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-tests. Invoke as /atlas-explore-tests. Description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="062fd51aa075bef7475b578fca5178d82d0f8cac95092a75aee14b7c8cafafa4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="c1207b7ee941fcd92e38e0f45ae576302bb1511c0fe02016bacf209eee42c605" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-tests.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -22,7 +22,11 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 3. **Runner detection.** Read `package.json` scripts, `pyproject.toml`, `Cargo.toml`, `Gemfile`, `go.mod`, `pom.xml`. Identify each runner with version. Capture into `evidence/runners.json`.
 
-4. **Test inventory.** Walk the repo with `git ls-files` filtered to test paths:
+4. **Test inventory.**
+
+   **Preferred path (if `shell` is available):** run `node .testatlas/scripts/explore-tests.js --out _testatlas/evidence/explore-tests/<timestamp>/inventory.json`. The script deterministically walks the repo, detects runners from manifest files (package.json, pyproject.toml, Cargo.toml, Gemfile, go.mod), inventories every test file by language pattern, categorises by directory token (unit / integration / e2e / contract / performance / smoke), infers runner per file, and emits a `{runners, inventory, summary, refreshedAt}` slice. Use `--refresh` to emit only the slice (without merging into `12_app_map.json`) — this is the form council-release-readiness round-6 invokes.
+
+   **Manual fallback (no `shell`):** Walk the repo with `git ls-files` filtered to test paths:
    - `**/*.test.{js,jsx,ts,tsx,mjs,cjs}` for Jest/Vitest/node:test.
    - `**/*.spec.{js,jsx,ts,tsx,mjs,cjs}` for Mocha/Jasmine/Karma.
    - `tests/**/test_*.py` + `**/*_test.py` for Pytest.

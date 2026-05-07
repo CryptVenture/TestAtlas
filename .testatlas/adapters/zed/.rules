@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="3de4426f4ff3dfdf911798196c6092cbbd1be0339487546b0c94a2d866de2532" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="47933b866fd9722a33cbcc77d952df302a90050c609b85d41910b4d0bbe0f77d" -->
 First read `.testatlas/bootstrap.md`. Then read `.rules` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Zed. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.

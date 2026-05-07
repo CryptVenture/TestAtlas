@@ -62,9 +62,14 @@ export async function loadAllSchemas({ cwd = process.cwd() } = {}) {
     entries = await readdir(schemasDir, { withFileTypes: true });
   } catch (err) {
     if (err.code === 'ENOENT') {
-      // No schemas directory present — nothing to register.
-      _loadedAjvs.add(ajv);
-      return ajv;
+      // No schemas directory present at this cwd. Throw rather than silently
+      // latch — callers that recover via try/catch (e.g.
+      // scripts/update-coverage.js running against a tmp test workspace) rely
+      // on a subsequent call with a different cwd succeeding.
+      const wrapped = new Error(`schema-loader: schemas directory not found at ${schemasDir}`);
+      wrapped.code = 'TESTATLAS_SCHEMAS_DIR_MISSING';
+      wrapped.cause = err;
+      throw wrapped;
     }
     throw err;
   }

@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="fb23fe78087bb368d9e449e5dfc21fbccfa6ae02f06e181bceb63c20bb88590c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="48cac6b3f303b41bc0b2edaa7121ad7d2d1be79d9642a25bbddcadbf3db5a731" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-map-domains.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -21,14 +21,14 @@ Distill `_testatlas/12_app_map.json` (from `explore-codebase`) into per-domain f
 - `.testatlas/bootstrap.md` — especially §8 (no-evidence-no-finding) and §4 (capability degradation).
 - `_testatlas/12_app_map.json` — REQUIRED. If missing, halt with `Run /atlas:explore-codebase first.`
 - `.testatlas/schemas/domain.schema.json` — required JSON shape this command must satisfy for each domain sidecar.
-- `.testatlas/vocabulary.json` — `domainId` pattern (kebab-case slug rules per PRD §32).
+- `.testatlas/schemas/vocabulary.schema.json` — `domainId` pattern (kebab-case slug rules per PRD §32).
 - `_testatlas/01_system_map.md` — domain-inventory stub written by `explore-codebase`.
 
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
 2. Read `_testatlas/12_app_map.json`. Cluster entries (routes, APIs, components, jobs, integrations) into coherent domains based on URL path prefixes, file-system locality, naming conventions, and observed cross-references between handlers and modules. Prefer over-clustering (more, smaller domains) to under-clustering (one mega-domain) — fragmenting later is cheaper than splitting.
-3. For each cluster, propose a kebab-case `domainId` per PRD §32 and the `domainId` pattern in `vocabulary.json`. Names should describe a user-visible capability (`billing`, `account-settings`, `search`) rather than an internal module (`util-helpers`).
+3. For each cluster, propose a kebab-case `domainId` per PRD §32 and the `domainId` pattern in `vocabulary.schema.json`. Names should describe a user-visible capability (`billing`, `account-settings`, `search`) rather than an internal module (`util-helpers`).
 4. For each domain, write the pair `_testatlas/domains/<slug>/domain.md` (markdown narrative) and `_testatlas/domains/<slug>/domain.json` (validates against `domain.schema.json`) per PRD §15. Required content: name, description, owned routes, owned APIs, owned components, owned jobs, owned integrations, related flows (initially empty — populated later by `map-flows`), and per-claim evidence references.
    - **Preferred path (if `shell` is available):** for each clustered domain, run `node .testatlas/scripts/create-domain.js --name "<human-readable name>" --purpose "<one-line purpose>" [--workspace <p>]`. The script slugifies the name per PRD §32, AJV-validates against `domain.schema.json`, emits the three required files (`domain.json`, `index.md`, `issues/index.md`), and increments `counts.domains` in the manifest. Skip the manual file-pair authorship in this step; populate ownership claims (routes/APIs/components/jobs/integrations) into the emitted `domain.json` by appending to its arrays. Manual path: hand-author the file pair following `domain.schema.json`.
 5. For every ownership claim (this domain owns this route / API / component / job / integration), cite the originating `12_app_map.json` entry by stable identifier. The app-map entry itself already references an evidence path under `_testatlas/evidence/explore-codebase/<timestamp>/`; preserve that chain so `validate-workspace` can verify it.
