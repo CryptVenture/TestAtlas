@@ -21,7 +21,7 @@ boundary: Read-only over `_testatlas/brain/`. Never invents a fact; every claim 
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
+2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
 3. Inspect `_testatlas/brain/state.json` and `_testatlas/brain/manifest.json`.
 4. Inspect any canonical files this command needs.
 5. Follow bootstrap and this command exactly.

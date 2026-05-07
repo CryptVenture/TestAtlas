@@ -24,7 +24,7 @@ boundary: Does NOT modify issues, evidence sidecars, or any source code. Only wr
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
+2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
 3. Inspect `_testatlas/brain/manifest.json` and `_testatlas/brain/state.json` (if present).
 4. Inspect `_testatlas/to_fix/` for the issue(s) to scaffold.
 5. Follow bootstrap and this command exactly.

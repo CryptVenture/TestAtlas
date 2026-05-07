@@ -21,7 +21,7 @@ boundary: NEVER auto-runs without operator invocation. NEVER touches target-repo
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
+2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
 3. Inspect `./_testatlas/11_workspace_manifest.json` if it exists.
 4. Inspect `.testatlas/.install-manifest.json` if it exists.
 5. Follow bootstrap and this command exactly.

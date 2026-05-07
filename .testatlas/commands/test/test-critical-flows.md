@@ -26,7 +26,7 @@ boundary: Does NOT execute destructive scenarios when `allowDestructiveActions=f
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
+2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
 3. Inspect `_testatlas/brain/manifest.json`, `_testatlas/brain/state.json`, `_testatlas/02_test_strategy.md`, `_testatlas/tests/matrix.json`.
 4. Inspect `_testatlas/brain/domains.json`, `_testatlas/brain/flows.json`, and `_testatlas/to_fix/` for the prioritisation inputs.
 5. Follow bootstrap and this command exactly.

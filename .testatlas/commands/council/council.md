@@ -22,7 +22,7 @@ boundary: Does NOT execute persona work itself. Does NOT modify canonical artifa
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read this command file completely.
+2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
 3. Read `.testatlas/reference/council-protocol.md` for the full 9-round protocol, disagreement classification, and voting scale.
 4. Read `.testatlas/agents/registry.md` for the persona slate.
 5. Inspect `_testatlas/brain/state.json` and `_testatlas/brain/agent_sessions.json`.
