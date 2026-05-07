@@ -47,9 +47,9 @@ alwaysApply: false
 
 These files are **GENERATED** by `node scripts/assemble-adapter.js cursor`. Do not hand-edit them — the parity gate (`node scripts/check-adapter-parity.js`) detects hand-edits via byte-compare against a fresh in-memory render and fails CI. To customize, edit the source command at `.testatlas/commands/<name>.md` and regenerate.
 
-## V2 Command Surface (Phase 14, Wave 5)
+## V2 Command Surface (Phase 14 Wave 5; flattened in Phase 16)
 
-TestAtlas V2 adds 30 categorized commands on top of the 32 V1 flat commands. The categorized set is rendered into the adapter's output dir under `core/`, `explore/`, and `council/` subdirectories so V1 commands stay at the root and V2 commands cluster by category. Categories shipped today: `core` (8 commands incl. `init`, `status`, `bootstrap-refresh`, `brain-{compact,export,query,sync,validate}`), `explore` (11 V2 explorers), and `council` (11 council commands). The `test/`, `brain/`, `report/`, and `maintain/` categories are reserved for plans 14-06/07/08.
+TestAtlas V2 adds 41 categorized commands on top of the 32 V1 flat commands. **Per Phase 16 (`prd/reports/v2-adapter-slash-command-discovery.md`), every source command — V1 and V2 — renders as a flat file at the adapter commands root.** The categorized source-of-truth at `.testatlas/commands/<category>/<name>.md` is preserved unchanged; the adapter tree is flat by render-time policy (`commandBaseNameFromSource` in `scripts/lib/adapters/_shared.js`). Categories shipped: `core` (8), `explore` (11), `test` (4), `council` (11), `brain` (2), `report` (3), `maintain` (2) — total 41. Cursor rules don't slash-invoke — they auto-attach by glob — so the discovery model is `@atlas-<name>` mention or rules-picker attachment. Example flat outputs: `.cursor/rules/atlas-init.mdc` (V1), `.cursor/rules/atlas-core-init.mdc` (V2 `core/init.md`), `.cursor/rules/atlas-council-domain-review.mdc` (V2 `council/council-domain-review.md`).
 
 ### V2 Capabilities Declared
 

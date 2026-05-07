@@ -58,9 +58,13 @@ To safely modify a command:
 3. Run `node scripts/assemble-adapter.js --adapter gemini-cli --check` to confirm zero drift.
 4. Commit the source change AND the regenerated derived files together.
 
-## V2 Command Surface (Phase 14, Wave 5)
+## V2 Command Surface (Phase 14 Wave 5; flattened in Phase 16)
 
-TestAtlas V2 adds 30 categorized commands on top of the 32 V1 flat commands. The categorized set is rendered into the adapter's output dir under `core/`, `explore/`, and `council/` subdirectories so V1 commands stay at the root and V2 commands cluster by category. Categories shipped today: `core` (8 commands incl. `init`, `status`, `bootstrap-refresh`, `brain-{compact,export,query,sync,validate}`), `explore` (11 V2 explorers), and `council` (11 council commands). The `test/`, `brain/`, `report/`, and `maintain/` categories are reserved for plans 14-06/07/08.
+TestAtlas V2 adds 41 categorized commands on top of the 32 V1 flat commands. **Per Phase 16 (`prd/reports/v2-adapter-slash-command-discovery.md`), every source command — V1 and V2 — renders as a flat file at the adapter commands root.** The categorized source-of-truth at `.testatlas/commands/<category>/<name>.md` is preserved unchanged; the adapter tree is flat by render-time policy (`commandBaseNameFromSource` in `scripts/lib/adapters/_shared.js`). Categories shipped: `core` (8), `explore` (11), `test` (4), `council` (11), `brain` (2), `report` (3), `maintain` (2) — total 41. Example flat outputs: `.gemini/commands/atlas-init.toml` (V1), `.gemini/commands/atlas-core-init.toml` (V2 `core/init.md`), `.gemini/commands/atlas-council-domain-review.toml` (V2 `council/council-domain-review.md`).
+
+### Phase 16 fix: namespace mutation removed
+
+Per the [Gemini CLI docs](https://geminicli.com/docs/cli/custom-commands/), "Subdirectories are used to create namespaced commands, with the path separator (/ or \\) being converted to a colon (:)". Prior to v1.4.0 of `adapter-capabilities.json`, V2 categorized commands were rendered under nested category subdirs — for example, the V2 source `explore/explore-state.md` was written under a nested `explore` directory inside `.gemini/commands/`, which Gemini CLI mutated to slash-invoke as `/atlas-explore:atlas-explore-state` (host-side `dir/file → dir:file` namespacing). The flatten-at-render fix removes the mutation: the file now sits flat at `.gemini/commands/atlas-explore-state.toml` and slash-invokes as `/atlas-explore-state` (single segment, no colon). See `prd/reports/v2-adapter-slash-command-discovery.md` row #8 for the full discovery audit.
 
 ### V2 Capabilities Declared
 
@@ -81,9 +85,9 @@ This adapter runs councils in **subagent** mode. Gemini CLI multi-agent via TOML
 ### Example V2 Invocations
 
 ```
-/atlas-init                       # core/init.toml
-/atlas-status                     # core/status.toml
-/atlas-council-domain-review      # council/council-domain-review.toml
+/atlas-init                       # atlas-init.toml (V1 flat)
+/atlas-core-init                  # atlas-core-init.toml (V2 core/init.md)
+/atlas-council-domain-review      # atlas-council-domain-review.toml (V2 council/council-domain-review.md)
 ```
 
 ### Caveats

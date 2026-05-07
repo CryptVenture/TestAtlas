@@ -23,14 +23,18 @@ tree.
 
 A command's rendered output path is determined by the adapter's `outputPattern` and `outputDir`:
 
-- **Per-command-file adapters** (13 adapters: claude-code, opencode, kilocode, cursor, codex, gemini-cli, cline, windsurf, kiro, continue-dev, github-copilot, sourcegraph-amp, generic). Each source command emits one derived file. V1 flat commands land at the root of the adapter's outputDir; V2 categorized commands nest under matching `core/`, `explore/`, `council/` subdirs. Example:
+- **Per-command-file adapters** (13 adapters: claude-code, opencode, kilocode, cursor, codex, gemini-cli, cline, windsurf, kiro, continue-dev, github-copilot, sourcegraph-amp, generic). Each source command emits one derived file. **All commands — V1 flat and V2 categorized — render as flat files at the adapter commands root** (no nested category subdirs). The categorized source-of-truth at `.testatlas/commands/<category>/<name>.md` is preserved unchanged; flatness is a render-time policy, not a source-tree change. Example:
 
   ```
-  .testatlas/adapters/claude-code/.claude/commands/atlas-init.md       # flat V1
-  .testatlas/adapters/claude-code/.claude/commands/core/atlas-status.md
-  .testatlas/adapters/claude-code/.claude/commands/explore/atlas-explore-state.md
-  .testatlas/adapters/claude-code/.claude/commands/council/atlas-council-domain-review.md
+  .testatlas/adapters/claude-code/.claude/commands/atlas-init.md                    # V1 flat → atlas-init
+  .testatlas/adapters/claude-code/.claude/commands/atlas-core-init.md               # V2 core/init.md → atlas-core-init (category-prefixed)
+  .testatlas/adapters/claude-code/.claude/commands/atlas-core-status.md             # V2 core/status.md → atlas-core-status
+  .testatlas/adapters/claude-code/.claude/commands/atlas-explore-state.md           # V2 explore/explore-state.md → atlas-explore-state (basename already prefixed)
+  .testatlas/adapters/claude-code/.claude/commands/atlas-council.md                 # V2 council/council.md → atlas-council (basename matches category)
+  .testatlas/adapters/claude-code/.claude/commands/atlas-council-domain-review.md   # V2 council/council-domain-review.md → atlas-council-domain-review
   ```
+
+  See `## Slash command discovery contract` below for the rationale and the canonical flat-name policy implementation (`commandBaseNameFromSource` in `scripts/lib/adapters/_shared.js`).
 
 - **Multi-source / concatenated adapters** (5 adapters: aider, mcp, roo-code, zed, amazon-q). All commands are flattened into a single output file. The single file's adapter envelope carries an aggregate hash over `[V1 flat ∪ V2 categorized]` per-source hashes (sorted by absolute path). Examples:
 
@@ -43,6 +47,60 @@ A command's rendered output path is determined by the adapter's `outputPattern` 
   ```
 
   The MCP manifest declares each command as a separate prompt (with V2 categorized commands carrying a `category-` prefix where needed for uniqueness — e.g., `atlas-core-init` distinct from flat `atlas-init`). Aider/roo-code/zed/amazon-q render an H2 section per command (≤7 lines each), each section pointing at the source path for full instructions.
+
+## Slash command discovery contract
+
+Every per-command-file adapter renders all source commands as **flat files at the adapter commands root**. The categorized source-of-truth at `.testatlas/commands/<category>/<name>.md` is preserved for organizational clarity; it is **not** mirrored into adapter trees.
+
+### Why flat?
+
+The slash-command discovery field is non-uniform across hosts. Per the audit in `prd/reports/v2-adapter-slash-command-discovery.md` (§"Per-Adapter Discovery Matrix"):
+
+- **Flat-only enumeration** (no recursion). Claude Code (`.claude/commands/`) and Codex (`~/.codex/prompts/`) walk only the top-level command directory. Files under nested subdirs are invisible to slash-command autocomplete.
+- **Recursive with name mutation.** Gemini CLI (`~/.gemini/commands/`) recurses but converts `dir/file` to `/dir:file` per its host-side namespacing rule; a V2 file under `explore/atlas-explore-state.toml` invoked as `/atlas-explore:atlas-explore-state` instead of `/atlas-explore-state`.
+- **Recursive with auto-attach.** Cursor (`.cursor/rules/`) recurses but rules don't slash-invoke at all — they auto-attach by glob.
+- **Recursive — works.** Windsurf, Kiro, KiloCode, plus the unverified-but-likely-recursive set (opencode, cline, continue-dev, github-copilot, sourcegraph-amp).
+
+Flat at adapter root is the only universally-discoverable shape. It un-breaks the flat-only hosts and eliminates the namespace-mutation footgun on Gemini CLI without regressing any recursive host.
+
+### Flat-name policy: `commandBaseNameFromSource`
+
+The canonical flat-name function lives at `scripts/lib/adapters/_shared.js::commandBaseNameFromSource(absSourcePath)`. Three cases:
+
+1. **V1 flat source** (`.testatlas/commands/<name>.md`) → bare basename (`<name>`). E.g. `init.md` → `init`. Matches V1 byte-identity exactly.
+2. **V2 categorized, basename matches the category** (`<category>/<category>.md`) → bare basename (no double-prefix). E.g. `council/council.md` → `council`.
+3. **V2 categorized, basename starts with `<category>-`** (`<category>/<category>-<rest>.md`) → bare basename. E.g. `council/council-domain-review.md` → `council-domain-review`.
+4. **V2 categorized, otherwise** → `<category>-<basename>`. E.g. `core/init.md` → `core-init`, `core/status.md` → `core-status`.
+
+The renderers and the adapter-capabilities `outputPattern` then produce the on-disk filename `atlas-<commandBaseName>.<ext>`. Naming-collision audit: 73 source files (32 V1 flat + 41 V2 categorized) → 73 unique flat names; **zero collisions**.
+
+### Per-host discovery matrix (compressed)
+
+For the authoritative version see `prd/reports/v2-adapter-slash-command-discovery.md`.
+
+| Adapter | Discovery model | Slash invocation |
+| --- | --- | --- |
+| `claude-code` | flat — top-level only | `/atlas-<name>` |
+| `codex` | flat — top-level only | `/prompts:atlas-<name>` |
+| `gemini-cli` | recursive with `dir → :` mutation | `/atlas-<name>` (post-flatten; pre-flatten was mutated to `/atlas-explore:atlas-explore-state` for `explore/`-nested files) |
+| `cursor` | recursive auto-attach (glob) | n/a — rules auto-attach; mention as `@atlas-<name>` |
+| `windsurf` | recursive workspace walk | `/atlas-<name>` |
+| `kilocode` | recursive workflow picker | `/atlas-<name>` |
+| `kiro` | recursive skill resolver | `/atlas-<name>` |
+| `cline` | undocumented; observed flat-recursive | `/atlas-<name>.md` (filename WITH `.md`) |
+| `opencode` | undocumented | `/atlas-<name>` |
+| `continue-dev` | undocumented | `/atlas-<name>` |
+| `github-copilot` | undocumented (`.github/instructions/` is recursive) | `/atlas-<name>` |
+| `sourcegraph-amp` | undocumented | `/atlas-<name>` |
+| `generic` | manual paste — no discovery contract | n/a |
+
+### Multi-source adapters are unaffected
+
+The 5 multi-source / concatenated adapters (`aider`, `mcp`, `roo-code`, `zed`, `amazon-q`) emit a single output file each. They consume the same merged `[V1 flat ∪ V2 categorized]` source list and derive flat unique names via the same `commandBaseNameFromSource` helper for their internal section anchors / prompt names. The discovery-contract concerns above don't apply because there's no per-command file to discover.
+
+### Re-introducing nested layout requires explicit code change
+
+The `category` parameter has been removed entirely from `computeOutputPath` (`scripts/assemble-adapter.js`) and `expectedPathFor` (`scripts/lib/adapters/parity.js`). Any future attempt to nest category subdirs back into adapter trees requires reintroducing the parameter, plumbing it through the renderers, and updating the discovery-gate test (`test/commands/adapter-flat-discovery.test.js`).
 
 ## Capabilities Matrix
 
