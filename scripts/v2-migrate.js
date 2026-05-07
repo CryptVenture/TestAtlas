@@ -10,6 +10,7 @@ import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { now } from './lib/determinism.js';
+import { loadConfig } from './lib/load-config.js';
 import { assertCapability } from './lib/safety.js';
 
 const V2_DIRS = [
@@ -136,10 +137,20 @@ export async function migrateV2({
     return { status: 'already-v2', wsDir, created: [] };
   }
 
-  // Create backup (destructive — requires capability check)
+  // Create backup (destructive — requires capability check).
+  //
+  // Phase 18-01 / ISSUE-010 (CRITICAL): previously this called assertCapability
+  // with hardcoded literals + ignored the return value, making the gate
+  // structurally inert. Load the user's actual config and respect the verdict.
+  const cfg = await loadConfig({ cwd });
+  const gate = assertCapability(cfg, 'destructive-fs');
+  if (!gate.allowed) {
+    const e = new Error(`v2-migrate halted: ${gate.reason}`);
+    e.code = 'CAPABILITY_DENIED';
+    throw e;
+  }
   const nowIso = now();
   const backupPath = path.join(cwd, `_testatlas.bak.${nowIso.replace(/[:.]/g, '-')}`);
-  assertCapability({ safeMode: true, allowDestructiveActions: false }, 'destructive-fs');
   await cp(wsDir, backupPath, { recursive: true, force: true });
 
   const created = [];

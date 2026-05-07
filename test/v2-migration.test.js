@@ -118,6 +118,7 @@ test('migrate detects already-v2', async () => {
 test('migrate creates all V2 directories', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   const r = await migrateV2({ cwd: TMP_DIR });
   assert.equal(r.status, 'migrated');
@@ -151,6 +152,7 @@ test('migrate creates all V2 directories', async () => {
 test('migrate creates brain files', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   await migrateV2({ cwd: TMP_DIR });
 
@@ -174,6 +176,7 @@ test('migrate creates brain files', async () => {
 test('migrate preserves V1 data', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   await migrateV2({ cwd: TMP_DIR });
 
@@ -197,6 +200,7 @@ test('migrate preserves V1 data', async () => {
 test('migrate updates manifest schema_version', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   await migrateV2({ cwd: TMP_DIR });
 
@@ -208,6 +212,7 @@ test('migrate updates manifest schema_version', async () => {
 test('migrate creates backup', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   const r = await migrateV2({ cwd: TMP_DIR });
   assert.ok(r.backupPath, 'Expected backup path');
@@ -221,6 +226,7 @@ test('migrate creates backup', async () => {
 test('migrate appends event to events.jsonl', async () => {
   await cleanup();
   await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
 
   await migrateV2({ cwd: TMP_DIR });
 
