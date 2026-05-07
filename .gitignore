@@ -55,4 +55,5 @@ prd
 
 CLAUDE.md
 AGENTS.md
-.claude/tmp-test-v2-migration/
+tmp-test-v2-migration/
+.claude/
