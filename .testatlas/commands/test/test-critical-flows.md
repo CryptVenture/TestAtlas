@@ -58,7 +58,7 @@ ranks high under at least two of them.
 2. **`_testatlas/tests/matrix.json` scenario coverage** — flows with the
    highest count of high/critical-priority scenarios. Flows with zero
    scenarios are NOT executed by this command (they have no oracle); they
-   are silently skipped with a recommendation to run `/atlas:test/generate-scenarios` first.
+   are silently skipped with a recommendation to run `/atlas:generate-scenarios` first.
 3. **Domain priority** — `_testatlas/brain/domains.json` `priority`
    ordering. Business-critical domains first (auth, payments, identity,
    data-write paths) ahead of nice-to-have domains.

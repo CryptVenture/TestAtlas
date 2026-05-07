@@ -35,7 +35,7 @@ If there is a conflict:
 
 ## Purpose
 
-Answer questions about the workspace using only what is written down — `_testatlas/brain/*.json`, `*.jsonl`, plus the canonical artifacts those indexes point at. Every assertion in the answer must cite a file path. If the answer cannot be derived from the brain, the agent says so explicitly and proposes a `/atlas:explore-*` follow-up.
+Answer questions about the workspace using only what is written down — `_testatlas/brain/*.json`, `*.jsonl`, plus the canonical artifacts those indexes point at. Every assertion in the answer must cite a file path. If the answer cannot be derived from the brain, the agent says so explicitly and proposes a `/atlas:explore-<area>` follow-up.
 
 ## Required First Reads
 
@@ -86,5 +86,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query
 
 ## What's Next
 
-- Question revealed a coverage gap → `/atlas:explore-*` for the missing area.
+- Question revealed a coverage gap → `/atlas:explore-<area>` for the missing area.
 - Question revealed stale data → `/atlas:brain-sync` then re-query.

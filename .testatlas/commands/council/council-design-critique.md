@@ -104,6 +104,6 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:test flow <flow-id>` to validate any proposed regression scenarios.
+- `/atlas:test-flow scenario=<id>` to validate any proposed regression scenarios.
 - `/atlas:report` to surface UX/A11y findings in the next quality report.
 - Project-side: route critiques to design / engineering.

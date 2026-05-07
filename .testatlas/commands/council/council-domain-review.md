@@ -110,4 +110,4 @@ Every council session produces:
 
 - `/atlas:report` to refresh the latest quality report.
 - `/atlas:brain-validate` to confirm consolidation produced valid brain state.
-- If disputed claims remain, queue a `/atlas:council red-team <domain>` to challenge them.
+- If disputed claims remain, queue a `/atlas:council-red-team` to challenge them.

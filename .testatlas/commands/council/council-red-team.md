@@ -103,6 +103,6 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:retest issue <id>` for any newly invalidated claim that maps to an issue.
+- `/atlas:retest --issue <id>` for any newly invalidated claim that maps to an issue.
 - `/atlas:report` to surface the recalibrated confidence map.
-- `/atlas:council brain-audit` if many claims were invalidated (likely systemic doc drift).
+- `/atlas:council-brain-audit` if many claims were invalidated (likely systemic doc drift).

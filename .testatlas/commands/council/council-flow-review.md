@@ -104,6 +104,6 @@ Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after rou
 
 ## What's Next
 
-- `/atlas:test flow <flow-id>` to validate council-proposed test scenarios.
+- `/atlas:test-flow` to validate council-proposed test scenarios.
 - `/atlas:report` to refresh the quality report.
 - If new issue candidates were generated, run `/atlas:triage` to prioritize.

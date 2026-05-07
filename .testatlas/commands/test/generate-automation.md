@@ -58,7 +58,7 @@ suite:
 
 ## When to Run
 
-- After `/atlas:test/generate-scenarios` produces a new scenario set and the operator wants automation seeds.
+- After `/atlas:generate-scenarios` produces a new scenario set and the operator wants automation seeds.
 - After `/atlas:log-issue` files an issue with a reproducible failure path that can be promoted into a regression.
 - During the `automation-engineer` persona's pass after a council round.
 

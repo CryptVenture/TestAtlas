@@ -30,7 +30,14 @@ import { test } from 'node:test';
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 import { extractFrontmatter } from '../../scripts/lib/parse-frontmatter.js';
 
-const ATLAS_REF_RE = /\/atlas:([a-z][a-z0-9-]*)/g;
+// Match `/atlas:<slug>` where slug starts with a lowercase letter, contains
+// `[a-z0-9-]`, and DOES NOT end with `-`. The trailing-dash exclusion is
+// deliberate: text like `/atlas:explore-<area>` is a literal placeholder
+// describing user-supplied input, not a real reference. The regex's negative
+// lookahead `(?![a-z0-9-])` ensures we capture the maximal valid slug; the
+// non-trailing-dash anchor `[a-z0-9]` after the optional dash-segment ensures
+// `explore-` (truncated form) is not captured as `explore-`.
+const ATLAS_REF_RE = /\/atlas:([a-z][a-z0-9]*(?:-[a-z0-9]+)*)/g;
 
 // Roots that are entry points; no inbound link expected.
 const ROOT_ALLOWLIST = new Set(['atlas-init', 'atlas-bootstrap']);
