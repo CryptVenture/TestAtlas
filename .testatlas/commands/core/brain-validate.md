@@ -79,6 +79,18 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
 - `_testatlas/` missing entirely → halt with `Run /atlas:init first.`
 - No findings → success path; close lifecycle and exit.
 
+## Brain Files Inventory
+
+The 22 required brain files validated by this command:
+
+- `_testatlas/brain/manifest.json` — V2 manifest (schema_version, suite_version, project_name, adapters).
+- `_testatlas/brain/state.json` — current workspace state snapshot.
+- `_testatlas/brain/quality_scores.json` — per-domain/flow quality score signals.
+- `_testatlas/brain/drift.json` — drift signals across markdown↔JSON boundaries.
+- `_testatlas/brain/coverage.json` — coverage matrix indexed by flow + scenario.
+- `_testatlas/brain/graph.json` — 16-relationship knowledge graph (populated by `node .testatlas/scripts/update-graph.js` from `/atlas:brain-sync`).
+- Remaining 16 JSON/JSONL indexes per V2 brain schema (`events.jsonl`, council/persona/agent indexes, etc.) — full enumeration in `.testatlas/schemas/manifest.schema.json`.
+
 ## Completion Criteria
 
 - All 22 brain files (19 JSON + 3 JSONL) inspected.
