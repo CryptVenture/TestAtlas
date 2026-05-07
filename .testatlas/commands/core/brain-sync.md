@@ -54,6 +54,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 1. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/sync-markdown-json.js`. The script is idempotent — second invocation with no on-disk changes writes nothing.
    - Run `node .testatlas/scripts/index-artifacts.js` to rebuild brain indexes from artifact scans.
+   - Run `node .testatlas/scripts/update-graph.js` to refresh `_testatlas/brain/graph.json` (PRD §11 16-relationship knowledge graph).
    - Run `node .testatlas/scripts/validate-brain.js` to confirm the brain is schema-valid post-sync.
 2. **Fallback path (no `shell`):**
    - Read each domain's `domain.md` + `domain.json`; if mtimes differ, surface drift; mark run `confidence: needs-validation`.
