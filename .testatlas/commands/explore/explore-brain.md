@@ -1,0 +1,122 @@
+---
+command: explore-brain
+version: 2.0.0
+description: Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing indexes, dangling cross-references, drift between markdown and JSON, orphaned evidence.
+capabilities: [shell, file-write]
+produces:
+  - command-result
+  - evidence
+consumes:
+  - workspace-manifest
+lifecycle:
+  - 03_execution_status.md
+  - 09_artifact_index.md
+  - 10_command_log.md
+  - 11_workspace_manifest.json
+  - history/run_log.md
+boundary: Read-only over `_testatlas/brain/`, `_testatlas/domains/`, `_testatlas/flows/`, `_testatlas/to_fix/`, `_testatlas/evidence/`. Does NOT auto-fix drift — surfaces findings to be resolved by `/atlas:brain-sync` or hand-edit. Does NOT fabricate findings when shell unavailable.
+---
+
+# TestAtlas Command (V2): explore-brain
+
+Before doing anything else:
+
+1. Read `.testatlas/bootstrap.md`.
+2. Read this command file completely.
+3. Inspect `_testatlas/11_workspace_manifest.json` if present.
+4. Inspect `_testatlas/brain/manifest.json` and `_testatlas/brain/state.json`.
+5. Follow bootstrap and this command exactly.
+
+If there is a conflict:
+
+1. Higher-priority runtime/system/developer instructions win.
+2. Safety rules win over task ambition.
+3. Bootstrap persistence and workspace rules win unless this command is more specific and not less safe.
+4. Verified repository truth wins over stale documentation.
+
+## Purpose
+
+Audit the V2 brain workspace for consistency:
+- **Stale docs:** markdown files older than their backing JSON, or JSON last-updated stamps older than the file system mtime.
+- **Invalid JSON / JSONL:** files that fail AJV validation or `JSON.parse`.
+- **Missing indexes:** brain index files that reference non-existent artifacts, or artifacts on disk missing from the brain index.
+- **Dangling cross-references:** `requires` / `affects` / `causedBy` / `evidenceRef` IDs that point to non-existent records.
+- **Markdown↔JSON drift:** `<!-- TESTATLAS:GENERATED -->` blocks not synced with the JSON source.
+- **Orphaned evidence:** files under `_testatlas/evidence/` not cited by any artifact.
+
+This command runs read-only audits and surfaces findings; it never auto-fixes. Use `/atlas:brain-sync` (V2 core command) or hand-edit to resolve.
+
+## Required First Reads
+
+- `.testatlas/bootstrap.md` — §4 (capability degradation), §8 (no-evidence-no-finding), §11 (brain integrity).
+- `_testatlas/brain/manifest.json` — schema versions, file enumeration.
+- `_testatlas/brain/state.json` — counts vs reality.
+- `.testatlas/schemas/*` — full schema set for AJV validation.
+
+## Required Actions
+
+1. **No evidence, no finding.** Per `bootstrap.md` §8.
+
+2. **Capability check.** Requires `shell` to invoke `node scripts/validate-brain.js` and walk the workspace tree. If unavailable, degrade to a single-file scan starting at `manifest.json`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`.
+
+3. **Phase 1 — Validation sweep.** Invoke `node scripts/validate-brain.js --suite-cwd <repo-root>`. Capture stdout/stderr to `evidence/validate-brain.txt`. Each finding from `validate-brain.js` (`BRAIN_DIR_MISSING`, `BRAIN_FILE_MISSING`, `BRAIN_JSON_PARSE_ERROR`, `BRAIN_JSONL_PARSE_ERROR`, `BRAIN_REQUIRED_FIELD_MISSING`, `BRAIN_SCHEMA_VIOLATION`) becomes a row in the audit report.
+
+4. **Phase 2 — Stale-doc detection.** For each pair `(domains/<slug>/domain.md, domains/<slug>/domain.json)`, `(flows/<slug>/flow.md, flow.json)`, `(to_fix/<id>/issue.md, issue.json)`:
+   - Compare file mtimes.
+   - Compare `last_updated` field (when present in the JSON) against file mtime.
+   - Flag pairs where md mtime > json mtime + 60s OR json `last_updated` < (now - 30 days) as stale.
+   - Append to `evidence/stale.json` with `{path, mdMtime, jsonMtime, jsonLastUpdated}`.
+
+5. **Phase 3 — Index consistency.** For each brain index (`brain/{domains,flows,issues,evidence,personas,decisions}.json`):
+   - Walk the corresponding artifact directory under `_testatlas/`.
+   - Find IDs in the index not present on disk (dangling-in-index).
+   - Find IDs on disk not present in the index (missing-from-index).
+   - Append to `evidence/index-drift.json`.
+
+6. **Phase 4 — Cross-reference resolution.** Walk every artifact JSON and resolve every cross-ref field (`requires`, `affects`, `causedBy`, `evidenceRefs`, `relatedClaimIds`, `routeCoverage`, etc.) against the brain index. Unresolved refs become dangling-ref findings. Append to `evidence/dangling-refs.json` with `{from, fieldName, targetId}`.
+
+7. **Phase 5 — Generated-block drift.** For each markdown with a `<!-- TESTATLAS:GENERATED:START section="X" -->...<!-- TESTATLAS:GENERATED:END section="X" -->` block, recompute the expected content from the JSON source by invoking `node scripts/sync-markdown-json.js --dry-run`. Diff the dry-run output against the on-disk markdown. Append diffs to `evidence/generated-drift.json`.
+
+8. **Phase 6 — Orphaned evidence.** Walk `_testatlas/evidence/`. For each file, search `brain/evidence.json` and every artifact JSON for a citation. Files not cited anywhere are orphans. Append to `evidence/orphans.json`.
+
+9. **Aggregate report.** Synthesize findings into `evidence/audit-report.md` with sections: validation findings, stale docs, index drift, dangling refs, generated-block drift, orphans. Sort by severity (failed validation > dangling refs > stale > orphans).
+
+10. **Persist + write.** This command is read-only — it writes only to `_testatlas/evidence/explore-brain/<timestamp>/` and the lifecycle files. If the audit yields zero findings, still write an empty `audit-report.md` recording the all-clear timestamp.
+
+11. Close the lifecycle.
+
+## Outputs
+
+- `_testatlas/evidence/explore-brain/<timestamp>/` — `validate-brain.txt`, `stale.json`, `index-drift.json`, `dangling-refs.json`, `generated-drift.json`, `orphans.json`, `audit-report.md`.
+- No mutations to brain files; remediation is `/atlas:brain-sync` or hand-edit.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — completion state, audit-report path, finding counts by category.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
+- `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/history/run_log.md` — narrative: "Audited brain — `<n>` validation findings / `<s>` stale / `<d>` dangling refs / `<o>` orphans in `_testatlas/evidence/explore-brain/<ts>/`."
+
+Then run `node scripts/update-brain-after-command.js --command explore-brain --actor agent --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:brain-sync` runs and would mask drift this audit just surfaced.
+
+## Stop Conditions
+
+- `shell` unavailable → halt; the audit cannot run a partial scan without re-reading every artifact.
+- `_testatlas/brain/` does not exist → halt: "Run `/atlas:init --mode upgrade` first."
+- Any captured artifact path fails to materialize on disk → halt; this command itself must produce real evidence.
+
+## Completion Criteria
+
+- Six audit-phase outputs all written under the timestamped evidence dir.
+- `audit-report.md` synthesizes findings (or records all-clear).
+- The 5 lifecycle files updated.
+- `update-brain-after-command.js` ran (without `--reindex`).
+
+## What's Next
+
+- **`/atlas:brain-sync`** — apply remediations for stale docs and generated-block drift.
+- **`/atlas:brain-validate`** — run full AJV validation if this audit pointed at schema violations.
+- **`/atlas:explore-release-readiness`** — incorporate brain audit results into release decision.
