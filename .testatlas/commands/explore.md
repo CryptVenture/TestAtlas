@@ -116,6 +116,25 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `10_command_log.md` row records `executionMode` matching the selected mode.
 - Zero stop conditions triggered.
 
+## V2 Explorer Classification
+
+V2 ships 10 additional explorers beyond the V1 set above. Use this table to classify them alongside the V1 sub-explorers when building `_testatlas/explore-plan.md`. Each row maps the V2 surface concern to its slash command — invoke directly or surface via `/atlas:explore-all`.
+
+| Explorer | Slash | Concern |
+|---|---|---|
+| State | `/atlas:explore-state` | UI state machines, persistence, hydration, recovery (PRD §13.1 5-state matrix) |
+| Errors | `/atlas:explore-errors` | Error boundaries, exception handling, fallback UI, retry patterns |
+| Components | `/atlas:explore-components` | Reusable component inventory, prop contracts, design system map |
+| Routes | `/atlas:explore-routes` | Route table, params, guards, redirects, public/private split |
+| Jobs | `/atlas:explore-jobs` | Background workers, queues, schedulers, retry policies |
+| Security & Privacy | `/atlas:explore-security-privacy` | Auth flows, secrets handling, PII paths, privacy controls |
+| Observability | `/atlas:explore-observability` | Logging, metrics, tracing, alerting, dashboards |
+| Tests | `/atlas:explore-tests` | Test coverage, frameworks, harnesses, CI gates |
+| Brain | `/atlas:explore-brain` | V2 brain layer state — drift, scores, knowledge graph |
+| Release Readiness | `/atlas:explore-release-readiness` | Release-readiness signals across the workspace |
+
+Recommendation rule of thumb: every product → `recommended` for `explore-state` + `explore-errors` + `explore-tests`; web/UI products → also `recommended` for `explore-routes` + `explore-components`; backend/job-heavy products → also `recommended` for `explore-jobs` + `explore-observability`; multi-tenant or auth-bearing products → also `recommended` for `explore-security-privacy`; release candidates → also `recommended` for `explore-release-readiness`; long-running workspaces → also `recommended` for `explore-brain` (drift hygiene).
+
 ## What's Next
 
 Now that the explore-plan is routed and the product overview aggregated:
