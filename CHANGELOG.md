@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Fixed
+
+- **Quick 260507-hzw — Adapter-aware preamble path injection (Option 3).** PRD §23 BOOTSTRAP_PREAMBLE now carries an `{{ADAPTER_COMMAND_PATH}}` placeholder that adapter renderers substitute with the rendered file's actual TARGET-repo install path (e.g. `.kilocode/workflows/atlas-bootstrap.md` for KiloCode, `.claude/commands/atlas-bootstrap.md` for Claude Code, `CONVENTIONS.md` for Aider, `.roo/rules/atlas.md` for Roo Code). Closes the empirical KiloCode bug where the agent literally interpreted "Then read this command file" and probed the wrong filesystem path based on training-data priors. Substitution applies in `scripts/assemble-adapter.js` (per-command-file + multi-source aggregate writers) and `scripts/lib/adapters/parity.js` (layer-2 byte-compare); MCP runtime `prompts/get` substitutes with `<MCP prompt: atlas-N>` since MCP delivery has no on-disk file. Hash-stability invariant preserved — marker.hash is computed from placeholder-bearing source before substitution. New regression test `test/commands/adapter-command-path-substitution.test.js` (7 assertions, all GREEN). Suite: 1586/1588 GREEN; strict adapter parity: 1314/1314 obligations satisfied.
+
 ### Added
 
 - **Phase 14 / Plan 14-08 — V2 Multi-Agent Quality Intelligence Brain (Wave 8: dashboard data export + optional SQLite + final integration + docs + V2 release notes).** Closed Phase 14: V2 brain state is now machine-readable for downstream consumers (external dashboards, CI status pages, vendor portals), an optional SQLite projector ships with graceful-degrade semantics, end-to-end V2 workflow integration is locked behind a regression test, and the full V2 surface is documented.
