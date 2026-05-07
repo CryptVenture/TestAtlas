@@ -65,6 +65,54 @@ const NESTED_DIRS = [
   'evidence/performance',
 ];
 
+// V2 directory additions (Phase 14, per V2-PRD §7.4). Mirrors
+// scripts/init-workspace.js V2_NESTED_DIRS exactly.
+const V2_NESTED_DIRS = [
+  'bootstrap',
+  'brain/schema',
+  'agents/personas/system',
+  'agents/personas/generated',
+  'agents/personas/project',
+  'agents/councils/council_templates',
+  'agents/councils/sessions',
+  'agents/councils/transcripts',
+  'agents/councils/outputs',
+  'agents/councils/consolidations',
+  'agents/handoffs',
+  'agents/outputs',
+  'agents/scorecards',
+  'maps',
+  'tests/generated_automation',
+  'tests/retest_packs',
+];
+
+// Recursive dir contribution from V2_NESTED_DIRS. countDirsRecursive() counts
+// every directory entry it encounters; some intermediate path components
+// (brain/, agents/, agents/personas/, agents/councils/) are counted once each.
+//
+// Enumeration of unique recursive dir entries created by V2_NESTED_DIRS
+// (excluding any path component that already existed via TOP_LEVEL_SUBDIRS):
+//   bootstrap                                  (1)  +1 new top-level
+//   brain, brain/schema                        (2)  +1 top-level, +1 nested
+//   agents, agents/personas,
+//     agents/personas/system                   (3)  +1 top-level, +2 nested
+//   agents/personas/generated                  (1)
+//   agents/personas/project                    (1)
+//   agents/councils,
+//     agents/councils/council_templates        (2)
+//   agents/councils/sessions                   (1)
+//   agents/councils/transcripts                (1)
+//   agents/councils/outputs                    (1)
+//   agents/councils/consolidations             (1)
+//   agents/handoffs                            (1)
+//   agents/outputs                             (1)
+//   agents/scorecards                          (1)
+//   maps                                       (1)  +1 new top-level
+//   tests/generated_automation                 (1)  (tests/ already exists)
+//   tests/retest_packs                         (1)
+// Total: 20.
+const V2_DIR_CONTRIBUTION = 20;
+
 const CANONICAL_FILES = [
   '00_overview.md',
   '01_system_map.md',
@@ -112,29 +160,33 @@ test('WORK-01: creates all 23 top-level subdirectories', async (t) => {
   }
 });
 
-test('WORK-01: creates all nested subdirectories (47 total dirs incl. root)', async (t) => {
+test('WORK-01: creates all nested subdirectories (V1 + V2 layout)', async (t) => {
   const fx = await makeWorkspaceFixture();
   t.after(fx.cleanup);
 
   const r = await initWorkspace({ cwd: fx.cwd });
 
-  // 1 (wsDir itself, but counted by parent) + 23 top-level + 23 nested = 46 under wsDir.
-  // Total directories per <authoritative_data> = 47 (1 + 23 + 23).
+  // V1: 23 TOP_LEVEL_SUBDIRS + 23 NESTED_DIRS = 46 child dirs under wsDir.
+  // V2 (Phase 14, per V2-PRD §7.4): +20 dirs from V2_NESTED_DIRS (see
+  // V2_DIR_CONTRIBUTION rationale above).
+  // Total expected child dirs under wsDir = 46 + 20 = 66.
   const childDirCount = await countDirsRecursive(r.wsDir);
+  const expected = TOP_LEVEL_SUBDIRS.length + NESTED_DIRS.length + V2_DIR_CONTRIBUTION;
   assert.equal(
     childDirCount,
-    TOP_LEVEL_SUBDIRS.length + NESTED_DIRS.length,
-    `expected ${TOP_LEVEL_SUBDIRS.length + NESTED_DIRS.length} dirs under wsDir, got ${childDirCount}`,
+    expected,
+    `expected ${expected} dirs under wsDir, got ${childDirCount}`,
   );
 
-  // Plus the wsDir itself = 47 total.
-  const totalDirs = childDirCount + 1;
-  assert.equal(totalDirs, 47, 'total directories (incl. wsDir root) must be 47');
-
-  // Every nested dir is a directory.
+  // Every V1 nested dir is a directory.
   for (const nested of NESTED_DIRS) {
     const s = await stat(path.join(r.wsDir, nested));
     assert.ok(s.isDirectory(), `nested dir ${nested} must exist`);
+  }
+  // Every V2 nested dir is a directory.
+  for (const nested of V2_NESTED_DIRS) {
+    const s = await stat(path.join(r.wsDir, nested));
+    assert.ok(s.isDirectory(), `V2 nested dir ${nested} must exist`);
   }
 });
 
@@ -152,7 +204,14 @@ test('WORK-01/WORK-02: writes all 14 canonical files from templates', async (t) 
     assert.ok(content.length > 0, `${file} must be non-empty`);
   }
 
-  assert.equal(r.created.length, CANONICAL_FILES.length);
+  // V2 surface: created.length includes V1 canonicals + V2 brain JSONs +
+  // agents/registry + history files. The 14 V1 canonicals are verified by
+  // the per-file stat loop above; the inequality keeps the test
+  // forward-compatible with future V2 surface additions.
+  assert.ok(
+    r.created.length >= CANONICAL_FILES.length,
+    `expected >=${CANONICAL_FILES.length} created files, got ${r.created.length}`,
+  );
 });
 
 test('WORK-01: 12_app_map.json parses and has all 11 required arrays empty', async (t) => {
@@ -350,7 +409,10 @@ test('WORK-02: --force overrides ambiguous-workspace refusal', async (t) => {
   // 'partial-fill' (canonicals were missing). Either way, --force succeeds
   // where without --force it would have thrown TESTATLAS_AMBIGUOUS_WORKSPACE.
   assert.ok(['initialized', 'partial-fill'].includes(r.status));
-  assert.equal(r.created.length, 14, 'should write all 14 canonicals');
+  assert.ok(
+    r.created.length >= 14,
+    `--force should write at least 14 canonicals + any V2 surface; got ${r.created.length}`,
+  );
 });
 
 // ─────────────────────────── WORK-06 guard ───────────────────────────

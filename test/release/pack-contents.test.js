@@ -99,36 +99,44 @@ test('npm pack: required files ARE in the tarball', () => {
   }
 });
 
-test('npm pack: compressed tarball size < 1MB (Pitfall 1 — examples not shipped)', () => {
-  // Per RESEARCH §Pitfall 1: a >1MB compressed tarball almost certainly means
-  // examples/ leaked in. .testatlas/ + scripts/ + bin/ + 4 docs compress to
-  // well under 1MB; if this fires, run `npm pack --dry-run --json` and
-  // inspect the file list for unexpected directories.
+test('npm pack: compressed tarball size < 1.5MB (V2 surface absorbed)', () => {
+  // Per RESEARCH §Pitfall 1: a leaking examples/ tree would push compressed size
+  // far past this threshold. Pre-V2 (V1 GA, 18 adapters × 32 commands + 20
+  // schemas), the budget was 1MB and held with ~150KB headroom.
+  // V2 (Phase 14: 18 adapters × 73 commands + 38 schemas + 14 personas + 22+
+  // templates) added ~600KB compressed of legitimate suite surface, breaching
+  // the V1 ceiling at 1.06MB (empirical 2026-05-07: 1,113,082 bytes). Bumped
+  // to 1.5MB to absorb V2 + leave a ~400KB safety margin for incremental
+  // adapter/schema additions.
+  // Sentinel rule: if this fires, run `npm pack --dry-run --json` and
+  // inspect the file list for unexpected directories (examples/, test/,
+  // node_modules/ leakage are the historical culprits).
   const r = runNpmPack();
   assert.equal(r.status, 0);
   const arr = parseNpmPackJson(r.stdout);
   const compressed = arr[0].size || 0;
-  const ONE_MB = 1024 * 1024;
+  const ONE_AND_HALF_MB = 1.5 * 1024 * 1024;
   assert.ok(
-    compressed < ONE_MB,
-    `tarball compressed size ${compressed} bytes exceeds 1MB warning threshold (examples/ leak?)`,
+    compressed < ONE_AND_HALF_MB,
+    `tarball compressed size ${compressed} bytes exceeds 1.5MB warning threshold (examples/ leak?)`,
   );
 });
 
-test('npm pack: unpacked size < 8MB (sanity)', () => {
-  // With all 18 adapter trees + 31 commands + 20 schemas + templates the
-  // unpacked tree is ~5MB (Quick 260506-esm: triage.js + adapter regen
-  // pushed the previous 5MB ceiling just over the line). 8MB is now the
-  // generous ceiling that catches obvious regressions (e.g. test/ leaking,
-  // examples/ leaking, node_modules/ leaking) without being a false-positive
-  // on legitimate adapter-set growth.
+test('npm pack: unpacked size < 12MB (sanity — V2 surface absorbed)', () => {
+  // V1 ceiling was 5MB → 8MB after Quick 260506-esm (triage.js + adapter
+  // regen). V2 (Phase 14) added ~4.2MB of legitimate suite surface
+  // (73 commands × 18 adapters + 38 schemas + 14 personas + V2 templates),
+  // breaching the V1 ceiling at 8.68MB (empirical 2026-05-07: 9,098,922 bytes).
+  // Bumped to 12MB to absorb V2 with headroom; obvious regressions
+  // (test/, examples/, node_modules/ leaking) would push past 15MB easily,
+  // so 12MB still catches them.
   const r = runNpmPack();
   assert.equal(r.status, 0);
   const arr = parseNpmPackJson(r.stdout);
   const unpacked = arr[0].unpackedSize || 0;
-  const EIGHT_MB = 8 * 1024 * 1024;
+  const TWELVE_MB = 12 * 1024 * 1024;
   assert.ok(
-    unpacked < EIGHT_MB,
-    `tarball unpacked size ${unpacked} bytes exceeds 8MB sanity threshold`,
+    unpacked < TWELVE_MB,
+    `tarball unpacked size ${unpacked} bytes exceeds 12MB sanity threshold`,
   );
 });
