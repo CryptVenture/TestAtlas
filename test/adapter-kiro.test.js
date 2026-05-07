@@ -10,7 +10,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
+import { BOOTSTRAP_PREAMBLE_PREFIX, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
 import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
@@ -67,7 +67,7 @@ test('Test 3: envelope present; marker source + hash match V1-flat or V2-categor
       hashContent(expected.sourceText),
       `${name}: hash mismatch with source`,
     );
-    assert.ok(text.includes(BOOTSTRAP_PREAMBLE), `${name}: must contain bootstrap preamble`);
+    assert.ok(text.includes(BOOTSTRAP_PREAMBLE_PREFIX), `${name}: must contain bootstrap preamble`);
   }
 });
 

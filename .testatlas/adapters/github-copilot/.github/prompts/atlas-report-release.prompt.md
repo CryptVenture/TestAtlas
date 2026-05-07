@@ -4,7 +4,7 @@ description: Render a release readiness report with go/no-go assessment combinin
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="592a7c23be4f66df25ecc48f6d1f74a7b8d7245493340b5e69508bf87e19f1e6" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-report-release.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

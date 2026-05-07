@@ -5,7 +5,7 @@ invokable: true
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="ee27934cd50ddbe46e4ad11e2de7570488c29ebba7c1fba77743e34ea1ce691d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-errors.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

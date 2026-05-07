@@ -5,7 +5,7 @@ invokable: true
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="37a3384446d0cd35710ecc126e8ee046640a616dc75b0c6e500d0f2bf1f30a04" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-release-readiness.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

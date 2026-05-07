@@ -4,7 +4,7 @@ auto_execution_mode: 1
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="6b5bbedb2eb9c4bc4cc417ab9667276d668b7b7322ad79ebffbd800ec5d7421e" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-handoff.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

@@ -4,7 +4,7 @@ auto_execution_mode: 1
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="7c6e9479a2e6c822bd196b1b998f9eb40a5aac09b01ca66cf31845bcec78ff6f" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-accessibility.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

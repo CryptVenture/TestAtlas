@@ -4,7 +4,7 @@ description: Execute domain-scoped scenarios across PRD §26 modes (negative/sta
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="1d9238bdfc8c299970c2c15b592c6bebe4de337ce19e1e79e3a468d2907743ef" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-test-domain.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

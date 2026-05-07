@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-components. Invoke as /prompts:atlas-explore-components. Description: Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-components.md" hash="732ce120b1ce5f582fdf2e65a9e23d6562e97c0acfa919352a8025ab64fdc848" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-components.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

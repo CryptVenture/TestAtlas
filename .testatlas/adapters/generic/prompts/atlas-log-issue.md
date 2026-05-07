@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-log-issue. Paste .testatlas/bootstrap.md first; description: Capture a quality finding as an issue under to_fix/ with severity, confidence, evidence references, and back-links to flows/domains per PRD §17. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/log-issue.md" hash="3e9f88f69cc1f38cf7a70dedaceeae40d32c1d9f88b1779c592869315ddfbf72" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-log-issue.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

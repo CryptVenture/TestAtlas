@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-retest. Invoke as /atlas-retest. Description: Re-execute the original repro for issues with status=fixed_pending_retest; transition to closed (recovered) or reopened (still failing); append append-only retest history; capture new evidence. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf89e6a0652ef599a63c715d8a795c6d2d315ea097b1cb882d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

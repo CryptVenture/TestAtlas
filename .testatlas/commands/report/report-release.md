@@ -22,7 +22,7 @@ boundary: Does NOT modify any source artifacts. Reads `_testatlas/brain/quality_
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/quality_scores.json`, `_testatlas/brain/drift.json`, `_testatlas/brain/issues.json`, `_testatlas/brain/decisions.json`, `_testatlas/brain/risks.json`, `_testatlas/brain/agent_sessions.json`.
 4. Follow bootstrap and this command exactly.
 

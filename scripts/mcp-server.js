@@ -36,7 +36,11 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, commandBaseNameFromSource } from './lib/adapters/_shared.js';
+import {
+  BOOTSTRAP_PREAMBLE,
+  commandBaseNameFromSource,
+  substituteAdapterCommandPath,
+} from './lib/adapters/_shared.js';
 import { listCommandFiles } from './lib/list-command-files.js';
 import { extractFrontmatter, parseFrontmatter } from './lib/parse-frontmatter.js';
 
@@ -183,7 +187,15 @@ function dispatch({ request, catalog }) {
     if (!entry) {
       return err(id, -32602, `Unknown prompt: ${name}`);
     }
-    const text = `${BOOTSTRAP_PREAMBLE}\n\n${entry.body.trimStart()}`;
+    // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} placeholder.
+    // MCP prompts have no on-disk file the agent can re-read, so substitute
+    // with the prompt-name-shaped pseudo-path "<MCP prompt: atlas-<name>>"
+    // to make it explicit the body is delivered via JSON-RPC, not from disk.
+    const preamble = substituteAdapterCommandPath(
+      BOOTSTRAP_PREAMBLE,
+      `<MCP prompt: ${entry.name}>`,
+    );
+    const text = `${preamble}\n\n${entry.body.trimStart()}`;
     return ok(id, {
       description: entry.description,
       messages: [

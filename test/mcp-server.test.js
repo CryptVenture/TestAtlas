@@ -19,7 +19,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE } from '../scripts/lib/adapters/_shared.js';
+import { BOOTSTRAP_PREAMBLE_PREFIX } from '../scripts/lib/adapters/_shared.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
@@ -187,9 +187,17 @@ test('Test 3 (prompts/get atlas-init): returns description + messages[0].content
   assert.equal(msg.role, 'user');
   assert.equal(msg.content?.type, 'text');
   assert.ok(typeof msg.content.text === 'string');
+  // Quick 260507-hzw: BOOTSTRAP_PREAMBLE carries an {{ADAPTER_COMMAND_PATH}}
+  // placeholder substituted at runtime per delivery channel. MCP server
+  // substitutes with `<MCP prompt: atlas-<name>>`. The placeholder-free
+  // prefix is byte-stable across all channels and is what we pin here.
   assert.ok(
-    msg.content.text.includes(BOOTSTRAP_PREAMBLE),
-    `prompts/get atlas-init text must contain BOOTSTRAP_PREAMBLE verbatim`,
+    msg.content.text.includes(BOOTSTRAP_PREAMBLE_PREFIX),
+    `prompts/get atlas-init text must contain bootstrap preamble`,
+  );
+  assert.ok(
+    msg.content.text.includes('<MCP prompt: atlas-init>'),
+    `prompts/get atlas-init text must substitute {{ADAPTER_COMMAND_PATH}} for the MCP-prompt pseudo-path`,
   );
 });
 

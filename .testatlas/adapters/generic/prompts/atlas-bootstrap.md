@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-bootstrap. Paste .testatlas/bootstrap.md first; description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="cb6b814404554b3e6eeeb914e1b1c96f97920650f88fe44d0415c377643836c5" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-bootstrap.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

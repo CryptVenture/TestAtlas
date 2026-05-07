@@ -10,7 +10,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
+import { expectedPreambleFor, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
@@ -57,10 +57,13 @@ test('Test 2: each prompt has NO YAML frontmatter; envelope present; BOOTSTRAP_P
       l.includes('TESTATLAS:GENERATED:START section="adapter-body"'),
     );
     assert.ok(startIdx !== -1, `${name}: missing GENERATED:START marker line`);
+    // Quick 260507-hzw: BOOTSTRAP_PREAMBLE carries an {{ADAPTER_COMMAND_PATH}}
+    // placeholder substituted per adapter at render-time. Generic adapter
+    // installs prompts under `prompts/atlas-<name>.md`.
     assert.equal(
       lines[startIdx + 1],
-      BOOTSTRAP_PREAMBLE,
-      `${name}: line after START must be BOOTSTRAP_PREAMBLE verbatim`,
+      expectedPreambleFor(`prompts/${name}`),
+      `${name}: line after START must be substituted BOOTSTRAP_PREAMBLE verbatim`,
     );
   }
 });

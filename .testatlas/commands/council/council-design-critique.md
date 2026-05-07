@@ -24,7 +24,7 @@ boundary: Does NOT modify product code or copy. Does NOT click destructive UI co
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Read `.testatlas/reference/council-protocol.md` for the full 9-round protocol.
 4. Read `.testatlas/reference/chrome-devtools-mcp.md` — UI walkthrough discipline.
 5. Read `.testatlas/agents/registry.md` for the persona slate.

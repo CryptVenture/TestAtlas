@@ -3,7 +3,7 @@ description: Re-read the constitution, validate token budget, and refresh bootst
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="b13f9199876e698847e5d63bae23c0d0e52daf2f0dd9947a0ae6d0381c750665" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-core-bootstrap-refresh.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

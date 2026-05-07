@@ -4,7 +4,7 @@ auto_execution_mode: 1
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="71a5d6841fb2fe82d2b28058841d94e4c6c3adafcac41792a505bcabcc5e4d43" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-product-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

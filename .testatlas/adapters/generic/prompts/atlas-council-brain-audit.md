@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-council-brain-audit. Paste .testatlas/bootstrap.md first; description: Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="c9e5a3bc09a95c4938b540e708b5adfa0ad9196dea22cb073c19b4bb2f2d4f0f" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

@@ -4,7 +4,7 @@ auto_execution_mode: 1
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="f950786bb6d68876aecefc32f90e3574c7b96e90fe8e952d732866a1d42ce148" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

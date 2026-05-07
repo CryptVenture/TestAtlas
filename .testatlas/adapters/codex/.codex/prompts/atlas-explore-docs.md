@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-docs. Invoke as /prompts:atlas-explore-docs. Description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="9bf4da2b2e49b2588e9f8e0b0bb97c4101433c368f123153c0a229c4c1eecf0b" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-docs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

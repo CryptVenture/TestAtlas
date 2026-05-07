@@ -24,7 +24,7 @@ boundary: Does NOT execute destructive commands when allowDestructiveActions=fal
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `./_testatlas/11_workspace_manifest.json` if it exists.
 4. Inspect the canonical files required by this command.
 5. Follow bootstrap and this command exactly.

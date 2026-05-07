@@ -10,7 +10,7 @@ permission:
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="97cf7802fd369d7fff374e68de380d997198f1c781a4e2a638e13f23f039c37b" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-explore-integrations.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

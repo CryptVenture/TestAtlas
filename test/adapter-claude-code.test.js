@@ -9,7 +9,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
+import { expectedPreambleFor, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
 import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
@@ -62,10 +62,14 @@ test('Test 2: each derived file body begins with PRD §23 BOOTSTRAP_PREAMBLE', a
       l.includes('TESTATLAS:GENERATED:START section="adapter-body"'),
     );
     assert.ok(startIdx !== -1, `${name}: missing GENERATED:START marker`);
+    // Quick 260507-hzw: BOOTSTRAP_PREAMBLE carries an {{ADAPTER_COMMAND_PATH}}
+    // placeholder substituted per adapter at render-time. The expected
+    // preamble for Claude Code is the placeholder-substituted form for the
+    // file's `.claude/commands/<name>` install path.
     assert.equal(
       lines[startIdx + 1],
-      BOOTSTRAP_PREAMBLE,
-      `${name}: line after START must be BOOTSTRAP_PREAMBLE verbatim`,
+      expectedPreambleFor(`.claude/commands/${name}`),
+      `${name}: line after START must be substituted BOOTSTRAP_PREAMBLE verbatim`,
     );
   }
 });

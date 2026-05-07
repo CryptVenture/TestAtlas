@@ -24,7 +24,7 @@ boundary: Does NOT execute the generated tests. Does NOT modify flow or issue so
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/brain/manifest.json` and `_testatlas/brain/state.json` (if present).
 4. Inspect `_testatlas/flows/` and (optionally) `_testatlas/to_fix/` for sources.
 5. Follow bootstrap and this command exactly.

@@ -5,7 +5,7 @@ inclusion: manual
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="b7e5b8a5091326c2db4869537aa1f9ba836e9b18230f55b17bf03bef72b9466d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-codebase.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

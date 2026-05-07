@@ -69,33 +69,34 @@ export function sourceRelFromAbs(sourcePath) {
 // schema version. The string below matches /root/TestAtlas/prd/prd.md line
 // 2195 exactly, byte-for-byte. Test 1 of test/capability-degradation.test.js
 // asserts this invariant.
-export const BOOTSTRAP_PREAMBLE =
-  'First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. ' +
-  'If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.';
-
-// Quick 260507-hzw: source command preamble carries an
-// {{ADAPTER_COMMAND_PATH}} placeholder ("Read `{{ADAPTER_COMMAND_PATH}}`
-// completely…") that adapter renderers MUST substitute with the rendered
-// file's actual installed path before atomicWrite. Without substitution the
-// agent reads the literal "{{ADAPTER_COMMAND_PATH}}" string and either fails
-// fast or (worse) probes the wrong filesystem path based on training-data
-// priors — the empirical KiloCode bug at tmpv2 that motivated this Quick.
 //
-// Hash-stability contract (Option B1, plan §Step B.2): substitution runs
-// AFTER the marker hash is computed inside wrapInAdapterEnvelope (which hashes
-// `sourceText` — still placeholder-bearing). Result: the marker.hash stays
-// stable across all 18 adapters even though the bodies differ by their
-// substituted path. parity.js's classifyOne does its layer-2 byte-compare
-// against a freshly-rendered string that has ALSO been substituted, so the
-// hand-edit detector still fires correctly.
+// Quick 260507-hzw: the second sentence carries an {{ADAPTER_COMMAND_PATH}}
+// placeholder that adapter renderers MUST substitute with the rendered file's
+// actual installed path before atomicWrite. Pre-Quick-260507-hzw text was
+// "Then read this command file." which agents (notably KiloCode in the tmpv2
+// dogfood) interpreted literally and probed the wrong filesystem path based
+// on training-data priors. Substituting the actual path tells the agent
+// exactly where the file lives without ambiguity.
 export const ADAPTER_COMMAND_PATH_PLACEHOLDER = '{{ADAPTER_COMMAND_PATH}}';
 
+export const BOOTSTRAP_PREAMBLE =
+  'First read `.testatlas/bootstrap.md`. Then read `{{ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. ' +
+  'If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.';
+
 /**
- * Substitute the {{ADAPTER_COMMAND_PATH}} placeholder with the adapter's
- * rendered file path. Returns the input unchanged when the placeholder is
- * absent (the case for multi-source aggregate adapters whose envelope body
- * never contains the source body text — aider, roo-code, zed, amazon-q,
- * mcp). Idempotent: re-applying with the same `installedPath` is a no-op.
+ * Substitute the {{ADAPTER_COMMAND_PATH}} placeholder (carried by
+ * BOOTSTRAP_PREAMBLE and any future placeholder-bearing template) with the
+ * adapter's rendered file path. Returns the input unchanged when the
+ * placeholder is absent. Idempotent: re-applying with the same
+ * `installedPath` is a no-op.
+ *
+ * Per-command-file adapters (claude-code, kilocode, cursor, codex, ...) get
+ * the per-file path. Multi-source aggregate adapters that embed
+ * BOOTSTRAP_PREAMBLE inside an envelope (aider, roo-code, zed, amazon-q) get
+ * the aggregate file's path (e.g. `.roo/rules/atlas.md`); the sentence "Then
+ * read `<aggregate-path>`" is still accurate because the same aggregate file
+ * IS the only command file the agent has loaded. The MCP manifest has no
+ * envelope and no preamble, so no placeholder appears in its output.
  *
  * @param {string} rendered            full rendered output for one adapter file
  * @param {string} installedPath       workspace-relative path the agent will
@@ -107,6 +108,27 @@ export function substituteAdapterCommandPath(rendered, installedPath) {
   if (!rendered.includes(ADAPTER_COMMAND_PATH_PLACEHOLDER)) return rendered;
   return rendered.split(ADAPTER_COMMAND_PATH_PLACEHOLDER).join(installedPath);
 }
+
+/**
+ * Compute the BOOTSTRAP_PREAMBLE as it appears in a rendered adapter file —
+ * with the {{ADAPTER_COMMAND_PATH}} token substituted for the file's
+ * installed path. Used by adapter tests that pin the exact preamble line
+ * after the GENERATED:START marker.
+ *
+ * @param {string} installedPath  workspace-relative path the rendered file
+ *                                will live at on a target repo (e.g.
+ *                                `.kilocode/workflows/atlas-init.md`)
+ * @returns {string}
+ */
+export function expectedPreambleFor(installedPath) {
+  return substituteAdapterCommandPath(BOOTSTRAP_PREAMBLE, installedPath);
+}
+
+// Stable placeholder-free prefix of BOOTSTRAP_PREAMBLE — useful for substring
+// assertions in tests that want to confirm "the preamble is here" without
+// pinning to the per-adapter substituted path. The prefix is the canonical
+// opener up to (but not including) the placeholder.
+export const BOOTSTRAP_PREAMBLE_PREFIX = 'First read `.testatlas/bootstrap.md`. Then read `';
 
 // Hash group accepts EITHER 16 hex chars (legacy, pre-Phase-11) OR 64 hex
 // chars (Phase-11+ widened, full SHA-256 — closes ISSUE-013). Phase 11

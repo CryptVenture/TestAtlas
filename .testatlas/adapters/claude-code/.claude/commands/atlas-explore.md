@@ -4,7 +4,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b3a9f9d5624aae1a5026c58e5ffa73c6b945b8c8711e397f1eda1ffcd5c083f3" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

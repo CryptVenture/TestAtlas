@@ -10,7 +10,7 @@ permission:
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="81e20de746d43b6d44d13da28362495c01753d28599df6821a7be68c07d00311" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

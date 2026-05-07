@@ -22,7 +22,7 @@ boundary: Does NOT delete V1 content. Does NOT move user-authored files outside 
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/11_workspace_manifest.json` to confirm the workspace exists and detect its current `schema_version`.
 4. Inspect `_testatlas/brain/manifest.json` (V2 marker — if present, the workspace is already V2 and migration is a no-op).
 5. Follow bootstrap and this command exactly.

@@ -4,7 +4,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/uninstall.md" hash="612b4b186a27d69bf47936d3bef5fd73dcfce7b453371b2a6a89b0b9d9ad57db" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-uninstall.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

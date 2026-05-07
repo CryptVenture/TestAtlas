@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-accessibility. Invoke as /prompts:atlas-explore-accessibility. Description: Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="e9721b236098ffcb5cf453465d82af7ff6a7c7d7d43342440ef40aeb1e251278" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-accessibility.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

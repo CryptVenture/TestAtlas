@@ -23,7 +23,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
+import { expectedPreambleFor, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 import { parseFrontmatter } from '../scripts/lib/parse-frontmatter.js';
 import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
@@ -88,7 +88,8 @@ test('Test 2: each .mdc has locked frontmatter; envelope present; BOOTSTRAP_PREA
     assert.equal(marker.source, expected.sourceRel, `${name}: marker.source mismatch`);
     assert.equal(marker.hash, hashContent(expected.sourceText), `${name}: hash mismatch`);
 
-    // Line immediately after START is BOOTSTRAP_PREAMBLE verbatim.
+    // Line immediately after START is BOOTSTRAP_PREAMBLE verbatim, with the
+    // {{ADAPTER_COMMAND_PATH}} placeholder substituted (Quick 260507-hzw).
     const lines = derivedText.split('\n');
     const startIdx = lines.findIndex((l) =>
       l.includes('TESTATLAS:GENERATED:START section="adapter-body"'),
@@ -96,8 +97,8 @@ test('Test 2: each .mdc has locked frontmatter; envelope present; BOOTSTRAP_PREA
     assert.ok(startIdx !== -1, `${name}: missing GENERATED:START marker line`);
     assert.equal(
       lines[startIdx + 1],
-      BOOTSTRAP_PREAMBLE,
-      `${name}: line after START must be BOOTSTRAP_PREAMBLE verbatim`,
+      expectedPreambleFor(`.cursor/rules/${name}`),
+      `${name}: line after START must be substituted BOOTSTRAP_PREAMBLE verbatim`,
     );
   }
 });

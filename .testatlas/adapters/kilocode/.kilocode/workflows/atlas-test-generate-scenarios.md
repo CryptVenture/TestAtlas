@@ -10,7 +10,7 @@ permission:
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="01e36bc8a557bbe4df67ce92d8f54030b6c9725276b3c9165f89538236ca0825" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

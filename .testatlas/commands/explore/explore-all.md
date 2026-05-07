@@ -22,7 +22,7 @@ boundary: Spawns recommended sub-explorers via the host's subagent-spawn capabil
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/11_workspace_manifest.json` if present.
 4. Inspect `_testatlas/12_app_map.json` and prior `_testatlas/explore-plan.md`.
 5. Follow bootstrap and this command exactly.

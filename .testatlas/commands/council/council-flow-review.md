@@ -24,7 +24,7 @@ boundary: Does NOT modify the flow artifact directly during the council. Does NO
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Read `.testatlas/reference/council-protocol.md` for the full 9-round protocol.
 4. Read `.testatlas/agents/registry.md` for the persona slate.
 5. Inspect `_testatlas/brain/state.json` and the target flow's files.

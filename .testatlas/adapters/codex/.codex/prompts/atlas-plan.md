@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-plan. Invoke as /prompts:atlas-plan. Description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="04e5f118548273f32512b4d7beea130c7aeedaf8239df203b907866fc3bcb27d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

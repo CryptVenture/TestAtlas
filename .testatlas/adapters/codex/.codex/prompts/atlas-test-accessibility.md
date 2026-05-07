@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-test-accessibility. Invoke as /prompts:atlas-test-accessibility. Description: Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="7c6e9479a2e6c822bd196b1b998f9eb40a5aac09b01ca66cf31845bcec78ff6f" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-test-accessibility.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

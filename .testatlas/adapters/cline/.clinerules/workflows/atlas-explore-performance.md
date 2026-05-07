@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-performance. Invoke as /atlas-explore-performance.md. Description: Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="3620aaca27bc35e88a949503f8f8abd3fa22ef7a1dbf03ce548456bcc593d862" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

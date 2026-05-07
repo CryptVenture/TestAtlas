@@ -4,7 +4,7 @@ auto_execution_mode: 1
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="539cbb298f2f45956452bd795e6a8a79789467a087d507fd6780e1752c7bd89a" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

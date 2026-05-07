@@ -3,7 +3,7 @@ description: Bug triage council — multiple personas classify and prioritize op
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-bug-triage.md" hash="6b9a918c4404908f84fde9763707e03e3544b8708393e48c9ade0140fce3c94e" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-council-bug-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

@@ -5,7 +5,7 @@ inclusion: manual
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="ce24d72780f1cee2c7fa74ec817b0a7596499c2f8f378f654b137ed32a0764af" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-core-brain-validate. Invoke as /atlas-core-brain-validate.md. Description: Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="a04136f72d010971fc029a5e53e45996ff2f7ffc092adaf2f10cb91d13004c6c" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-core-brain-validate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

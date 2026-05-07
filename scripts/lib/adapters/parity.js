@@ -255,10 +255,10 @@ async function classifyOne(ctx) {
     let fresh = render({ sourceText, sourcePath, adapterCaps: adapter.capabilities });
     // Quick 260507-hzw: parity must mirror assemble-adapter's post-render
     // {{ADAPTER_COMMAND_PATH}} substitution; otherwise every per-command-file
-    // adapter would report `hand-edit` for every file. Compute the
-    // workspace-relative installed path the same way assemble-adapter does
-    // (path.relative(repoRoot, expectedPath), POSIX-normalized).
-    const installedRel = path.relative(repoRoot, expectedPath).split(path.sep).join('/');
+    // adapter would report `hand-edit` for every file. The substituted value
+    // is the adapter's TARGET-repo install path (outputPattern with the
+    // {command} slot filled), POSIX-normalized.
+    const installedRel = adapter.outputPattern.replace('{command}', flatName);
     fresh = substituteAdapterCommandPath(fresh, installedRel);
     if (fresh !== derivedText) {
       return {
@@ -322,7 +322,10 @@ async function classifyAider({ repoRoot, adapter, sources }) {
     })),
     adapterCaps: adapter.capabilities,
   });
-  if (fresh.conventions !== derivedText) return 'hand-edit';
+  // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with aider's
+  // aggregate install path so parity mirrors assemble-adapter's writer.
+  const conventionsWithPath = substituteAdapterCommandPath(fresh.conventions, 'CONVENTIONS.md');
+  if (conventionsWithPath !== derivedText) return 'hand-edit';
 
   return null;
 }
@@ -442,7 +445,11 @@ async function classifyConcatenatedRules({ repoRoot, adapter, sources, render })
     })),
     adapterCaps: adapter.capabilities,
   });
-  if (fresh.rules !== derivedText) return 'hand-edit';
+  // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with the aggregate
+  // install path (= outputPattern as-is for these single-file aggregates) so
+  // parity mirrors assemble-adapter's writer.
+  const rulesWithPath = substituteAdapterCommandPath(fresh.rules, adapter.outputPattern);
+  if (rulesWithPath !== derivedText) return 'hand-edit';
 
   return null;
 }

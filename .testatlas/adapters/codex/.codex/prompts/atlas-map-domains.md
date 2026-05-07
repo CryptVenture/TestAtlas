@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-map-domains. Invoke as /prompts:atlas-map-domains. Description: Distill the app-map into per-domain functional models under _testatlas/domains/<slug>/, where each domain owns a coherent set of routes, APIs, components, jobs, and integrations per PRD §15. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/map-domains.md" hash="ee5e30ddf8aa4fc1d963ec1ab0f763b9956bcb214d894091db0170465e924b6f" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-map-domains.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

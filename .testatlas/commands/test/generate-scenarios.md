@@ -23,7 +23,7 @@ boundary: Does NOT execute scenarios. Does NOT mutate flow source files. Only wr
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/brain/manifest.json` and `_testatlas/brain/state.json` (if present).
 4. Inspect `_testatlas/flows/` for the flow doc(s) to be turned into scenarios.
 5. Follow bootstrap and this command exactly.

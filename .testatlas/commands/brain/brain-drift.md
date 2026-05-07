@@ -22,7 +22,7 @@ boundary: Does NOT modify code or generated artifacts. Reads git history + files
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/domains.json`, `_testatlas/brain/flows.json`.
 4. Inspect any canonical files this command needs.
 5. Follow bootstrap and this command exactly.

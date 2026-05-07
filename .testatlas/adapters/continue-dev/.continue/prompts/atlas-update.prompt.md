@@ -5,7 +5,7 @@ invokable: true
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="b53bbcfc58bab7e8040647f4c8fddd27bea4d021d5a57a64efcec75018ad9968" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-update.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

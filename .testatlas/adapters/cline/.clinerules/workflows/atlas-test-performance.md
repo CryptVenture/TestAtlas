@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-test-performance. Invoke as /atlas-test-performance.md. Description: Execute performance-typed scenarios via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight, emulate); assert PRD §13.10 thresholds; emit RUN-<timestamp>.{md,json} with perf findings. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="1e15c387ae1f405f499845e01f29a8e85f8c28bbe0e3cf2a672da0f477064929" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-test-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

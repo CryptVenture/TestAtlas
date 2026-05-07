@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-security-privacy. Invoke as /atlas-explore-security-privacy.md. Description: Map auth flows, permission boundaries, sensitive-data handling, injection risks, and privacy controls. V2 expansion of V1 explore-security with mandatory walkthrough when browser+MCP available. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-security-privacy.md" hash="30de363024c3347aba911b609217a1bbfe6963133130e8f2d45b40604ebbf4ea" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-security-privacy.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

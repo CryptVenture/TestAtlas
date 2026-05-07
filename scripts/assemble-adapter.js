@@ -158,6 +158,26 @@ function computeOutputPath(workspace, adapter, commandBaseName) {
 }
 
 /**
+ * Quick 260507-hzw: derive the TARGET-repo installed path the agent will see
+ * at runtime, from the adapter's outputPattern. This is the path
+ * substituted into the {{ADAPTER_COMMAND_PATH}} placeholder so the rendered
+ * file's preamble points at the file the AGENT actually loaded — not the
+ * suite's staging location under `.testatlas/adapters/<name>/...`.
+ *
+ * The returned string is POSIX-normalized (forward slashes), since rendered
+ * markdown bodies are byte-stable across OSes and forward-slash is the
+ * canonical filesystem-path form in markdown text.
+ *
+ * @param {AdapterEntry} adapter
+ * @param {string} commandBaseName  unique flat identifier
+ * @returns {string} workspace-relative path, e.g. `.kilocode/workflows/atlas-init.md`
+ */
+function computeInstalledPath(adapter, commandBaseName) {
+  const pattern = adapter.outputPattern ?? `atlas-${commandBaseName}.md`;
+  return pattern.replace('{command}', commandBaseName);
+}
+
+/**
  * Aider multi-source renderer adapter. Returns the two outputs (CONVENTIONS.md
  * + .aider.conf.yml) for the workspace.
  *
@@ -326,11 +346,17 @@ async function runMultiSourceAdapter({ adapter, workspace, check, multiRender })
   const drift = [];
   for (const { outPath, content } of outputs) {
     // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with the
-    // workspace-relative installed path before drift comparison + write.
-    // Aggregate adapters (aider, roo-code, zed, amazon-q, mcp) do not embed
-    // the placeholder in their output — substituteAdapterCommandPath is a
-    // no-op for them, so this call is unconditionally safe.
-    const installedRel = path.relative(workspace, outPath).split(path.sep).join('/');
+    // adapter's TARGET-repo install path. For aggregate adapters
+    // (aider/roo-code/zed/amazon-q) the install path is the aggregate file
+    // itself (CONVENTIONS.md, .roo/rules/atlas.md, .rules, .amazonq/rules/
+    // atlas.md). For MCP the manifest carries no preamble so the helper is a
+    // no-op. The aggregate path is derived by stripping the suite's staging
+    // prefix `<adapter.outputDir>/` from the workspace-relative outPath.
+    const wsRel = path.relative(workspace, outPath).split(path.sep).join('/');
+    const stagingPrefix = `${adapter.outputDir.split(path.sep).join('/')}/`;
+    const installedRel = wsRel.startsWith(stagingPrefix)
+      ? wsRel.slice(stagingPrefix.length)
+      : wsRel;
     const finalContent = substituteAdapterCommandPath(content, installedRel);
 
     let existing = null;
@@ -409,13 +435,20 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
     });
 
     // Quick 260507-hzw: substitute {{ADAPTER_COMMAND_PATH}} with the
-    // workspace-relative installed path. The marker hash is already baked into
-    // `rendered` (computed from the placeholder-bearing sourceText inside
+    // adapter's TARGET-repo install path (derived from outputPattern with the
+    // {command} slot filled). This is the path the agent will see at runtime
+    // AFTER `install.js` copies the suite tree into a target repo — NOT the
+    // suite's staging path under `.testatlas/adapters/<name>/...`. For
+    // KiloCode the target install path is `.kilocode/workflows/atlas-<n>.md`,
+    // not `.testatlas/adapters/kilocode/.kilocode/workflows/atlas-<n>.md`.
+    //
+    // Hash-stability: the marker hash is already baked into `rendered`
+    // (computed from the placeholder-bearing sourceText inside
     // wrapInAdapterEnvelope), so substitution AFTER render preserves the
     // hash-stability contract — the same source bytes produce the same
     // marker.hash regardless of which adapter renders it (Option B1, plan
     // §Step B.2).
-    const installedRel = path.relative(workspace, outPath).split(path.sep).join('/');
+    const installedRel = computeInstalledPath(adapter, item.baseName);
     const finalRendered = substituteAdapterCommandPath(rendered, installedRel);
 
     let existing = null;

@@ -22,7 +22,7 @@ boundary: Does NOT modify domain source files. Reads `_testatlas/brain/quality_s
 Before doing anything else:
 
 1. Read `.testatlas/bootstrap.md`.
-2. Read `{{ADAPTER_COMMAND_PATH}}` completely (already loaded into your context if invoked via slash).
+2. Read this command file completely.
 3. Inspect `_testatlas/brain/state.json`, `_testatlas/brain/quality_scores.json`, `_testatlas/brain/domains.json`, `_testatlas/brain/flows.json`, `_testatlas/brain/issues.json`, `_testatlas/brain/drift.json`.
 4. Follow bootstrap and this command exactly.
 

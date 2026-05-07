@@ -3,7 +3,7 @@ description: Generate framework-specific automation skeletons (Playwright, Cypre
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="093679e016e208f38f7b43f8ceda67ba3846c6b28c62da63092b5f3bac3d0cda" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-test-generate-automation.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

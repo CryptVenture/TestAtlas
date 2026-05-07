@@ -16,8 +16,13 @@ import {
 } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 
+// Quick 260507-hzw: PRD §23 was updated to carry the {{ADAPTER_COMMAND_PATH}}
+// placeholder so adapter renderers can substitute the actual installed path
+// per-file; this closes the empirical KiloCode bug where the agent literally
+// interpreted "Then read this command file" and probed the wrong filesystem
+// path. The verbatim below MUST stay byte-stable with prd/prd.md §23 fence.
 const PRD_VERBATIM =
-  'First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. ' +
+  'First read `.testatlas/bootstrap.md`. Then read `{{ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. ' +
   'If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.';
 
 test('Test 1: BOOTSTRAP_PREAMBLE matches PRD §23 verbatim, byte-for-byte', () => {

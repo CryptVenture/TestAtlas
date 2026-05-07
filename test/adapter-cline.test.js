@@ -15,7 +15,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { BOOTSTRAP_PREAMBLE, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
+import { BOOTSTRAP_PREAMBLE_PREFIX, parseAdapterMarker } from '../scripts/lib/adapters/_shared.js';
 import { hashContent } from '../scripts/lib/content-hash.js';
 import { buildAdapterSourceSet } from './_helpers/adapter-source-set.js';
 
@@ -57,7 +57,7 @@ test('Test 2: each workflow has NO YAML frontmatter; HTML header + envelope pres
     const marker = parseAdapterMarker(text);
     assert.ok(marker, `${name}: missing GENERATED:START marker`);
     assert.equal(marker.section, 'adapter-body');
-    assert.ok(text.includes(BOOTSTRAP_PREAMBLE), `${name}: must contain bootstrap preamble`);
+    assert.ok(text.includes(BOOTSTRAP_PREAMBLE_PREFIX), `${name}: must contain bootstrap preamble`);
   }
 });
 

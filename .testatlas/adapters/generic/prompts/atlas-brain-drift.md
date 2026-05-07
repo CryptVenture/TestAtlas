@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-brain-drift. Paste .testatlas/bootstrap.md first; description: Detect drift between the last exploration and the current repository state and write _testatlas/brain/drift.json with per-domain/flow drift status. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="f98966a6e735136361fd3b5a7e129c256ffb1328975d14745ebd88bc19a7ccd5" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-brain-drift.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

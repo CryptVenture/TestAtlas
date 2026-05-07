@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-test-regression. Invoke as /atlas-test-regression.md. Description: Re-run previously-failed scenarios from prior RUN-<timestamp>.json files; diff against the prior failed run; report regressed / recovered / unchanged / unverified per scenario. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="bdae51dbd2cdc7889b52a660d89ceb0bbac9028e6fba3746efab56939a9cb9aa" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-test-regression.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

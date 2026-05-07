@@ -4,7 +4,7 @@ description: Generate self-contained retest packs from open issue records under 
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="c62993a2c64bed7e2ecda64103d72a19bfa4d3f79469da67afe507aac62b97e9" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-test-generate-retest-pack.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

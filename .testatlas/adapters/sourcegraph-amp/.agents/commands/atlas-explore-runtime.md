@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-runtime. Invoke as /atlas-explore-runtime. Description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="c8e80c40a2254699597f3856f714974e8aaccdab62072ed963e7bbaccfdb1ed2" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

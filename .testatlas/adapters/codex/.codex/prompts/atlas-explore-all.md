@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-all. Invoke as /prompts:atlas-explore-all. Description: V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-all.md" hash="1be684d91a1c11f42835421cd9b2eb529968bbb871ea6fee93280ed3e4fc2a79" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

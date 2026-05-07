@@ -4,7 +4,7 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="44253524aa1b19fd4fdc547ff5b10d56f026c442dcd9b6c344f0614a8b4d637a" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-core-brain-export.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

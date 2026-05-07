@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-test-domain. Paste .testatlas/bootstrap.md first; description: Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="1d9238bdfc8c299970c2c15b592c6bebe4de337ce19e1e79e3a468d2907743ef" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-test-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

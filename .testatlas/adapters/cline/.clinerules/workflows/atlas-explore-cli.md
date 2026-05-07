@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-explore-cli. Invoke as /atlas-explore-cli.md. Description: Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="6b7ef74be192a057d578da9fb9168644d4b24631cfd1a0fd59f5f3c4a6d0e8a0" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-cli.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

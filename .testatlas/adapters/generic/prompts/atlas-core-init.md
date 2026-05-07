@@ -1,7 +1,7 @@
 <!-- TestAtlas command: atlas-core-init. Paste .testatlas/bootstrap.md first; description: Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest. -->
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="539cbb298f2f45956452bd795e6a8a79789467a087d507fd6780e1752c7bd89a" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-core-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 

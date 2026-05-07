@@ -5,7 +5,7 @@ inclusion: manual
 ---
 
 <!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="e9721b236098ffcb5cf453465d82af7ff6a7c7d7d43342440ef40aeb1e251278" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-accessibility.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
