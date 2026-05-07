@@ -110,6 +110,18 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 - `maps/states.md` regenerated; `maps/states.json` validates against the states-map schema fragment.
 - The 5 lifecycle files updated; `update-brain-after-command.js` ran with `--reindex`.
 
+## State Writer
+
+For each distinct UI/process state surfaced during exploration, materialize a state record so the workspace carries a durable, machine-readable index of state coverage:
+
+1. Choose a slug for the state (kebab-case, e.g. `cart-checkout`, `user-onboarding-step-2`).
+2. Create directory `_testatlas/states/<slug>/`.
+3. Write `_testatlas/states/<slug>/state.md` (human-readable narrative — preconditions, transitions, postconditions, recovery paths, evidence references).
+4. Write `_testatlas/states/<slug>/state.json` (machine-readable record conforming to `.testatlas/schemas/state.schema.json` — name, slug, transitions[], persistence, recovery[]).
+5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm `state.json` matches schema.
+
+State coverage was previously aspirational — `_testatlas/states/` had a schema but no writer. PRD §13 mandates explore-state materializes the schema; this writer block closes that gap.
+
 ## What's Next
 
 - **`/atlas:explore-errors`** — deepen the error path with boundaries, fallback UI, retry patterns.

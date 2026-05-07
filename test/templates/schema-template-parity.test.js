@@ -103,7 +103,11 @@ const SCHEMA_TEMPLATE_MAPPING = [
   },
   {
     schemaId: 'https://testatlas.dev/schemas/v1/sub-agent-handoff.schema.json',
-    templatePath: '.testatlas/templates/sub_agents/HANDOFF.md',
+    // Phase 17 Plan 17-05: relocated from templates/sub_agents/ to templates/handoffs/
+    // matching the actual workspace write path used by commands/handoff.md
+    // (_testatlas/handoffs/HANDOFF-<ts>.{md,json}). Sub-agents are a host-runtime
+    // concept, not a workspace folder.
+    templatePath: '.testatlas/templates/handoffs/HANDOFF.md',
     templateFormat: 'markdown',
   },
   {

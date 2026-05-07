@@ -110,3 +110,4 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command init --acto
 - `/atlas:brain-validate` — confirm V2 brain integrity.
 - `/atlas:explore` — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available).
 - `/atlas:bootstrap` — re-load the constitution if you suspect context drift.
+- `/atlas:create-persona` — author new system or project personas for V2 council protocols.

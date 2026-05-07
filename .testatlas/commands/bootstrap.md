@@ -94,6 +94,14 @@ marked `sequential` or `no` always take the sequential-fallback path; hosts
 marked `runtime-probe` default to false until the host's runtime confirms
 subagent capability is present.
 
+Note: sub-agents are a host-runtime concept (Claude sub-agents, KiloCode
+workflow steps, OpenCode subagent files, Codex `@subagent-name` invocations,
+etc.); the suite no longer ships a `templates/sub_agents/` directory because
+there is no workspace artifact for them. The sub-agent handoff template
+(`templates/handoffs/HANDOFF.md`) writes to `_testatlas/handoffs/` per
+`/atlas:handoff` — the workspace owns the contract record, not the runtime
+spawn primitive.
+
 ## Acceleration Scripts
 
 When `shell` is available, the suite ships idempotent, schema-validating accelerators under `.testatlas/scripts/`. Each named command below MAY invoke its accelerator instead of hand-rolling the artifact emission; manual fallback steps in every command remain intact for shell-less hosts (PRD §22).
