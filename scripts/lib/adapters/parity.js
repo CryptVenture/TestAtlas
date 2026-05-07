@@ -36,7 +36,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { hashContent } from '../content-hash.js';
 import { listCategorizedCommandFiles, listCommandFiles } from '../list-command-files.js';
-import { parseAdapterMarker } from './_shared.js';
+import { commandBaseNameFromSource, parseAdapterMarker } from './_shared.js';
 import { renderAider } from './render-aider.js';
 import { renderAmazonQ } from './render-amazon-q.js';
 import { renderClaudeCode } from './render-claude-code.js';
@@ -121,27 +121,27 @@ const ADAPTER_CAPS_REL = path.join('.testatlas', 'adapters', 'adapter-capabiliti
 /**
  * Compute the absolute on-disk path for a (command, adapter) obligation.
  *
- * Per-command-file adapters: substitute {command} into outputPattern.
- * Concatenated/manifest adapters: outputPattern is a static filename — every
- * command obligation resolves to the same path (the single derived file).
+ * Per-command-file adapters: substitute {command} into outputPattern. The
+ * caller passes the FLAT unique identifier from `commandBaseNameFromSource`;
+ * Phase 16 (Plan 16-01) flattens every per-command-file adapter so there is
+ * no category-nesting branch. The categorized SOURCE-OF-TRUTH at
+ * `.testatlas/commands/<category>/` is preserved but is not mirrored into
+ * adapter trees — see `prd/reports/v2-adapter-slash-command-discovery.md`
+ * Option A.
+ *
+ * Concatenated/manifest adapters: outputPattern is a static filename —
+ * every command obligation resolves to the same path (the single derived
+ * file).
  *
  * @param {string} repoRoot
  * @param {AdapterEntry} adapter
- * @param {string} commandBaseName e.g. 'init'
+ * @param {string} commandBaseName  unique flat identifier
  * @returns {string} absolute path
  */
-function expectedPathFor(repoRoot, adapter, commandBaseName, category = null) {
+function expectedPathFor(repoRoot, adapter, commandBaseName) {
   const rel = adapter.outputPattern.includes('{command}')
     ? adapter.outputPattern.replace('{command}', commandBaseName)
     : adapter.outputPattern;
-  if (category && adapter.outputPattern.includes('{command}')) {
-    // V2 (Phase 14 Wave 5): nest categorized commands under a category subdir
-    // to mirror the source `.testatlas/commands/<category>/<name>.md` layout.
-    const dir = path.dirname(rel);
-    const base = path.basename(rel);
-    const nested = dir === '.' ? path.join(category, base) : path.join(dir, category, base);
-    return path.join(repoRoot, adapter.outputDir, nested);
-  }
   return path.join(repoRoot, adapter.outputDir, rel);
 }
 
@@ -159,7 +159,17 @@ function expectedPathFor(repoRoot, adapter, commandBaseName, category = null) {
  */
 async function classifyOne(ctx) {
   const { repoRoot, adapter, commandBaseName, sourcePath, sourceText, category = null } = ctx;
-  const expectedPath = expectedPathFor(repoRoot, adapter, commandBaseName, category);
+  // Phase 16 (Plan 16-01): per-command-file adapters render flat. The
+  // expected on-disk path is derived from the unique flat identifier
+  // (`commandBaseNameFromSource(sourcePath)`); the marker `source` attribute
+  // continues to carry the SOURCE-relative path including the category subdir
+  // (e.g. `commands/council/council.md`) — that's the marker-source check
+  // below, not the output-path computation.
+  const flatName = commandBaseNameFromSource(sourcePath);
+  const expectedPath = expectedPathFor(repoRoot, adapter, flatName);
+  // `commandBaseName` is retained for drift-entry reporting (the user-facing
+  // command identifier in error messages — typically the bare basename).
+  void commandBaseName;
 
   let derivedText;
   try {

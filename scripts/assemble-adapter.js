@@ -23,6 +23,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { commandBaseNameFromSource } from './lib/adapters/_shared.js';
 import { renderAider } from './lib/adapters/render-aider.js';
 import { renderAmazonQ } from './lib/adapters/render-amazon-q.js';
 import { renderClaudeCode } from './lib/adapters/render-claude-code.js';
@@ -123,35 +124,36 @@ async function loadAdapters(cwd) {
 }
 
 /**
- * Compute the absolute output path for a single command in a given adapter.
+ * Compute the absolute output path for a single command file.
  *
- * V2 (Phase 14 Wave 5): when `category` is provided (categorized command from
- * `.testatlas/commands/<category>/<name>.md`), the output is nested under a
- * matching category subdirectory so the adapter tree mirrors the source
- * categorization. Example for claude-code:
- *   flat   `commands/init.md`             → `.claude/commands/atlas-init.md`
- *   core   `commands/core/status.md`      → `.claude/commands/core/atlas-status.md`
- *   council `commands/council/council.md` → `.claude/commands/council/atlas-council.md`
+ * Phase 16 (Plan 16-01): per-command-file adapters render ALL commands
+ * (V1 flat + V2 categorized) FLAT at the adapter commands root. The unique
+ * flat name is derived in the caller via `commandBaseNameFromSource(sourcePath)`;
+ * by the time we reach this function, `commandBaseName` is already the
+ * collision-free flat identifier. The categorized SOURCE-OF-TRUTH at
+ * `.testatlas/commands/<category>/` is preserved unchanged for organizational
+ * clarity; it is NOT mirrored into adapter trees because Strong-tier hosts
+ * (Claude Code, Codex, KiloCode...) only enumerate the top-level command
+ * directory — see `prd/reports/v2-adapter-slash-command-discovery.md` Option A.
+ *
+ * The previous (Phase 14 Wave 5) category-nesting branch — which produced
+ * nested adapter paths like `.claude/commands/council/atlas-foo.md` — has
+ * been REMOVED, not merely guarded. Re-introducing category nesting requires
+ * an explicit code change (with a test) rather than a silent caller-passed
+ * flag.
  *
  * @param {string} workspace
  * @param {AdapterEntry} adapter
- * @param {string} commandBaseName  filename without extension, e.g. "init"
- * @param {string|null} [category]  V2 category subdir (core/explore/council/...) or null for flat
+ * @param {string} commandBaseName  unique flat identifier (e.g. "init",
+ *                                  "core-init", "council-domain-review")
  * @returns {string}
  */
-function computeOutputPath(workspace, adapter, commandBaseName, category = null) {
+function computeOutputPath(workspace, adapter, commandBaseName) {
   const pattern = adapter.outputPattern ?? `atlas-${commandBaseName}.md`;
   // Pattern can be either "{command}" templated (per-command) or static
   // (concatenated/manifest strategies — those don't go through the
   // per-command write loop and are handled by their own renderer).
   const rel = pattern.replace('{command}', commandBaseName);
-  if (category) {
-    // Insert the category dir between dirname(pattern) and basename(pattern).
-    const dir = path.dirname(rel);
-    const base = path.basename(rel);
-    const nested = dir === '.' ? path.join(category, base) : path.join(dir, category, base);
-    return path.join(workspace, adapter.outputDir, nested);
-  }
   return path.join(workspace, adapter.outputDir, rel);
 }
 
@@ -369,26 +371,29 @@ async function runOneAdapter({ adapter, workspace, check, render }) {
   const unchanged = [];
   const drift = [];
 
-  // Combined enumeration: flat commands carry no category; categorized carry
-  // their subdir name. The renderer is called identically — only the output
-  // path differs.
-  /** @type {{ sourcePath: string, baseName: string, category: string | null }[]} */
+  // Combined enumeration: V1 flat + V2 categorized share the same write loop.
+  // Phase 16 (Plan 16-01): every item is rendered FLAT at the adapter
+  // commands root with `commandBaseNameFromSource(sourcePath)` as the unique
+  // identifier (zero collisions confirmed across the V1+V2 source set per
+  // `prd/reports/v2-adapter-slash-command-discovery.md` §"Naming Collision
+  // Audit"). The category attribute is intentionally absent — it has no
+  // effect on output path, only on the SOURCE-OF-TRUTH layout under
+  // `.testatlas/commands/<category>/`.
+  /** @type {{ sourcePath: string, baseName: string }[]} */
   const items = [
     ...flatPaths.map((sp) => ({
       sourcePath: sp,
-      baseName: path.basename(sp, '.md'),
-      category: null,
+      baseName: commandBaseNameFromSource(sp),
     })),
     ...categorized.map((c) => ({
       sourcePath: c.absPath,
-      baseName: c.basename,
-      category: c.category,
+      baseName: commandBaseNameFromSource(c.absPath),
     })),
   ];
 
   for (const item of items) {
     const sourceText = await readFile(item.sourcePath, 'utf8');
-    const outPath = computeOutputPath(workspace, adapter, item.baseName, item.category);
+    const outPath = computeOutputPath(workspace, adapter, item.baseName);
     const rendered = render({
       sourceText,
       sourcePath: item.sourcePath,
