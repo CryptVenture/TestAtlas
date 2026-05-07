@@ -13,6 +13,16 @@
       "arguments": []
     },
     {
+      "name": "atlas-brain-drift",
+      "description": "Detect drift between the last exploration and the current repository state and write _testatlas/brain/drift.json with per-domain/flow drift status.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-brain-score",
+      "description": "Compute the 11 PRD §7.15 quality scores from documented brain evidence and write _testatlas/brain/quality_scores.json with freshness + confidence + disclaimer.",
+      "arguments": []
+    },
+    {
       "name": "atlas-cleanup",
       "description": "Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content.",
       "arguments": []
@@ -260,6 +270,16 @@
     {
       "name": "atlas-report",
       "description": "Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-report-domain",
+      "description": "Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md.",
+      "arguments": []
+    },
+    {
+      "name": "atlas-report-release",
+      "description": "Render a release readiness report with go/no-go assessment combining quality_scores.json, drift.json, open issues, and council consolidations into _testatlas/reports/release_readiness.md.",
       "arguments": []
     },
     {

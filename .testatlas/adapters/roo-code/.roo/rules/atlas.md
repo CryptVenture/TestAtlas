@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="ab97476851eb6c7cb25f020469c031c28f5f351cc13aa0699f22ff0e8d1fc3ea" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="69167d45508bdcb36ae4e0cb8d607dd03cd78a675145257b5fc60932090654b3" -->
 First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -7,6 +7,18 @@ TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md`
 
 Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2. Read `.testatlas/commands/bootstrap.md` for full instructions.
 - Required capabilities: file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-brain-drift
+
+Detect drift between the last exploration and the current repository state and write _testatlas/brain/drift.json with per-domain/flow drift status. Read `.testatlas/commands/brain/brain-drift.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-brain-score
+
+Compute the 11 PRD §7.15 quality scores from documented brain evidence and write _testatlas/brain/quality_scores.json with freshness + confidence + disclaimer. Read `.testatlas/commands/brain/brain-score.md` for full instructions.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-cleanup
@@ -307,6 +319,18 @@ Produce a risk-based, domain-based, flow-based, state-aware test strategy and ma
 
 Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard. Read `.testatlas/commands/report.md` for full instructions.
 - Required capabilities: file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-report-domain
+
+Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md. Read `.testatlas/commands/report/report-domain.md` for full instructions.
+- Required capabilities: shell, file-write.
+- Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
+
+## /atlas-report-release
+
+Render a release readiness report with go/no-go assessment combining quality_scores.json, drift.json, open issues, and council consolidations into _testatlas/reports/release_readiness.md. Read `.testatlas/commands/report/report-release.md` for full instructions.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-retest

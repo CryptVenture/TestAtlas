@@ -1,0 +1,85 @@
+---
+mode: agent
+description: Render a release readiness report with go/no-go assessment combining quality_scores.json, drift.json, open issues, and council consolidations into _testatlas/reports/release_readiness.md.
+---
+
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="592a7c23be4f66df25ecc48f6d1f74a7b8d7245493340b5e69508bf87e19f1e6" -->
+First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+
+## Purpose
+
+Render the canonical release readiness report — a go / conditional / no-go assessment plus the supporting evidence — into `_testatlas/reports/release_readiness.md`. The report combines:
+
+- Verdict (go / conditional / no-go) computed from PRD §7.16 thresholds (e.g., `max critical issues = 0`, `min flow_coverage_score >= 60`, `max drift = stable`, `min council_consensus_score >= 70`).
+- Blocking items (open critical/high issues, stale_requires_review drift records, unresolved disagreements).
+- Quality summary table (all 11 metrics, freshness, confidence).
+- Drift snapshot.
+- Open retest packs.
+- Outstanding council decisions.
+- Steps required to flip from no-go to go.
+
+## When to Run
+
+- Before any release tag.
+- During the `council-release-readiness` session.
+- On a schedule before each milestone review.
+
+## Required First Reads
+
+- `.testatlas/bootstrap.md`
+- `_testatlas/brain/quality_scores.json` (run `brain-score` first if missing or stale).
+- `_testatlas/brain/drift.json` (run `brain-drift` first if missing or stale).
+- `.testatlas/agents/councils/council_templates/release-readiness.json` for the threshold rubric.
+
+## Required Actions
+
+1. Verify `quality_scores.json` and `drift.json` are fresh (ages <= 1 day for release decisions). Halt with a `STALE_INPUTS` warning if either is older than the threshold.
+2. Compute the verdict per PRD §7.16:
+   - **go** — zero critical issues, no `stale_requires_review` drift, council_consensus_score >= 70, flow_coverage_score >= 60, security_privacy_confidence_score >= 70.
+   - **conditional** — at most 3 high issues with documented mitigations, possibly_stale drift only, all other thresholds met.
+   - **no-go** — any critical issue, OR any `stale_requires_review` drift, OR security_privacy_confidence_score < 50.
+3. **Preferred path (if `shell` available):**
+   - Run `node scripts/generate-report.js --kind release-readiness` to render the file. The renderer fills the TESTATLAS:GENERATED markers in `_testatlas/reports/release_readiness.md`.
+4. **Fallback path (no `shell`):**
+   - Hand-render the file using `.testatlas/templates/reports/release_readiness.md` as the skeleton. Embed the disclaimer from `quality_scores.json` verbatim. Mark every score `confidence: needs_validation` because hand-rendered totals are not deterministic.
+5. Append a brain event with `command: report-release` and the verdict.
+6. Close the lifecycle.
+
+## Allowed Tools
+
+- filesystem (read on `_testatlas/brain/`)
+- shell (preferred path)
+- file-write (`_testatlas/reports/release_readiness.md` only)
+
+## Capability Degradation
+
+`shell` unavailable → hand-render via the template; the verdict block must explicitly state `Confidence: needs_validation — hand-rendered`. Do NOT publish a `go` verdict from the fallback path.
+
+## Verdict Calculation (locked formula)
+
+```
+critical_issues = count(issues where severity == 'critical' AND status != 'closed')
+stale_drift     = count(drift_records where drift_status == 'stale_requires_review')
+flow_score      = quality_scores.flow_coverage_score
+council_score   = quality_scores.council_consensus_score
+security_score  = quality_scores.security_privacy_confidence_score
+
+if critical_issues > 0 OR stale_drift > 0 OR security_score < 50: verdict = "no-go"
+else if high_issues > 3 OR flow_score < 60 OR council_score < 70: verdict = "conditional"
+else: verdict = "go"
+```
+
+## Outputs
+
+- `_testatlas/reports/release_readiness.md` (TESTATLAS:GENERATED markers re-rendered).
+- Brain event + lifecycle close.
+
+## Stop Conditions
+
+- `quality_scores.json` or `drift.json` missing → halt; the operator must run `brain-score` and `brain-drift` first.
+- Verdict computed without fresh inputs → publish report with `Confidence: needs_validation` banner; never publish a `go` verdict on stale inputs.
+
+## Update Brain After Command
+
+Run `node scripts/update-brain-after-command.js --command report-release --status success`.
+<!-- TESTATLAS:GENERATED:END section="adapter-body" -->

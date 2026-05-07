@@ -1,0 +1,69 @@
+---
+description: Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md.
+globs:
+alwaysApply: false
+---
+
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="b6f89c057e54edda6f3fc225ed676da63d24290e1a361bcd4e38e0195985996d" -->
+First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+
+## Purpose
+
+Produce a focused, human-readable report for a single domain. The report combines:
+
+- The current `quality_scores.json` filtered to metrics that involve this domain.
+- The list of flows in the domain (from `flows.json`) with their tested / drift status.
+- Open and recently closed issues that affect this domain.
+- Drift records that intersect the domain.
+- Coverage snapshot (routes / components / endpoints touching the domain).
+- Recommended next actions.
+
+## When to Run
+
+- Before reviewing a domain in a council session.
+- Before assigning a domain owner.
+- When triaging issues by domain.
+- On a schedule (e.g., weekly per-domain digest).
+
+## Required First Reads
+
+- `.testatlas/bootstrap.md`
+- `_testatlas/brain/quality_scores.json` (run `brain-score` first if missing or stale).
+- `_testatlas/brain/drift.json` (run `brain-drift` first if missing or stale).
+
+## Required Actions
+
+1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `domains.json`.
+2. Read the canonical brain inputs.
+3. **Preferred path (if `shell` available):**
+   - Run `node scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
+4. **Fallback path (no `shell`):**
+   - Render `_testatlas/reports/domain-<slug>.md` by hand using `.testatlas/templates/reports/quality_scores.md` as the section skeleton.
+5. Mark every score `confidence: needs_validation` if `quality_scores.json` has not been refreshed in the current session.
+6. Always include the disclaimer string from `quality_scores.json` verbatim at the top of the rendered report.
+7. Close the lifecycle.
+
+## Allowed Tools
+
+- filesystem (read on `_testatlas/brain/`)
+- shell (preferred path)
+- file-write (`_testatlas/reports/domain-<slug>.md` only)
+
+## Capability Degradation
+
+`shell` unavailable → hand-render via the template; flag every section that requires aggregation (drift x score correlation) as `needs-validation`.
+
+## Outputs
+
+- `_testatlas/reports/domain-<slug>.md` (one file per invocation).
+- Brain event + lifecycle close.
+
+## Stop Conditions
+
+- `quality_scores.json` missing → halt with instruction to run `brain-score`.
+- Domain slug not found in `domains.json` → halt with `DOMAIN_NOT_FOUND`.
+
+## Update Brain After Command
+
+Run `node scripts/update-brain-after-command.js --command report-domain --status success`.
+<!-- TESTATLAS:GENERATED:END section="adapter-body" -->
