@@ -230,3 +230,127 @@ test('Test 6: human-readable drift report written under _testatlas/reports/drift
     await ctx.cleanup();
   }
 });
+
+// Plan 18-03 / ISSUE-008 — graceful degradation on git failures.
+// Spec: .testatlas/commands/brain/brain-drift.md:99
+//   "Git not available AND `shell` declared → degrade to mtime-only and emit warning; do NOT halt."
+
+async function setupNonGitWorkspace() {
+  // Build the minimum brain dir detectDrift requires, but DO NOT init git.
+  // gitChangedFiles() should fail (non-zero exit "not a git repository") and
+  // detectDrift() must degrade — not throw.
+  const dir = await mkdtemp(path.join(tmpdir(), 'tb-drift-nogit-'));
+  const brainDir = path.join(dir, '_testatlas', 'brain');
+  await mkdir(brainDir, { recursive: true });
+  const now = new Date().toISOString();
+  await writeFile(
+    path.join(brainDir, 'state.json'),
+    JSON.stringify({ schema_version: '2.0.0', last_updated: now, last_command: 'init' }),
+  );
+  await writeFile(
+    path.join(brainDir, 'manifest.json'),
+    JSON.stringify({
+      schema_version: '2.0.0',
+      suite_version: '2.0.0',
+      initialized_at: now,
+      last_updated: now,
+      project_name: 'fixture-nogit',
+      adapters: [],
+      schema_uri: 'https://testatlas.dev/schemas/v2/manifest.schema.json',
+    }),
+  );
+  await writeFile(
+    path.join(brainDir, 'domains.json'),
+    JSON.stringify({ schema_version: '2.0.0', last_updated: now, domains: [] }),
+  );
+  await writeFile(
+    path.join(brainDir, 'flows.json'),
+    JSON.stringify({ schema_version: '2.0.0', last_updated: now, flows: [] }),
+  );
+  return { dir, cleanup: () => rm(dir, { recursive: true, force: true }) };
+}
+
+test('Test 7 (18-03): detectDrift in non-git tmpdir returns degradedMode=mtime-only (no throw)', async () => {
+  const ctx = await setupNonGitWorkspace();
+  const warnings = [];
+  const origWarn = console.warn;
+  console.warn = (m) => warnings.push(String(m));
+  try {
+    const { detectDrift } = await import(SCRIPT);
+    const r = await detectDrift({ cwd: ctx.dir });
+    assert.equal(r.degradedMode, 'mtime-only');
+    assert.ok(
+      warnings.some((w) => /\[detect-drift\] git probe failed/.test(w)),
+      `expected a degraded-mode warning, got: ${JSON.stringify(warnings)}`,
+    );
+  } finally {
+    console.warn = origWarn;
+    await ctx.cleanup();
+  }
+});
+
+test('Test 8 (18-03): detectDrift handles git EACCES gracefully via _inject', async () => {
+  const ctx = await setupNonGitWorkspace();
+  const warnings = [];
+  const origWarn = console.warn;
+  console.warn = (m) => warnings.push(String(m));
+  try {
+    const { detectDrift } = await import(SCRIPT);
+    const r = await detectDrift({
+      cwd: ctx.dir,
+      _inject: {
+        execFile: () => {
+          const e = new Error('mock EACCES');
+          e.code = 'EACCES';
+          throw e;
+        },
+      },
+    });
+    assert.equal(r.degradedMode, 'mtime-only');
+    assert.ok(
+      warnings.some((w) => /\[detect-drift\] git probe failed/.test(w)),
+      `expected a degraded-mode warning, got: ${JSON.stringify(warnings)}`,
+    );
+  } finally {
+    console.warn = origWarn;
+    await ctx.cleanup();
+  }
+});
+
+test('Test 9 (18-03): detectDrift handles git EPIPE gracefully via _inject', async () => {
+  const ctx = await setupNonGitWorkspace();
+  const origWarn = console.warn;
+  console.warn = () => {};
+  try {
+    const { detectDrift } = await import(SCRIPT);
+    const r = await detectDrift({
+      cwd: ctx.dir,
+      _inject: {
+        execFile: () => {
+          const e = new Error('mock EPIPE');
+          e.code = 'EPIPE';
+          throw e;
+        },
+      },
+    });
+    assert.equal(r.degradedMode, 'mtime-only');
+  } finally {
+    console.warn = origWarn;
+    await ctx.cleanup();
+  }
+});
+
+test('Test 10 (18-03): happy-path detectDrift sets degradedMode=null when git works', async () => {
+  const ctx = await setupRepo();
+  try {
+    const baseline = git(ctx.dir, 'rev-parse', 'HEAD').trim();
+    await writeFile(path.join(ctx.dir, 'src', 'routes', 'auth.ts'), '// v5\n');
+    git(ctx.dir, 'add', '.');
+    git(ctx.dir, 'commit', '-q', '-m', 'change');
+    const { detectDrift } = await import(SCRIPT);
+    const r = await detectDrift({ cwd: ctx.dir, since: baseline });
+    assert.equal(r.degradedMode, null, 'git-available run must NOT be degraded');
+  } finally {
+    await ctx.cleanup();
+  }
+});
