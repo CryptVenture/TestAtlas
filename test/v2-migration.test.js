@@ -3,12 +3,57 @@
 // Wave 0: Verify V1 → V2 migration works without data loss.
 
 import { strict as assert } from 'node:assert';
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { migrateV2 } from '../scripts/v2-migrate.js';
 
 const TMP_DIR = path.resolve(import.meta.dirname, '..', 'tmp-test-v2-migration');
+const SUITE_ROOT = path.resolve(import.meta.dirname, '..');
+
+// Phase 18-01 (ISSUE-010): seed `.testatlas/{default.config.json,config.schema.json}`
+// inside `tmp/` so `loadConfig({ cwd: tmp })` succeeds. Optionally write a
+// `testatlas.config.json` project-override to flip safeMode / allowDestructiveActions.
+async function seedConfig(tmp, override) {
+  const dst = path.join(tmp, '.testatlas');
+  await mkdir(dst, { recursive: true });
+  await cp(path.join(SUITE_ROOT, '.testatlas', 'default.config.json'),
+           path.join(dst, 'default.config.json'));
+  await cp(path.join(SUITE_ROOT, '.testatlas', 'config.schema.json'),
+           path.join(dst, 'config.schema.json'));
+  if (override) {
+    await writeFile(path.join(tmp, 'testatlas.config.json'),
+                    JSON.stringify(override, null, 2));
+  }
+}
+
+// Recursively snapshot every file under `root` to a Map<relPath, sha256:size>
+// for byte-identical pre/post comparison.
+async function snapshot(root) {
+  const out = new Map();
+  async function walk(dir) {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        await walk(full);
+      } else if (e.isFile()) {
+        const buf = await readFile(full);
+        const st = await stat(full);
+        const sha = createHash('sha256').update(buf).digest('hex');
+        out.set(path.relative(root, full), `${sha}:${st.size}`);
+      }
+    }
+  }
+  await walk(root);
+  return out;
+}
 
 async function createMockV1Workspace() {
   await mkdir(TMP_DIR, { recursive: true });
@@ -185,6 +230,25 @@ test('migrate appends event to events.jsonl', async () => {
   assert.equal(event.actor, 'v2-migrate.js');
   assert.equal(event.command, '/atlas:migrate');
   assert.equal(event.status, 'completed');
+});
+
+// Phase 18-01 / ISSUE-010 — capability gate must halt destructive backup under safeMode:true.
+test('migrateV2 halts under safeMode:true with no FS mutation', async () => {
+  await cleanup();
+  await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: true, allowDestructiveActions: false });
+
+  const wsRoot = path.join(TMP_DIR, '_testatlas');
+  const pre = await snapshot(wsRoot);
+
+  await assert.rejects(
+    migrateV2({ cwd: TMP_DIR }),
+    (e) => e.code === 'CAPABILITY_DENIED' && /v2-migrate halted:/.test(e.message),
+    'migrateV2 must throw CAPABILITY_DENIED with "v2-migrate halted:" prefix under safeMode',
+  );
+
+  const post = await snapshot(wsRoot);
+  assert.deepStrictEqual(post, pre, 'workspace must be byte-identical after denied call');
 });
 
 // Cleanup after all tests
