@@ -134,7 +134,7 @@ export async function scoreQuality(args = {}) {
   } catch {
     brainStat = null;
   }
-  if (!brainStat || !brainStat.isDirectory()) {
+  if (!brainStat?.isDirectory()) {
     throw err('TESTATLAS_BRAIN_MISSING', `brain directory missing: ${brainDir}`);
   }
 
@@ -149,11 +149,11 @@ export async function scoreQuality(args = {}) {
     sessions,
     decisions,
     drift,
-    risks,
+    _risks,
     components,
-    routes,
-    endpoints,
-    claims,
+    _routes,
+    _endpoints,
+    _claims,
   ] = await Promise.all([
     readJsonOr(path.join(brainDir, 'state.json'), {}),
     readJsonOr(path.join(brainDir, 'domains.json'), { domains: [] }),
