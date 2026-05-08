@@ -1,16 +1,26 @@
 #!/usr/bin/env node
 // scripts/lint-commands.js
 //
-// Quick 260508-pc0. Doc-vs-truth invariant linter. Runs as part of `pnpm test`
+// Quick 260508-pc0 — initial 5 invariants.
+// Quick 260508-rqx — extended with 4 new sub-invariants (1.1, 1.2, 6, 7) so the
+// linter catches Round-10's drift class structurally.
+//
+// Doc-vs-truth invariant linter. Runs as part of `pnpm test`
 // and is invoked from scripts/validate-workspace.js so workspace validation
 // surfaces command-body drift.
 //
 // The linter prevents the recurring dogfood-round defect class where command
 // bodies (`.testatlas/commands/**/*.md`) drift from the scripts/schemas/paths
-// they reference. It enforces 5 invariants:
+// they reference. It enforces 9 invariants:
 //
 //   Invariant 1 — flag-existence: every `node .testatlas/scripts/<x>.js
 //     [--flag]` must be a real argv flag of `scripts/<x>.js` (HARD-FAIL).
+//   Invariant 1.1 — flag-completeness (NEW Quick-260508-rqx): every required
+//     flag for the script (per scripts/lib/script-flag-metadata.js
+//     REQUIRED_FLAGS) must appear in each invocation in command bodies.
+//   Invariant 1.2 — enum-value-validity (NEW Quick-260508-rqx): every literal
+//     value used after an enum-flag must be in the script's enum (per
+//     scripts/lib/script-flag-metadata.js ENUM_FLAGS).
 //   Invariant 2 — path-canonicity: every `_testatlas/<path>` reference must
 //     match the canonical layout in scripts/lib/canonical-paths.json; known
 //     anti-patterns surface with a suggested replacement.
@@ -21,6 +31,14 @@
 //     umbrella commands.
 //   Invariant 5 — frontmatter-script-form: Phase-17 invariant extended into
 //     frontmatter `description:` — bare `scripts/<x>.js` HARD-FAILS.
+//   Invariant 6 — vocab-enum-drift (NEW Quick-260508-rqx): for documented
+//     enum-aligned lists in command bodies (test types, severities, etc.),
+//     listed values MUST be a subset of the corresponding
+//     vocabulary.schema.json $defs.<name>.enum.
+//   Invariant 7 — lifecycle-position (NEW Quick-260508-rqx): non-allowlisted
+//     commands MUST have a `## Lifecycle` heading AND the
+//     `update-brain-after-command.js` invocation MUST appear AFTER the
+//     heading (catches structural absence + out-of-position drift).
 //
 // CLI:
 //   node scripts/lint-commands.js [--commands-dir <path>] [--scripts-dir <path>]
@@ -413,6 +431,297 @@ export async function checkFrontmatterScriptForm({ commandsDir }) {
   return violations;
 }
 
+// ─── Sub-invariant 1.1: flag-completeness (Quick 260508-rqx) ────────────────
+
+/**
+ * Resolve REQUIRED_FLAGS / ENUM_FLAGS metadata. Tries scripts/lib/script-flag-metadata.js
+ * first; returns empty defaults on miss so the linter still functions before
+ * Task 2 lands the catalog.
+ *
+ * @returns {Promise<{requiredFlags:Object, enumFlags:Object}>}
+ */
+async function loadScriptFlagMetadata() {
+  try {
+    const mod = await import('./lib/script-flag-metadata.js');
+    return {
+      requiredFlags: mod.REQUIRED_FLAGS ?? {},
+      enumFlags: mod.ENUM_FLAGS ?? {},
+    };
+  } catch {
+    return { requiredFlags: {}, enumFlags: {} };
+  }
+}
+
+/**
+ * Walk command bodies for `node .testatlas/scripts/<x>.js [--flags ...]`
+ * invocations; for each invocation, look up the script's required flags
+ * (default: REQUIRED_FLAGS from scripts/lib/script-flag-metadata.js) and emit
+ * a violation for each required flag not present.
+ *
+ * @param {{commandsDir:string, requiredFlags?:Object<string,string[]>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkRequiredFlags({ commandsDir, requiredFlags }) {
+  const violations = [];
+  const required = requiredFlags ?? (await loadScriptFlagMetadata()).requiredFlags;
+  if (!required || Object.keys(required).length === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b([^\n`]*)/g;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+      const line = lines[lineIdx];
+      const re = new RegExp(RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const scriptName = `${m[1]}.js`;
+        const reqList = required[scriptName];
+        if (!Array.isArray(reqList) || reqList.length === 0) continue;
+        const flagsBlob = m[2] || '';
+        const presentFlags = new Set(
+          [...flagsBlob.matchAll(/(--[\w][\w-]*)(?:=\S+)?/g)].map((x) => x[1]),
+        );
+        for (const reqFlag of reqList) {
+          if (!presentFlags.has(reqFlag)) {
+            violations.push({
+              invariant: 'flag-completeness',
+              file: path.relative(PROJECT_ROOT, file),
+              line: lineIdx + 1,
+              reason: `invocation of ${scriptName} missing required flag ${reqFlag}`,
+              detail: `script ${scriptName} requires ${reqList.join(', ')}; this invocation has ${
+                [...presentFlags].sort().join(', ') || '(none)'
+              }`,
+              suggestion: `add ${reqFlag} "<one-line>" to the invocation`,
+            });
+          }
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Sub-invariant 1.2: enum-value-validity (Quick 260508-rqx) ──────────────
+
+/**
+ * Walk command bodies for `node .testatlas/scripts/<x>.js [--flags ...]`
+ * invocations. For each `--<flag> <literal>` pair, if the script defines an
+ * enum for that flag (per ENUM_FLAGS catalog), assert the literal is in the
+ * enum.
+ *
+ * @param {{commandsDir:string, enumFlags?:Object<string,Object<string,string[]>>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkEnumValueValidity({ commandsDir, enumFlags }) {
+  const violations = [];
+  const enums = enumFlags ?? (await loadScriptFlagMetadata()).enumFlags;
+  if (!enums || Object.keys(enums).length === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b([^\n`]*)/g;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+      const line = lines[lineIdx];
+      const re = new RegExp(RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const scriptName = `${m[1]}.js`;
+        const enumMap = enums[scriptName];
+        if (!enumMap || Object.keys(enumMap).length === 0) continue;
+        const flagsBlob = m[2] || '';
+        // Match `--flag value` pairs (value = next non-flag token, no `--` prefix,
+        // optionally quoted). Also match `--flag=value` form.
+        const pairRe = /(--[\w][\w-]*)(?:\s+|=)([\w-]+)/g;
+        let p;
+        while ((p = pairRe.exec(flagsBlob)) !== null) {
+          const flag = p[1];
+          const literal = p[2];
+          const allowed = enumMap[flag];
+          if (!Array.isArray(allowed) || allowed.length === 0) continue;
+          if (allowed.includes(literal)) continue;
+          violations.push({
+            invariant: 'enum-value-invalid',
+            file: path.relative(PROJECT_ROOT, file),
+            line: lineIdx + 1,
+            reason: `${flag} ${literal} is not in ${scriptName}'s enum`,
+            detail: `${scriptName} ${flag} value '${literal}' not in {${allowed.join(', ')}}`,
+            suggestion: `use one of: ${allowed.join(', ')} (e.g. ${flag} ${allowed[0]})`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 6: vocab-enum-drift (Quick 260508-rqx) ───────────────────────
+
+const DEFAULT_VOCAB_PATTERNS = [
+  { enum: 'testType', cuePattern: /\btest\s*types?\b/i },
+  { enum: 'severity', cuePattern: /\bseverit(y|ies)\b/i },
+  { enum: 'confidence', cuePattern: /\bconfidence\s+levels?\b/i },
+  { enum: 'disagreement_type', cuePattern: /\bdisagreement\s+types?\b/i },
+  { enum: 'vote_value', cuePattern: /\bvote\s+values?\b/i },
+];
+
+/**
+ * For documented enum-aligned lists in command bodies, verify each token is a
+ * member of the corresponding `vocabulary.schema.json $defs.<enum>.enum`.
+ *
+ * Conservative parser: only flags tokens matching `/^[a-z][a-z0-9_-]*$/` (the
+ * shape of enum-eligible identifiers); ignores prose words.
+ *
+ * @param {{commandsDir:string, schemasDir:string, vocabPatterns?:Array<{enum:string,cuePattern:RegExp}>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkVocabEnumDrift({ commandsDir, schemasDir, vocabPatterns }) {
+  const violations = [];
+  const patterns = vocabPatterns ?? DEFAULT_VOCAB_PATTERNS;
+  if (!patterns.length) return violations;
+  const vocabPath = path.join(schemasDir, 'vocabulary.schema.json');
+  let vocab;
+  try {
+    vocab = JSON.parse(await readFile(vocabPath, 'utf8'));
+  } catch {
+    return violations;
+  }
+  const defs = vocab?.$defs ?? {};
+  const enumSets = new Map();
+  for (const p of patterns) {
+    const e = defs?.[p.enum]?.enum;
+    if (Array.isArray(e)) enumSets.set(p.enum, new Set(e));
+  }
+  if (enumSets.size === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  // Tokens must be at word boundary AND begin with a lowercase letter to be
+  // enum-eligible. This avoids matching the latter part of a capitalized
+  // word like "Test" → "est".
+  const tokenRe = /\b[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*\b/g;
+  // Words to ignore (common prose) — never enum members
+  const STOPWORDS = new Set([
+    'and', 'or', 'the', 'a', 'an', 'for', 'in', 'of', 'to', 'tests', 'test',
+    'types', 'type', 'severity', 'severities', 'confidence', 'levels', 'level',
+    'values', 'value', 'votes', 'vote', 'disagreement', 'disagreements',
+    'with', 'see', 'use', 'are', 'is', 'be', 'as', 'at', 'by', 'from', 'on',
+    'one', 'all', 'any', 'each', 'this', 'that', 'these', 'those',
+    'enum', 'list', 'lists', 'set', 'sets', 'item', 'items',
+    // Schema names & doc terms
+    'vocabulary', 'schema', 'json', 'md', 'js', 'e.g', 'ie', 'eg',
+  ]);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (const p of patterns) {
+        const set = enumSets.get(p.enum);
+        if (!set) continue;
+        // Match the cue and advance past it so the token scan ignores the
+        // cue word itself (e.g. "Test" in "Test types: ..." would otherwise
+        // contribute spurious tokens).
+        const cueRe = new RegExp(p.cuePattern.source, p.cuePattern.flags.replace('g', ''));
+        const cueMatch = cueRe.exec(line);
+        if (!cueMatch) continue;
+        const cueEnd = cueMatch.index + cueMatch[0].length;
+        const tail = line.slice(cueEnd);
+        const candidates = [...tail.matchAll(tokenRe)].map((m) => m[0]);
+        for (const tok of candidates) {
+          if (STOPWORDS.has(tok)) continue;
+          // Heuristic: only consider tokens after a colon or in a CSV list.
+          // (Crude but limits false positives in long sentences.)
+          if (set.has(tok)) continue;
+          // Token must "look like" an enum member: kebab-case slug, snake_case,
+          // or single lowercase word.
+          if (!/^[a-z][a-z0-9]*([-_][a-z0-9]+)*$/.test(tok)) continue;
+          // Skip pure cue-related words (testType, severity etc.)
+          if (tok === p.enum || tok === p.enum.toLowerCase()) continue;
+          // Skip if token is the cue word itself
+          if (p.cuePattern.test(tok)) continue;
+          // Skip if token is a member of any other enum we know about
+          // (avoids cross-cue false positives).
+          let inOther = false;
+          for (const [otherName, otherSet] of enumSets) {
+            if (otherName === p.enum) continue;
+            if (otherSet.has(tok)) {
+              inOther = true;
+              break;
+            }
+          }
+          if (inOther) continue;
+          violations.push({
+            invariant: 'vocab-enum-drift',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `token '${tok}' not in vocabulary.schema.json $defs.${p.enum}.enum`,
+            detail: `'${tok}' near "${line.trim().slice(0, 80)}" is not a member of ${p.enum} enum (allowed: ${[...set].join(', ')})`,
+            suggestion: `use one of: ${[...set].join(', ')} — or extend vocabulary.schema.json $defs.${p.enum}.enum`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 7: lifecycle-position (Quick 260508-rqx) ─────────────────────
+
+/**
+ * For each non-allowlisted command that contains an
+ * `update-brain-after-command.js` invocation: assert (a) a `## Lifecycle`
+ * (or `# Lifecycle`) heading exists, AND (b) the FIRST occurrence of the
+ * brain-update invocation appears at a line index AFTER the heading.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkLifecyclePosition({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const rel = path.relative(commandsDir, file);
+    if (LIFECYCLE_ALLOWLIST.has(rel)) continue;
+    const text = await readFile(file, 'utf8');
+    if (!text.includes('update-brain-after-command.js')) continue;
+    const lines = text.split('\n');
+    let headingLine = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^#{1,2}\s+Lifecycle\s*$/.test(lines[i])) {
+        headingLine = i;
+        break;
+      }
+    }
+    let hookLine = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes('update-brain-after-command.js')) {
+        hookLine = i;
+        break;
+      }
+    }
+    if (headingLine === -1) {
+      violations.push({
+        invariant: 'lifecycle-position',
+        file: path.relative(PROJECT_ROOT, file),
+        line: hookLine + 1,
+        reason: `command has update-brain-after-command.js hook but no \`## Lifecycle\` heading`,
+        detail: `${rel} contains a brain-update invocation at line ${hookLine + 1} but is missing the structural \`## Lifecycle\` heading`,
+        suggestion: `add a \`## Lifecycle\` section ABOVE the brain-update invocation; the hook must live inside the Lifecycle section`,
+      });
+    } else if (hookLine !== -1 && hookLine < headingLine) {
+      violations.push({
+        invariant: 'lifecycle-position',
+        file: path.relative(PROJECT_ROOT, file),
+        line: hookLine + 1,
+        reason: `update-brain-after-command.js hook appears BEFORE \`## Lifecycle\` heading (out-of-position)`,
+        detail: `${rel} hook at line ${hookLine + 1} precedes Lifecycle heading at line ${headingLine + 1}`,
+        suggestion: `move the brain-update invocation inside the \`## Lifecycle\` section`,
+      });
+    }
+  }
+  return violations;
+}
+
 // ─── Public entry point ─────────────────────────────────────────────────────
 
 /**
@@ -447,10 +756,14 @@ export async function runLinter(opts = {}) {
   const all = [];
   for (const fn of [
     () => checkFlagExistence({ commandsDir, scriptsDir }),
+    () => checkRequiredFlags({ commandsDir }),
+    () => checkEnumValueValidity({ commandsDir }),
     () => checkPathCanonicity({ commandsDir, canonicalPaths }),
     () => checkSchemaKeyExistence({ commandsDir, schemasDir }),
     () => checkLifecycleCompleteness({ commandsDir }),
     () => checkFrontmatterScriptForm({ commandsDir }),
+    () => checkVocabEnumDrift({ commandsDir, schemasDir }),
+    () => checkLifecyclePosition({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -490,6 +803,17 @@ async function walk(dir, out) {
 const USAGE = `Usage: node scripts/lint-commands.js [options]
 
 Doc-vs-truth invariant linter for .testatlas/commands/**/*.md.
+
+Invariants:
+  1   flag-existence            (HARD) every cited --flag is a real argv flag
+  1.1 flag-completeness         (HARD) every required flag is present (rqx)
+  1.2 enum-value-validity       (HARD) literal value is in script's enum (rqx)
+  2   path-canonicity           (HARD) no anti-pattern _testatlas/ paths
+  3   schema-key-existence      (HARD) every counts.<key> exists in schema
+  4   lifecycle-completeness    (HARD) brain-writers call update-brain
+  5   frontmatter-script-form   (HARD) no bare scripts/ in frontmatter
+  6   vocab-enum-drift          (HARD) doc lists are subsets of vocab enums (rqx)
+  7   lifecycle-position        (HARD) ## Lifecycle precedes brain-update hook (rqx)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
