@@ -69,7 +69,7 @@ Map the target product's error-handling surface: error boundaries (component-tre
 6. **Logging audit.** After each injection, capture `list_console_messages` and `list_network_requests` to detect:
    - Does `console.error` fire? Is the message human-readable or a stack-trace dump?
    - Are errors POSTed to a telemetry sink (Sentry, Rollbar, custom `/api/log`)? Capture the request payload.
-   - Are PII / secrets leaked into log lines? Run `node .testatlas/scripts/redact-evidence.js <evidence-path>` on each captured log file.
+   - Are PII / secrets leaked into log lines? For each emitted EVIDENCE-* record from this run, run `node .testatlas/scripts/redact-evidence.js --evidence-id <EVIDENCE-XXX>` (the script's only supported arg shape — no `--scan`, no positional path; one redact pass per evidence id).
 
 7. **Retry-pattern catalog.** For each error captured, document the recovery primitive:
    - Manual retry button (label + selector).
@@ -78,7 +78,25 @@ Map the target product's error-handling surface: error boundaries (component-tre
    - Silent fallback (cached data displayed with stale indicator).
    - None (the user is stuck — file as an issue via `node .testatlas/scripts/create-issue.js` or `/atlas:log-issue`).
 
-8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` route+component `errorBoundaries`, `errorLogging`, `retryPatterns` fields. If any cited evidence path does not exist on disk, halt.
+8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` under the top-level `errorHandling` array (per `app-map.schema.json`). Each entry:
+   - `surface` (string, required) — route / component / api / CLI surface.
+   - `kind` (string, required, enum: `boundary` | `logging` | `retry` | `fallback` | `timeout`).
+   - `evidence` (string, optional) — evidence record id.
+   - `notes` (string, optional).
+
+   Example entry:
+   ```json
+   {
+     "surface": "POST /api/checkout",
+     "kind": "retry",
+     "evidence": "EVIDENCE-042-checkout-retry",
+     "notes": "Backoff up to 3 attempts on 5xx"
+   }
+   ```
+
+   DO NOT write any per-feature ad-hoc keys (e.g. boundary-only arrays, logging-only arrays, retry-only arrays) — every error-handling fact collapses into a single `errorHandling[]` entry whose `kind` field carries the variant. The `app-map.schema.json` is closed under `additionalProperties:false`; ad-hoc top-level keys fail validation.
+
+   If any cited evidence path does not exist on disk, halt.
 
 9. Close the lifecycle.
 
