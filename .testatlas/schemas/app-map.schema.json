@@ -25,7 +25,26 @@
     "components": { "type": "array", "items": { "type": "string" } },
     "apis": { "type": "array", "items": { "type": "string" } },
     "cliCommands": { "type": "array", "items": { "type": "string" } },
-    "jobs": { "type": "array", "items": { "type": "string" } },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "schedule": { "type": "string" },
+              "retry": { "type": "object" },
+              "timeout": { "oneOf": [{ "type": "number" }, { "type": "string" }] },
+              "dependencies": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        ]
+      }
+    },
     "integrations": {
       "type": "array",
       "items": {
@@ -77,6 +96,83 @@
           "from": { "type": "string", "minLength": 1 },
           "to": { "type": "string", "minLength": 1 },
           "type": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "errorHandling": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "kind"],
+        "properties": {
+          "surface": { "type": "string", "minLength": 1 },
+          "kind": { "type": "string", "enum": ["boundary", "logging", "retry", "fallback", "timeout"] },
+          "evidence": { "type": "string" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "integrationEnvironments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "environment"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "environment": { "type": "string", "enum": ["sandbox", "prod", "mixed", "unknown"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "runtimeMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node": { "type": "string" },
+        "platform": { "type": "string" },
+        "envVars": { "type": "array", "items": { "type": "string" } },
+        "featureFlags": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "string" }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "logging": { "type": "array", "items": { "type": "string" } },
+        "metrics": { "type": "array", "items": { "type": "string" } },
+        "tracing": { "type": "array", "items": { "type": "string" } },
+        "alerts": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "string" }
+      }
+    },
+    "securityFindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "category"],
+        "properties": {
+          "surface": { "type": "string", "minLength": 1 },
+          "category": { "type": "string", "enum": ["authn", "authz", "secret", "input-validation", "output-encoding", "transport", "dependency", "other"] },
+          "severity": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "states": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["surface", "state"],
+        "properties": {
+          "surface": { "type": "string", "minLength": 1 },
+          "state": { "type": "string", "enum": ["empty", "loading", "error", "success", "permission", "offline"] },
+          "evidence": { "type": "string" },
+          "notes": { "type": "string" }
         }
       }
     }
