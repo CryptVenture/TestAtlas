@@ -80,7 +80,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - **no-go:** ≥1 blocker.
    Record the decision + reasoning into `evidence/decision.json` with `{state, reasons, blockers, evaluatedAt}`.
 
-6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --type release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
+6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --kind release-readiness --report-path=_testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --kind release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
 
 7. **Cross-reference Council decisions.** Read `_testatlas/agents/sessions/council_*/consolidation.md` for any `release-blocking` consensus claims. Surface those in the report's Blockers section.
 

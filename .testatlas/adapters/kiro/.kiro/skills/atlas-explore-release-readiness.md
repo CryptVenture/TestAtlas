@@ -4,7 +4,7 @@ description: Map release artifacts, blockers, readiness state, version tags, and
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="69672431c7593026cd2e2a91476f7b670f99d5a9fd8cd522320a50a5c18cc152" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="1802fa707a19082cc75000a776446966f6448ba160429b6e9817eb05867a520a" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -51,7 +51,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - **no-go:** ≥1 blocker.
    Record the decision + reasoning into `evidence/decision.json` with `{state, reasons, blockers, evaluatedAt}`.
 
-6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --type release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
+6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --kind release-readiness --report-path=_testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --kind release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
 
 7. **Cross-reference Council decisions.** Read `_testatlas/agents/sessions/council_*/consolidation.md` for any `release-blocking` consensus claims. Surface those in the report's Blockers section.
 

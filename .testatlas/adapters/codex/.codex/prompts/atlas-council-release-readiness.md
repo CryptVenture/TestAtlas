@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-release-readiness. Invoke as /prompts:atlas-council-release-readiness. Description: Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="9a52a031fea385825dfde5c7e44e6775aa906cfb0e27ae908e65497a268d5680" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="a23fc29d6497157c6cdb3f1e25e1ef6a2723d7055a2a7ef1d26fb628364ef464" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -30,7 +30,7 @@ Recommended slate: Release Readiness Judge, QA Lead, Security and Privacy Review
 6. **Rebuttal or evidence request.** Personas may request `node .testatlas/scripts/explore-tests.js --refresh` (deterministic runner-detection + test-inventory accelerator) or run `/atlas:explore-tests` (full agent-driven coverage + flake + gap analysis) to refresh test coverage signals before voting.
 7. **Vote.** Per gate motion AND on the final go / conditional / no-go, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** The Release Readiness Judge drafts the final decision in `consolidation.{md,json}` with explicit blockers, conditional concerns, and rollback plan.
-9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>` and `node .testatlas/scripts/generate-report.js --type release-readiness --output _testatlas/reports/REPORT-release-readiness-<ts>.md`.
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>` and `node .testatlas/scripts/generate-report.js --kind release-readiness --report-path=_testatlas/reports/REPORT-release-readiness-<ts>.md`.
 
 ## Setup
 
