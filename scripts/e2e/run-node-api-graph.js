@@ -1,3 +1,16 @@
+// SAFETY-EXEMPT (Phase 19-02): test-only harness — operates on a tmpdir() it
+// creates and tears down. Not reachable from user-facing slash commands;
+// confined to scripts/e2e/ and only invoked by CI / dogfood E2E flows.
+// The fs.cp/fs.rm primitives this file imports operate exclusively on the
+// ephemeral tmpdir, never on a real user workspace. This annotation
+// documents the permanent allowlist entry in
+// test/safety/capability-gate-invariant.test.js (search "e2e/run-node-api-graph.js").
+//
+// If this file ever grows to mutate paths OUTSIDE its self-created tmpdir,
+// the SAFETY-EXEMPT exemption is invalidated and the file MUST gain a
+// requireCapability(config, 'destructive-fs') call AND be removed from the
+// invariant test's ALLOWLIST.
+//
 // scripts/e2e/run-node-api-graph.js
 //
 // Plan 09-05 (Wave 5). End-to-end harness for the agentic command graph
