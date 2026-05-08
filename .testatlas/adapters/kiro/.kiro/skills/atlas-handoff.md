@@ -4,7 +4,7 @@ description: Write a sub-agent handoff record at _testatlas/handoffs/HANDOFF-<ti
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="ab9d6b130bd9d55759af37f6b092c2db0a63ee37eb4819fa1cb687ef662acb3d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/handoff.md" hash="a47b5b25b78ef302d889aa59aa6af4b4ea23e9b4a7d17a393ab4c0ebbe4cf4e9" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-handoff.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,7 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — the constitution; rules-of-engagement.
-- `.testatlas/schemas/sub-agent-handoff.schema.json` — required JSON shape this command must satisfy, including the `status` enum (`pending|in_progress|completed|blocked|abandoned`) and the 15 required fields.
+- `.testatlas/schemas/sub-agent-handoff.schema.json` — required JSON shape this command must satisfy, including the `status` enum (`pending|in_progress|completed|blocked|abandoned`) and the 16 required fields.
 - `_testatlas/11_workspace_manifest.json` — current workspace state; any in-flight artifacts the receiving agent inherits.
 - The relevant `_testatlas/domains/<slug>/`, `_testatlas/flows/<slug>/`, `_testatlas/to_fix/`, `_testatlas/runs/`, and `_testatlas/evidence/` paths that bound the handoff scope.
 
@@ -28,7 +28,7 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
 2. Verify `file-write` capability is available. The handoff record cannot be persisted without it; halt cleanly if absent and surface the missing capability per `bootstrap.md`.
 3. Determine the handoff scope precisely. Identify which flows, domains, issues, runs, and evidence files are in scope for the receiving sub-agent and which are explicitly excluded. Vague scope produces context drift; the schema's `scope` and `nonScope` arrays are mandatory and must be populated with concrete repository-relative paths.
 4. Allocate the handoff ID per PRD §32 — zero-padded format `HANDOFF-<ts>` where `<ts>` is the ISO-8601 UTC timestamp compressed to filesystem-safe form (e.g., `HANDOFF-20260503T141522Z`). Verify no on-disk file at that ID already exists.
-5. Capture the 15 required fields verbatim per `sub-agent-handoff.schema.json`:
+5. Capture the 16 required fields verbatim per `sub-agent-handoff.schema.json`:
    - `id` — the allocated handoff ID.
    - `assignedRole` — the receiving sub-agent's role label (e.g., `ui-explorer`, `test-runner`).
    - `createdOn` — ISO-8601 UTC timestamp.
@@ -78,7 +78,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - The handoff pair exists at `_testatlas/handoffs/HANDOFF-<ts>.{md,json}`.
 - The JSON sidecar validates against `sub-agent-handoff.schema.json`.
-- All 15 required fields are populated with concrete, non-placeholder values.
+- All 16 required fields are populated with concrete, non-placeholder values.
 - The handoff index records the new entry.
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.

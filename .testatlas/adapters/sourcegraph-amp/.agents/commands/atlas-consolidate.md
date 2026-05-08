@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-consolidate. Invoke as /atlas-consolidate. Description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="9724f8f8a530cbe9b794afa2568eba28d5620141934639f84599fb5d98bda2e5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="aa68f50a708e619953f4fc207122b45a1cfe00e8ff11eb2f5d226607a5153cda" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,7 +28,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
    4. **Merge evidence (uniq).** Concatenate every member's `evidence` array onto the canonical's, then deduplicate by absolute path string. Never drop an evidence reference on merge — losing a path on consolidation is the loudest possible audit failure.
    5. **Append repro alternates.** Add every duplicate's `reproductionSteps` as an alternate-repro block in the canonical's markdown body, prefixed with the source ID. The canonical's primary repro is unchanged.
    6. **Close the duplicates.** Set non-canonical members to `status: closed` with `closedAs: consolidated_into=ISSUE-NNNN` and append a history entry citing the canonical. The duplicate's content is preserved on disk; only its status flips.
-4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- testatlas:generated:start --> ... <!-- testatlas:generated:end -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).
+4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- TESTATLAS:GENERATED:START --> ... <!-- TESTATLAS:GENERATED:END -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).
    - **severity-weighted issue load over time** — sum (`critical`×8 + `high`×4 + `medium`×2 + `low`×1 + `enhancement`×0.5) per period.
    - **confidence distribution over time** — counts of `confirmed` / `strong-suspect` / `needs-validation` per period.
    - **resolution velocity** — issues opened per period vs. issues moved to `closed` per period (the slope is the velocity).

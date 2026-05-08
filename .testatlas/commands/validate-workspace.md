@@ -45,7 +45,7 @@ Use the manual fallback below only when shell capability is unavailable. `--auto
 
 - `.testatlas/bootstrap.md` — constitution; lifecycle and stop-condition rules.
 - `_testatlas/11_workspace_manifest.json` — the manifest under audit.
-- `.testatlas/schemas/*.schema.json` — the 16 schemas to validate against.
+- `.testatlas/schemas/*.schema.json` — the canonical schema set this command validates against (count discovered at runtime by walking the directory; do not hard-code it in agent reasoning).
 - `_testatlas/09_artifact_index.md` — declared artifact set; cross-checked against on-disk reality.
 
 ## Required Actions

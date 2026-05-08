@@ -654,7 +654,7 @@ Inventory existing tests, measure coverage, identify gaps, surface flaky tests.
 
 ## /atlas:maintain-migrate
 
-Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`.
+Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-migrate.js`.
 
 **Capabilities:** `shell`, `file-write`
 

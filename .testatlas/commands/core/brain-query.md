@@ -82,7 +82,7 @@ None required — all reads are local filesystem.
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
 
 ## What's Next
 

@@ -1,6 +1,6 @@
-<!-- TestAtlas command: atlas-maintain-migrate. Invoke as /atlas-maintain-migrate.md. Description: Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. -->
+<!-- TestAtlas command: atlas-maintain-migrate. Invoke as /atlas-maintain-migrate.md. Description: Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="b4f8d6b6c46ae06d7f7efad50f7ea249bda77bec3d9f501a0a41fc71cae87202" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="1563e9eb2fe6ae1a6fc6f99655708eb4815d09f9850f2b36bd09aae8300ae981" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-maintain-migrate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-query. Invoke as /atlas-core-brain-query.md. Description: Answer a question about the workspace by reading brain JSON; cite file paths for every claim. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="d37c06a7142342658bfd5a8b52711397e4d4ec197c6bb6063b79ef144548a65c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="12e6d13ad88a61f4eed8e339390188e9d292debd57c6849dd4897dbbda58331e" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -52,7 +52,7 @@ None required — all reads are local filesystem.
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
 
 ## What's Next
 

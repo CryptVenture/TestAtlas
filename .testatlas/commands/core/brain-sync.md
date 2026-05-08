@@ -90,7 +90,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync --actor agent --summary "Brain synced — N changes" --reindex`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-sync --actor agent --summary "Brain synced — N changes" --reindex`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically.
 
 ## What's Next
 

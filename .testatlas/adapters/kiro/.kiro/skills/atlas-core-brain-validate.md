@@ -4,7 +4,7 @@ description: Run AJV validation across the entire `_testatlas/brain/` tree (22 f
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="f346e12ee84d55a7511a00171a6a002eef51ff915d0f3c9a22d5a81c13e100a4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="faa8ac61a5790366e8d9f3c8fee1ba7d75387c16248c91bc53403d193de1909c" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-core-brain-validate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -73,7 +73,7 @@ The 22 required brain files validated by this command:
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
 
 ## What's Next
 

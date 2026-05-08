@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-sync. Invoke as /atlas-core-brain-sync. Description: Detect and reconcile drift between markdown artifacts and brain JSON indexes; orchestrates sync-markdown-json + validate-brain. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="425baf4d9fe5a966d1bebaa56cbd42a734fdc5e329003539b2ad2e159ca32f7f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="5c3286d69286247747d8a997067acd115fe05be324c4e9d74f8520512cd83844" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-core-brain-sync.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -60,7 +60,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync --actor agent --summary "Brain synced — N changes" --reindex`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-sync --actor agent --summary "Brain synced — N changes" --reindex`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically.
 
 ## What's Next
 

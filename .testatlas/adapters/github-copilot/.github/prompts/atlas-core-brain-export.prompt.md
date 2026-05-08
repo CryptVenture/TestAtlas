@@ -3,7 +3,7 @@ mode: agent
 description: Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for handoff, dashboards, or backup.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="847a348671543892804d60583a287d074068975fbb766ca90a374b7a0ca26531" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="25bf5a87fd2a9010f303c1559c3d96548eb4f7b7acec2d8aa640c244d0369fdb" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-core-brain-export.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,7 +58,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
 
 ## What's Next
 

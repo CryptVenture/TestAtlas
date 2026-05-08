@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-status. Paste .testatlas/bootstrap.md first; description: Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="e25e40d42cbcf357b7f0cbce2723415fb2cfa5020a9001a5ecf096bd4a4be8ed" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="b7ea90c469f0475d0c54bf68ace72e521e86c8633d4d398df46bf46a6eb51013" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-core-status.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -55,7 +55,7 @@ This command requires only `file-write`. No degradation needed.
 
 ## Post-Operation Brain Update
 
-After the status block is rendered, call `node .testatlas/scripts/update-brain-after-command.js --command status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
+After the status block is rendered, call `node .testatlas/scripts/update-brain-after-command.js --command core-status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
 
 ## What's Next
 

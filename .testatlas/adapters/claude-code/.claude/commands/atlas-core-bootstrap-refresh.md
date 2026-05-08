@@ -3,7 +3,7 @@ description: Re-read the constitution, validate token budget, and refresh bootst
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="e0d960b5bb441ee1b68c8f5422006ef22fae6b3a02472aa75d74b1aa3b26ba81" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="a0acd140cfc4b82fbaf8ff589b3d23ff21362bf8894feae4d56228d05ff2ddad" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-core-bootstrap-refresh.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -55,7 +55,7 @@ If `shell` is unavailable, skip the budget-check step and mark the run record `c
 
 ## Post-Operation Brain Update
 
-Call `node .testatlas/scripts/update-brain-after-command.js --command bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
+Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
 
 ## What's Next
 

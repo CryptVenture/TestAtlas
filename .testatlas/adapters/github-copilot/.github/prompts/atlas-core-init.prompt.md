@@ -3,7 +3,7 @@ mode: agent
 description: Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="7daf6465bb1627186ea842b196bab40dce01f2597f4ca2065444d0af6825e958" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="f701580b5988905ec6a78b13f942e5c7d05a200486b281b1c419c31a209377cf" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-core-init.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -72,7 +72,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
 
 ## What's Next
 

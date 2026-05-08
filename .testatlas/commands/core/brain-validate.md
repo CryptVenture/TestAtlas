@@ -99,7 +99,7 @@ The 22 required brain files validated by this command:
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
 
 ## What's Next
 

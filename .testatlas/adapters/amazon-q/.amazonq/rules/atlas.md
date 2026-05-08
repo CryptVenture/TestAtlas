@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="24529a5bde84d227f5d4c079a7a6d9f12523c841c70b325521a6114bda361de8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="e275e969d5e8c41be36db6c4a392513f995d3c96e97edea9144902dfb0b98349" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -305,7 +305,7 @@ Capture a quality finding as an issue under to_fix/ with severity, confidence, e
 
 ## /atlas-maintain-migrate
 
-Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. Read `.testatlas/commands/maintain/maintain-migrate.md` for full instructions.
+Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. Read `.testatlas/commands/maintain/maintain-migrate.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

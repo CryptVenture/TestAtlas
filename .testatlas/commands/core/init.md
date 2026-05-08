@@ -101,7 +101,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Post-Operation Brain Update
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
 
 ## What's Next
 

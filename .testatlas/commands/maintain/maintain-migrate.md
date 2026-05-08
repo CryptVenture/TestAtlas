@@ -1,7 +1,7 @@
 ---
 command: maintain-migrate
 version: 2.0.0
-description: Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe.
+description: Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe.
 capabilities: [shell, file-write]
 produces:
   - command-result

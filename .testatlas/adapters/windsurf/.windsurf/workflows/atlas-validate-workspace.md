@@ -3,7 +3,7 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="a6888e376673429d0bc025a41fd2bf83d204cd8879dd7dde612a7b202c1961db" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="1331f9a0fee300a2489679214cc968243ec36c9adc03a1da5eb7b54759be6b35" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-validate-workspace.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,7 +19,7 @@ Use the manual fallback below only when shell capability is unavailable. `--auto
 
 - `.testatlas/bootstrap.md` — constitution; lifecycle and stop-condition rules.
 - `_testatlas/11_workspace_manifest.json` — the manifest under audit.
-- `.testatlas/schemas/*.schema.json` — the 16 schemas to validate against.
+- `.testatlas/schemas/*.schema.json` — the canonical schema set this command validates against (count discovered at runtime by walking the directory; do not hard-code it in agent reasoning).
 - `_testatlas/09_artifact_index.md` — declared artifact set; cross-checked against on-disk reality.
 
 ## Required Actions

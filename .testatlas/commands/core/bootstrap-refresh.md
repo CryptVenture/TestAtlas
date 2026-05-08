@@ -82,7 +82,7 @@ If `shell` is unavailable, skip the budget-check step and mark the run record `c
 
 ## Post-Operation Brain Update
 
-Call `node .testatlas/scripts/update-brain-after-command.js --command bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
+Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
 
 ## What's Next
 
