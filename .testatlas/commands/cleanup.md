@@ -72,7 +72,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 - `_testatlas/cleanup-report-<ts>.md` — list of orphans, broken links, stale markers, and the action taken for each (`re-linked`, `re-rendered`, `requires-review`).
 - Updated `_testatlas/09_artifact_index.md` — re-derived from disk.
 - Updated `_testatlas/11_workspace_manifest.json` — counts reconciled.
-- Updated content inside `<!-- TESTATLAS:GENERATED -->` markers where hash matched and re-render was safe.
+- Updated content inside `<!-- TESTATLAS:GENERATED -->` markers — section bodies are re-rendered unconditionally on every accelerator run; the manifest's `generatedSections[<file>][<section>]` hash is refreshed to the new body and is not used to skip re-renders.
 
 ## Lifecycle
 
