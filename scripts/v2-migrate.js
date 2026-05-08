@@ -169,7 +169,7 @@ export async function migrateV2({
     const sourceExists = await readFile(sourcePath)
       .then(() => true)
       .catch(() => false);
-    if (sourceExists) {
+    if (sourceExists && path.resolve(sourcePath) !== path.resolve(targetPath)) {
       await cp(sourcePath, targetPath);
       created.push(`bootstrap/${shard}`);
     }
@@ -179,9 +179,10 @@ export async function migrateV2({
   const bootstrapSource = path.join(suiteBootstrapDir, 'BOOTSTRAP.md');
   const bootstrapTarget = path.join(wsDir, 'bootstrap', 'BOOTSTRAP.md');
   if (
-    await readFile(bootstrapSource)
+    (await readFile(bootstrapSource)
       .then(() => true)
-      .catch(() => false)
+      .catch(() => false)) &&
+    path.resolve(bootstrapSource) !== path.resolve(bootstrapTarget)
   ) {
     await cp(bootstrapSource, bootstrapTarget);
     created.push('bootstrap/BOOTSTRAP.md');
@@ -204,9 +205,10 @@ export async function migrateV2({
   const brainReadmeSource = path.join(cwd, '_testatlas', 'brain', 'README.md');
   const brainReadmeTarget = path.join(wsDir, 'brain', 'README.md');
   if (
-    await readFile(brainReadmeSource)
+    (await readFile(brainReadmeSource)
       .then(() => true)
-      .catch(() => false)
+      .catch(() => false)) &&
+    path.resolve(brainReadmeSource) !== path.resolve(brainReadmeTarget)
   ) {
     await cp(brainReadmeSource, brainReadmeTarget);
     created.push('brain/README.md');
@@ -215,9 +217,10 @@ export async function migrateV2({
   const agentsReadmeSource = path.join(cwd, '_testatlas', 'agents', 'README.md');
   const agentsReadmeTarget = path.join(wsDir, 'agents', 'README.md');
   if (
-    await readFile(agentsReadmeSource)
+    (await readFile(agentsReadmeSource)
       .then(() => true)
-      .catch(() => false)
+      .catch(() => false)) &&
+    path.resolve(agentsReadmeSource) !== path.resolve(agentsReadmeTarget)
   ) {
     await cp(agentsReadmeSource, agentsReadmeTarget);
     created.push('agents/README.md');
