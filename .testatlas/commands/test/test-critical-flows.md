@@ -79,6 +79,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 - `_testatlas/brain/domains.json`, `_testatlas/brain/flows.json`
 - `_testatlas/to_fix/by_severity/` indexes
 - `.testatlas/schemas/test-run.schema.json`
+- `.testatlas/schemas/evidence.schema.json` — required because every recorded outcome MUST cite evidence sidecars conforming to this schema (issued in step 3); without it, evidence emission is undefined.
 
 ## Required Actions
 

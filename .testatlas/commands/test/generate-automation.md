@@ -138,7 +138,7 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command generate-au
 ## Completion Criteria
 
 - All `_testatlas/tests/generated_automation/<framework>/<flow-slug>.<ext>` skeleton files for in-scope flows exist on disk (per Required Actions step 1/2).
-- Every produced companion `<flow-slug>.meta.json` validates against `test-scenario.schema.json` and carries `status: "generated-but-not-validated"` until first execution.
+- Every produced companion `<flow-slug>.meta.json` is a status-tracker sidecar with shape `{ status: <one-of-the-4-status-values>, status_history: [{status, ts, reason?}, ...] }` (NOT a `test-scenario.schema.json` record — it is a status tracker, not a scenario definition; until a dedicated `test-scenario-meta.schema.json` is added, this command writes the documented shape without external schema validation). Initial value: `status: "generated-but-not-validated"` until first execution.
 - `_testatlas/03_execution_status.md` and `_testatlas/09_artifact_index.md` reflect the new skeleton + meta artifacts.
 - The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
 - Zero stop conditions triggered (`FLOWS_MISSING`, unknown `--framework`, missing `--flow`/`--issue`/`--all` all clear; capability gaps logged with `confidence: needs_validation`, no fabrication).
