@@ -4,7 +4,7 @@ description: Test Plan Council — QA, automation, codebase, data, and runtime p
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="8148fee03974800d8dc0a8ae6960ea40bdb989ab13552baa69e8097bcc83d530" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="54a8a175301241d1afe2d685efa49ef91ee6f00df3fa0aac8f9b750c6932b1af" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-test-plan.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -33,7 +33,7 @@ Recommended slate: QA Lead (lead), Automation Engineer, Codebase Mapper, Data St
 4. **Cross-questioning.** Personas challenge layer boundaries (e.g., "this should be unit, not E2E") via `message_type: "question"`.
 5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type from `vocabulary.schema.json#/$defs/disagreement_type`: factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy.
 6. **Rebuttal or evidence request.** Personas may request a fresh `node .testatlas/scripts/update-coverage.js --category all` run before voting.
-7. **Vote.** Per scenario motion (include / exclude / move-to-different-layer), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
+7. **Vote.** Per scenario motion (include / exclude / move-to-different-layer), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. **Vote-scale mapping:** the numeric values `+2`, `+1`, `0`, `-1`, `-2` map 1:1 to the schema enum `vote_value` (per `vocabulary.schema.json#/$defs/vote_value`) values `strong_yes`, `yes`, `abstain`, `no`, `strong_no` respectively. Both representations are first-class: `votes.json` persists schema-enum tokens; transcripts and disagreement narratives may use either form. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the test plan in `consolidation.{md,json}`. Automation Engineer drafts the automation candidates list.
 9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js --session-id <id>`. The plan lands as `_testatlas/02_test_strategy.md` proposed updates.
 
@@ -65,8 +65,8 @@ The Test Plan Council produces all 15 PRD §7.8 council-session artifacts inside
 11. `transcript.md` (or `transcript-<persona-id>.md` per persona) — per-persona round-by-round messages emitted during the 9-round protocol (`finding`, `critique`, `rebuttal`, `vote`, `consolidation`, `question`, `evidence_request`)
 12. `disagreements.md` — disagreements captured in round 5 with PRD §12.5 disagreement_type from `vocabulary.schema.json#/$defs/disagreement_type`
 13. `votes.json` — round-7 votes per motion on the +2 / -2 scale (per `vocabulary.schema.json#/$defs/vote_value`)
-14. `claims.json` — extracted claims index produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
-15. `session.json` — schema-validated council session sidecar (validates against `council-session.schema.json`); brain delta also written under `_testatlas/brain/council-deltas/<session-id>.json` and the dispatch-log row appended at `_testatlas/agents/councils/sessions/dispatch-log.md`
+14. `claims.jsonl` — extracted claims index (JSONL append-only event stream, per `scripts/extract-claims.js:129`) produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
+15. `session.json` — schema-validated council session sidecar (validates against `council_session.schema.json`); brain delta also written under `_testatlas/brain/council-deltas/<session-id>.json` and the dispatch-log row appended at `_testatlas/agents/councils/sessions/dispatch-log.md`
 
 ## Stop Conditions
 

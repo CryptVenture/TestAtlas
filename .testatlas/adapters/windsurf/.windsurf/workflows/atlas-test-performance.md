@@ -3,12 +3,12 @@ description: Execute performance-typed scenarios via mandatory Chrome DevTools M
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="c7a719e3e9cc46f4ff32a768d7d3bf99ff2be4cc83f18c4bb7e733f64f49807d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="304a326fbf2d610400138856493fae81176af6fe833cdd08bf8f7c1d7c7c6a59" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Execute scenarios with `type === "performance"` from `_testatlas/tests/matrix.json` per PRD §26.8 — a Chrome DevTools MCP-driven trace + emulate run that asserts each scenario against PRD §13.10 thresholds (LCP, INP, CLS, total blocking time, network request counts, retry counts, long-task budget). Output is a `_testatlas/runs/RUN-<timestamp>.{md,json}` pair tagged `type: "performance"` (the JSON validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/performance/` (baseline trace, throttled trace, performance insights, network captures, screenshots). Every claim about performance behaviour MUST be backed by trace data captured first; degrading without MCP/browser/shell MUST mark findings `confidence: needs-validation`.
+Execute scenarios with `type === "performance"` from `_testatlas/tests/matrix.json` per PRD §26.8 — a Chrome DevTools MCP-driven trace + emulate run that asserts each scenario against PRD §13.10 thresholds (LCP, INP, CLS, total blocking time, network request counts, retry counts, long-task budget). Output is a `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` pair tagged `type: "performance"` (the JSON validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/performance/` (baseline trace, throttled trace, performance insights, network captures, screenshots). Every claim about performance behaviour MUST be backed by trace data captured first; degrading without MCP/browser/shell MUST mark findings `confidence: needs-validation`.
 
 ## Required First Reads
 
@@ -43,13 +43,13 @@ Execute scenarios with `type === "performance"` from `_testatlas/tests/matrix.js
    b. **Throttled pass.** `emulate({cpuThrottlingRate: 4, networkConditions: 'Slow 3G'})` (or the scenario's declared throttle profile). Repeat the navigate / trace / insight / network / snapshot capture. Persist as `throttled-trace.json`, `throttled-insights.json`, `throttled-network.json`, `throttled-snapshot.json`, `throttled.png`.
    c. Save all evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/performance/`.
 8. **Threshold assertion.** Compare the captured insights against the scenario's expected thresholds (per the PRD §13.10 defaults named in Required Action 3, plus any per-scenario overrides for `requestCount`, `retryCount`, `longTasks`). Apply thresholds separately for baseline and throttled passes when the scenario specifies both. Status is `passed` / `failed` / `skipped` / `blocked`. Each per-result `confidence` per `bootstrap.md` §8.
-9. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario, baseline metrics first then throttled) and `_testatlas/runs/RUN-<timestamp>.json` with `type: "performance"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint, throttle profile applied.
+9. Write `_testatlas/tests/runs/RUN-<timestamp>.md` (human narrative — one section per scenario, baseline metrics first then throttled) and `_testatlas/tests/runs/RUN-<timestamp>.json` with `type: "performance"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint, throttle profile applied.
 10. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails.
 11. Close the lifecycle (next section).
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — performance-typed run record with per-scenario results, threshold assertions, and evidence paths.
+- `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — performance-typed run record with per-scenario results, threshold assertions, and evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/performance/` — baseline + throttled traces, insights, network captures, snapshots, screenshots.
 
 ## Lifecycle

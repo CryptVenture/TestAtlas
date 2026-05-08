@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="599fb3fb2e7ab6f3d69c6b4ec40de51d3ff5e4671a58426b1dec1c1003b0f33f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="57b9938bbec8b46ae110ba25b3e569c5e4a82d8d5cd53b3f53423de06d895c61" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -69,7 +69,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 - Issue id not specified → halt with question.
 - Issue not in `fixed_pending_retest` status → halt: "Issue must be marked fixed before retesting."
-- Retest pack missing → halt: "Run `/atlas:test-generate-retest-pack --issue <id>` first."
+- Retest pack missing → halt: "Run `/atlas:test-generate-retest-pack --issue-id <id>` first."
 - Fewer than 2 participants → halt.
 
 ## Completion Criteria

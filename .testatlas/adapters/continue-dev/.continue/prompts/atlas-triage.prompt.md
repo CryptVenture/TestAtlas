@@ -4,7 +4,7 @@ description: Deduplicate, normalize, group, and flag-as-blocker the issues under
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="8c5292982cf6834cad44846cce48d468a28411c816e0f0787944147f69dc6b37" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="84fe6de83b473f2d4f6eec2dfcdf8b8a3a79d702417e7076c4bcdf300b667405" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-triage.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -46,7 +46,7 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 7. **Normalize confidence** against `vocabulary.schema.json` enum values: `confirmed`, `strong-suspect`, `needs-validation`. For each issue, walk every path in its `evidence` array and stat it on disk. Any issue with one or more missing evidence files is downgraded to `confidence: needs-validation` AND tagged for retest in the triage report. An issue whose evidence is all present and reproduces the failure first-hand is `confirmed`; partial / indirect evidence is `strong-suspect`.
 8. **Flag blockers.** Any issue satisfying (`severity == "critical"` AND `confidence ∈ {"confirmed", "strong-suspect"}`) MUST be appended to `_testatlas/to_fix/blockers.md` with its ID, title, domain, flow, evidence count, and the rationale that earned the blocker flag. Issues that no longer meet the rule (e.g. severity was downgraded this run) MUST be removed from `blockers.md` with a removal entry — `blockers.md` is regenerated as a snapshot.
 9. **Identify groups.** Beyond duplicate groups, cluster issues by `(domain, type, severity)` and write `_testatlas/to_fix/groups.md` listing every cluster with member counts, lowest-numbered exemplar, and a one-line description. This is the index `consolidate` consumes.
-10. **Re-derive indexes from disk** — never trust cached counts. Rebuild `_testatlas/to_fix/by_domain/<domain>.md`, `_testatlas/to_fix/by_severity/<severity>.md`, `_testatlas/to_fix/by_status/<status>.md` by walking every JSON sidecar.
+10. **Re-derive indexes from disk** — never trust cached counts. Rebuild `_testatlas/to_fix/by_domain/<domain>.md`, `_testatlas/to_fix/by_severity/<severity>.md`, `_testatlas/to_fix/by_status/<status>.md`, `_testatlas/to_fix/by_type/<type>.md` by walking every JSON sidecar.
 11. Write `_testatlas/to_fix/triage-report-<ts>.md` summarizing: total issues triaged, duplicate groups detected (per heuristic), severity changes (up + down with citations), confidence changes, blocker count delta, missing-evidence count, and the list of issues now flagged for retest. The report MUST be reproducible from the issue files alone.
 12. Validate every modified issue JSON against `.testatlas/schemas/issue.schema.json` before commit; halt on any AJV failure with the error verbatim.
 13. Close the lifecycle (next section).

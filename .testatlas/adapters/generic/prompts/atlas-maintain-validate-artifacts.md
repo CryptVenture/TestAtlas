@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-maintain-validate-artifacts. Paste .testatlas/bootstrap.md first; description: Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="59f49fa0940a5ae2d49b40b37b6e2c89d1359e6cb4fcc89bf3bd463364d5e304" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="0b5bac3344c0ac8998fc4ab91fe83cb7b4e24029f17ef9b3b03690662ac5ab68" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -51,11 +51,11 @@ The four validation dimensions:
 ## Required Actions
 
 1. **Preferred path (if `shell` available):**
-   - Run `node .testatlas/scripts/validate-workspace.js --strict` — produces the
+   - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
    - Run `node .testatlas/scripts/validate-brain.js --strict` — checks brain JSON
      consistency (cross-reference resolution).
-   - Run `node .testatlas/scripts/sync-markdown-json.js --check` — reports drift
+   - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
      the brain indexes; collect orphans + danglers.
@@ -97,7 +97,7 @@ The four validation dimensions:
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status success` (or `--status failure` with the error code).
 
 ## What's Next
 

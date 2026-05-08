@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-red-team. Invoke as /prompts:atlas-council-red-team. Description: Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="a19619e0c25c8479d39d98d4b50a9b8582d7a28f3067c52013ecbf5ae4f766f1" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="c0f8327746b227eb6d839584dc48950b4bf86661eb59b744bd021cf0971e0846" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council-red-team.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,7 +71,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:retest --issue <id>` for any newly invalidated claim that maps to an issue.
+- `/atlas:retest issue <id>` for any newly invalidated claim that maps to an issue.
 - `/atlas:report` to surface the recalibrated confidence map.
 - `/atlas:council-brain-audit` if many claims were invalidated (likely systemic doc drift).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

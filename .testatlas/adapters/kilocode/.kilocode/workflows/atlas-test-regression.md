@@ -9,17 +9,17 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="bdae51dbd2cdc7889b52a660d89ceb0bbac9028e6fba3746efab56939a9cb9aa" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="a006a6df613251d5acdfeae3e1e6c2fc2b85a7337ac6017ec2b4e66e6adb38eb" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-regression.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Re-run scenarios that failed in a prior run and report whether each result has `regressed`, `recovered`, `unchanged`, or `unverified` against the baseline (PRD §26.4). The command identifies the most recent `_testatlas/runs/RUN-<timestamp>.json` containing scenarios with status `failed`, replays each previously-failed scenario, captures fresh evidence, and writes a new RUN pair tagged `type: "regression"` (per `test-run.schema.json`) plus an updated `_testatlas/reports/regressions.md`. The diff is one-directional — the prior RUN is read-only. Like every test command, this is a high fabrication-risk surface: every diff classification MUST be backed by evidence captured this run, not extrapolated from the prior one.
+Re-run scenarios that failed in a prior run and report whether each result has `regressed`, `recovered`, `unchanged`, or `unverified` against the baseline (PRD §26.4). The command identifies the most recent `_testatlas/tests/runs/RUN-<timestamp>.json` containing scenarios with status `failed`, replays each previously-failed scenario, captures fresh evidence, and writes a new RUN pair tagged `type: "regression"` (per `test-run.schema.json`) plus an updated `_testatlas/reports/regressions.md`. The diff is one-directional — the prior RUN is read-only. Like every test command, this is a high fabrication-risk surface: every diff classification MUST be backed by evidence captured this run, not extrapolated from the prior one.
 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- The most-recent `_testatlas/runs/RUN-<timestamp>.json` whose `results[]` contains at least one `status: "failed"` entry. If the most-recent RUN is all-passing, walk back through earlier runs until one with failures is found, OR halt with `Nothing to retest.`
+- The most-recent `_testatlas/tests/runs/RUN-<timestamp>.json` whose `results[]` contains at least one `status: "failed"` entry. If the most-recent RUN is all-passing, walk back through earlier runs until one with failures is found, OR halt with `Nothing to retest.`
 - `_testatlas/tests/matrix.json` — to resolve scenario id → current scenario definition (the scenario may have changed since the baseline; record both the baseline assertion and the current one).
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the regression RUN sidecar.
@@ -30,7 +30,7 @@ Re-run scenarios that failed in a prior run and report whether each result has `
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every diff classification this command produces MUST cite a fresh evidence file path under `_testatlas/evidence/runs/<run-id>/<scenario-id>/regression/` that exists on disk. Inheriting the baseline's evidence paths without re-capturing is fabrication.
 2. Verify capabilities. **If `shell` is unavailable, MUST NOT re-execute scenarios — mark every previously-failed scenario as `unverified: shell unavailable`, emit an empty regression run with the prior-failed list intact, add `tool_unavailable: shell` to each result per `bootstrap.md` §4, and halt the command after writing the partial RUN. Never simulate diff outcomes, exit codes, or oracle results from training-data priors.**
 3. Verify safety flags. If `allowDestructiveActions=false`, refuse re-execution of any baseline-failed scenario whose steps mutate or delete data. If `allowProductionTesting=false`, inspect the resolved target URL/env name and refuse production targets. Halt rather than degrade silently.
-4. **Identify the baseline.** Scan `_testatlas/runs/RUN-*.json` newest first. The baseline is the first RUN containing one or more `status: "failed"` results. Record `baselineRunId`. Build `previouslyFailedScenarios = baseline.results.filter(r => r.status === "failed")` — preserve each scenario's id, original `type`, and original assertion shape.
+4. **Identify the baseline.** Scan `_testatlas/tests/runs/RUN-*.json` newest first. The baseline is the first RUN containing one or more `status: "failed"` results. Record `baselineRunId`. Build `previouslyFailedScenarios = baseline.results.filter(r => r.status === "failed")` — preserve each scenario's id, original `type`, and original assertion shape.
 5. **Re-execute each previously-failed scenario.** Apply the same procedure the original test command used:
    - smoke / user-flow / exploratory → `/atlas:test-flow` procedure
    - negative / state / integration / setup-testability → `/atlas:test-domain` procedure
@@ -42,14 +42,14 @@ Re-run scenarios that failed in a prior run and report whether each result has `
    - prior=`failed`, current=`failed` → **`unchanged`** (still failing — note whether the failure signature is identical to the baseline, or different; if different, additionally tag `signature-drifted`)
    - prior=`passed` and reappears in this RUN as `failed` → **`regressed`** (rare here — only happens when the baseline RUN already had a mixed result for the same scenario id)
    - prior=`failed`, current=`skipped` or `blocked` due to capability or safety flag → **`unverified`**
-7. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — sectioned by classification: Recovered, Unchanged, Regressed, Unverified) and `_testatlas/runs/RUN-<timestamp>.json` with `type: "regression"`. Each result includes a `priorRunRef` field pointing to the baseline RUN id and a `priorStatus` field carrying the baseline value. Include a top-level summary: counts per classification, capabilities used, environment fingerprint.
+7. Write `_testatlas/tests/runs/RUN-<timestamp>.md` (human narrative — sectioned by classification: Recovered, Unchanged, Regressed, Unverified) and `_testatlas/tests/runs/RUN-<timestamp>.json` with `type: "regression"`. Each result includes a `priorRunRef` field pointing to the baseline RUN id and a `priorStatus` field carrying the baseline value. Include a top-level summary: counts per classification, capabilities used, environment fingerprint.
 8. Update `_testatlas/reports/regressions.md`. Preserve any human-authored content via the generated-section markers established in Phase 2 (`<!-- testatlas:generated:start -->` / `<!-- testatlas:generated:end -->`). Inside the generated block, list per-classification counts and per-scenario links to both the baseline and the current evidence directories.
 9. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails.
 10. Close the lifecycle (next section).
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — regression-typed run record with per-scenario classification, prior-run ref, and evidence paths.
+- `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — regression-typed run record with per-scenario classification, prior-run ref, and evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/regression/` — fresh per-scenario evidence captured this run.
 - Updated `_testatlas/reports/regressions.md` — per-classification counts and per-scenario links.
 

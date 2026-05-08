@@ -4,7 +4,7 @@ description: Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="90f5564d966edf8fa0ce56ffac7105bb23baaf2e102fedc602f20d8ffde9c253" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="94a13ff656c443144149dca6f4ecae9b06daec88863fb2a9b44228488f53da43" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-test-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -64,7 +64,7 @@ Spawn-and-aggregate orchestrator. When the host declares `subagent-spawn`, the u
 ## Outputs
 
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — merged run record with per-scenario results from BOTH children, executionMode metadata, and a `children:` sub-object.
-- Per-child RUN pairs survive at their authored locations (test-flow → `_testatlas/tests/runs/`; test-domain → `_testatlas/runs/`).
+- Per-child RUN pairs survive at their authored locations under `_testatlas/tests/runs/`. All test-* runners write to `_testatlas/tests/runs/RUN-<ts>` — there is no per-runner output-path split.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/` — owned by the executing child.
 - Optional `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` — aggregate issue candidates, deduped.
 - Updated flow + domain confidence for every flow/domain touched.
