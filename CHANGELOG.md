@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Fixed (post-Phase-20 dogfood round 8 — ISSUE-065..083)
+
+**Source command body fixes:**
+
+- **`commands/maintain/maintain-validate-artifacts.md`** — dropped unsupported `--strict` from `validate-workspace.js` invocation (script accepts only `--workspace,--all-workspaces,--cwd,--dry-run,--auto-heal,--apply,--apply-suggestions,--only,--report,--help` per `scripts/validate-workspace.js:274-300`); replaced `sync-markdown-json.js --check` with `--dry-run` (the flag added in Phase-20 plan 20-02); added required `--actor "atlas-agent"` + `--summary "..."` to the `update-brain-after-command.js` invocation (the script enforces both per `scripts/update-brain-after-command.js:50-53`). Closes ISSUE-065, ISSUE-066, ISSUE-067.
+- **`commands/maintain/maintain-migrate.md`** — added required `--actor "atlas-agent"` + `--summary "..."` to the `update-brain-after-command.js` invocation. Closes ISSUE-068.
+- **`commands/test-domain.md`, `commands/test-regression.md`, `commands/test-performance.md`, `commands/test-accessibility.md`** — unified output paths from `_testatlas/runs/RUN-<ts>` to `_testatlas/tests/runs/RUN-<ts>` (matching `test-flow.md` and `test/test-critical-flows.md` canonical form). Closes ISSUE-071, ISSUE-073, ISSUE-074, ISSUE-075.
+- **`commands/test-all.md`** — replaced the by-design split policy ("test-flow → `_testatlas/tests/runs/`; test-domain → `_testatlas/runs/`") with a single unified output convention: all test-* runners write to `_testatlas/tests/runs/RUN-<ts>`. Aligned with the four test-* fixes above.
+- **`commands/log-issue.md`** — Required Actions step 1 skip-list updated from "skip steps 9, 10, 11" to "skip steps 9, 9.5, 10, 11" (Phase-20 plan 20-08 added step 9.5 — the by_flow back-ref maintainer — but the skip-list lagged). Closes ISSUE-077.
+- **`commands/triage.md`** — step 10 rebuild list now includes `_testatlas/to_fix/by_type/<type>.md` alongside `by_domain/`, `by_severity/`, `by_status/` (the intro and step 1 already mentioned `by_type/`; only the rebuild list lagged). Closes ISSUE-078.
+- **`commands/handoff.md`** — step 6 clarifies that `https://testatlas.dev/schemas/v1/sub-agent-handoff.schema.json` is the AJV `$id` URL the schema-loader registers (logical identifier, NOT a fetched URL); the on-disk source is `.testatlas/schemas/sub-agent-handoff.schema.json`; both refer to the same logical schema and either form is acceptable in references. Closes ISSUE-076.
+- **`commands/council/council-test-plan.md`** — corrected schema filename `council-session.schema.json` → `council_session.schema.json` (underscore is the on-disk truth per `.testatlas/schemas/`); corrected claims output filename `claims.json` → `claims.jsonl` (verified against `scripts/extract-claims.js:129` which writes `claims.jsonl`); added explicit vote-scale mapping note where the vote scale is introduced — numeric `+2/+1/0/-1/-2` map 1:1 to the schema enum `vote_value` (`vocabulary.schema.json#/$defs/vote_value`) values `strong_yes/yes/abstain/no/strong_no` respectively. Closes ISSUE-080, ISSUE-081, ISSUE-082.
+- **`commands/council/council-red-team.md`** — `/atlas:retest --issue <id>` → `/atlas:retest issue <id>` (positional form, matching the 4 sibling council commands `council-bug-triage`, `council-product-review`, `council-retest`). Closes ISSUE-083.
+
+**Cross-cutting sweeps:**
+
+- **Pattern A** (Phase-20 propagation gaps): swept all `commands/**/*.md` for skip-list / rebuild-list / explorer-pool lag against Phase-20 source. 0 additional fixes required — `triage.md` skip-list "skip 9, 10, 11" is internally consistent (no 9.5 step exists in `triage.md`); `report.md` skip "skip 2-13" matches the script's actual coverage; `explore-tests` is correctly listed in the explorer pool in `explore.md` and `explore/explore-all.md`.
+- **Pattern B** (maintain-command flag drift): `commands/maintain/` contains exactly the 2 files fixed above (`maintain-validate-artifacts.md`, `maintain-migrate.md`). 0 additional sibling files; sweep complete.
+- **Pattern C** (schema filename casing/separator drift): swept all `commands/**/*.md` against on-disk `.testatlas/schemas/*.schema.json` (38 schema files including `council_session`, `dashboard_data`, `drift_record`, `quality_score`, `retest_pack` — all underscore on disk). 0 additional drift hits beyond the `council-session` → `council_session` fix in `council-test-plan.md`; the other underscore-named schemas are already referenced correctly across all commands.
+- **Pattern D** (council slash-call form): swept all `commands/council/**`. 1 additional collateral hit fixed: `council-retest.md` line 96 `/atlas:test-generate-retest-pack --issue <id>` corrected to `--issue-id <id>` (matching the actual script flag `--issue-id` per `commands/test/generate-retest-pack.md:70`). All `/atlas:retest` invocations across `council-bug-triage`, `council-product-review`, `council-red-team`, `council-retest` now consistently use the positional `issue <id>` form.
+
+**Dogfood Round-8 NOT-REAL claims (recorded for traceability — to prevent re-filing in Round-9+):**
+
+- **ISSUE-069 NOT-REAL** — bare `node update.js` is prose narration in `commands/update.md` ("delegates to `update.js`"), not a shell invocation. Every shell call uses `.testatlas/scripts/update.js`. No edit applied.
+- **ISSUE-070 NOT-REAL** — `commands/explore.md:52` classification step is generic — applies to every explorer in the child pool, including `explore-tests`. No bootstrap §8 contradiction. No edit applied.
+- **ISSUE-072 NOT-REAL** — `commands/test/test-critical-flows.md` references `counts.testRuns` and `counts.evidenceRecords` correctly — those ARE the canonical schema keys per `workspace-manifest.schema.json:39,44`. Phase-20 verdict re-confirmed. No edit applied.
+- **ISSUE-079 NOT-REAL** — `commands/retest.md` references `_testatlas/to_fix/by_flow/<flow-id>.md` correctly — the index is maintained by `commands/log-issue.md:64` step 9.5 (added in Phase 20). The dogfood agent ran on a workspace that predates Phase-20 source. No edit applied.
+
+**Verification gates:** `pnpm test` 1643/1645 GREEN (0 fail, 2 skipped, ~60s); `check-adapter-parity --strict` 1314/1314 obligations satisfied (100% coverage); `mesh-graph.test.js` 4/4 GREEN; AJV strict-compile clean (no schema edits in this quick task). `validate-workspace.js` exit 1 is pre-existing — the 9 `TESTATLAS_UNKNOWN_SCHEMA` errors on `_testatlas/maps/*.json` + `reports/dashboard-data.json` exist on baseline pre-Task-1 and are out of scope for this quick task per RULE-1 scope-boundary. No release cut; last tag remains `v1.2.6`. `scripts/lib/install-core.js` untouched (concurrent-agent WIP). All 18 adapter trees regenerated via `node scripts/assemble-adapter.js`.
+
 ### Fixed (post-Phase-20 dogfood round 7 — ISSUE-040..064)
 
 **Schema extensions (additive — no breaking changes; existing artifacts still validate):**
