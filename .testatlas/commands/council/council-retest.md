@@ -93,7 +93,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 - Issue id not specified → halt with question.
 - Issue not in `fixed_pending_retest` status → halt: "Issue must be marked fixed before retesting."
-- Retest pack missing → halt: "Run `/atlas:test-generate-retest-pack --issue <id>` first."
+- Retest pack missing → halt: "Run `/atlas:test-generate-retest-pack --issue-id <id>` first."
 - Fewer than 2 participants → halt.
 
 ## Completion Criteria
