@@ -1,7 +1,7 @@
 ---
 command: explore-all
 version: 2.0.0
-description: V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
+description: V2 umbrella explorer that classifies and routes all 21 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
 capabilities: [shell, file-write]
 produces:
   - command-result
@@ -36,16 +36,16 @@ If there is a conflict:
 
 ## Purpose
 
-V2 supersedes the V1 `explore.md` umbrella with full coverage of the 20-explorer pool. This command:
+V2 supersedes the V1 `explore.md` umbrella with full coverage of the 21-explorer pool. This command:
 
-1. Classifies each of the 20 explorers as `recommended`, `optional`, or `skip` based on detected product surface signals.
+1. Classifies each of the 21 explorers as `recommended`, `optional`, or `skip` based on detected product surface signals.
 2. Applies an **idempotency filter** so already-mapped explorers are skipped when their evidence is fresh and source files haven't drifted.
 3. Selects an `executionMode` (`parallel-subagents` / `sequential-fallback` / `classify-only` / `single-spawn-inline` / `no-op`) per host capability and non-cached recommended count.
 4. Spawns recommended children in parallel (via the host's `subagent-spawn`) or runs them sequentially (fallback).
 5. Aggregates child findings into `_testatlas/02_product_overview.md` and writes the routing decision into `_testatlas/explore-plan.md`.
 6. Aggregates per-category coverage from each child into `_testatlas/brain/coverage.json` via `node .testatlas/scripts/update-coverage.js --category all`.
 
-## The 20-explorer pool
+## The 21-explorer pool
 
 V1 explorers (11, retained intact in `.testatlas/commands/explore-*.md`):
 
@@ -78,7 +78,7 @@ V2 additions (10, in `.testatlas/commands/explore/`):
 
 1. **Read app-map.** If `_testatlas/12_app_map.json` is absent, halt with: "Run `/atlas:explore-codebase` first." DO NOT invent surface signals.
 2. **Surface detection.** From `12_app_map.json`, detect: UI present (routes/components count > 0), CLI present (cli_commands > 0), API present (endpoints > 0), data layer (entities > 0), integrations (integrations > 0), jobs (jobs > 0).
-3. **Per-explorer classification.** For each of the 20 explorers, classify based on detected surface:
+3. **Per-explorer classification.** For each of the 21 explorers, classify based on detected surface:
    - `explore-codebase`, `explore-docs`, `explore-runtime`, `explore-brain`, `explore-release-readiness` → `recommended` (every product).
    - `explore-ui`, `explore-routes`, `explore-state`, `explore-components`, `explore-errors`, `explore-accessibility`, `explore-performance` → `recommended` if UI surface detected, else `skip`.
    - `explore-cli` → `recommended` if CLI surface detected, else `skip`.
@@ -134,7 +134,7 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## Completion Criteria
 
-- `explore-plan.md` exists, classifies all 20 explorers (`recommended` / `optional` / `skip`), shows cache state.
+- `explore-plan.md` exists, classifies all 21 explorers (`recommended` / `optional` / `skip`), shows cache state.
 - `02_product_overview.md` exists with the 5 generated sections.
 - `brain/coverage.json` refreshed via `update-coverage.js`.
 - The 5 lifecycle files updated; `update-brain-after-command.js` ran with `--reindex`.
