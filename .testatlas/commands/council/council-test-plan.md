@@ -93,7 +93,7 @@ The Test Plan Council produces all 15 PRD §7.8 council-session artifacts inside
 11. `transcript.md` (or `transcript-<persona-id>.md` per persona) — per-persona round-by-round messages emitted during the 9-round protocol (`finding`, `critique`, `rebuttal`, `vote`, `consolidation`, `question`, `evidence_request`)
 12. `disagreements.md` — disagreements captured in round 5 with PRD §12.5 disagreement_type from `vocabulary.schema.json#/$defs/disagreement_type`
 13. `votes.json` — round-7 votes per motion on the +2 / -2 scale (per `vocabulary.schema.json#/$defs/vote_value`)
-14. `claims.jsonl` — extracted claims index (JSONL append-only event stream, per `scripts/extract-claims.js:129`) produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
+14. `claims.jsonl` — extracted claims index (JSONL append-only event stream, per `.testatlas/scripts/extract-claims.js:129`) produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
 15. `session.json` — schema-validated council session sidecar (validates against `council_session.schema.json`); brain delta also written under `_testatlas/brain/council-deltas/<session-id>.json` and the dispatch-log row appended at `_testatlas/agents/councils/sessions/dispatch-log.md`
 
 ## Stop Conditions

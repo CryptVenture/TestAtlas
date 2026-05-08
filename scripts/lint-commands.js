@@ -1068,8 +1068,18 @@ export async function checkLifecycleHeadingStrict({ commandsDir }) {
 
 // ─── Invariant 13: config-key-existence (Quick 260508-syv) ──────────────────
 
-const CONFIG_KEY_HINT_RE =
-  /(?:default\.config\.json|configurable via|config key|config setting)[^\n]*?`([a-z][a-zA-Z0-9_]*)`/gi;
+// Two cue forms supported:
+//   1. `default.config.json.<key>` (dotted form inside a single backtick span)
+//   2. `<cue>` … `\`<key>\`` (cue followed by backtick-wrapped key on same line)
+// Both yield exactly one captured key per match. We deliberately keep the
+// cues narrow ("default.config.json", "config key", "config setting") so
+// prose words like "the Ms suffix" don't false-positive after a config-key
+// claim has already been made earlier on the same line.
+const CONFIG_KEY_HINT_RES = [
+  /default\.config\.json\.([a-z][a-zA-Z0-9_]*)/g,
+  /(?:configurable via|config key|config setting)\s+`([a-z][a-zA-Z0-9_]*)`/gi,
+  /`\.testatlas\/default\.config\.json`\s+`([a-z][a-zA-Z0-9_]*)`/g,
+];
 
 /**
  * For every `<key>` in command bodies that is claimed (via cue prose) as a
@@ -1089,20 +1099,22 @@ export async function checkConfigKeyExistence({ commandsDir, configKeys }) {
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      const re = new RegExp(CONFIG_KEY_HINT_RE.source, CONFIG_KEY_HINT_RE.flags);
-      let m;
-      while ((m = re.exec(line)) !== null) {
-        const key = m[1];
-        if (!key) continue;
-        if (known.has(key)) continue;
-        violations.push({
-          invariant: 'config-key-existence',
-          file: path.relative(PROJECT_ROOT, file),
-          line: i + 1,
-          reason: `config key '${key}' not in default.config.json`,
-          detail: `claimed config key \`${key}\` does not exist (known keys: ${[...known].sort().slice(0, 8).join(', ')}…)`,
-          suggestion: `add ${key} to .testatlas/default.config.json or remove the claim`,
-        });
+      for (const proto of CONFIG_KEY_HINT_RES) {
+        const re = new RegExp(proto.source, proto.flags);
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          const key = m[1];
+          if (!key) continue;
+          if (known.has(key)) continue;
+          violations.push({
+            invariant: 'config-key-existence',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `config key '${key}' not in default.config.json`,
+            detail: `claimed config key \`${key}\` does not exist (known keys: ${[...known].sort().slice(0, 8).join(', ')}…)`,
+            suggestion: `add ${key} to .testatlas/default.config.json or remove the claim`,
+          });
+        }
       }
     }
   }
@@ -1394,8 +1406,8 @@ async function extractClaims({
       }
     }
     // config-key claims
-    {
-      const re = new RegExp(CONFIG_KEY_HINT_RE.source, CONFIG_KEY_HINT_RE.flags);
+    for (const proto of CONFIG_KEY_HINT_RES) {
+      const re = new RegExp(proto.source, proto.flags);
       let m;
       while ((m = re.exec(line)) !== null) {
         const k = m[1];
@@ -1530,7 +1542,9 @@ async function walk(dir, out) {
     const full = path.join(dir, e.name);
     if (e.isDirectory()) {
       await walk(full, out);
-    } else if (e.isFile() && e.name.endsWith('.md')) {
+    } else if (e.isFile() && e.name.endsWith('.md') && e.name !== 'README.md') {
+      // README.md mirrors scripts/lib/list-command-files.js — it is suite
+      // documentation, not a canonical command body, so exclude from lint.
       out.push(full);
     }
   }
