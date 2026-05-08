@@ -27,6 +27,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
+import { copyV2Artifacts } from './lib/copy-v2-artifacts.js';
 import { now } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers } from './lib/markers.js';
@@ -362,7 +363,12 @@ export async function initWorkspace(
     created.push(relPath);
   }
 
-  // V2 agents registry
+  // Copy V2 artifacts from suite source (.testatlas/) into workspace.
+  // Personas, council templates, brain schemas, and registry population.
+  await copyV2Artifacts({ cwd, wsDir, nowIso, created });
+
+  // V2 agents registry (legacy path — copyV2Artifacts now handles this,
+  // but keep for backward compatibility when called from older callers)
   const registryPath = path.join(wsDir, 'agents', 'registry.json');
   if ((await stat(registryPath).catch(() => null)) === null) {
     await atomicWrite(

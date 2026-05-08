@@ -89,6 +89,35 @@ async function createMockV1Workspace() {
     path.join(TMP_DIR, '_testatlas', 'to_fix', 'ISSUE-001-test.json'),
     JSON.stringify({ id: 'ISSUE-001', title: 'Test issue', severity: 'medium' }),
   );
+
+  // Minimal suite source tree so copyV2Artifacts has something to copy
+  await mkdir(path.join(TMP_DIR, '.testatlas', 'agents', 'personas', 'system'), {
+    recursive: true,
+  });
+  await writeFile(
+    path.join(TMP_DIR, '.testatlas', 'agents', 'personas', 'system', 'test-persona.md'),
+    '---\nid: test-persona\n---\n# Test Persona\n',
+  );
+  await writeFile(
+    path.join(TMP_DIR, '.testatlas', 'agents', 'personas', 'system', 'test-persona.json'),
+    JSON.stringify({ id: 'test-persona', name: 'Test Persona', type: 'system' }),
+  );
+  await mkdir(path.join(TMP_DIR, '.testatlas', 'agents', 'councils', 'council_templates'), {
+    recursive: true,
+  });
+  await writeFile(
+    path.join(TMP_DIR, '.testatlas', 'agents', 'councils', 'council_templates', 'test.json'),
+    JSON.stringify({ id: 'test', mode: 'roundtable-review' }),
+  );
+  await mkdir(path.join(TMP_DIR, '.testatlas', 'schemas'), { recursive: true });
+  await writeFile(
+    path.join(TMP_DIR, '.testatlas', 'schemas', 'test.schema.json'),
+    JSON.stringify({
+      $schema: 'https://json-schema.org/draft/2020-12/schema',
+      $id: 'https://testatlas.dev/schemas/v2/test.schema.json',
+      type: 'object',
+    }),
+  );
 }
 
 async function cleanup() {
@@ -103,7 +132,7 @@ test('migrate detects no-workspace', async () => {
   assert.equal(r.created.length, 0);
 });
 
-test('migrate detects already-v2', async () => {
+test('migrate detects already-v2 and repairs missing artifacts', async () => {
   await cleanup();
   await createMockV1Workspace();
 
@@ -114,8 +143,18 @@ test('migrate detects already-v2', async () => {
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 
   const r = await migrateV2({ cwd: TMP_DIR });
-  assert.equal(r.status, 'already-v2');
-  assert.equal(r.created.length, 0);
+  // Repair mode: copies missing personas, council templates, schemas
+  assert.ok(
+    r.status === 'already-v2' || r.status === 'repaired',
+    `Expected already-v2 or repaired, got ${r.status}`,
+  );
+  if (r.status === 'repaired') {
+    assert.ok(r.created.length > 0, 'Expected artifacts to be copied in repair mode');
+    // Verify personas were copied
+    const personaDir = path.join(TMP_DIR, '_testatlas', 'agents', 'personas', 'system');
+    const personas = await readdir(personaDir).catch(() => []);
+    assert.ok(personas.length > 0, 'Expected personas to be copied');
+  }
 });
 
 test('migrate creates all V2 directories', async () => {

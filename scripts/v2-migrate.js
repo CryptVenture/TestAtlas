@@ -9,6 +9,7 @@
 import { cp, mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { copyV2Artifacts } from './lib/copy-v2-artifacts.js';
 import { now } from './lib/determinism.js';
 import { loadConfig } from './lib/load-config.js';
 import { assertCapability } from './lib/safety.js';
@@ -133,8 +134,20 @@ export async function migrateV2({
 
   // Check if already V2
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
-  if (manifest.schema_version === '2.0.0' && !force) {
-    return { status: 'already-v2', wsDir, created: [] };
+  const alreadyV2 = manifest.schema_version === '2.0.0';
+  if (alreadyV2 && !force) {
+    // Repair mode: still copy missing V2 artifacts even when already V2.
+    // This ensures personas, council templates, and brain schemas are
+    // backfilled if the workspace was initialized before copyV2Artifacts
+    // existed (e.g. old v2-migrate.js or init-workspace.js).
+    const nowIso = now();
+    const created = [];
+    await copyV2Artifacts({ cwd, wsDir, nowIso, created });
+    return {
+      status: created.length > 0 ? 'repaired' : 'already-v2',
+      wsDir,
+      created,
+    };
   }
 
   // Create backup (destructive — requires capability check).
@@ -201,6 +214,9 @@ export async function migrateV2({
     }
   }
 
+  // Copy V2 artifacts from suite source into workspace
+  await copyV2Artifacts({ cwd, wsDir, nowIso, created });
+
   // Write brain README and agents README
   const brainReadmeSource = path.join(cwd, '_testatlas', 'brain', 'README.md');
   const brainReadmeTarget = path.join(wsDir, 'brain', 'README.md');
@@ -226,30 +242,8 @@ export async function migrateV2({
     created.push('agents/README.md');
   }
 
-  // Write agents/registry.json
-  const registryPath = path.join(wsDir, 'agents', 'registry.json');
-  const registryExists = await readFile(registryPath)
-    .then(() => true)
-    .catch(() => false);
-  if (!registryExists) {
-    await writeFile(
-      registryPath,
-      `${JSON.stringify(
-        {
-          schema_version: '2.0.0',
-          last_updated: nowIso,
-          personas: [],
-          councils: [],
-          generated_count: 0,
-          session_count: 0,
-        },
-        null,
-        2,
-      )}\n`,
-      'utf8',
-    );
-    created.push('agents/registry.json');
-  }
+  // agents/registry.json is now handled by copyV2Artifacts (populated with
+  // discovered persona IDs and council template IDs). No-op here for DRY.
 
   // Ensure history directory exists
   await mkdir(path.join(wsDir, 'history'), { recursive: true });
@@ -308,7 +302,7 @@ export async function migrateV2({
     actor: 'v2-migrate.js',
     command: '/atlas:migrate',
     type: 'artifact_updated',
-    summary: `Migrated workspace from V1 to V2. Created ${created.length} new files.`,
+    summary: `${alreadyV2 ? 'Repaired' : 'Migrated'} workspace. Created/backfilled ${created.length} files.`,
     artifacts_read: [manifestPath],
     artifacts_written: created.map((c) => path.join(wsDir, c)),
     evidence: [],
