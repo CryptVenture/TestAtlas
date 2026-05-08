@@ -43,7 +43,7 @@ Run a Roundtable Review (PRD §7.9) on a single user flow. Personas examine the 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/flows.json`
 - The target flow's `_testatlas/flows/<slug>/flow.{md,json}`
@@ -59,7 +59,7 @@ Recommended slate: User Advocate, QA Lead, Performance Skeptic, Accessibility Re
 2. **Independent review.** Personas examine the flow without seeing other findings.
 3. **Initial findings.** Each persona emits `message_type: "finding"` transcript lines.
 4. **Cross-questioning.** Personas pose questions via `message_type: "question"`.
-5. **Disagreement capture.** Recorded in `disagreements.md` with one of the 8 PRD §12.5 types: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with one of the 8 PRD §12.5 types (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per motion, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.

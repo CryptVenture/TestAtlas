@@ -43,7 +43,7 @@ Run a Bug Triage Council (PRD §7.9) when many issues exist, severity is unclear
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/issues.json`
 - All open issues under `_testatlas/to_fix/` (filter by `status: open` for the in-scope batch)
@@ -59,7 +59,7 @@ Recommended slate: QA Lead, Security and Privacy Reviewer, Performance Skeptic, 
 2. **Independent review.** Each persona drafts a severity + priority assessment per issue.
 3. **Initial findings.** Personas emit `message_type: "finding"` per issue.
 4. **Cross-questioning.** Personas challenge severity/priority assignments via `message_type: "question"`.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the relevant PRD §12.5 type — most commonly: factual, severity, priority, evidence-sufficiency, expected-behavior, safety, implementation-interpretation, product-strategy.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the relevant PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`) — most commonly: factual, risk_assessment, priority, evidence_sufficiency, expected_behavior, safety, implementation_interpretation, product_strategy.
 6. **Rebuttal or evidence request.** Posted via `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per issue motion (severity assignment, priority assignment, dedupe proposal), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with the agreed severity, priority, and remediation order per issue.

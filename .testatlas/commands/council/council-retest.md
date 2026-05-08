@@ -43,7 +43,7 @@ Run a Retest Council (PRD §7.9) when an issue is marked `fixed_pending_retest` 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - The target `_testatlas/to_fix/<issue-id>/issue.{md,json}`
 - The retest pack at `_testatlas/tests/retest_packs/<issue-id>/`
@@ -59,7 +59,7 @@ Recommended slate: QA Lead (lead), Automation Engineer, Adversarial Red Team Tes
 2. **Independent review.** Each persona evaluates: does the new evidence demonstrate the fix? does it cover all acceptance criteria? are there regressions?
 3. **Initial findings.** Personas emit `message_type: "finding"` with verdict per acceptance criterion.
 4. **Cross-questioning.** Personas challenge each other's interpretation of the evidence.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, evidence-sufficiency, expected-behavior, severity, priority, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, evidence_sufficiency, expected_behavior, risk_assessment, priority, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas may request additional retest runs (`/atlas:retest issue <id>`).
 7. **Vote.** On the overall verdict (passed / failed / needs-more-evidence), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the verdict in `consolidation.{md,json}`.
