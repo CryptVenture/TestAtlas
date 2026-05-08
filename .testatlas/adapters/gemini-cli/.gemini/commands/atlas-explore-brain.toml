@@ -1,6 +1,6 @@
 description = "Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing indexes, dangling cross-references, drift between markdown and JSON, orphaned evidence."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="24bbc32dbc55e3ea10ec10450d922de92c44069a34bf5f4e4f5be1e9d1d339b8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="704639c9b53dc42113e933c9921c66cdce609854350cd7711c5651759ffe7e80" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -91,7 +91,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Audited brain — `<n>` validation findings / `<s>` stale / `<d>` dangling refs / `<o>` orphans in `_testatlas/evidence/explore-brain/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:core-brain-sync` runs and would mask drift this audit just surfaced.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --summary "Audited brain consistency and surfaced drift signals" --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:core-brain-sync` runs and would mask drift this audit just surfaced.
 
 ## Stop Conditions
 

@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="9d3bc05a537344e8ec9310d74987cb432aa8ec4a23190afd6e55a8073dbbbe77" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="f4f84b61e9fbded7ab8fc33ecf055a1b474736663e1e0a46019df3b6f9c7dfdd" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-explore-security.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -59,7 +59,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Catalogued security surface — `<n>` auth surfaces / `<n>` secret-handling sites / `<n>` redaction risks; `<n>` critical / `<n>` high / `<n>` medium / `<n>` low / `<n>` enhancement findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security --actor agent --summary "Catalogued security surface and redaction risks" --status completed --reindex`.
 
 ## Stop Conditions
 

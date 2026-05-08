@@ -3,7 +3,7 @@ mode: agent
 description: Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="6a18d35e11aeb807f48740301434d3f3f8e3fde2c2ad3314a488600de1555bc5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-accessibility.md" hash="fd2bb3bcf691c7266bf34ef6cd0da2e05ef99075c77f70a3bd0eace28e45cb50" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-accessibility.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,7 +71,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Audited `<n>` routes for accessibility — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-accessibility --actor agent --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-accessibility --actor agent --summary "Audited routes for accessibility and recorded findings" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

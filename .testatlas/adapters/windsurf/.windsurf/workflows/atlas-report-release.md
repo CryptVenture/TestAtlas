@@ -3,7 +3,7 @@ description: Render a release readiness report with go/no-go assessment combinin
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="8e867b51573cc741b9cbf4b0cb5a400450ff14a87903073dbe280c6d7b8611b7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="86200d05bdcb17a53f844a2093f581f8ed086b4c177f9efe3af80b9bec3d9698" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-report-release.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -102,7 +102,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --actor agent --summary "Published release report with readiness verdict" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

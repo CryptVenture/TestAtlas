@@ -3,7 +3,7 @@ mode: agent
 description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b44ad5337d36601c54427289861376ac212a8a47b70666a8433c11a0a5ff3acc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="073c03b34408b70f5df24e433651b90518db90806c599817a055301d65658bea" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -119,7 +119,7 @@ Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps th
 | `/atlas:explore-jobs` | Workers, queues, schedulers |
 | `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
 | `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
-| `/atlas:explore-tests` | Test coverage, frameworks, CI gates |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates (bridges V1 surfaces and V2 brain — its outputs feed the V1-style `tests/matrix.json` index even when invoked via the V2 classification pass) |
 | `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
 | `/atlas:explore-release-readiness` | Release-readiness signals |
 

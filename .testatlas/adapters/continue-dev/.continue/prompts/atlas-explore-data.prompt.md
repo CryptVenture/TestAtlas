@@ -4,7 +4,7 @@ description: Map schemas, entities, lifecycle states, seed fixtures, queues, cac
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="53986232edd7dd51c726266fa27f6ff0d9d68a954c9d2fcde50a4761321f1789" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="9f911f98dabc85a537ea256f1493f448a5b3dd8f63e35a7a98c73543f431089e" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-data.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -47,7 +47,8 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- Data entries in `_testatlas/12_app_map.json` — schema-valid models / queues / caches / storage entries, each citing evidence paths.
+- `_testatlas/12_app_map.json` `entityIds[]` (and related ID arrays) — closed string arrays of data-surface IDs; the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich data-surface payloads do NOT live in this file.
+- `_testatlas/maps/data.json` — rich entity / queue / cache / storage entries with model definitions, migration paths, lifecycle state machines, and evidence paths. This sidecar is the source of truth for the data contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-data/<timestamp>/` — schema dumps (structure only), migration listings, seed paths, queue/cache/storage inventories.
 - Updated `_testatlas/01_system_map.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
 

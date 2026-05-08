@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-ui. Invoke as /atlas-explore-ui.md. Description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="0de79c19c7e25cad211ef5bd6e17708e6135e80dc0b025c029485f4880a48a3a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="034ebb6fe28156c52a9e9b586b33d62e453203a055c5561496f409c0ff83016f" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{routes,components,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` routes / `<n>` components / `<n>` breakpoints / `<n>` evidence files in `_testatlas/evidence/explore-ui/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-ui --actor agent --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-ui --actor agent --summary "Mapped UI routes, components, and breakpoints with evidence" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

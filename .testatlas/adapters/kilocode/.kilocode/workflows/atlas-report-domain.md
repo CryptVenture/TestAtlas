@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="7f78586faa10cf932756f584df9a49068ced183a9d330666ff09c2b20d5d4df7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="64981259d31e439626c75f066bcbaf1ed4afd7ccd462a758d5a56d886536c122" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -81,7 +81,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --actor agent --summary "Wrote domain report and updated quality signals" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

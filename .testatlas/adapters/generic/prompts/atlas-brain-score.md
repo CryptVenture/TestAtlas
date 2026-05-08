@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-brain-score. Paste .testatlas/bootstrap.md first; description: Compute the 11 PRD §7.15 quality scores from documented brain evidence and write _testatlas/brain/quality_scores.json with freshness + confidence + disclaimer. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="12cdc7a904f3bc9ae5cbbbe8b190f06b0ad05d65c52960b7e96ac71b55b043bd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="9cb4251240945c1819b74ade772b09292d8f54b57462c476e91a56ddbad1fe72" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-brain-score.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,9 +70,9 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 - Schema validation failure on the written file → halt; do NOT publish a partial scores file.
 - Unknown `--category` → halt with the list of valid categories.
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --actor agent --summary "Scored workspace quality across drift signals" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts are updated by the brain-update hook plus the artifacts under Outputs.
 
 ## What's Next
 

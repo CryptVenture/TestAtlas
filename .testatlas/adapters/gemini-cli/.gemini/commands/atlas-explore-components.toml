@@ -1,6 +1,6 @@
 description = "Inventory every UI component with props, state dependencies, responsive behavior, accessibility basics, and observed routes via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-components.md" hash="f55ecfde7fae096559890f102daa81ee5c1faf0de895131f6d2c06252422ea5f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-components.md" hash="9c631f9a756dd6976acfe1db79b5c8fa6f5be687440a626c1afa9e1a9613e9d6" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,7 +58,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{components,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Inventoried `<n>` components across `<m>` routes / `<k>` breakpoints in `_testatlas/evidence/explore-components/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-components --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-components --actor agent --summary "Inventoried components across routes and breakpoints" --status completed --reindex`.
 
 ## Stop Conditions
 

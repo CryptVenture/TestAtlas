@@ -3,7 +3,7 @@ mode: agent
 description: Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="b8e6ebcea8e83da1966a31b9990b72f79e78e406c790b6fd60c781219d844b29" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="306b0b77e0b425adcd3ee29017c56fa1777059c8fb463f8b0e8f209f207834d7" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-test-generate-retest-pack.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -88,7 +88,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --actor agent --summary "Built retest pack from fixed-pending-retest issues" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

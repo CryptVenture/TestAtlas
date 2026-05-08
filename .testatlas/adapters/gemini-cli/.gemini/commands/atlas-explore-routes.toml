@@ -1,6 +1,6 @@
 description = "Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="9325cf7e1977a6faf1b3cee2517493a9dfbf4d5b066dd2b05dca16b663819b16" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="ba86725e3beb3a3f05de2526d1113be68bbac4795f04d56363f2a306e1550068" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -57,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{routes,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` routes / `<m>` redirects / `<k>` guarded paths in `_testatlas/evidence/explore-routes/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-routes --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-routes --actor agent --summary "Mapped routing surfaces with redirects and guards" --status completed --reindex`.
 
 ## Stop Conditions
 

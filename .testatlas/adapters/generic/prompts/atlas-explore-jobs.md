@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-jobs. Paste .testatlas/bootstrap.md first; description: Map background jobs, schedules, queues, retry policies, timeouts, and failure scenarios; observable via shell + log inspection; degrade to code-reading when shell unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="f3155420d9e3e7b3ff48e127d720d0bc161317a8adbe43a70a2a71484c331546" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="72f1c45ea9c90e38134570e69b7eee59917157f66b72ddaad60c34bf6f94bf19" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-jobs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,7 +79,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` jobs / `<m>` queues / `<k>` schedules in `_testatlas/evidence/explore-jobs/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-jobs --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-jobs --actor agent --summary "Mapped jobs, queues, and schedules" --status completed --reindex`.
 
 ## Stop Conditions
 

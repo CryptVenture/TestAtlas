@@ -1,6 +1,6 @@
 description = "Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="faa8ac61a5790366e8d9f3c8fee1ba7d75387c16248c91bc53403d193de1909c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="f0172ad3dbbf8dfffe463550f8fd445ce534ec52424cd80e08204b945ee0dfd5" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -67,9 +67,9 @@ The 22 required brain files validated by this command:
 - Every finding (if any) reported with code + path + remedy.
 - A `command_completed` (or `command_aborted` if findings) event recorded.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-validate --actor agent --summary "Validation: <ok|N findings>" --status <completed|aborted>`. The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-validate --actor agent --summary "Validation: <ok|N findings>" --status completed` (or `--status aborted` if findings). The status reflects whether the brain was clean — abort routes findings into the event log so future agents see the validation history; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

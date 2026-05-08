@@ -1,6 +1,6 @@
 description = "Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="a0acd140cfc4b82fbaf8ff589b3d23ff21362bf8894feae4d56228d05ff2ddad" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="e0b74ab86754f681238def73e0dce241af58dd922a080c21eb066ca9038afc3b" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -50,9 +50,9 @@ If `shell` is unavailable, skip the budget-check step and mark the run record `c
 - Lifecycle artifacts updated.
 - An `EVENT-N` of type `command_completed` is appended to `_testatlas/brain/events.jsonl`.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
+Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

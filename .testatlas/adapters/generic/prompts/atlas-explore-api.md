@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-api. Paste .testatlas/bootstrap.md first; description: Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces; capture contracts, auth, errors, pagination; safely probe sandbox endpoints. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="8d3404ce997ff57a19dc385cf21787ccc00451630ec6224b10fa99825fd34417" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="ad77bd3af6ac401f6e4730dbfcac1654a1610aee4082f7b6b467e7b1e94b9134" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-api.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -54,7 +54,8 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` — api-endpoint entries with method, path, auth, request/response, errors, pagination, evidence paths.
+- `_testatlas/12_app_map.json` `apiIds[]` — closed string array of API endpoint IDs (e.g. `API-GET-users-list`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich endpoint payloads do NOT live in this file.
+- `_testatlas/maps/api.json` — rich endpoint entries with method, path, auth, request/response, errors, pagination, and evidence paths. This sidecar is the source of truth for the endpoint contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-api/<timestamp>/` — per-endpoint subdirectories with redacted request/response captures, schema file copies, introspection dumps.
 - Updated `_testatlas/01_system_map.md` — API section with surface-type counts.
 
@@ -68,7 +69,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the api-endpoint count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` API endpoints across `<surfaces>` into `12_app_map.json`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-api --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-api --actor agent --summary "Mapped API endpoints into 12_app_map.json" --status completed --reindex`.
 
 ## Stop Conditions
 

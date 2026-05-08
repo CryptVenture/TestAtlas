@@ -3,7 +3,7 @@ description: Identify and execute the highest-value flows based on documented pr
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="fa8bef41799fa002d3cf90c24e5923b066b6a905afddda15491e4159a6f24cb9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="d6ba5b2ee0519e62a14aa9d38a4a95dd966d9e4e4cc43e52ad446a64a5f5dada" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -47,6 +47,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 - `_testatlas/brain/domains.json`, `_testatlas/brain/flows.json`
 - `_testatlas/to_fix/by_severity/` indexes
 - `.testatlas/schemas/test-run.schema.json`
+- `.testatlas/schemas/evidence.schema.json` — required because every recorded outcome MUST cite evidence sidecars conforming to this schema (issued in step 3); without it, evidence emission is undefined.
 
 ## Required Actions
 
@@ -118,7 +119,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

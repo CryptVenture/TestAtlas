@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-tests. Invoke as /atlas-explore-tests. Description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="019674e5579df957f5493e637512b6325d929739a2a55cf307c050822f60fff6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="3860e984a5415101d560347db6626adcb53caf4006aa58e0652451f8d13bb659" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-tests.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -49,7 +49,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 8. **Gap analysis.** For each uncovered or thinly covered file (≥ 50 LOC, < 30% line coverage), produce a gap entry: `{file, percent, complexity_estimate, suggested_test_type, owning_domain}`. Write all gaps to `_testatlas/maps/coverage-gaps.md`.
 
-9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json` and write rich test-run + coverage metadata to `_testatlas/maps/tests.json` (atomic). Append only the test **ID strings** (e.g. `TEST-<slug>`) to `_testatlas/12_app_map.json.tests[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). If any cited evidence path fails to materialize on disk, halt.
+9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json` and write rich test-run + coverage metadata to `_testatlas/maps/tests.json` (atomic). Append only the test **ID strings** (e.g. `TEST-<slug>`) to `_testatlas/12_app_map.json.tests[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). If any cited evidence path fails to materialize on disk, halt. **Note:** when invoked with `--refresh` (per step 6's preferred path), the script emits a slice ONLY and bypasses this step — there is no append to `12_app_map.json` in refresh mode. The non-`--refresh` invocation is the canonical full-write path that performs this step.
 
 10. Close the lifecycle.
 
@@ -69,7 +69,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Inventoried `<n>` tests across `<m>` runners; coverage `<p>%`; flagged `<k>` flakes / `<g>` gaps."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-tests --actor agent --status completed --reindex` followed by `node .testatlas/scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-tests --actor agent --summary "Inventoried existing tests and refreshed coverage signals" --status completed --reindex` followed by `node .testatlas/scripts/update-coverage.js --category all` so the brain coverage ledger reflects fresh measurements.
 
 ## Stop Conditions
 

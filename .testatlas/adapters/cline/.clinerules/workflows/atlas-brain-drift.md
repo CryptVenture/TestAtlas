@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-brain-drift. Invoke as /atlas-brain-drift.md. Description: Detect drift between the last exploration and the current repository state and write _testatlas/brain/drift.json with per-domain/flow drift status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="b6882cf86980e759aef50ef67105b8474c70de54d03f1378b73b8b1c53fbec06" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="d4737a98b8fc47de3a86ad87656ae051110af84feda89d62bc4a3d2d9d1fdfd7" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-brain-drift.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -67,9 +67,9 @@ Detect drift between when each domain/flow/route was last explored and what has 
 - Brain directory missing → halt with `BRAIN_MISSING`.
 - Git not available AND `shell` declared → degrade to mtime-only and emit warning; do NOT halt.
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --actor agent --summary "Computed drift signals across workspace artifacts" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts (`_testatlas/03_execution_status.md`, `_testatlas/09_artifact_index.md`, `_testatlas/10_command_log.md`, `_testatlas/11_workspace_manifest.json` `lastUpdatedAt`, `_testatlas/history/run_log.md`) are updated by the brain-update hook and the artifacts referenced under Outputs.
 
 ## What's Next
 

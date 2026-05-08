@@ -4,7 +4,7 @@ description: V2 umbrella explorer that classifies and routes all 21 V1+V2 explor
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-all.md" hash="312d511f538f3412374cca2a54cb42d77b82b062556dd866a07116bf0d31cb02" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-all.md" hash="0c5aa91984943848b0519140e360e70292948fb8a995fd99ea4bd634f1b50bc4" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -62,8 +62,8 @@ V2 additions (10, in `.testatlas/commands/explore/`):
    - `explore-security-privacy` → `recommended` (every product). When running V2, prefer this over V1 `explore-security`. V1 `explore-security` → `optional` (retained for back-compat).
    - `explore-tests` → `recommended` (every product).
 4. **Idempotency filter.** For each `recommended` child, check `_testatlas/evidence/<child-name>/<latest-timestamp>/`. Apply the cache-skip rule:
-   - The evidence dir exists AND is < 1 hour old AND no source files in `git ls-files` have an mtime newer than the evidence dir → mark child `cached`.
-   - The evidence dir exists AND has no `git ls-files` mtime drift since BUT is between 1 hour and 24 hours old → mark child `cached` (configurable via `.testatlas/default.config.json.idempotencyTtlMs`).
+   - The evidence dir exists AND is < 1 hour (`3600000` ms) old AND no source files in `git ls-files` have an mtime newer than the evidence dir → mark child `cached`.
+   - The evidence dir exists AND has no `git ls-files` mtime drift since BUT is between 1 hour (`3600000` ms) and 24 hours (`86400000` ms) old → mark child `cached` (configurable via `.testatlas/default.config.json.idempotencyTtlMs`; the config key is named with the `Ms` suffix because its value is milliseconds).
    - Otherwise → child remains `recommended`.
    - Items the child has already mapped (e.g. routes already in `maps/routes.json` whose source files haven't drifted) are also skipped at the **per-item** level inside the child; the umbrella flags this with `idempotency: skip-already-mapped` in the brief.
    - Cached children appear in the child-results-table with `status:cached` linking to the existing evidence dir.
@@ -96,7 +96,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Do NOT alter `counts.*` (children's responsibility).
 - `_testatlas/history/run_log.md` — narrative: "Routed `<n>` recommended / `<m>` cached / `<k>` skip explorers (executionMode=`<mode>`); aggregated into `02_product_overview.md`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-all --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-all --actor agent --summary "Routed and ran explorers; aggregated into product overview" --status completed --reindex`.
 
 ## Stop Conditions
 

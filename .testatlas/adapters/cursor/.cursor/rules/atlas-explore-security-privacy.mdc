@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-security-privacy.md" hash="750d15094709669b4da1e72e95a254b8a7e1fca07b21158d72dab5cdaea946ae" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-security-privacy.md" hash="6dcfec4fcda8d1ba302c0694bed287223e38f6f91545929e458c4e9fa7996d4a" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-explore-security-privacy.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,7 +87,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{issues,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Audited `<n>` auth flows / `<m>` permission boundaries / `<k>` injection surfaces; filed `<i>` issues."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security-privacy --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security-privacy --actor agent --summary "Audited auth flows, permissions, and injection surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

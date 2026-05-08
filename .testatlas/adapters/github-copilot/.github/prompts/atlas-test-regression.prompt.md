@@ -3,7 +3,7 @@ mode: agent
 description: Re-run previously-failed scenarios from prior RUN-<timestamp>.json files; diff against the prior failed run; report regressed / recovered / unchanged / unverified per scenario.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="f885d3ca9435ca1e96be09ad97b631763cc007ca87c1172e381b80065b46460f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="b8e720cfe059588f8fe1fef3dc1a57bd4144ea6d354747b781d02fc9505c85f5" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-test-regression.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -57,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (regression vs `<baselineRunId>`) — `<n>` recovered / `<n>` unchanged / `<n>` regressed / `<n>` unverified."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --summary "Executed regression run against baseline" --status completed --reindex`.
 
 ## Stop Conditions
 

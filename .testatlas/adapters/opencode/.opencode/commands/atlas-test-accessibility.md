@@ -2,7 +2,7 @@
 description: Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="c54838ed17c3941bf2b486267dd6eb62b16a489b5a04ed17ca34779e20dd6562" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-accessibility.md" hash="f6313bfd045850567928c3c263c105c78b6cb2d96dc782ffff29ee8540c172e9" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-test-accessibility.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -63,7 +63,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-accessibility) — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked across `<n>` a11y scenarios."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-accessibility --actor agent --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-accessibility --actor agent --summary "Executed accessibility scenarios and recorded findings" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

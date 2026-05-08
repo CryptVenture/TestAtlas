@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-cli. Invoke as /atlas-explore-cli. Description: Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="02375a974527217fe1b2c57142df87f2d99721bb2eccb43761b0c78c0582aaba" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="f04db14fec56ba053bcbb543c179f071d749333649e7ff906f402b4651c1fe4e" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-cli.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -52,7 +52,8 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` — cli-command entries each citing at least one evidence path under `_testatlas/evidence/explore-cli/<timestamp>/`.
+- `_testatlas/12_app_map.json` `cliIds[]` — closed string array of CLI command IDs (e.g. `CLI-deploy-staging`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich command payloads do NOT live in this file.
+- `_testatlas/maps/cli.json` — rich CLI command entries (invocation surface, safe/destructive classification, env requirements, evidence paths). This sidecar is the source of truth for the CLI contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-cli/<timestamp>/` — per-command subdirectories containing `help.txt`, `version.txt`, `meta.json` (invocation, exit code, duration).
 - Updated `_testatlas/01_system_map.md` — CLI section with runner inventory and safe/destructive counts.
 
@@ -66,7 +67,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the cli-command count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` CLI commands (`<safe>` safe, `<destructive>` destructive) into `12_app_map.json`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --summary "Mapped CLI commands into 12_app_map.json" --status completed --reindex`.
 
 ## Stop Conditions
 

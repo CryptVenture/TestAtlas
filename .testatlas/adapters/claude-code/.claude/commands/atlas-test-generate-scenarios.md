@@ -3,7 +3,7 @@ description: Generate exploratory charters and manual test scenarios from docume
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="690c011c176fe4a95c6736a9ac48ee54b8199d0be51b59c42f1b957addd92cd7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="bbf23de8eeab67d3773d515e08ed5e8543bd8530a5ac10ed1b35d1a5f9089921" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -90,7 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --actor agent --summary "Generated test scenarios across flows" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

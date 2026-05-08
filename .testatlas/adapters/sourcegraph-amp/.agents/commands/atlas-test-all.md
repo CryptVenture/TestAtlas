@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-all. Invoke as /atlas-test-all. Description: Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/atlas:test-domain --all` and aggregates per-child run records into a single merged RUN-<timestamp>.{md,json}. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="92a5635e98ee936b756f2352259c69139dc0632ae7336f7ffa43c3b0b695beac" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="49fab5e12b0ceca2784cc40b3558bc85114cd0b908ce17c55b2207c8fd5408ee" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-test-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -75,7 +75,7 @@ Update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by ONE (per-child runs accounted for via `children:`); recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-all, executionMode `<mode>`) executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-all --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-all --actor agent --summary "Executed all scenarios across the matrix" --status completed --reindex`.
 
 ## Stop Conditions
 

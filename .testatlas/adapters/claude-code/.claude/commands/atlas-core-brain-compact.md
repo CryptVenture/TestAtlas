@@ -3,7 +3,7 @@ description: Summarize long transcripts and run logs into durable summaries; kee
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-compact.md" hash="2de3a5b2f2e24e1a5b467bb2b8bd8812fbde5b66ade4f738e6d0fba93e86a9a5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-compact.md" hash="4dfffd2b6c084b60f9152b55798c2068fbf7baec2eb083c61d9759f6bb1b5daf" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-core-brain-compact.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -53,9 +53,9 @@ Keep the brain durable without bloating it. Long transcripts (`agents/councils/s
 - `validate-brain.js` exits 0 (or `needs-validation` if shell-degraded).
 - A `command_completed` event recorded.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

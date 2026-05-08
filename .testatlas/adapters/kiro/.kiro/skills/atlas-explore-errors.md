@@ -4,7 +4,7 @@ description: Map error boundaries, fallback UI, error logging, retry patterns, a
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="b9de4ad6402c67cf2f84a894c4290eaaa84be0d0581e78f95d30e503ac1fb1d4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="48d0ee91538a548d1b4f9674bba524de291a66ad4365132e69beebcf30ed909e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-errors.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -89,7 +89,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{evidence,issues}`.
 - `_testatlas/history/run_log.md` — narrative: "Probed `<n>` error paths across `<m>` surfaces; filed `<k>` issues; evidence at `_testatlas/evidence/explore-errors/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-errors --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-errors --actor agent --summary "Probed error paths and filed issues across surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

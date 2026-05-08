@@ -2,7 +2,7 @@
 description: Execute domain-scoped scenarios across PRD §26 modes (negative/state/integration/setup-testability); state-typed UI scenarios drive the mandatory Chrome DevTools MCP state-coverage walkthrough (5 states); scenario.type selects mode.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="86185ee27f255227e9b49cbb220e0cb10b985d50f05f433373b650f79ad3b25e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-domain.md" hash="f7242eb49550f23ab4c3edf112bae2ec7fc54ba3eeca870bffd05746ecce329a" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-test-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -73,7 +73,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-domain --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-domain --actor agent --summary "Executed domain scenarios and recorded outcomes" --status completed --reindex`.
 
 ## Stop Conditions
 

@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="bb1ee891e190f4cb48af37274b4ed9d83adc8917f8af7c579bca6bf01c981654" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="3c0fe13d3864ce3ea172bad9e0b804a76e4a943bdc98dedc3ab6e22eed4ad930" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.

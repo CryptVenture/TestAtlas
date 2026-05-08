@@ -4,15 +4,15 @@ description: Run comprehensive artifact validation beyond `validate-workspace` �
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="73cefc7918035dd595113de45bcf42b011aa52ef8a1b9ff399a59bc8148cd02d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ebd933c044a46ddec3a8cf02559f476f8c880b88b8fe9409d64a07a6bd0044b6" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
 `validate-workspace` proves the workspace tree is internally consistent.
 `maintain-validate-artifacts` goes further: it checks the *content* of every
-artifact for cross-reference integrity, schema compliance, and the
-markdown/JSON sync expected of round-trippable artifacts. It is the command
+artifact for presence + parseability + per-file AJV schema compliance, plus
+the markdown/JSON sync expected of round-trippable artifacts. It is the command
 an operator runs before a release gate, after a bulk merge from another
 agent, or when `validate-workspace` has been clean for weeks but suspicious
 behaviour suggests a deeper drift.
@@ -57,10 +57,15 @@ The four validation dimensions:
 1. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
-   - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON
-     consistency (cross-reference resolution). Supported flags are
-     `--cwd <dir>`, `--brain-dir <dir>`, `--suite-cwd <dir>` only;
-     `--strict` and `--report-only` are not recognized by the script.
+   - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON:
+     (a) every required brain file is present (22 total: 19 JSON + 3 JSONL),
+     (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
+     object, (d) each file's parsed value validates against its registered
+     V2 schema via AJV (per-file). The script does NOT perform cross-id
+     reference resolution between brain files — that pass lives in step 4
+     below. Supported flags are `--cwd <dir>`, `--brain-dir <dir>`,
+     `--suite-cwd <dir>` only; `--strict` and `--report-only` are not
+     recognized by the script.
    - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
@@ -102,9 +107,9 @@ The four validation dimensions:
 - Brain directory missing → halt with `BRAIN_MISSING`; the workspace is V1 — recommend `maintain-migrate` first.
 - Any dimension reports issues → halt with non-zero exit so CI fails closed (the orchestrator does not support a `--report-only` bypass mode).
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

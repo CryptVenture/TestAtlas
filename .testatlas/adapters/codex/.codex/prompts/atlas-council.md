@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council. Invoke as /prompts:atlas-council. Description: Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="5ae4c56fdb8c288939a3879f3807ac2de898b0f8005d7a25c4d28b070dfb199b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="d7c6ed7c2180322a21f0fa09b25f153fe4275fe51a76e3ad88a6961ee9ddffad" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -61,6 +61,18 @@ The dispatch step does NOT cast votes — voting happens in round 7 of the chose
 ## Council Outputs (PRD §12.7)
 
 Every dispatched session emits: a final summary, accepted findings, rejected findings, disputed findings, issue candidates (in `generated_issues.md`), test candidates, open questions (in `generated_questions.md`), required evidence (in `followups.md`), updates made (in `consolidation.json.canonical_updates`), and a next-recommended-command line.
+
+## Lifecycle
+
+The umbrella `/atlas:council` command itself is a dispatcher; per-mode council sub-commands (e.g. `/atlas:council-bug-triage`, `/atlas:council-test-plan`) own brain writes and the standard 5 lifecycle artifact updates per PRD §40. As an umbrella, this command updates only the universal command-log + history surfaces:
+
+- `_testatlas/03_execution_status.md` — record dispatch decision (chosen mode, persona set, topic).
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list once the dispatched sub-command writes its session artifacts under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the dispatched sub-command.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (`counts.*` adjustments belong to the sub-command's lifecycle, not this dispatcher.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`<mode>`) — `<n>` personas / `<n>` rounds / verdict `<verdict>`."
+
+This command is umbrella-allowlisted in `scripts/lint-commands.js` `LIFECYCLE_ALLOWLIST`; the brain-update hook is owned by the dispatched sub-command, NOT this dispatcher.
 
 ## Stop Conditions
 

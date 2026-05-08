@@ -4,7 +4,7 @@ description: Map UI states (empty, loading, error, success, permission) plus sta
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="05d361342bd1fa82f22cbcbd8f9e678d84c9ea8d57c8e0d817f88926436632db" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="cae3adf89b3e9fee13b3c25bc7a5cff1ccf3fc32f008df4203e00c20f1b1c9e7" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-state.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,7 +82,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` surfaces / `<m>` states / `<t>` transitions in `_testatlas/evidence/explore-state/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-state --actor agent --status completed --reindex` so the brain reflects the new evidence and map updates.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-state --actor agent --summary "Mapped surfaces, states, and transitions" --status completed --reindex` so the brain reflects the new evidence and map updates.
 
 ## Stop Conditions
 
@@ -107,8 +107,8 @@ For each distinct UI/process state surfaced during exploration, materialize a st
 1. Choose a slug for the state (kebab-case, e.g. `cart-checkout`, `user-onboarding-step-2`).
 2. Create directory `_testatlas/states/<slug>/`.
 3. Write `_testatlas/states/<slug>/state.md` (human-readable narrative — preconditions, transitions, postconditions, recovery paths, evidence references).
-4. Write `_testatlas/states/<slug>/state.json` (machine-readable record conforming to `.testatlas/schemas/state.schema.json` — name, slug, transitions[], persistence, recovery[]).
-5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm `state.json` matches schema.
+4. Write `_testatlas/states/<slug>/state.json` (machine-readable UI-state-machine record — name, slug, transitions[], persistence, recovery[]). **Note on schema:** `.testatlas/schemas/state.schema.json` is the V2 **brain-state** schema (`project.name`, `status.phase`, etc per `state.schema.json:1-25`); UI state-machine records do NOT validate against it. Use the per-flow sidecar shape under `_testatlas/states/<slug>/state.{md,json}`; if your platform requires schema-validation for these UI sidecars, file a follow-up to add a dedicated `ui-state-machine.schema.json` — the brain-state schema is not a substitute.
+5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm artifact placement; the workspace validator does NOT enforce schema-validation on UI state sidecars (no schema is registered for them yet).
 
 State coverage was previously aspirational — `_testatlas/states/` had a schema but no writer. PRD §13 mandates explore-state materializes the schema; this writer block closes that gap.
 

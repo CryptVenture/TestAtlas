@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-flow. Invoke as /atlas-test-flow.md. Description: Execute scenarios from tests/matrix.json against running target via mandatory Chrome DevTools MCP interactive-surface walkthrough (forms, modals, navigation, keyboard); capture per-state evidence; emit RUN-<timestamp>.{md,json} per PRD §13. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="4700fa2b7c5250de86d4cb28c7355b14c06897e79a9a25b4cff4c613e22699e7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="e0ae0164e36db31848e0e1ffb2364202a69fff5d7b87cafddb510f213502a3de" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-test-flow.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,7 +82,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-flow --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-flow --actor agent --summary "Executed flow scenarios and recorded outcomes" --status completed --reindex`.
 
 ## Stop Conditions
 

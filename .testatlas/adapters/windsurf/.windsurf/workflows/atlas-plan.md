@@ -3,7 +3,7 @@ description: Produce a risk-based, domain-based, flow-based, state-aware test st
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="9da955540bf4e9e4f93919e286e2ec16eb909eccea3110402032a2927949d252" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="137dd487e8e3323d9362bf8cf622375566dc2ea537b607be49f4dbb55d346a70" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -25,7 +25,7 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 ## Required Actions
 
 1. Identify high-risk surfaces. Cross-reference signals: domains with the most routes/APIs (blast radius), integrations marked sandbox vs production (regression risk), flows with state-coverage gaps (PRD §13 — empty/loading/error/success/permission), and surfaces that have produced prior issues. Rank surfaces by an explicit risk score; record the scoring rationale in `02_test_strategy.md`.
-2. For each domain, generate test scenarios per PRD §26 test types. The dogfood loop targets `smoke` first; mark scenarios for `regression`, `exploratory`, `negative`, `state`, `accessibility`, `performance`, `security`, `data-integrity`, and `user-flow` as deferred to Phase-4 commands and assign them to subsequent runs rather than the immediate matrix.
+2. For each domain, generate test scenarios per PRD §26 test types. The canonical test-type vocabulary is `vocabulary.schema.json` `$defs.testType.enum`: `smoke`, `user-flow`, `exploratory`, `regression`, `negative`, `state`, `accessibility`, `performance`, `integration`, `setup`. The dogfood loop targets `smoke` first; mark scenarios for `regression`, `exploratory`, `negative`, `state`, `accessibility`, `performance`, `integration`, `setup`, and `user-flow` as deferred to Phase-4 commands and assign them to subsequent runs rather than the immediate matrix.
 3. Each scenario MUST include: a stable scenario id, name, type, target flow and/or domain, preconditions (workspace + product state), steps (numbered, evidence-attaching), expected behaviour, evidence-to-capture (which states, what artifacts), capability requirements (`shell`, `browser`, `web-fetch`, `MCP`), priority (P0/P1/P2), and a per-scenario `confidence` per `bootstrap.md` §11 reflecting how well the underlying domain evidence supports the scenario's premise.
 4. Write `_testatlas/02_test_strategy.md` — a one-page strategy framing: scope, risk model, test-type mix, capability-availability assumptions, success thresholds, and explicit out-of-scope items.
 5. Write `_testatlas/plans/PLAN-master.md` — the prioritized master scenario list (P0 → P1 → P2). Each row links to its `matrix.json` entry by id and notes the next command (`/atlas:test-flow`, etc.) that will execute it.

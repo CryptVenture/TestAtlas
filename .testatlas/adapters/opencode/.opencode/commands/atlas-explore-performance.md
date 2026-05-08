@@ -2,7 +2,7 @@
 description: Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="6c219691b6319adaa4449a8a15e532b01a2cbf4316d9db54edb0bf6f37be4ebf" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="3b1656a19a023f4c0dd36fd878e3273539d86e2112944d2f0d5d12d8fa4544a7" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-explore-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Performance-traced `<n>` routes (baseline + throttled) — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-performance --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-performance --actor agent --summary "Performance-traced routes and recorded findings" --status completed --reindex`.
 
 ## Stop Conditions
 

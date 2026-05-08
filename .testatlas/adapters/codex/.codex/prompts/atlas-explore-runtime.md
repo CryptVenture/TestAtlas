@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-runtime. Invoke as /prompts:atlas-explore-runtime. Description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="4918f8b4bd9e65de66a12471c7ef5984258bb7823bbfb937e41230bdf6733716" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="30ce066f94e9727738c13868c6f23c53dbde75b282d8fd15bb04fa7e36df6aa6" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -92,7 +92,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` services across `<n>` ports with `<n>` ENV keys; flagged `<n>` safety stops."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-runtime --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-runtime --actor agent --summary "Captured runtime metadata for services, ports, and ENV keys" --status completed --reindex`.
 
 ## Stop Conditions
 

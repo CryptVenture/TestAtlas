@@ -1,6 +1,6 @@
 description = "Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI, contract, smoke) from documented flows. Output marked `generated-but-not-validated` until executed."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="6b4a8046eb4d127dfb0e17a8c291fe9bd9b43035d4703f3e4b19765294e3f6a3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="8ffdf3a9dd41d134025cf61d215c25ad8c3c0287c396cdeb48936034696b631d" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -100,12 +100,12 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --actor agent --summary "Generated automation skeletons and updated meta.json" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 
 - All `_testatlas/tests/generated_automation/<framework>/<flow-slug>.<ext>` skeleton files for in-scope flows exist on disk (per Required Actions step 1/2).
-- Every produced companion `<flow-slug>.meta.json` validates against `test-scenario.schema.json` and carries `status: "generated-but-not-validated"` until first execution.
+- Every produced companion `<flow-slug>.meta.json` is a status-tracker sidecar with shape `{ status: <one-of-the-4-status-values>, status_history: [{status, ts, reason?}, ...] }` (NOT a `test-scenario.schema.json` record — it is a status tracker, not a scenario definition; until a dedicated `test-scenario-meta.schema.json` is added, this command writes the documented shape without external schema validation). Initial value: `status: "generated-but-not-validated"` until first execution.
 - `_testatlas/03_execution_status.md` and `_testatlas/09_artifact_index.md` reflect the new skeleton + meta artifacts.
 - The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
 - Zero stop conditions triggered (`FLOWS_MISSING`, unknown `--framework`, missing `--flow`/`--issue`/`--all` all clear; capability gaps logged with `confidence: needs_validation`, no fabrication).
