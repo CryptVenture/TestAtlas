@@ -10,7 +10,7 @@ A worked example ships with TestAtlas at [`examples/monorepo/`](../examples/mono
 
 ## Overview
 
-A capable AI agent running `/atlas:init` against a monorepo has three options
+A capable AI agent running `/atlas:core-init` against a monorepo has three options
 for where to put `_testatlas/`:
 
 | Option                          | Pro                                                                 | Con                                                                              | Verdict                |

@@ -10,7 +10,7 @@ The pipeline is linear: **Setup → Discovery → Organize → Plan → Test →
 
 > ### Day 1 happy path (do these in order)
 >
-> 1. `/atlas:init` — bootstrap the `_testatlas/` workspace
+> 1. `/atlas:core-init` — bootstrap the `_testatlas/` workspace
 > 2. `/atlas:validate-workspace` — confirm the workspace is schema-valid
 > 3. `/atlas:explore` — get a routing recommendation (umbrella, does not invoke sub-explorers)
 > 4. `/atlas:explore-codebase` — required prerequisite; produces the app map
@@ -28,12 +28,12 @@ The pipeline is linear: **Setup → Discovery → Organize → Plan → Test →
 
 Two commands. The first creates the workspace; the second proves it is well-formed.
 
-### /atlas:init
+### /atlas:core-init
 
 Bootstraps the `_testatlas/` workspace inside the current repo, seeds the lifecycle artifacts (manifest, execution status, command log, run log), and records the agent's current capability profile (shell / browser / MCP / etc.). Idempotent — safe to re-run.
 
 ```
-/atlas:init
+/atlas:core-init
 ```
 
 **Produces:** `_testatlas/11_workspace_manifest.json`, `_testatlas/03_execution_status.md`, `_testatlas/09_artifact_index.md`, `_testatlas/10_command_log.md`, `_testatlas/history/run_log.md`
@@ -267,14 +267,14 @@ These commands are not part of every session — use them at the right moment.
 
 ### /atlas:handoff
 
-Packages workspace state so another agent or engineer can pick it up without context loss. The receiving agent runs `/atlas:init` (idempotent — it will detect the existing workspace), then `/atlas:bootstrap`, then continues from `_testatlas/03_execution_status.md`.
+Packages workspace state so another agent or engineer can pick it up without context loss. The receiving agent runs `/atlas:core-init` (idempotent — it will detect the existing workspace), then `/atlas:bootstrap`, then continues from `_testatlas/03_execution_status.md`.
 
 ```
 /atlas:handoff
 ```
 
 **Produces:** handoff manifest / summary referenced from `_testatlas/09_artifact_index.md`.
-**Next:** the receiving agent runs `/atlas:init` → `/atlas:bootstrap` → continues.
+**Next:** the receiving agent runs `/atlas:core-init` → `/atlas:bootstrap` → continues.
 
 ### /atlas:cleanup
 
@@ -307,7 +307,7 @@ Four real flows you'll likely run.
 ### "I just want to find security issues"
 
 ```
-/atlas:init
+/atlas:core-init
 /atlas:validate-workspace
 /atlas:explore-codebase           # produces the app map
 /atlas:explore-security           # security-specific exploration
@@ -323,7 +323,7 @@ Agents that support filtering (most do) can be told "run only security-tagged sc
 ### "I want to add tests to a CI pipeline"
 
 ```
-/atlas:init                       # one-time, in the repo
+/atlas:core-init                       # one-time, in the repo
 /atlas:explore                    # one-time, captures the recommendation
 /atlas:map-domains
 /atlas:plan
@@ -345,7 +345,7 @@ Agents that support filtering (most do) can be told "run only security-tagged sc
 # Commit and share the _testatlas/ tree (it's checked in by design)
 
 # Receiver:
-/atlas:init                       # idempotent — detects existing _testatlas/, fills gaps only
+/atlas:core-init                       # idempotent — detects existing _testatlas/, fills gaps only
 /atlas:bootstrap                  # refresh the constitution + capability profile
 # Read _testatlas/03_execution_status.md and continue from where the sender stopped.
 ```
@@ -366,7 +366,7 @@ For migration semantics, version pinning, and rollback details, see [docs/UPDATE
 
 **First-line advice:** when anything looks off, run `/atlas:validate-workspace`. It will tell you precisely which artifact failed which schema.
 
-- **Workspace looks wrong / missing files** → run `/atlas:validate-workspace`, then re-run `/atlas:init` (idempotent — it fills gaps without clobbering).
+- **Workspace looks wrong / missing files** → run `/atlas:validate-workspace`, then re-run `/atlas:core-init` (idempotent — it fills gaps without clobbering).
 - **No `.testatlas/` directory in the repo** → the suite isn't installed yet. See [docs/INSTALL.md](INSTALL.md) for the three install paths.
 - **Signed-tarball or signature questions during install/update** → see [docs/SIGNING.md](SIGNING.md).
 - **`/atlas:explore` halts complaining about missing `_testatlas/12_app_map.json`** → the umbrella requires the app map. Run `/atlas:explore-codebase` first; then re-run `/atlas:explore`.

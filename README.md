@@ -23,7 +23,7 @@ You ship features fast. But who is systematically exploring the product from a *
 
 TestAtlas is an installable, agent-agnostic product testing and quality intelligence framework. It turns any capable AI coding agent (Claude Code, Cursor, Aider, KiloCode, OpenCode, MCP-enabled hosts, Codex, Gemini CLI, Cline, Windsurf, Kiro, Continue.dev, GitHub Copilot, Sourcegraph Amp, Roo Code, Zed, Amazon Q, plus a generic paste-prompt fallback — 18 adapter families in total; see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md)) into a persistent product-understanding, exploration, test-planning, user-flow execution, evidence-collection, and issue-management system that produces a durable `_testatlas/` workspace inside any target repository.
 
-**Core value:** A capable AI agent, after running `/atlas:init`, can map an unfamiliar product, test it from a real user's perspective, and leave behind a durable, evidence-backed quality intelligence layer that another agent or engineer can trust and continue — without any prior knowledge of the application stack.
+**Core value:** A capable AI agent, after running `/atlas:core-init`, can map an unfamiliar product, test it from a real user's perspective, and leave behind a durable, evidence-backed quality intelligence layer that another agent or engineer can trust and continue — without any prior knowledge of the application stack.
 
 ## Quickstart
 
@@ -35,7 +35,7 @@ npx @webventures/testatlas init
 Then in your AI agent of choice:
 
 ```
-/atlas:init
+/atlas:core-init
 ```
 
 That's it. The agent now has 32 `/atlas:*` V1 commands plus 41 V2 `/atlas:*` commands, schema-validated workspace artifacts, and a capability-aware degradation rule that keeps it honest when tools (browser/MCP/shell) aren't available.

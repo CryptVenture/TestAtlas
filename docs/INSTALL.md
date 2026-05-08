@@ -215,7 +215,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 ## Next steps
 
-- Day 1 mapping: ask your agent to run `/atlas:init`.
+- Day 1 mapping: ask your agent to run `/atlas:core-init`.
 - See [docs/UPDATE.md](./UPDATE.md) for keeping the suite current.
 - See [docs/UNINSTALL.md](./UNINSTALL.md) for clean removal.
 - See [docs/SIGNING.md](./SIGNING.md) for verifying release signatures.

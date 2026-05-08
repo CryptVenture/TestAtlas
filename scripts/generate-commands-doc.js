@@ -30,6 +30,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { commandBaseNameFromSource } from './lib/adapters/_shared.js';
 import { sortedReaddir } from './lib/determinism.js';
 import { V2_COMMAND_CATEGORIES } from './lib/list-command-files.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
@@ -76,8 +77,12 @@ async function renderEntry(relPath) {
   } catch (err) {
     throw new Error(`generate-commands-doc: ${relPath}: ${err.message}`);
   }
-  const baseName = path.basename(relPath, '.md');
-  const cmdName = fm.command || baseName;
+  // Use the Phase 16 rendered slot name so the doc matches what the operator
+  // actually types in installed adapters. `fm.command` carries the source
+  // basename (e.g. `brain-validate`) but the installer emits
+  // `atlas-core-brain-validate` for V2 categorized commands —
+  // `commandBaseNameFromSource` accounts for the category-prefix rule.
+  const cmdName = commandBaseNameFromSource(abs);
   const desc = firstSentence(fm.description || '');
   const caps = formatCapabilities(fm.capabilities);
   const out = [];

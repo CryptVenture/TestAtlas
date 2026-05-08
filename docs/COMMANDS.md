@@ -352,7 +352,7 @@ Compute the 11 PRD §7.15 quality scores from documented brain evidence and writ
 
 ---
 
-## /atlas:bootstrap-refresh
+## /atlas:core-bootstrap-refresh
 
 Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules.
 
@@ -362,7 +362,7 @@ Re-read the constitution, validate token budget, and refresh bootstrap shards so
 
 ---
 
-## /atlas:brain-compact
+## /atlas:core-brain-compact
 
 Summarize long transcripts and run logs into durable summaries; keeps the brain compact without losing decisions or evidence.
 
@@ -372,7 +372,7 @@ Summarize long transcripts and run logs into durable summaries; keeps the brain 
 
 ---
 
-## /atlas:brain-export
+## /atlas:core-brain-export
 
 Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for handoff, dashboards, or backup.
 
@@ -382,7 +382,7 @@ Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for 
 
 ---
 
-## /atlas:brain-query
+## /atlas:core-brain-query
 
 Answer a question about the workspace by reading brain JSON; cite file paths for every claim.
 
@@ -392,7 +392,7 @@ Answer a question about the workspace by reading brain JSON; cite file paths for
 
 ---
 
-## /atlas:brain-sync
+## /atlas:core-brain-sync
 
 Detect and reconcile drift between markdown artifacts and brain JSON indexes; orchestrates sync-markdown-json + validate-brain.
 
@@ -402,7 +402,7 @@ Detect and reconcile drift between markdown artifacts and brain JSON indexes; or
 
 ---
 
-## /atlas:brain-validate
+## /atlas:core-brain-validate
 
 Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings.
 
@@ -412,7 +412,7 @@ Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and rep
 
 ---
 
-## /atlas:init
+## /atlas:core-init
 
 Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest.
 
@@ -422,7 +422,7 @@ Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` sk
 
 ---
 
-## /atlas:status
+## /atlas:core-status
 
 Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state.
 
@@ -702,7 +702,7 @@ Render a release readiness report with go/no-go assessment combining quality_sco
 
 ---
 
-## /atlas:generate-automation
+## /atlas:test-generate-automation
 
 Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI, contract, smoke) from documented flows.
 
@@ -712,7 +712,7 @@ Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI,
 
 ---
 
-## /atlas:generate-retest-pack
+## /atlas:test-generate-retest-pack
 
 Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`.
 
@@ -722,7 +722,7 @@ Generate self-contained retest packs from open issue records under `_testatlas/t
 
 ---
 
-## /atlas:generate-scenarios
+## /atlas:test-generate-scenarios
 
 Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`.
 
