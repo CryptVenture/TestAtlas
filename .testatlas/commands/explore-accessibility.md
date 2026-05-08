@@ -97,8 +97,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, audited route count, and findings count by severity.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Audited `<n>` routes for accessibility — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-accessibility --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
