@@ -119,7 +119,7 @@ produces a no-op success. Always safe to retry.
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --actor "atlas-agent" --summary "Migrated workspace from V1 to V2 (or no-op if already V2)" --status success` (or `--status failure` with the error code).
 
 ## What's Next
 
