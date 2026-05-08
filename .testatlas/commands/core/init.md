@@ -72,6 +72,31 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 - `_testatlas/` directory tree (V1 23 subdirs + V2 brain).
 - 14 V1 canonical markdown files (already shipped); 22 V2 brain files (19 JSON + 3 JSONL).
 - `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
+- V2 brain files written by `init-workspace.js` (19 JSON + 3 JSONL = 22 total):
+  - `_testatlas/brain/manifest.json`
+  - `_testatlas/brain/state.json`
+  - `_testatlas/brain/domains.json`
+  - `_testatlas/brain/flows.json`
+  - `_testatlas/brain/routes.json`
+  - `_testatlas/brain/components.json`
+  - `_testatlas/brain/commands.json`
+  - `_testatlas/brain/personas.json`
+  - `_testatlas/brain/issues.json`
+  - `_testatlas/brain/evidence.json`
+  - `_testatlas/brain/risks.json`
+  - `_testatlas/brain/assumptions.json`
+  - `_testatlas/brain/open_questions.json`
+  - `_testatlas/brain/decisions.json`
+  - `_testatlas/brain/coverage.json`
+  - `_testatlas/brain/quality_scores.json`
+  - `_testatlas/brain/agent_sessions.json`
+  - `_testatlas/brain/drift.json`
+  - `_testatlas/brain/embeddings_manifest.json`
+  - `_testatlas/brain/graph.json`
+  - `_testatlas/brain/claims.jsonl`
+  - `_testatlas/brain/observations.jsonl`
+  - `_testatlas/brain/events.jsonl`
+- `_testatlas/brain/schema/` — schemas mirrored from `.testatlas/schemas/` for offline validation.
 - Lifecycle close + brain event.
 
 <!-- Stop codes verified against `.testatlas/scripts/init-workspace.js` (Round-12, Quick 260508-u72) -->

@@ -80,6 +80,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 - `_testatlas/12_app_map.json` — schema-valid app map with apps, routes, handlers, jobs, integrations, models, dependencies, each citing evidence paths.
 - `_testatlas/evidence/explore-codebase/<timestamp>/` — raw evidence directory: file listings, manifest dumps, route enumerations, framework-introspection output, dependency listings.
+- `_testatlas/evidence/explore-codebase/<timestamp>/.lastrun.json` — per-run cache sidecar recording `head` (current `git rev-parse HEAD`) so subsequent runs can short-circuit when source has not advanced (per Required Actions step 0).
 - Updated `_testatlas/01_system_map.md` — domain-inventory stub for `map-domains` to consume.
 - Updated runtime-detection metadata recorded in `_testatlas/00_overview.md` (language, framework, package manager).
 

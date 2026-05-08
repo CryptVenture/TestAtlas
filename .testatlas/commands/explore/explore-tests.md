@@ -88,6 +88,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 ## Outputs
 
 - `_testatlas/maps/coverage-gaps.md` — human-readable gap report sorted by complexity × low-coverage.
+- `_testatlas/maps/tests.json` — rich test-run + coverage metadata (per Required Actions step 9) validated against `test-run.schema.json`; the closed-string `tests[]` array on `12_app_map.json` carries only the `TEST-<slug>` IDs that reference rows in this file.
 - `_testatlas/evidence/explore-tests/<timestamp>/` — `runners.json`, `inventory.json`, `run.txt`, `coverage.<format>`, `flaky.json`, `gap-summary.json`.
 - Updated `_testatlas/12_app_map.json.tests[]`.
 
