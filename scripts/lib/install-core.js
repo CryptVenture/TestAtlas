@@ -124,6 +124,12 @@ const ADAPTERS_DIRNAME = 'adapters';
 //
 // Each copied file is manifest-tracked with `type: 'suite'` so uninstall
 // reverses cleanly.
+//
+// NOTE: This static list is retained for backward compatibility (tests
+// reference it) but the actual copy mechanism in copyValidatorScripts()
+// now dynamically walks the entire scripts/ tree so that every
+// agent-facing accelerator script referenced by commands is automatically
+// copied without manual list maintenance.
 export const SUITE_SCRIPTS_TO_COPY = Object.freeze([
   'scripts/validate-workspace.js',
   'scripts/lib/all-workspaces.js',
@@ -444,16 +450,18 @@ export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps,
 }
 
 /**
- * Copy the validator runtime + library closure into <target>/.testatlas/scripts/
- * (Quick 260504-r3q deliverable B). Each source file lands at
- * `<target>/.testatlas/<src-rel>`, preserving the directory structure so the
- * validator's relative imports resolve.
+ * Copy the entire scripts/ tree into <target>/.testatlas/scripts/ so that
+ * every agent-facing accelerator script referenced by commands is available.
+ * The destination mirrors the source path under .testatlas/, preserving
+ * relative imports (e.g. ./lib/foo.js) without source rewrite.
+ *
+ * The e2e/ subdirectory is excluded (test infrastructure, not runtime).
+ * All other files — top-level scripts, lib/, and lib/validate/ — are
+ * discovered dynamically via walkFiles() so future script additions are
+ * picked up without editing a static list.
  *
  * Feature-check: if a source file is missing (e.g. dev/stripped install),
- * skip silently so the install never breaks just because the validator
- * runtime hasn't been authored on a given branch. The check-*.js modules
- * under scripts/lib/validate/ are globbed at copy time so future check
- * additions are picked up without editing this list.
+ * walkFiles simply won't yield it, so the install never breaks.
  *
  * Returns suite-typed manifest entries.
  *
@@ -464,37 +472,22 @@ export async function copyAdapterCommandFiles(suiteRoot, target, adapters, caps,
 async function copyValidatorScripts(suiteRoot, target) {
   /** @type {Array<{absPath: string, source: string, type: 'suite'}>} */
   const entries = [];
+  const srcScripts = path.join(suiteRoot, 'scripts');
   const dstSuite = path.join(target, SUITE_DIR);
 
-  // Static closure. assertCapability('destructive-fs') gated at runInit() entry.
-  for (const srcRel of SUITE_SCRIPTS_TO_COPY) {
-    const absSrc = path.join(suiteRoot, srcRel);
-    if (!(await pathExists(absSrc))) continue; // feature-check guard
+  // assertCapability('destructive-fs') gated at runInit() entry.
+  for await (const absSrc of walkFiles(srcScripts)) {
+    const rel = path.relative(srcScripts, absSrc);
+    const parts = rel.split(path.sep);
+
+    // Skip e2e test infrastructure — not part of the runtime.
+    if (parts[0] === 'e2e') continue;
+
+    const srcRel = path.join('scripts', rel).split(path.sep).join('/');
     const dst = path.join(dstSuite, srcRel);
     await mkdir(path.dirname(dst), { recursive: true });
     await cp(absSrc, dst, { force: true });
     entries.push({ absPath: dst, source: srcRel, type: 'suite' });
-  }
-
-  // Dynamic check-*.js discovery — the validator dynamically imports these
-  // by id and tolerates ERR_MODULE_NOT_FOUND, so we glob whatever is on disk
-  // at copy time.
-  const checksDir = path.join(suiteRoot, 'scripts', 'lib', 'validate');
-  try {
-    const checkFiles = await readdir(checksDir);
-    for (const f of checkFiles) {
-      if (!f.startsWith('check-') || !f.endsWith('.js')) continue;
-      const srcRel = ['scripts', 'lib', 'validate', f].join('/');
-      const absSrc = path.join(suiteRoot, srcRel);
-      const dst = path.join(dstSuite, srcRel);
-      await mkdir(path.dirname(dst), { recursive: true });
-      // assertCapability('destructive-fs') gated at runInit() entry.
-      await cp(absSrc, dst, { force: true });
-      entries.push({ absPath: dst, source: srcRel, type: 'suite' });
-    }
-  } catch (err) {
-    if (err.code !== 'ENOENT') throw err;
-    // No validate/ dir at all — silent skip.
   }
 
   return entries;
