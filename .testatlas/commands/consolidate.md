@@ -78,7 +78,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
      "id": "ISSUE-042-finding",
      "status": "closed",
      "closedAs": "consolidated_into=ISSUE-040-canonical-finding",
-     "lastUpdatedAt": "2026-05-08T14:00:00Z"
+     "lastUpdatedAt": "<ISO-8601 timestamp>"
    }
    ```
 4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- TESTATLAS:GENERATED:START --> ... <!-- TESTATLAS:GENERATED:END -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).

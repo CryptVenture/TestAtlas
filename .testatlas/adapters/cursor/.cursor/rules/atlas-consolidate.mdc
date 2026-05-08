@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="32d8bf30e03918840f11cd4057d54c6f10e10599e4ac6eeaae6900f85d38f6b4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="79ff3c926d618e06d5a8e0b9f24a5cdb96f54237f5fb7ba2eeb7e960bcd43d2e" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-consolidate.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -48,7 +48,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
      "id": "ISSUE-042-finding",
      "status": "closed",
      "closedAs": "consolidated_into=ISSUE-040-canonical-finding",
-     "lastUpdatedAt": "2026-05-08T14:00:00Z"
+     "lastUpdatedAt": "<ISO-8601 timestamp>"
    }
    ```
 4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- TESTATLAS:GENERATED:START --> ... <!-- TESTATLAS:GENERATED:END -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).

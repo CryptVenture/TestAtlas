@@ -31,14 +31,16 @@ const COMMANDS = [
 // PRD §12.5 — 8 disagreement types (any 6 must appear; commands often link to
 // reference shard for the full list rather than duplicating it). We require
 // "factual" + "severity" + "evidence" + "priority" + "expected" + "safety" or
-// equivalent fragments.
+// equivalent fragments. Per Phase 20 / ISSUE-063+064, canonical separator is
+// snake_case (matching `vocabulary.schema.json#/$defs/disagreement_type` enum);
+// regexes accept space/hyphen/underscore for backward compatibility.
 const DISAGREEMENT_FRAGMENTS = [
   /factual/i,
   /severity/i,
-  /evidence[\s-]?sufficiency/i,
+  /evidence[\s_-]?sufficiency/i,
   /priority/i,
-  /expected[\s-]?behavior/i,
-  /safety|interpretation|product[\s-]?strategy/i,
+  /expected[\s_-]?behavior/i,
+  /safety|interpretation|product[\s_-]?strategy/i,
 ];
 
 // PRD §12.4 — 9-round protocol fragments.
