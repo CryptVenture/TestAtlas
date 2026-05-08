@@ -1680,6 +1680,87 @@ export async function checkNumericalClaimVsScript({ commandsDir, scriptsDir }) {
   return violations;
 }
 
+// ─── Invariant 19: capability-stopcondition-contradiction (u72 INV-D) ───────
+
+// Cues that signal the section is talking about a capability behavior.
+// "halt" / "halts" / "halting" → stop-condition outcome
+// "degrade" / "degrades" / "fall back" / "skip if missing" → degrade outcome
+const HALT_VERB_RE = /\b(halt|halts|halted|halting|abort|aborts|aborted|stop|stops|stopped)\b/i;
+const DEGRADE_VERB_RE =
+  /\b(degrade|degrades|degraded|fall\s*back|fallback|fall\s*through|skip|skips|skipped|tolerated|tolerate|continues?\s*without)\b/i;
+
+/**
+ * Per command body, scan `## Capability Degradation` for capability tokens
+ * appearing in degrade-verb context, and `## Stop Conditions` for the same
+ * capability tokens in halt-verb context. If a capability appears in BOTH
+ * with the contradictory verb pair, emit a violation.
+ *
+ * Capability vocabulary is sourced from
+ * `vocabulary.schema.json $defs.capability.enum`.
+ *
+ * @param {{commandsDir:string, schemasDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkCapabilityStopNonContradiction({ commandsDir, schemasDir }) {
+  const violations = [];
+  // Load capability vocabulary.
+  let caps = [];
+  try {
+    const vocab = JSON.parse(
+      await readFile(path.join(schemasDir, 'vocabulary.schema.json'), 'utf8'),
+    );
+    caps = vocab?.$defs?.capability?.enum ?? [];
+  } catch {
+    return violations;
+  }
+  if (!Array.isArray(caps) || caps.length === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const capSec = extractH2Section(text, 'Capability Degradation');
+    const stopSec = extractH2Section(text, 'Stop Conditions');
+    if (!capSec || !stopSec) continue;
+    for (const cap of caps) {
+      // Word-boundary regex — match the capability as a whole token only.
+      // Allow optional surrounding backticks for `shell` etc.
+      const capRe = new RegExp(`(?:\\b|\`)${cap.replace(/[-/]/g, '[-/]?')}(?:\\b|\`)`, 'i');
+      // Find lines in each section that mention the capability.
+      let degradeLine = -1;
+      for (let i = 0; i < capSec.lines.length; i++) {
+        const line = capSec.lines[i];
+        if (capRe.test(line) && DEGRADE_VERB_RE.test(line)) {
+          degradeLine = capSec.startLine + 1 + i + 1;
+          break;
+        }
+      }
+      let haltLine = -1;
+      for (let i = 0; i < stopSec.lines.length; i++) {
+        const line = stopSec.lines[i];
+        if (!capRe.test(line)) continue;
+        if (!HALT_VERB_RE.test(line)) continue;
+        // Skip negated halt verbs ("do NOT halt", "not a halt", "never halt").
+        if (/\b(do\s*not|don't|never|not\s+a)\s+halt/i.test(line)) continue;
+        // Skip lines that also explicitly degrade for the same capability —
+        // those are degrade outcomes phrased in negative-halt form.
+        if (DEGRADE_VERB_RE.test(line)) continue;
+        haltLine = stopSec.startLine + 1 + i + 1;
+        break;
+      }
+      if (degradeLine !== -1 && haltLine !== -1) {
+        violations.push({
+          invariant: 'capability-stopcondition-contradiction',
+          file: path.relative(PROJECT_ROOT, file),
+          line: haltLine,
+          reason: `capability "${cap}" appears in both ## Capability Degradation (line ${degradeLine}) and ## Stop Conditions (line ${haltLine})`,
+          detail: `degrade verb on L${degradeLine}; halt verb on L${haltLine} — internal contradiction`,
+          suggestion: `pick ONE outcome — either degrade or halt — for missing ${cap}; remove the other or qualify with a precondition`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -1976,6 +2057,7 @@ export async function runLinter(opts = {}) {
     () => checkStopCodeExistence({ commandsDir, scriptsDir }),
     () => checkOutputsVsRequiredActions({ commandsDir }),
     () => checkNumericalClaimVsScript({ commandsDir, scriptsDir }),
+    () => checkCapabilityStopNonContradiction({ commandsDir, schemasDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2039,6 +2121,7 @@ Invariants:
   16  stop-code-existence       (HARD) ## Stop Conditions codes exist in script (u72)
   17  outputs-vs-required-actions (HARD) Required Actions paths covered in Outputs (u72)
   18  numerical-claim-vs-script (HARD) "<n> JSON + <m> JSONL" matches script arrays (u72)
+  19  capability-stopcondition-contradiction (HARD) capability isn't both degraded+halted (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
