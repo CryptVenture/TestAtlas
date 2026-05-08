@@ -1837,6 +1837,50 @@ export async function checkMcpToolParamValidity({ commandsDir }) {
   return violations;
 }
 
+// ─── Invariant 21: duplicate-section-headings (Quick 260508-u72 INV-F) ──────
+
+/**
+ * Any `^## <heading>$` heading (case-insensitive on the text after `## `)
+ * appearing more than once in the same file is a HARD-FAIL. Generalizes
+ * the Round-11 `lifecycle-heading-strict` invariant — the latter remains
+ * registered for the alias-rename rule (e.g., `## Post-Operation Brain
+ * Update` -> `## Lifecycle`) but no longer covers H2-duplication, which
+ * is owned by INV-F.
+ *
+ * H3+ headings are NOT included — only level-2 (`## `) duplication is
+ * structurally meaningful for command bodies.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkDuplicateSectionHeadings({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    const seen = new Map(); // headingTextLower → first 1-based line
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(/^##\s+(.+?)\s*$/);
+      if (!m) continue;
+      const key = m[1].toLowerCase().trim();
+      if (seen.has(key)) {
+        violations.push({
+          invariant: 'duplicate-section-heading',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `## ${m[1]} appears more than once (first at line ${seen.get(key)})`,
+          detail: `H2 heading "${m[1]}" duplicated at L${i + 1} (first appearance L${seen.get(key)})`,
+          suggestion: `merge the two sections into one, OR rename one to a distinct heading`,
+        });
+      } else {
+        seen.set(key, i + 1);
+      }
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -2135,6 +2179,7 @@ export async function runLinter(opts = {}) {
     () => checkNumericalClaimVsScript({ commandsDir, scriptsDir }),
     () => checkCapabilityStopNonContradiction({ commandsDir, schemasDir }),
     () => checkMcpToolParamValidity({ commandsDir }),
+    () => checkDuplicateSectionHeadings({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2200,6 +2245,7 @@ Invariants:
   18  numerical-claim-vs-script (HARD) "<n> JSON + <m> JSONL" matches script arrays (u72)
   19  capability-stopcondition-contradiction (HARD) capability isn't both degraded+halted (u72)
   20  mcp-tool-param-invalid    (HARD) MCP tool params match curated catalog (u72)
+  21  duplicate-section-heading (HARD) any H2 appearing more than once in a file (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
