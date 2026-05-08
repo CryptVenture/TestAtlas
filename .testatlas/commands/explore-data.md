@@ -90,6 +90,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Entity/queue/cache/storage counts live in `12_app_map.json`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-data --actor agent --summary "Mapped data layer schemas, entities, lifecycle states, and queue/cache/storage surfaces" --status completed --reindex`.
+
 ## Stop Conditions
 
 - No persistence surface detected (no ORM models, no migrations, no schema files) → record an empty data inventory and close (NOT a halt; legitimate for static-site or pure-frontend targets).
