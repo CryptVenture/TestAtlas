@@ -85,8 +85,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record run id, baseline ref, classification counts, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair, evidence directory, and updated regressions report must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id and the baseline run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (regression vs `<baselineRunId>`) — `<n>` recovered / `<n>` unchanged / `<n>` regressed / `<n>` unverified."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -103,7 +105,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every recorded classification cites a fresh evidence path that exists on disk under `_testatlas/evidence/runs/<run-id>/`.
 - The regression RUN JSON validates against `test-run.schema.json` and every result includes `priorRunRef` and `priorStatus`.
 - `_testatlas/reports/regressions.md` is updated inside its generated-section markers; human content outside the markers is preserved.
-- Manifest `counts.runs` and `counts.evidence` are updated to match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` are updated to match disk.
 - The five lifecycle files listed above are updated.
 
 ## What's Next

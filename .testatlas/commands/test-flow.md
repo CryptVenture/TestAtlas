@@ -46,7 +46,7 @@ Execute test scenarios from `_testatlas/tests/matrix.json` against the running t
 - `.testatlas/bootstrap.md` — especially §8 (no-evidence-no-finding) and §4 (capability degradation).
 - `.testatlas/reference/chrome-devtools-mcp.md` § *Interactive-surface walkthrough* — canonical walkthrough for forms, modals, navigation, keyboard paths. The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — the planned scenarios; if missing, halt.
-- `_testatlas/flows/<slug>/flow.{md,json}` for each flow under test — preconditions, expected paths, oracle.
+- `_testatlas/flows/FLOW-<slug>.{md,json}` for each flow under test — preconditions, expected paths, oracle.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the RUN sidecar.
 - `.testatlas/schemas/evidence.schema.json` — required shape for evidence sidecars.
@@ -88,7 +88,7 @@ Detect host capability `subagent-spawn` per `bootstrap.md`'s Capability Degradat
 **If `subagent-spawn` is available AND flows are independent:** for each independent flow, spawn a sub-agent with brief:
 - **objective:** "Execute `<flow-name>` against the target product and capture per-state evidence."
 - **scope:** "Actions, assertions, and PRD §13 states defined in the flow file."
-- **files-to-read:** "`_testatlas/flows/<flow-name>/flow.{md,json}`; matrix entries for the flow; referenced fixtures; `test-run.schema.json` and `evidence.schema.json`."
+- **files-to-read:** "`_testatlas/flows/FLOW-<flow-name>.{md,json}`; matrix entries for the flow; referenced fixtures; `test-run.schema.json` and `evidence.schema.json`."
 - **output-format:** "`RUN-<timestamp>.{md,json}` per `test-run.schema.json`; evidence under `_testatlas/evidence/runs/<run-id>/<flow-name>/`."
 - **may-write:** evidence files + per-flow run record. MUST NOT write to `_testatlas/to_fix/` — the umbrella aggregates candidates into the optional `RUN-<timestamp>.suggestions.md`.
 - **exit-criteria:** run record persisted; evidence redacted; schema validation passes.
@@ -104,7 +104,7 @@ Run sub-agents in parallel. Merge structured results. Mark run record `execution
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — schema-valid run record with per-scenario results, state coverage, evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/` — captured screenshots, logs, network traces, console output, server traces for every executed scenario.
 - Optional `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` — advisory issue candidates for `/atlas:log-issue`.
-- Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched by this run.
+- Updated flow confidence in `_testatlas/flows/FLOW-<slug>.json` for every flow touched by this run.
 
 ## Lifecycle
 
@@ -113,8 +113,10 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/03_execution_status.md` — record run id, total/passed/failed/skipped/blocked counts, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair + evidence directory).
 - `_testatlas/10_command_log.md` — append a row per `command-result.schema.json` referencing this run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-flow --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -131,7 +133,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - At least one `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` pair exists, or unambiguous justification for zero (all scenarios legitimately skipped) recorded in the summary.
 - Every recorded result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
 - RUN JSON validates against `test-run.schema.json`.
-- Manifest `counts.runs` and `counts.evidence` match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` match disk.
 - Flow confidence updated for every flow touched.
 - The five lifecycle files updated.
 

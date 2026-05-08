@@ -90,7 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record handoff issued + receiving role.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (handoff pair appears).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing the handoff ID.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Handoffs are not a counted artifact; `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only — no `counts.handoffs`.)
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Handoffs are not a counted artifact; `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only — no handoff count is tracked.)
 - `_testatlas/history/run_log.md` — narrative entry: "Issued HANDOFF-`<ts>` to `<assignedRole>` covering `<scope summary>`."
 
 ## Stop Conditions

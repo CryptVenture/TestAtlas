@@ -82,7 +82,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record the retest run, target IDs processed, pass / fail counts, and any regression tags applied.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directories and refreshed index pages must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing every issue ID retested and the evidence directory paths.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Retested `<n>` issues; `<c>` closed, `<r>` reopened (`<g>` regressions tagged)."
 
 ## Stop Conditions

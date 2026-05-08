@@ -89,8 +89,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record run id, total / passed / failed / skipped / blocked, throttle profile, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-performance) — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked across `<n>` perf scenarios; throttle `<profile>`."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-performance --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -108,7 +110,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every performance-typed scenario has both a baseline trace + insights and a throttled trace + insights on disk under `_testatlas/evidence/runs/<run-id>/<scenario-id>/performance/`.
 - Threshold assertions are applied against captured insight values, not extrapolated.
 - The RUN JSON validates against `test-run.schema.json` and includes the throttle profile applied.
-- Manifest `counts.runs` and `counts.evidence` are updated to match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` are updated to match disk.
 - The five lifecycle files listed above are updated.
 
 ## What's Next

@@ -108,7 +108,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — completion state, evidence dir, job count.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` jobs / `<m>` queues / `<k>` schedules in `_testatlas/evidence/explore-jobs/<ts>/`."
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-jobs --actor agent --status completed --reindex`.

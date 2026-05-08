@@ -91,8 +91,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record run id, total / passed / failed / skipped / blocked, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-accessibility) — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked across `<n>` a11y scenarios."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-accessibility --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -109,7 +111,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every accessibility-typed scenario has its lighthouse JSON, ARIA inventory, and focus-order trail on disk under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/`.
 - Threshold assertions are applied against captured values, not extrapolated.
 - The RUN JSON validates against `test-run.schema.json`.
-- Manifest `counts.runs` and `counts.evidence` are updated to match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` are updated to match disk.
 - The five lifecycle files listed above are updated.
 
 ## What's Next
