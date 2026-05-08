@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-export. Invoke as /atlas-core-brain-export. Description: Export the V2 brain as a JSON dump, a graph snapshot, or a full archive — for handoff, dashboards, or backup. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="a647f94460b29dbded07ee3fa1434f0828fc5fde7321460fe06fe33d915621d0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="6610df67ae8223ac1a03d947f55a57df63c45d9d58df1fcbde0826c35634892a" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-core-brain-export.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -21,8 +21,8 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 1. Validate the brain first via `node .testatlas/scripts/validate-brain.js` — never export an invalid brain.
 2. Based on `--mode`:
-   - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`).
-   - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`).
+   - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`). <!-- output-deferred: per-mode export covered by `_testatlas/exports/` umbrella in Outputs -->
+   - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`). <!-- output-deferred: per-mode export covered by `_testatlas/exports/` umbrella in Outputs -->
    - `archive`: copy every file under `_testatlas/brain/` plus canonical artifacts into `_testatlas/exports/<timestamp>/`.
 3. Close the lifecycle.
 

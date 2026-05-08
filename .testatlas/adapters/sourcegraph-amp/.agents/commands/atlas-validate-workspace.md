@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-validate-workspace. Invoke as /atlas-validate-workspace. Description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="a632780a359a8ea4491e04d634f45a335f3a9697279dab1bad4f9bfa2cde5e43" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="01d3ceb97766b4bba668e1c3caa6ba7ef5e85a431d40c763b3f5feb735f0a8cb" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-validate-workspace.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -56,11 +56,15 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/11_workspace_manifest.json` missing → halt; print `Workspace not initialized; run /atlas:core-init first.`
-- More than 50 critical findings → halt; require operator review before continuing the session per `bootstrap.md` §24.
-- Schema files missing under `.testatlas/schemas/` → halt; the suite is corrupted and must be reinstalled.
-- Manifest fails its own schema validation → halt; refuse to validate downstream artifacts against a broken manifest.
-- If manifest `schema_version` is `1.x` on a V2 suite, halt and run `/atlas:maintain-migrate` to upgrade workspace artifacts to V2 layout.
+The runtime (`node .testatlas/scripts/validate-workspace.js`) emits these halt surfaces; doc cites only what the script actually implements:
+
+- **Workspace not initialized** — `_testatlas/` directory missing, or `_testatlas/11_workspace_manifest.json` missing. Script returns exit code 0 with the friendly message `Workspace not initialized; run /atlas:init first.` and runs no checks. This is a soft halt: there is nothing to validate, so the run is reported as "no work" rather than a failure.
+- **Schema set unloadable** — files under `.testatlas/schemas/` cannot be read or compiled by AJV (missing directory, malformed schema JSON, duplicate `$id`, etc.). The schema-loader throws; `runCli` catches and exits 1 with `validate-workspace: <code> — <message>`. The suite is corrupted and must be reinstalled.
+- **Any check returns `status: 'fail'`** — exit 1. This is the primary failure surface: AJV violations against any artifact schema, broken cross-references, orphaned evidence, duplicate IDs, count mismatches, etc. The full list is the PRD §33 check set wired in `CHECK_IDS` plus the Phase-17 `shell-capability` and `script-path` invariants.
+- **Companion linter failure** — after the check set runs, the CLI also invokes `lint-commands.js` and folds its exit code into the final exit (max of the two). A non-zero linter result therefore halts the run as exit 1 even when every check passed.
+- **CLI usage error** — unknown argument, or `--workspace` and `--all-workspaces` passed together → exit 2 (usage error, distinct from validation failure).
+
+Note: there is **no** `>50 critical findings` threshold and **no** `schema_version` mismatch halt in the current implementation. A malformed manifest is *tolerated* (the parse error is swallowed at the orchestrator level so other checks can still run against a partial context); the resulting schema-validity finding from `check-schemas` is what surfaces as a fail, not a separate manifest-parse halt.
 
 ## Completion Criteria
 
@@ -78,5 +82,5 @@ Now that the workspace is validated:
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
 - **`/atlas:update`** — refresh the suite if the report flagged a stale version
 - **`/atlas:core-brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
-- **`/atlas:maintain-migrate`** — if validation flags `schema_version: 1.x` on a V2 suite, run migration.
+- **`/atlas:maintain-migrate`** — when migrating a V1 workspace to V2 layout. Note: validation does not currently auto-detect `schema_version: 1.x`; run migration when you know the workspace pre-dates V2.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

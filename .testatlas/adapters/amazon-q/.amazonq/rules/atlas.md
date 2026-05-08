@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="7a5ed2e28081ed4845d541b37aae4d24a971de122c274e8fe03c9d78b8040683" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="771b0d84406bc28226ef4b4fe067176b2b753ed27d2a72183e69b370a673ef29" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -215,7 +215,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 ## /atlas-explore-ui
 
-Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
+Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

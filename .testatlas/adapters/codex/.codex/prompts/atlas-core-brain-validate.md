@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-validate. Invoke as /prompts:atlas-core-brain-validate. Description: Run AJV validation across the entire `_testatlas/brain/` tree (22 files) and report any findings. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="f0172ad3dbbf8dfffe463550f8fd445ce534ec52424cd80e08204b945ee0dfd5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-validate.md" hash="d8cb246a695993ac1cf845119a0906728c77457bf127d10115dd773d0677445f" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-core-brain-validate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -63,7 +63,7 @@ The 22 required brain files validated by this command:
 
 ## Completion Criteria
 
-- All 22 brain files (19 JSON + 3 JSONL) inspected.
+- All 23 brain files (20 JSON + 3 JSONL) inspected.
 - Every finding (if any) reported with code + path + remedy.
 - A `command_completed` (or `command_aborted` if findings) event recorded.
 

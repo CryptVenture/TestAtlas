@@ -3,7 +3,7 @@ mode: agent
 description: Compute the 11 PRD §7.15 quality scores from documented brain evidence and write _testatlas/brain/quality_scores.json with freshness + confidence + disclaimer.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="9cb4251240945c1819b74ade772b09292d8f54b57462c476e91a56ddbad1fe72" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="90237f54e9490a529f77f0425fca98e8e6631f9626f957f71c34cdb834322e22" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-brain-score.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -69,7 +69,7 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Stop Conditions
 
-- Brain directory missing → halt with `BRAIN_MISSING`; the operator must run `/atlas:core-init` first.
+- Brain directory missing → halt with `TESTATLAS_BRAIN_MISSING`; the operator must run `/atlas:core-init` first.
 - Schema validation failure on the written file → halt; do NOT publish a partial scores file.
 - Unknown `--category` → halt with the list of valid categories.
 

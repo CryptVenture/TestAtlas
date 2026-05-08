@@ -3,7 +3,7 @@ description: Detect and reconcile drift between markdown artifacts and brain JSO
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="ad96756fe92709757bfe742e4637dba0226f0803380d36607ee0e4809ea2926a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="fe3c1dc1692ba841935012f1a0404b4e2ce13ff6118ec6dd5e3a9a8e72c9e0c2" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-brain-sync.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -47,6 +47,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 ## Outputs
 
 - Updated `_testatlas/brain/<index>.json` files (only when content changed).
+- `_testatlas/brain/graph.json` — refreshed by `update-graph.js` (PRD §11 16-relationship knowledge graph).
 - Updated `<!-- TESTATLAS:GENERATED:START ... -->` sections in markdown (only when content changed).
 - Lifecycle close + brain event.
 

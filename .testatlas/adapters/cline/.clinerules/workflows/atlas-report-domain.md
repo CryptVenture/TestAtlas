@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-domain. Invoke as /atlas-report-domain.md. Description: Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="64981259d31e439626c75f066bcbaf1ed4afd7ccd462a758d5a56d886536c122" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="24327c41edc912cc9f09bacc84a6af2eeae64afc21808e5ff75939c1f71fd374" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -68,7 +68,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Stop Conditions
 
 - `quality_scores.json` missing → halt with instruction to run `brain-score`.
-- Domain slug not found in `_testatlas/brain/domains.json` → halt with `DOMAIN_NOT_FOUND`.
+- Domain slug not found in `_testatlas/brain/domains.json` → halt; the generator throws a prose error message naming the missing slug (no enumerated error code).
 
 ## Update Brain After Command
 

@@ -1,6 +1,6 @@
 description = "Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="36d06b764afa44b47b00fb4b5ab76921e0611ad3f240e9cb1a3154f4fd3d2e1a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="86b41ce13ccccc77006798cfbb18c32e4af9513479a85dfd08d522d5e67a8e69" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -81,7 +81,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/flows/` missing → halt with `FLOWS_MISSING`; the operator must run `/atlas:explore` first.
+- `_testatlas/flows/` missing → tolerated as empty flow set (returns zero scenarios); the operator should run `/atlas:explore` first to populate it.
 - A flow JSON sidecar fails parse → halt; do NOT publish a partial scenario set.
 - Schema validation failure on the written file → halt with the AJV error path.
 

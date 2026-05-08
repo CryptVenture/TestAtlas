@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-critical-flows. Invoke as /prompts:atlas-test-critical-flows. Description: Identify and execute the highest-value flows based on documented product risk (test strategy priority, scenario coverage, domain priority, issue severity), capturing per-state evidence and producing a RUN-<timestamp> report. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="67a913cac91482d2d955e02a9e0d3e842d616f188b9136fd6f1319ba46d80e7d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="79b1a7aa256e08212b548c5ccc9b2f932d7f7b73728087f949e9dbebd30ab427" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -116,11 +116,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/02_test_strategy.md` missing → halt with `TEST_STRATEGY_MISSING`.
-- `_testatlas/tests/matrix.json` missing → halt with `MATRIX_MISSING`.
-- Critical flow set empty → halt with `NO_CRITICAL_FLOWS` and recommend a strategy review.
-- Evidence directory cannot be written → halt with `EVIDENCE_DIR_UNWRITABLE`.
-- AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with `RUN_SCHEMA_INVALID`; do not commit a malformed run sidecar.
+- `_testatlas/02_test_strategy.md` missing → agent halts before invoking any script; recommend running `/atlas:plan` first. (No enumerated error code — this is an agent-side precondition.)
+- `_testatlas/tests/matrix.json` missing → agent halts before invoking any script; recommend running `/atlas:plan` first. (Agent-side precondition.)
+- Critical flow set empty → agent halts and recommends a strategy review. (Agent-side precondition; no script halt code.)
+- Evidence directory cannot be written → the underlying `node:fs` `EACCES`/`EROFS` errno surfaces from the run script; the orchestrator aborts the run before recording any partial RUN sidecar.
+- AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with the AJV error path; do not commit a malformed run sidecar. (Validation runs through `validate-workspace.js` — see its typed findings for the precise path.)
 
 ## Update Brain After Command
 

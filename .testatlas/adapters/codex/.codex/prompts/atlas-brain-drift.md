@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-brain-drift. Invoke as /prompts:atlas-brain-drift. Description: Detect drift between the last exploration and the current repository state and write _testatlas/brain/drift.json with per-domain/flow drift status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="d4737a98b8fc47de3a86ad87656ae051110af84feda89d62bc4a3d2d9d1fdfd7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="90f45078151df22fc64266fa9559f2e6faedc8e53913d8b016ed95ca9a77daa2" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-brain-drift.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -64,7 +64,7 @@ Detect drift between when each domain/flow/route was last explored and what has 
 
 ## Stop Conditions
 
-- Brain directory missing → halt with `BRAIN_MISSING`.
+- Brain directory missing → halt with `TESTATLAS_BRAIN_MISSING`.
 - Git not available AND `shell` declared → degrade to mtime-only and emit warning; do NOT halt.
 
 ## Lifecycle

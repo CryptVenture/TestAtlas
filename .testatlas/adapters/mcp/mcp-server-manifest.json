@@ -184,7 +184,7 @@
     },
     {
       "name": "atlas-explore-ui",
-      "description": "Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.",
+      "description": "Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable.",
       "arguments": []
     },
     {

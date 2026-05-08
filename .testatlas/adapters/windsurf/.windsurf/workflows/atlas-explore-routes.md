@@ -3,7 +3,7 @@ description: Map every route, navigation paths, guards, redirects, deep-link beh
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="cf938627fc4ff7f1953d7ed2d08ea9fc7b9678cfc09796f7fbdeb5fa141f7710" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="94093974f8a07679312e7766fb916fb5b8f7c2c44eba139eaeec029a6ea616a6" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-routes.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -34,7 +34,8 @@ Map the full route surface: every URL the app responds to, the navigation paths 
    - **Guarded routes:** strip session via `evaluate_script`, then `navigate_page(routeUrl)`. Observe redirect (302 → login | 401 | 403 | render). Log the guard's redirect target. Re-authenticate as required roles, repeat to map per-role visibility.
    - **Redirect chains:** if the route is a redirect, capture every hop's URL + status via `list_network_requests`. Record the chain length and final destination.
    - **Programmatic navigation:** `evaluate_script(() => history.pushState(null, "", "<routeUrl>"))` and observe whether the framework router catches the change (some SPAs require explicit router methods). Record the discrepancy if direct + programmatic produce different surfaces.
-   - **History (back / forward) behavior:** from a known route, `navigate_page(otherRoute)` → `evaluate_script(() => history.back())` → text-based wait `wait_for({text: ["<expected-content-on-prior-route>"], timeout: 5000})` → poll `evaluate_script(() => document.readyState === 'complete' && !document.querySelector('[data-loading]'))` until truthy or 5 s elapsed → `take_snapshot`. Verify the prior route restores correctly (no stale state, scroll position OK, focus restoration). Symmetric `history.forward()`. (Do NOT use `wait_for(settle)` — that is not a supported API on `chrome-devtools-mcp`; only the text-based form `wait_for({text: [...], timeout?})` is canonical per `.testatlas/reference/chrome-devtools-mcp.md`.)
+   - **History (back / forward) behavior:** from a known route, `navigate_page(otherRoute)` → `evaluate_script(() => history.back())` → text-based wait `wait_for({text: ["<expected-content-on-prior-route>"], timeout: 5000})` → poll `evaluate_script(() => document.readyState === 'complete' && !document.querySelector('[data-loading]'))` until truthy or 5 s elapsed → `take_snapshot`. Verify the prior route restores correctly (no stale state, scroll position OK, focus restoration). Symmetric `history.forward()`. (The `wait_for` tool accepts only `{text: string[], timeout?: number}` per `.testatlas/reference/chrome-devtools-mcp.md`; there is no settle-style or selector-style parameter — the text-based form above is canonical.)
+<!-- MCP tool params verified against chrome-devtools-mcp catalog (Quick 260508-u72) -->
 
 6. **Per-route metadata.** Record for each entry: `path`, `name`, `owning_domain` (cross-reference `_testatlas/domains/`), `methods`, `personas` (which personas reach this route), `purpose`, `entryPoints` (where this route is linked from), `actions` (interactive controls), `states[]` (cross-reference `_testatlas/maps/states.json`), `evidence[]`, `issues[]`, `confidence`.
 

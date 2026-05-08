@@ -3,7 +3,7 @@ mode: agent
 description: Audit the V2 brain workspace consistency — stale docs, invalid JSON, missing indexes, dangling cross-references, drift between markdown and JSON, orphaned evidence.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="704639c9b53dc42113e933c9921c66cdce609854350cd7711c5651759ffe7e80" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-brain.md" hash="afe41957ee004c92bc707316b1d0deccf4432434fd315fae0f55da77f8fb8519" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-brain.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -96,11 +96,13 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --summary "Audited brain consistency and surfaced drift signals" --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:core-brain-sync` runs and would mask drift this audit just surfaced.
 
+<!-- Capability/stop reconciled per Round-12 Class E (Quick 260508-u72) -->
 ## Stop Conditions
 
-- `shell` unavailable → halt; the audit cannot run a partial scan without re-reading every artifact.
 - `_testatlas/brain/` does not exist → halt: "Run `/atlas:core-init --mode upgrade` first."
 - Any captured artifact path fails to materialize on disk → halt; this command itself must produce real evidence.
+
+(Missing `shell` is NOT a halt condition — it triggers the degrade path documented in Required Action 2: single-file scan starting at `manifest.json`, with every finding marked `confidence: needs-validation` and `tool_unavailable: shell`.)
 
 ## Completion Criteria
 

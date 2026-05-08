@@ -1,10 +1,10 @@
 ---
 name: atlas-explore-ui
-description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
+description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable.
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="6a647be604f16fac4e26c3ca6e3735f9ec41546229beb377a3414541bf9eb9fd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="c9cfbd17501b5b6820c62871ef499d9aca3801a3d748af9e7a316f7a293de4fd" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -82,6 +82,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-ui --actor agent --summary "Mapped UI routes, components, and breakpoints with evidence" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
+<!-- Capability/stop reconciled per Round-12 Class E (Quick 260508-u72) -->
 ## Stop Conditions
 
 - `_testatlas/12_app_map.json` empty of UI routes → halt: "Run `/atlas:explore-codebase` first." Do not invent routes.

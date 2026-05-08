@@ -3,7 +3,7 @@ description: Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-m
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="34c47cfa00ef334da27cced7d531e4d853846b11344a501980308daa09b73293" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="2140de6d90859919c9363fbf77fd91e84b72375576143eb1197a885eaa877048" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-maintain-migrate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -32,10 +32,12 @@ produces a no-op success. Always safe to retry.
 ## Required Actions
 
 1. **Backup first (always).**
-   - Before any write, run `cp -a _testatlas _testatlas.bak.<ISO8601>` (or the
-     equivalent `tar -czf _testatlas.bak.<ISO8601>.tar.gz _testatlas`). The
-     backup path MUST be reported in the run output so the operator can
-     reference it for rollback.
+   - Before any write, run `cp -a _testatlas _testatlas.bak.<ISO8601-fs-safe>` (or the
+     equivalent `tar -czf _testatlas.bak.<ISO8601-fs-safe>.tar.gz _testatlas`),
+     where `<ISO8601-fs-safe>` is the current ISO-8601 timestamp with `:` and `.`
+     replaced by `-` (filesystem-safe form, matching `v2-migrate.js`). Example:
+     `_testatlas.bak.2026-05-08T12-34-56-789Z`. The backup path MUST be reported
+     in the run output so the operator can reference it for rollback.
    - The migration script tolerates missing backups but the operator SHOULD
      always pre-create one. CI flows can pin a deterministic timestamp.
 2. **Preferred path (if `shell` available):**
@@ -72,22 +74,29 @@ produces a no-op success. Always safe to retry.
 
 ## Backup + Rollback
 
-- **Backup** — always taken before mutation. Path is `_testatlas.bak.<ISO8601>` (directory copy) or `_testatlas.bak.<ISO8601>.tar.gz` (tarball). The migration run record cites the backup path so it can be located later.
-- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup (`mv _testatlas.bak.<ISO8601> _testatlas` or `tar -xzf _testatlas.bak.<ISO8601>.tar.gz`). After rollback, `validate-workspace` should report a clean V1 state.
+- **Backup** — always taken before mutation. Path is `_testatlas.bak.<ISO8601-fs-safe>` (directory copy) or `_testatlas.bak.<ISO8601-fs-safe>.tar.gz` (tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`) — the form `v2-migrate.js` produces. The migration run record cites the backup path so it can be located later.
+- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup (`mv _testatlas.bak.<ISO8601-fs-safe> _testatlas` or `tar -xzf _testatlas.bak.<ISO8601-fs-safe>.tar.gz`). After rollback, `validate-workspace` should report a clean V1 state.
 - **Re-running** the migration after rollback is safe — the script is idempotent.
 
 ## Outputs
 
 - New V2 directory tree + baseline brain JSON files under `_testatlas/`.
 - `_testatlas/11_workspace_manifest.json` bumped to `schema_version: 2.0.0`.
-- Backup tarball or directory at `_testatlas.bak.<ISO8601>(.tar.gz)?`.
+- Backup tarball or directory at `_testatlas.bak.<ISO8601-fs-safe>(.tar.gz)?` (timestamp with `:` and `.` replaced by `-`, per `v2-migrate.js`).
 - Brain event + lifecycle close.
 
 ## Stop Conditions
 
-- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:core-init` first.
-- V2 markers already present AND `--force` not passed → halt with `ALREADY_V2` (operator can re-run with `--force` for re-baseline).
-- Backup creation fails → halt with `BACKUP_FAILED` BEFORE any migration write.
+The script does NOT halt with named error codes for the common no-op paths — instead it returns a status string and exits 0:
+
+- **Workspace missing** (no `11_workspace_manifest.json`) → script returns `{ status: 'no-workspace' }` and exits 0 with `v2-migrate: no-workspace at <wsDir> (0 files created)` on stdout. This is a successful no-op, not a halt; the operator should run `/atlas:core-init` first if a workspace is expected.
+- **Already V2** (manifest `schema_version === '2.0.0'`) AND `--force` not passed → script enters repair mode, backfills any missing V2 artifacts, and returns `{ status: 'already-v2' }` (zero files added) or `{ status: 'repaired' }` (some files added). Exit 0 in both cases — not a halt.
+
+The script DOES halt (non-zero exit, error printed to stderr as `v2-migrate: <CODE> — <message>`) for:
+
+- **Destructive-fs capability denied** → throws with `err.code = 'CAPABILITY_DENIED'`. Triggered when the user's config blocks destructive filesystem operations and a real migration (not a no-op) would need to write a backup.
+- **Backup `cp` failure** → propagates the underlying `node:fs/promises` error (no custom code; surfaces as `ERROR — <fs message>`). The script exits 1 BEFORE writing any V2 files.
+- **Any other unhandled error** → printed as `v2-migrate: <err.code ?? 'ERROR'> — <err.message>` and exit 1.
 
 ## Lifecycle
 

@@ -4,7 +4,7 @@ description: Umbrella router for V2 council commands. Selects a conversation mod
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="d7c6ed7c2180322a21f0fa09b25f153fe4275fe51a76e3ad88a6961ee9ddffad" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="632b5a4461b98bcc353df5dd88cf8db565b98bdbd1313d0fc727846b1717e5c1" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ The umbrella `/atlas:council` command itself is a dispatcher; per-mode council s
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (`counts.*` adjustments belong to the sub-command's lifecycle, not this dispatcher.)
 - `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`<mode>`) — `<n>` personas / `<n>` rounds / verdict `<verdict>`."
 
-This command is umbrella-allowlisted in `scripts/lint-commands.js` `LIFECYCLE_ALLOWLIST`; the brain-update hook is owned by the dispatched sub-command, NOT this dispatcher.
+This command is umbrella-allowlisted in `.testatlas/scripts/lint-commands.js` `LIFECYCLE_ALLOWLIST`; the brain-update hook is owned by the dispatched sub-command, NOT this dispatcher.
 
 ## Stop Conditions
 

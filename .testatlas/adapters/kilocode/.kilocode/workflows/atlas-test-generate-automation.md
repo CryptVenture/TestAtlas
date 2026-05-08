@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="73a40a57cdb67c74a392fad6307d0c7efa3f6939ffec7b7cd46fdd32301d1acc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="b27d6a6b1409427b6f9a24fa803d45acc5438ccda996049215b10236223ddad6" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-generate-automation.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -103,8 +103,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/flows/` missing → halt with `FLOWS_MISSING`.
-- Unknown `--framework` value → halt with the list of supported frameworks.
+- `_testatlas/flows/` missing → tolerated as empty (no flows enumerated, zero files written); not a halt.
+- Unknown `--framework` value → halt with `UNKNOWN_FRAMEWORK` and the list of supported frameworks.
 - Both `--flow` and `--issue` absent without `--all` → emit zero files (no-op success).
 
 ## Update Brain After Command

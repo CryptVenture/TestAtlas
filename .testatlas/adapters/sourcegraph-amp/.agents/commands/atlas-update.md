@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-update. Invoke as /atlas-update. Description: Invoke the suite self-update flow — checks GitHub Releases per UPDATE-01, delegates to Phase 7 update.js for atomic apply with backup, never auto-applies without operator confirmation. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="25f65d92df8207ca81459ff82f3ac88f7a2211eefdf45ca519236f95151332af" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="b510e6b369cd883131e5f1ff64f7a139b0059b990f9fb06de341d969140efd26" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-update.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Invoke the suite self-update flow per UPDATE-01..07: check GitHub Releases for a
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — the constitution.
-- `.testatlas/VERSION` — current installed suite version.
+- `.testatlas/package.json` — current installed suite version (`update.js` reads its own bundled `package.json` at `.testatlas/scripts/update.js:19-20` via `import.meta.dirname`; there is no `.testatlas/VERSION` file in the install layout).
 - `.testatlas/default.config.json` — `pinnedVersion`, `disableUpdateCheck`, `updateCheckTtlHours` (UPDATE-03, UPDATE-04).
 - `_testatlas/.lock` (if it exists) — UPDATE-06 in-flight-run detector.
 - `_testatlas/11_workspace_manifest.json` — record the update outcome here.
@@ -21,7 +21,7 @@ Invoke the suite self-update flow per UPDATE-01..07: check GitHub Releases for a
 2. Verify the `web-fetch` capability is available. **If `web-fetch` is unavailable**, MUST NOT contact GitHub Releases. Surface the offline state, respect `disableUpdateCheck=true` semantics, and exit cleanly. Never fabricate version availability or release notes from training-data priors.
 3. **Honor disable flags (UPDATE-03).** Read `disableUpdateCheck` from `.testatlas/default.config.json` and check for the `--no-update-check` flag. If either is set, exit cleanly with the message `Update check disabled.` This is a clean exit, not a failure.
 4. **Workspace lockfile check (UPDATE-06).** If `_testatlas/.lock` exists, halt immediately with `In-flight test run detected; cannot update.` Updates while a test run is in progress can corrupt run output paths and break atomicity guarantees.
-5. **Read current version.** Load `.testatlas/VERSION`.
+5. **Read current version.** `update.js` reads its own bundled `package.json` (`.testatlas/scripts/update.js:19-20`: `PKG_PATH = path.join(import.meta.dirname, '..', 'package.json')`) and passes the parsed `pkg.version` as `currentVersion` to `runUpdate`. There is no `.testatlas/VERSION` file in the install layout — the suite version is the `version` field of `.testatlas/package.json`.
 6. **Resolve latest release (UPDATE-01) — two-step contract.** `.testatlas/scripts/update.js` does NOT call GitHub Releases on its own (per the script header at `.testatlas/scripts/update.js:8-11` and the `--latest-version` flag at line 35). The caller (this command) is responsible for resolving the latest version and passing it via `--latest-version <ver>`. Resolution paths, in priority order:
    - **`gh` CLI (preferred when authenticated):** `gh release view --repo <owner>/<repo> --json tagName -q .tagName` (parse the `vX.Y.Z` tag, strip the `v` prefix).
    - **`web-fetch` capability:** `GET https://api.github.com/repos/<owner>/<repo>/releases/latest` with a 5-second timeout; parse `tag_name` and `body` (release notes). Cache the result per `updateCheckTtlHours`.
@@ -38,7 +38,7 @@ Invoke the suite self-update flow per UPDATE-01..07: check GitHub Releases for a
 ## Outputs
 
 - `_testatlas/history/update-<ts>.md` — narrative record of the update attempt: previous version, new version, operator decision, runtime exit code.
-- Updated `.testatlas/VERSION` (mutated by `update.js`, observed here).
+- Updated `.testatlas/package.json` `version` field (mutated by `update.js` during the atomic swap, observed here — there is no separate `.testatlas/VERSION` file).
 - Updated lifecycle files (next section).
 
 ## Lifecycle

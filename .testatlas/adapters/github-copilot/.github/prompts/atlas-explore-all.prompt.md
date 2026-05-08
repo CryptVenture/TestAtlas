@@ -3,7 +3,7 @@ mode: agent
 description: V2 umbrella explorer that classifies and routes all 21 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-all.md" hash="0ee881ee17a811baf5beb2e944951b5edf79b98b9113d17da8605dad0714cf52" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-all.md" hash="bda85b575518e445db202cfb2c6c0e6b9bc0a1ed486f0d5e203cfc9c5ae51de8" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-all.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -60,7 +60,7 @@ V2 additions (10, in `.testatlas/commands/explore/`):
    - `explore-jobs` → `recommended` if jobs detected, else `skip`.
    - `explore-security-privacy` → `recommended` (every product). When running V2, prefer this over V1 `explore-security`. V1 `explore-security` → `optional` (retained for back-compat).
    - `explore-tests` → `recommended` (every product).
-4. **Idempotency filter.** For each `recommended` child, check `_testatlas/evidence/<child-name>/<latest-timestamp>/`. Apply the cache-skip rule. Cache freshness is measured against a per-child timestamp-of-last-run captured in `_testatlas/maps/.cache/<child>.lastrun.json` (a small JSON sidecar `{ ts: <ISO>, head: <git-rev-parse-HEAD> }`); compare `now - ts` to the configured TTL and check the recorded HEAD against the current `git rev-parse HEAD` for drift detection (HEAD-mismatch ⇒ source has moved ⇒ re-extract). Note: git tracks blob content, not mtimes, so file-system mtime checks are unreliable across clones — HEAD comparison is the canonical drift signal. Apply:
+4. **Idempotency filter.** For each `recommended` child, check `_testatlas/evidence/<child-name>/<latest-timestamp>/`. Apply the cache-skip rule. Cache freshness is measured against a per-run timestamp-of-last-run captured in `_testatlas/evidence/<child-name>/<latest-timestamp>/.lastrun.json` (a small JSON sidecar `{ ts: <ISO>, head: <git-rev-parse-HEAD> }` co-located with the evidence directory — the same convention `/atlas:explore-codebase` uses); compare `now - ts` to the configured TTL and check the recorded HEAD against the current `git rev-parse HEAD` for drift detection (HEAD-mismatch ⇒ source has moved ⇒ re-extract). Note: git tracks blob content, not mtimes, so file-system mtime checks are unreliable across clones — HEAD comparison is the canonical drift signal. Apply:
    - The evidence dir exists AND its sibling `.lastrun.json` `ts` is < 1 hour (`3600000` ms) old AND `head` matches current `git rev-parse HEAD` → mark child `cached`.
    - The evidence dir exists AND its `.lastrun.json` shows no HEAD drift BUT the recorded `ts` is between 1 hour (`3600000` ms) and 24 hours (`86400000` ms) old → mark child `cached` (configurable via `.testatlas/default.config.json.idempotencyTtlMs`; the config key is named with the `Ms` suffix because its value is milliseconds).
    - Otherwise → child remains `recommended` (force re-extraction with `--refresh`).

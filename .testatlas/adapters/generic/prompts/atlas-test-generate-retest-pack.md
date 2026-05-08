@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-generate-retest-pack. Paste .testatlas/bootstrap.md first; description: Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="5492304ba723b2ea30dccd1c9955d84825d8eda2249e4cb538a68131185ad947" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="229a5a684ad732e2598fbc2613298806619de36733c8b119d69fd7739062de5c" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-test-generate-retest-pack.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,7 +79,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/to_fix/` missing → halt with `TO_FIX_MISSING`.
+- `_testatlas/to_fix/` missing → tolerated as empty issue set (returns zero packs); not a halt.
 - `--issue-id` references a non-existent issue → halt with `ISSUE_NOT_FOUND`.
 - Schema validation failure on the written file → halt with the AJV error path; do NOT publish a partial pack.
 

@@ -3,7 +3,7 @@ description: Re-execute the original repro for issues with status=fixed_pending_
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="3e5d0f1fe3248eef5080a02c09c4c8f33ca95bfd0c0307ad8c738859cc0873d5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="426e2d22a311e03c62d96fca26605d91c65beb035d78365405d596f053043400" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -41,7 +41,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 
 - Updated `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}` files: status transitioned, history entry appended, type promoted to `regression` if reopened.
 - New evidence directory `_testatlas/evidence/retest/<issue-id>/<ts>/` containing the freshly captured artifacts.
-- Refreshed per-status indexes under `_testatlas/to_fix/by_status/` (`fixed_pending_retest`, `closed`, `reopened`).
+- Refreshed per-status indexes — `_testatlas/to_fix/by_status/fixed_pending_retest.md`, `_testatlas/to_fix/by_status/closed.md`, `_testatlas/to_fix/by_status/reopened.md` — and the `_testatlas/to_fix/by_severity/` index when severity changed.
 - Updated per-flow index `_testatlas/to_fix/by_flow/<flow-id>.md` reflecting the new flow confidence (the canonical index path; flows themselves are file pairs `flows/FLOW-*.{md,json}`, not directories).
 - A run-log line summarizing pass / fail counts for the batch.
 

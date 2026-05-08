@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-tests. Paste .testatlas/bootstrap.md first; description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="3860e984a5415101d560347db6626adcb53caf4006aa58e0652451f8d13bb659" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="5033160cfe25be04df5e78a67e77cb6a561ba57b307b368eccaef26e7e3dc2f7" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-tests.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -56,6 +56,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 ## Outputs
 
 - `_testatlas/maps/coverage-gaps.md` — human-readable gap report sorted by complexity × low-coverage.
+- `_testatlas/maps/tests.json` — rich test-run + coverage metadata (per Required Actions step 9) validated against `test-run.schema.json`; the closed-string `tests[]` array on `12_app_map.json` carries only the `TEST-<slug>` IDs that reference rows in this file.
 - `_testatlas/evidence/explore-tests/<timestamp>/` — `runners.json`, `inventory.json`, `run.txt`, `coverage.<format>`, `flaky.json`, `gap-summary.json`.
 - Updated `_testatlas/12_app_map.json.tests[]`.
 

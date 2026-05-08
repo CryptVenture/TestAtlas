@@ -4,7 +4,7 @@ description: Map logging setup, metrics, alerts, and tracing — verify log gene
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="9809ff0045c96864a8905a9821fb61fbaad1e6a9072d1a016bcb325b0375561e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="19f9ad6a71f03a5400cd421a69d9a0af23736bf4b46b8e3afd96896fcd4960d9" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-observability.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,6 +77,7 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
 
 - Updated `_testatlas/maps/integrations.json` (observability rows enriched).
 - Updated `_testatlas/12_app_map.json` top-level `observability` object (schema-aligned per `app-map.schema.json`).
+- `_testatlas/maps/observability.json` — escape-hatch sidecar emitted only when a finding doesn't fit the schema-aligned `observability` shape.
 - `_testatlas/evidence/explore-observability/<timestamp>/` — `log-sample.txt`, `metrics-snapshot.json`, `alerts.yml-extracted.json`, `traces/<traceId>.json`, `redaction-scan.txt`.
 
 ## Lifecycle

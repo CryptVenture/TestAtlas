@@ -3,7 +3,7 @@ description: Map package scripts, binaries, and task runners for the target prod
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="cf6c068424d4ff087325edef6b5777a37085ec14fb6f419435f91e53e04dc70a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="bca93699bb4318ebdecc791e0c09e81e7311f6a08351bc22265bf7aeed73cb40" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-cli.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -55,7 +55,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` `cliIds[]` — closed string array of CLI command IDs (e.g. `CLI-deploy-staging`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich command payloads do NOT live in this file.
+- `_testatlas/12_app_map.json` `cliCommands[]` — closed string array of CLI command IDs (e.g. `CLI-deploy-staging`); per `app-map.schema.json` this field is `array<string>` and the document declares `additionalProperties:false`, so rich command payloads do NOT live in this file.
 - `_testatlas/maps/cli-commands.json` — rich CLI command entries (invocation surface, safe/destructive classification, env requirements, evidence paths). This sidecar is the source of truth for the CLI contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-cli/<timestamp>/` — per-command subdirectories containing `help.txt`, `version.txt`, `meta.json` (invocation, exit code, duration).
 - Updated `_testatlas/01_system_map.md` — CLI section with runner inventory and safe/destructive counts.

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-dashboard-data. Invoke as /atlas-report-dashboard-data. Description: Render a machine-readable dashboard data export (PRD §16) at _testatlas/reports/dashboard-data.json suitable for downstream UIs and CI status pages. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="446d9083eca49e43336097b050f8f26884364a3c3876ec6f5d27c21c75d06a74" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="4c030acdc8591f4a074c64e6584fa433c018a002dfe841507ef31492acfd71e6" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-report-dashboard-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -84,9 +84,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- Halt with `BRAIN_DIR_MISSING` if `_testatlas/brain/` does not exist.
+- Missing `_testatlas/brain/` is tolerated — the generator degrades to empty defaults (zero domains/flows/issues) rather than halting. Run `/atlas:core-init` first if a populated dashboard is expected.
 - Halt with `DASHBOARD_SCHEMA_VIOLATION` if the projected document fails AJV validation against `dashboard_data.schema.json`. (The generator throws this before write — no partial files reach disk.)
 - Halt with `BAD_FORMAT` if `--format` is not one of `json | html-preview`.
+- Halt with `SCHEMA_NOT_REGISTERED` if the V2 schema registry omits `dashboard_data.schema.json`.
 
 ## Examples
 

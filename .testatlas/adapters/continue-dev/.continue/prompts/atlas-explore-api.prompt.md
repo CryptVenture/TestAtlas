@@ -4,7 +4,7 @@ description: Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces;
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="4f29a1be51d29a6839becad0dce80af32fd0a9f419d17f60dfd7c8c54e0b6b57" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="091ba751ff9e511964de250c1b76a620eca70b7351c1576d2cfb3c2151a19e88" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-api.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,7 +58,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` `apiIds[]` — closed string array of API endpoint IDs (e.g. `API-GET-users-list`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich endpoint payloads do NOT live in this file.
+- `_testatlas/12_app_map.json` `apis[]` — closed string array of API endpoint IDs (e.g. `API-GET-users-list`); per `app-map.schema.json` this field is `array<string>` and the document declares `additionalProperties:false`, so rich endpoint payloads do NOT live in this file.
 - `_testatlas/maps/apis.json` — rich endpoint entries with method, path, auth, request/response, errors, pagination, and evidence paths. This sidecar is the source of truth for the endpoint contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-api/<timestamp>/` — per-endpoint subdirectories with redacted request/response captures, schema file copies, introspection dumps.
 - Updated `_testatlas/01_system_map.md` — API section with surface-type counts.

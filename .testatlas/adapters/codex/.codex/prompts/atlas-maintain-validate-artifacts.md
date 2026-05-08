@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-maintain-validate-artifacts. Invoke as /prompts:atlas-maintain-validate-artifacts. Description: Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="da5d7cab4bb11e53407df8cc955ec3466a0b3aebe1860e2d6b4287d662e80a6e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ac1d9c9088c5c83ad7c3ceaa35ab54ef1b6672b2445348588334ccb609aad9c9" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -60,12 +60,16 @@ The four validation dimensions:
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
    - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON:
-     (a) every required brain file is present (22 total: 19 JSON + 3 JSONL),
+     (a) every required brain file is present (23 total: 20 JSON + 3 JSONL),
      (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
      object, (d) each file's parsed value validates against its registered
      V2 schema via AJV (per-file). The script does NOT perform cross-id
-     reference resolution between brain files — that pass lives in step 4
-     below. Supported flags are `--cwd <dir>`, `--brain-dir <dir>`,
+     reference resolution between brain files — that pass is performed by
+     the orchestrator in the `Walk _testatlas/evidence/` bullet of this
+     step (preferred path) or the equivalent fallback bullets in step 2;
+     it covers validation dimensions 1 and 3 (Brain JSON consistency +
+     Orphaned evidence / dangling references). Supported flags are
+     `--cwd <dir>`, `--brain-dir <dir>`,
      `--suite-cwd <dir>` only; `--strict` and `--report-only` are not
      recognized by the script.
    - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift
@@ -105,9 +109,33 @@ The four validation dimensions:
 
 ## Stop Conditions
 
-- Schemas directory missing → halt with `SCHEMAS_MISSING`.
-- Brain directory missing → halt with `BRAIN_MISSING`; the workspace is V1 — recommend `maintain-migrate` first.
-- Any dimension reports issues → halt with non-zero exit so CI fails closed (the orchestrator does not support a `--report-only` bypass mode).
+The orchestrator halts on any non-zero exit from the four scripts it
+invokes. Only `validate-brain.js` returns typed codes; the other three
+scripts emit prose error messages and a non-zero exit only.
+
+- **`validate-brain.js`** emits typed `code` fields on each finding and
+  exits 1 if any finding is present. The codes that exist in the script
+  source are: `BRAIN_DIR_MISSING` (workspace is V1 — recommend
+  `maintain-migrate` first), `BRAIN_FILE_MISSING`,
+  `BRAIN_FILE_UNREADABLE`, `BRAIN_JSON_PARSE_ERROR`,
+  `BRAIN_JSONL_PARSE_ERROR`, `BRAIN_JSONL_LINE_NOT_OBJECT`,
+  `BRAIN_SCHEMA_VIOLATION`, `BRAIN_REQUIRED_FIELD_MISSING`. Any other
+  code mentioned in older revisions of this doc is not present in the
+  script.
+- **`validate-workspace.js`** exits 1 on any validation issue, 2 on an
+  unknown CLI flag. It does not emit a typed code for "schemas
+  directory missing"; if the schemas directory is unavailable, AJV
+  load failures surface as generic errors and the script exits 1.
+- **`sync-markdown-json.js`** exits 1 on a failed run with the message
+  `sync-markdown-json: FAIL — <reason>`, otherwise exits 0.
+- The brain-update lifecycle hook (invoked from the `## Lifecycle`
+  section below) exits 1 on any error with the message
+  `update-brain-after-command: <code> — <message>` (the `<code>` is the
+  Node error code on the underlying I/O failure, not a TestAtlas-defined
+  enum), 2 on an unknown CLI flag.
+- Any of the four dimensions reporting issues → halt with non-zero
+  exit so CI fails closed (the orchestrator does not support a
+  `--report-only` bypass mode).
 
 ## Lifecycle
 

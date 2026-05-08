@@ -3,7 +3,7 @@ description: Test Plan Council — QA, automation, codebase, data, and runtime p
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="db0ded8af6fba9d92cea706c3e28f7fdca63b9001c02c1d746fadf8419c6954e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="c4c438d522599bdc544df28c4ff96d3a0bac3a7353ea87b84a4537c473426b0d" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -18,7 +18,7 @@ Run a Test Plan Council (PRD §7.9) when planning a major test run, onboarding a
 - `_testatlas/brain/state.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/flows.json`
 - `_testatlas/02_test_strategy.md` (if present)
 - `_testatlas/explorers/tests/tests_explorer.json` (if present)
-- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json`
+- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json` — read each file IF PRESENT (the `_testatlas/maps/` directory is empty in fresh / pre-explore workspaces; treat any missing file as a tolerant skip rather than a halt, and surface the gap as a coverage-gap input to the council).
 
 ## Participant Selection
 

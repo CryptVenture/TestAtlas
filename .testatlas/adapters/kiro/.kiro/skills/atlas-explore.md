@@ -4,7 +4,7 @@ description: Umbrella explorer orchestrator — classifies sub-explorers, spawns
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="ff31675db52f260ec4017e163fe76f72785a2c79b0e5c98cc6c73debba40c0a5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9d2e5aef7af94a7e0886278e2dc2f9b08ba5503538dbe32a065bd829d1344ff8" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,6 +71,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run; set `executionMode` to the selected mode.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Do NOT alter `counts.*` — this command produces no countable schema artifacts.
 - `_testatlas/history/run_log.md` — narrative entry: "Routed `<n>` recommended / `<n>` optional / `<n>` skipped sub-explorers in `explore-plan.md`; aggregated `<m>` child findings into `02_product_overview.md` (executionMode: `<mode>`)."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore --actor agent --summary "Routed and aggregated explorer findings into product overview" --status completed`.
 
 ## Stop Conditions
 
