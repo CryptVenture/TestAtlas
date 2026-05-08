@@ -77,6 +77,28 @@ This command runs read-only audits and surfaces findings; it never auto-fixes. U
 
 7. **Phase 5 — Generated-block drift.** For each markdown with a `<!-- TESTATLAS:GENERATED:START section="X" -->...<!-- TESTATLAS:GENERATED:END section="X" -->` block, recompute the expected content from the JSON source by invoking `node .testatlas/scripts/sync-markdown-json.js --dry-run`. Diff the dry-run output against the on-disk markdown. Append diffs to `evidence/generated-drift.json`.
 
+   **About `--dry-run` (supported as of Phase 20).** The accelerator's `--dry-run` flag is a no-mutation preview pass: the script reports planned writes to stdout but performs **no** `atomicWrite`, no rename, and no `fs.writeFile` — the workspace is guaranteed unchanged when this flag is passed. Output shape:
+
+   ```
+   DRY RUN — no files were modified.
+   Planned writes: <n>
+     <absolute-path-1>
+     <absolute-path-2>
+     ...
+   ```
+
+   `<n>` is the count of brain index files (e.g. `brain/domains.json`) that would be rewritten if the script ran without `--dry-run`. An audit-only pass during this command MUST use `--dry-run` so the read-only audit boundary holds. Default (no flag) mutates brain index files.
+
+   Examples:
+
+   ```
+   # Preview (audit-safe — no mutation):
+   node .testatlas/scripts/sync-markdown-json.js --dry-run --cwd .
+
+   # Apply (mutates brain index files — used by /atlas:core-brain-sync, NOT this command):
+   node .testatlas/scripts/sync-markdown-json.js --cwd .
+   ```
+
 8. **Phase 6 — Orphaned evidence.** Walk `_testatlas/evidence/`. For each file, search `brain/evidence.json` and every artifact JSON for a citation. Files not cited anywhere are orphans. Append to `evidence/orphans.json`.
 
 9. **Aggregate report.** Synthesize findings into `evidence/audit-report.md` with sections: validation findings, stale docs, index drift, dangling refs, generated-block drift, orphans. Sort by severity (failed validation > dangling refs > stale > orphans).
