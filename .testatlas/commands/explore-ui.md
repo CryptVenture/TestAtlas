@@ -91,13 +91,13 @@ Runs as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standa
 
 9. A11y basics: call `evaluate_script` to read ARIA roles, labels, focus order, and visible-text-vs-accessible-name diffs. Defer keyboard traversal, contrast, and full WCAG checks to `explore-accessibility`. Optionally call `lighthouse_audit` for a baseline score.
 
-10. Update `_testatlas/12_app_map.json` route + component entries with discovered states, breakpoints, and evidence paths. Validate against `app-map.schema.json`, `route.schema.json`, `component.schema.json` before writing. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
+10. Write rich route + component shape (discovered states, breakpoints, evidence paths) to `_testatlas/maps/routes.json` and `_testatlas/maps/components.json` (atomic, AJV-validated against `route.schema.json` and `component.schema.json` respectively). Append only the route/component **ID strings** to `_testatlas/12_app_map.json.routes[]` and `_testatlas/12_app_map.json.components[]` — those top-level keys are closed string arrays per `app-map.schema.json` (`additionalProperties:false`). State enrichment per surface goes to the top-level `states` array on `12_app_map.json` (which IS schema-allowed). Validate the resulting `12_app_map.json` against `app-map.schema.json` before writing. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
 
 11. Close the lifecycle.
 
 ## Outputs
 
-- Updated `_testatlas/12_app_map.json` — route + component entries with state coverage, breakpoints, ARIA snapshots, evidence refs.
+- Updated `_testatlas/12_app_map.json` — route + component **ID strings** appended to the schema-allowed `routes[]` and `components[]` arrays; per-surface state findings appended to the top-level `states[]` array. Rich shape (breakpoints, ARIA snapshots, evidence refs) lives in `_testatlas/maps/routes.json` and `_testatlas/maps/components.json`.
 - `_testatlas/evidence/explore-ui/<timestamp>/<route-slug>/` — DOM snapshots, screenshots, console + network captures, optional Lighthouse JSON; `responsive/` subdir for breakpoint screenshots.
 
 ## Lifecycle

@@ -69,7 +69,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. Capture lifecycle states per entity: valid states (`status` enums, state-machine declarations like `aasm`/`xstate`, ActiveRecord `enum :status`, Prisma enum types), valid transitions (from state-machine declarations or explicit guard clauses), and terminal states. Cite source file and line range.
 6. Capture seed-fixture inventory: which scenarios bootstrap which records (e.g. `seed:demo`, `seed:test-fixtures`); cite seed file paths. Record only fixture identifiers and counts — never row payloads.
 7. Save raw evidence to `_testatlas/evidence/explore-data/<timestamp>/`: schema dumps (structure only), migration listings, seed paths, queue topic enumerations, cache prefix tables, bucket inventories.
-8. Update `_testatlas/12_app_map.json` data entries with discovered shape + lifecycle metadata + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
+8. Write the rich entity/data shape (lifecycle metadata, evidence references, schema dumps) to `_testatlas/maps/entities.json` (atomic, AJV-validated against the entity schema fragment). Append only the entity **ID strings** to `_testatlas/12_app_map.json.entities[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). Validate the resulting `12_app_map.json` against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
 9. Append a data-inventory section to `_testatlas/01_system_map.md` listing entities and lifecycle state machines.
 10. Close the lifecycle (next section).
 

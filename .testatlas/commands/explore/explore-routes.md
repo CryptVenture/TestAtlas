@@ -70,7 +70,7 @@ Map the full route surface: every URL the app responds to, the navigation paths 
 
 7. **Coverage gap detection.** Compare enumerated routes against `12_app_map.json.routes[]`. Routes that exist in code but were never reachable at runtime → file findings (likely dead routes or guard misconfigurations) via `node .testatlas/scripts/create-issue.js`. Routes that exist at runtime but missing from `12_app_map.json` → flag as out-of-date map and re-run `/atlas:explore-codebase`.
 
-8. **Persist + write.** Validate each route entry against `route.schema.json` before writing. Write `_testatlas/maps/routes.json` (atomic, AJV-validated) and regenerate `_testatlas/maps/routes.md`. Update `_testatlas/12_app_map.json.routes[]` with new fields. If any cited evidence path fails to materialize on disk, halt.
+8. **Persist + write.** Validate each route entry against `route.schema.json` before writing. Write `_testatlas/maps/routes.json` (atomic, AJV-validated) and regenerate `_testatlas/maps/routes.md`. The rich route shape (with guards, redirects, evidence, etc.) lives in `_testatlas/maps/routes.json`; `_testatlas/12_app_map.json.routes[]` is a closed string-array per `app-map.schema.json` (`additionalProperties:false`) — append only the route ID strings (e.g. `PAGE-<slug>` or path) to that array. If any cited evidence path fails to materialize on disk, halt.
 
 9. Close the lifecycle.
 

@@ -37,7 +37,7 @@ If there is a conflict:
 
 ## Purpose
 
-Map the target product's error-handling surface: error boundaries (component-tree-level), fallback UIs (what the user sees when a child crashes or a fetch fails), error logging targets (console, telemetry sink, server log), retry patterns (manual retry button, exponential backoff, timeout fallback), and exception propagation (caught vs uncaught). Persist evidence under `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/`. Update `_testatlas/maps/states.json` (the `error` state row) and append findings to `_testatlas/12_app_map.json` route+component entries. Every claim MUST cite an on-disk evidence path.
+Map the target product's error-handling surface: error boundaries (component-tree-level), fallback UIs (what the user sees when a child crashes or a fetch fails), error logging targets (console, telemetry sink, server log), retry patterns (manual retry button, exponential backoff, timeout fallback), and exception propagation (caught vs uncaught). Persist evidence under `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/`. Update `_testatlas/maps/states.json` (the `error` state row) and append findings to `_testatlas/12_app_map.json` under the top-level `errorHandling` array (per `app-map.schema.json`). Every claim MUST cite an on-disk evidence path.
 
 ## Required First Reads
 
@@ -103,7 +103,7 @@ Map the target product's error-handling surface: error boundaries (component-tre
 ## Outputs
 
 - Updated `_testatlas/maps/states.json` (error rows).
-- Updated `_testatlas/12_app_map.json` (route + component error metadata).
+- Updated `_testatlas/12_app_map.json` top-level `errorHandling` array (schema-aligned per `app-map.schema.json`; entries closed under `additionalProperties: false`).
 - `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/<surface>/` — `network.png`, `http-5xx.png`, `timeout.png`, `invalid-form.png`, `component-crash.png`, `permission.png`, `console.log.txt`, `network.json`, `retry.json`.
 - New issues filed via `create-issue.js` for unrecovered errors.
 

@@ -81,7 +81,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 8. **Gap analysis.** For each uncovered or thinly covered file (≥ 50 LOC, < 30% line coverage), produce a gap entry: `{file, percent, complexity_estimate, suggested_test_type, owning_domain}`. Write all gaps to `_testatlas/maps/coverage-gaps.md`.
 
-9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json`. Update `_testatlas/12_app_map.json.tests[]` with run + coverage metadata. If any cited evidence path fails to materialize on disk, halt.
+9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json` and write rich test-run + coverage metadata to `_testatlas/maps/tests.json` (atomic). Append only the test **ID strings** (e.g. `TEST-<slug>`) to `_testatlas/12_app_map.json.tests[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). If any cited evidence path fails to materialize on disk, halt.
 
 10. Close the lifecycle.
 
