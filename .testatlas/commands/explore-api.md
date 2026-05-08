@@ -87,7 +87,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` `apiIds[]` — closed string array of API endpoint IDs (e.g. `API-GET-users-list`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich endpoint payloads do NOT live in this file.
+- `_testatlas/12_app_map.json` `apis[]` — closed string array of API endpoint IDs (e.g. `API-GET-users-list`); per `app-map.schema.json` this field is `array<string>` and the document declares `additionalProperties:false`, so rich endpoint payloads do NOT live in this file.
 - `_testatlas/maps/apis.json` — rich endpoint entries with method, path, auth, request/response, errors, pagination, and evidence paths. This sidecar is the source of truth for the endpoint contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-api/<timestamp>/` — per-endpoint subdirectories with redacted request/response captures, schema file copies, introspection dumps.
 - Updated `_testatlas/01_system_map.md` — API section with surface-type counts.
