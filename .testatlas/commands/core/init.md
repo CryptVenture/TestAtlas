@@ -47,7 +47,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Required Actions
 
-1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`. After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
+1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`. After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call. **Idempotency note:** on already-initialized repos where on-disk counts match the manifest and overview sections are already current, `sync-status.js` is a no-op and produces no on-disk writes (`manifestChanged=false`, `statusUpdated=false`, `overviewUpdated=false` — see `.testatlas/scripts/sync-status.js:218-231`).
 2. **V2 upgrade specifics:**
    - Ensure `_testatlas/brain/` exists with all 22 required files (delegated to `init-workspace.js` Wave 0/1 helpers).
    - Mirror schemas to `_testatlas/brain/schema/` for offline validation.

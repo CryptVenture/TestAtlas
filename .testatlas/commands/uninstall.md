@@ -50,8 +50,9 @@ Cleanly remove the TestAtlas suite tree from the target repository, optionally i
 2. **Manual path (no `shell`):** read `.testatlas/.install-manifest.json` and remove each tracked path manually. If the manifest is missing/invalid, halt — do NOT blindly remove `.testatlas/`; surface the missing-manifest condition for operator review. To remove `_testatlas/` (workspace), require explicit operator confirmation; the workspace contains accumulated evidence + issues + runs and is not regenerable.
 3. **Workspace lockfile check.** If `_testatlas/.lock` exists, halt with `In-flight test run detected; cannot uninstall.` Forcing past this corrupts evidence chains.
 4. **Operator confirmation.** Present the removal plan (paths to remove, byte counts, whether `--purge` was requested). Require explicit operator confirmation. **NEVER auto-confirm.** Non-interactive runs MUST exit cleanly with `Uninstall requires operator confirmation; rerun interactively.`
-5. Surface the runtime exit code verbatim. Do not attempt rollback — uninstall.js owns the destructive operation.
-6. Close the lifecycle (next section).
+5. **Manifest self-removal (bootstrap-phase).** After removing every path in `manifest.files`, `uninstall.js` removes `.testatlas/.install-manifest.json` itself as the final tracked-file step (`.testatlas/scripts/uninstall.js:203-212`). The manifest cannot list itself in its own file array — this is an intentional bootstrap-phase write owned by the uninstaller, not a manifest entry. Operators reviewing the removal plan with `--dry-run` will not see the manifest path in the dry-run output, but the live run does remove it.
+6. Surface the runtime exit code verbatim. Do not attempt rollback — uninstall.js owns the destructive operation.
+7. Close the lifecycle (next section).
 
 ## Outputs
 

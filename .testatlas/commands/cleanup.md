@@ -60,8 +60,8 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 7. **Repair mode (default safe).** Apply only operations that cannot lose user content:
    - Orphan artifact → re-link from the appropriate index if a logical home exists; otherwise list the artifact for operator review. Never delete the file.
    - Broken link → list in the cleanup report for operator review. Never auto-fix without operator confirmation; the correct target may be elsewhere or the link may indicate a missing artifact that should be authored.
-   - Stale generated-section marker pair with valid hash → re-render the generated content while preserving the human-authored content outside markers (per the markers parser semantics). On hash mismatch (which signals a human edit inside the generated block), warn and skip — do NOT overwrite human edits.
-   - Orphan markers → list for operator review; do not synthesize a missing partner.
+   - Well-formed generated-section marker pair → re-render the generated content between the markers while preserving all bytes outside markers (per the markers parser semantics). The accelerator (`update-indexes.js`) regenerates section bodies **unconditionally**: any human edits made *inside* a `<!-- TESTATLAS:GENERATED -->` block will be replaced. The manifest's `generatedSections[<file>][<section>]` hash is updated to the freshly rendered body — it records the last render and is **not** consulted to skip re-renders. Operators must keep human-authored prose strictly outside markers.
+   - Orphan / malformed markers (orphan START, orphan END, mismatched section attribute, missing END at EOF, nested START, duplicate section) → the accelerator throws `TESTATLAS_MARKER_INVALID` and **halts the entire run**, refusing to write any section of `09_artifact_index.md`. The operator must hand-repair the marker pair before re-running cleanup; the accelerator does not produce a partial-fix list.
 8. **Re-derive `_testatlas/09_artifact_index.md`** from disk truth. The artifact index must reflect what exists on disk, not what was previously recorded.
 9. **Reconcile `_testatlas/11_workspace_manifest.json` counts** to match the re-derived index. Bump `lastUpdatedAt`. If counts cannot be reconciled (e.g., the manifest claims more issues than exist on disk and the discrepancy cannot be explained by orphaned artifacts), halt and surface for operator review rather than silently rewrite.
 10. **Write `_testatlas/cleanup-report-<ts>.md`** listing each enumerated item, the action taken (or `requires-review`), and the resulting state. The report is the durable record of this run.
@@ -88,7 +88,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - Would write to `.testatlas/` → halt immediately (two-tree invariant violation).
 - Would delete user-authored content (anything outside `<!-- TESTATLAS:GENERATED -->` markers) → refuse; surface for operator review instead.
-- Hash mismatch on a generated-section marker → warn and skip that section; do NOT overwrite suspected human edits.
+- Malformed marker pair detected by the markers parser (orphan START, orphan END, mismatched section attribute, missing END at EOF, nested START, duplicate section) → halt with `TESTATLAS_MARKER_INVALID`; refuse to write `09_artifact_index.md`. Section bodies between well-formed markers are otherwise re-rendered unconditionally — the operator is responsible for keeping human-authored content strictly outside `<!-- TESTATLAS:GENERATED -->` markers.
 - Manifest counts cannot be reconciled with disk truth even after orphan accounting → halt and surface; the manifest may be corrupt and a human should review before any rewrite.
 - `_testatlas/.lock` exists → halt; an in-flight test run is using the workspace.
 
