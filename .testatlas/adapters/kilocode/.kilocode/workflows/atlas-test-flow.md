@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="8f8311b986129dde9409012e6740e04370c333a6cc29e48e1d5d277bbde5e06a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-flow.md" hash="b0289264a869adfd57b5f5367c210ad015476950b2e50505b0afefe0826d7798" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-flow.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -118,6 +118,6 @@ Now that the flow run is complete:
 - **`/atlas:retest`** — rerun failing scenarios after fixes land
 - **`/atlas:report`** — fold the run into the next aggregate report
 - **`/atlas:council-flow-review`** — escalate flow execution findings to a council quality gate.
-- **`/atlas:generate-automation`** — produce reproducible automation scaffolds from this flow.
+- **`/atlas:test-generate-automation`** — produce reproducible automation scaffolds from this flow.
 - **`/atlas:test-all`** — run every flow + every domain in one orchestrated sweep, aggregating per-child runs into a single merged RUN-<timestamp>.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

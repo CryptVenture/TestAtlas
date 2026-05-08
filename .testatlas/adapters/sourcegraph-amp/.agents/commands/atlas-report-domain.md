@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-domain. Invoke as /atlas-report-domain. Description: Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="d9528eccfe877391a868867c0d3808c6da22508b0197667fecf019696203a85e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="63a490b87c3172160ae49d15f7e4c1bc368a03be1f84f8247a230cfa20ecb0ee" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -29,7 +29,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 
 ## Required Actions
 
-1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `domains.json`.
+1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `_testatlas/brain/domains.json`.
 2. Read the canonical brain inputs.
 3. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
@@ -57,7 +57,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 ## Stop Conditions
 
 - `quality_scores.json` missing → halt with instruction to run `brain-score`.
-- Domain slug not found in `domains.json` → halt with `DOMAIN_NOT_FOUND`.
+- Domain slug not found in `_testatlas/brain/domains.json` → halt with `DOMAIN_NOT_FOUND`.
 
 ## Update Brain After Command
 

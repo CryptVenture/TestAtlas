@@ -59,7 +59,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 
 ## Required Actions
 
-1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `domains.json`.
+1. Resolve target domain: from CLI arg `--domain <slug>` or operator-supplied parameter. Halt if the slug is not in `_testatlas/brain/domains.json`.
 2. Read the canonical brain inputs.
 3. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
@@ -87,7 +87,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 ## Stop Conditions
 
 - `quality_scores.json` missing → halt with instruction to run `brain-score`.
-- Domain slug not found in `domains.json` → halt with `DOMAIN_NOT_FOUND`.
+- Domain slug not found in `_testatlas/brain/domains.json` → halt with `DOMAIN_NOT_FOUND`.
 
 ## Update Brain After Command
 

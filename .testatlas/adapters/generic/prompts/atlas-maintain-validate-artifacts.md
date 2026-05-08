@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-maintain-validate-artifacts. Paste .testatlas/bootstrap.md first; description: Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ebdcb6ea1de731fc249809e4424b2f3ecf7b8facd77129b23efc8d8fcd95a8da" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="59f49fa0940a5ae2d49b40b37b6e2c89d1359e6cb4fcc89bf3bd463364d5e304" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -104,6 +104,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-va
 Now that artifacts have been validated:
 
 - **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
-- **`/atlas:brain-sync`** — re-index brain state after artifact validation.
+- **`/atlas:core-brain-sync`** — re-index brain state after artifact validation.
 - **`/atlas:report`** — produce a fresh readiness report on the cleaned workspace.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -86,5 +86,5 @@ Call `node .testatlas/scripts/update-brain-after-command.js --command bootstrap-
 
 ## What's Next
 
-- `/atlas:status` — confirm the workspace is in the expected state.
-- `/atlas:brain-validate` — verify brain integrity if you suspect drift.
+- `/atlas:core-status` — confirm the workspace is in the expected state.
+- `/atlas:core-brain-validate` — verify brain integrity if you suspect drift.

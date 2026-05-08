@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="0470e30796791feacdc833273f1c970ba065fc2ed98ad6c483a5c3e469935270" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="7daf6465bb1627186ea842b196bab40dce01f2597f4ca2065444d0af6825e958" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-core-init.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,9 +77,9 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command init --acto
 
 ## What's Next
 
-- `/atlas:status` — confirm the new workspace state.
+- `/atlas:core-status` — confirm the new workspace state.
 - `/atlas:validate-workspace` — confirm V1 schemas + manifest are clean before any exploration.
-- `/atlas:brain-validate` — confirm V2 brain integrity.
+- `/atlas:core-brain-validate` — confirm V2 brain integrity.
 - `/atlas:explore` — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available).
 - `/atlas:bootstrap` — re-load the constitution if you suspect context drift.
 - `/atlas:create-persona` — author new system or project personas for V2 council protocols.

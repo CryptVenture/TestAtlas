@@ -88,6 +88,6 @@ When `--purge` IS used, no lifecycle updates are possible (workspace is gone). T
 
 The repo no longer contains TestAtlas. After re-running `npx @webventures/testatlas init`:
 
-- **`/atlas:init`** — recreate the `_testatlas/` workspace tree
+- **`/atlas:core-init`** — recreate the `_testatlas/` workspace tree
 - **`/atlas:bootstrap`** — reload the constitution after reinstall
 - **`/atlas:validate-workspace`** — confirm the freshly reinstalled tree is clean

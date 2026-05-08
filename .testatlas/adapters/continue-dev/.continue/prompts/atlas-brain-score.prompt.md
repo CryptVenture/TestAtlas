@@ -4,7 +4,7 @@ description: Compute the 11 PRD §7.15 quality scores from documented brain evid
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="0ebcf2f6eba6d564bce6df4ec8b9484a84c39b7b305c36d7790896c825592722" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="12cdc7a904f3bc9ae5cbbbe8b190f06b0ad05d65c52960b7e96ac71b55b043bd" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-brain-score.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,7 +70,7 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Stop Conditions
 
-- Brain directory missing → halt with `BRAIN_MISSING`; the operator must run `/atlas:init` first.
+- Brain directory missing → halt with `BRAIN_MISSING`; the operator must run `/atlas:core-init` first.
 - Schema validation failure on the written file → halt; do NOT publish a partial scores file.
 - Unknown `--category` → halt with the list of valid categories.
 

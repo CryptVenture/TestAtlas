@@ -86,5 +86,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-compa
 
 ## What's Next
 
-- `/atlas:brain-validate` — confirm post-compaction integrity.
-- `/atlas:brain-export` — archive the (now smaller) brain.
+- `/atlas:core-brain-validate` — confirm post-compaction integrity.
+- `/atlas:core-brain-export` — archive the (now smaller) brain.

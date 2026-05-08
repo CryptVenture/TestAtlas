@@ -88,7 +88,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `--name`, `--type`, or `--mission` missing → halt; the script refuses with `TESTATLAS_INVALID_ARGS`.
 - `--type` not one of `system | generated | project` → halt; the schema enum rejects.
 - Persona record fails schema validation → halt; surface AJV errors verbatim. Do NOT write a malformed persona.
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `safeMode: true` AND a step would mutate target-repo source files → halt; only `_testatlas/` is writable.
 
 ## Completion Criteria
@@ -102,5 +102,5 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## What's Next
 
 - **`/atlas:council`** — invoke a council session that includes the new persona (route via the dispatcher to a sub-command matching the persona's expertise).
-- **`/atlas:brain-sync`** — refresh the brain so subsequent commands see the new persona.
-- **`/atlas:status`** — confirm the workspace recognizes the new persona.
+- **`/atlas:core-brain-sync`** — refresh the brain so subsequent commands see the new persona.
+- **`/atlas:core-status`** — confirm the workspace recognizes the new persona.

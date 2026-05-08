@@ -55,7 +55,7 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
    - `BRAIN_JSONL_PARSE_ERROR` — invalid JSONL line.
    - `BRAIN_REQUIRED_FIELD_MISSING` — top-level field absent.
    - `BRAIN_SCHEMA_VIOLATION` — AJV rejected the value.
-4. Recommend remediation for each finding (re-run `/atlas:brain-sync` to fix index drift; manually fix syntax errors; re-run init for missing skeleton files).
+4. Recommend remediation for each finding (re-run `/atlas:core-brain-sync` to fix index drift; manually fix syntax errors; re-run init for missing skeleton files).
 5. Close the lifecycle.
 
 ## Allowed Tools
@@ -76,7 +76,7 @@ Validate every file under `_testatlas/brain/` against its V2 JSON Schema (Draft 
 
 ## Stop Conditions
 
-- `_testatlas/` missing entirely → halt with `Run /atlas:init first.`
+- `_testatlas/` missing entirely → halt with `Run /atlas:core-init first.`
 - No findings → success path; close lifecycle and exit.
 
 ## Brain Files Inventory
@@ -88,7 +88,7 @@ The 22 required brain files validated by this command:
 - `_testatlas/brain/quality_scores.json` — per-domain/flow quality score signals.
 - `_testatlas/brain/drift.json` — drift signals across markdown↔JSON boundaries.
 - `_testatlas/brain/coverage.json` — coverage matrix indexed by flow + scenario.
-- `_testatlas/brain/graph.json` — 16-relationship knowledge graph (populated by `node .testatlas/scripts/update-graph.js` from `/atlas:brain-sync`).
+- `_testatlas/brain/graph.json` — 16-relationship knowledge graph (populated by `node .testatlas/scripts/update-graph.js` from `/atlas:core-brain-sync`).
 - Remaining 16 JSON/JSONL indexes per V2 brain schema (`events.jsonl`, council/persona/agent indexes, etc.) — full enumeration in `.testatlas/schemas/manifest.schema.json`.
 
 ## Completion Criteria
@@ -103,5 +103,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-valid
 
 ## What's Next
 
-- Findings present → `/atlas:brain-sync` to reconcile, then re-run `/atlas:brain-validate`.
-- Clean → `/atlas:status` or whatever next command was planned.
+- Findings present → `/atlas:core-brain-sync` to reconcile, then re-run `/atlas:core-brain-validate`.
+- Clean → `/atlas:core-status` or whatever next command was planned.

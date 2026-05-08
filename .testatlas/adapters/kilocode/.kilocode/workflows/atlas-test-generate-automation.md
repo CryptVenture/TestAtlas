@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="77401418a4bbebbc01d346a5c760b9bc09ae425c507392859ce20cd44c132ad4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="378ae6b57941e9f42f05f3705c431c84d6bdabc079d5d317941474c045c1fc46" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-test-generate-automation.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -34,7 +34,7 @@ suite:
 
 ## When to Run
 
-- After `/atlas:generate-scenarios` produces a new scenario set and the operator wants automation seeds.
+- After `/atlas:test-generate-scenarios` produces a new scenario set and the operator wants automation seeds.
 - After `/atlas:log-issue` files an issue with a reproducible failure path that can be promoted into a regression.
 - During the `automation-engineer` persona's pass after a council round.
 

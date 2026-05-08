@@ -73,7 +73,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Stop Conditions
 
-- Brain validation finds errors → REFUSE to export until they are resolved (run `/atlas:brain-sync` then `/atlas:brain-validate`).
+- Brain validation finds errors → REFUSE to export until they are resolved (run `/atlas:core-brain-sync` then `/atlas:core-brain-validate`).
 - Output path already exists and `--force` not specified → halt to avoid overwrite.
 
 ## Completion Criteria
@@ -91,4 +91,4 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-expor
 
 - `--mode json` → feed the file into a dashboard; pair with **`/atlas:report-dashboard-data`** to refresh the canonical dashboard.
 - `--mode archive` → ship the directory to the next agent or back up off-repo; follow with **`/atlas:handoff`** to package the workspace.
-- After export, run **`/atlas:brain-sync`** to ensure the live brain stays in lockstep with what was exported.
+- After export, run **`/atlas:core-brain-sync`** to ensure the live brain stays in lockstep with what was exported.

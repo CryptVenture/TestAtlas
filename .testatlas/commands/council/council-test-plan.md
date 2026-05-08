@@ -104,6 +104,6 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:generate-scenarios` to materialize accepted scenarios.
-- `/atlas:generate-automation` to scaffold automation skeletons.
+- `/atlas:test-generate-scenarios` to materialize accepted scenarios.
+- `/atlas:test-generate-automation` to scaffold automation skeletons.
 - `/atlas:test-critical-flows` once scenarios exist.

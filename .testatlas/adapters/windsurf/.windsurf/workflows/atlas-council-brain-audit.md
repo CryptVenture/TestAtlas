@@ -3,7 +3,7 @@ description: Brain Audit Council — personas inspect the _testatlas workspace f
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="53fc8612e5493b3a1cb53fd0df9a7921f2425bbe30390f744d4bd3680b208751" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="699210a5d308f00b20687d6e1e0b37139c631a1cc2d804f16c4ec9c4dec96b09" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -61,7 +61,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Stop Conditions
 
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `validate-brain.js` reports unrecoverable schema violations → halt; resolve those first.
 - Fewer than 2 participants → halt.
 

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-test-plan. Invoke as /atlas-council-test-plan.md. Description: Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="a4a82835b1f8f9ef896ec0b47166baf5a7e4d080f7df9fc7998c50b872dbf0e3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="2eec97690f9a44aba743324fb8ca05f104a325ea3bf2aa772bd0fbdbd2fa79cc" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -72,7 +72,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:generate-scenarios` to materialize accepted scenarios.
-- `/atlas:generate-automation` to scaffold automation skeletons.
+- `/atlas:test-generate-scenarios` to materialize accepted scenarios.
+- `/atlas:test-generate-automation` to scaffold automation skeletons.
 - `/atlas:test-critical-flows` once scenarios exist.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

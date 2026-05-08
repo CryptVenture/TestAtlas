@@ -3,7 +3,7 @@ description: Render a machine-readable dashboard data export (PRD §16) at _test
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="12453d3a83d77ef06a7aa7db8ff173ead1826ecdb97809cd463f42ebfab23f17" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="b82589e8854bcdb778cb3d947fe7a1e03b167d903633fc34eef10c7c28e5e9c2" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-report-dashboard-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -67,7 +67,7 @@ Schema-validated against `.testatlas/schemas/dashboard_data.schema.json` (PRD §
 ## Downstream Consumption
 
 - **External dashboards** can poll `dashboard-data.json` directly and render quality state without parsing markdown reports.
-- **The optional static HTML report** (see `docs/static-html-report-spec.md`) is designed to consume this exact file.
+- **The optional static HTML report** (specification published in the suite repo's `docs/` tree) is designed to consume this exact file.
 - **CI** can post the file to a status check or upload it as a build artifact for retention.
 
 The contract is: a downstream consumer can render the full quality state from this single JSON file with zero additional brain reads.

@@ -91,7 +91,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Stop Conditions
 
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - Final decision is `no-go` AND human override requested → halt and escalate.
 - Required gate inputs missing (issues.json, coverage.json) → halt.
 

@@ -47,7 +47,7 @@ Render a concise, evidence-backed status report of the V2 brain so the next agen
 
 ## Required Actions
 
-1. Load `_testatlas/brain/state.json`. If missing → halt with `Run /atlas:init first.`
+1. Load `_testatlas/brain/state.json`. If missing → halt with `Run /atlas:core-init first.`
 2. Print:
    - Project name + active environment
    - Current phase + last command + last updated timestamp
@@ -89,6 +89,6 @@ After the status block is rendered, call `node .testatlas/scripts/update-brain-a
 
 ## What's Next
 
-- `/atlas:brain-validate` — verify brain integrity if anything looked off.
+- `/atlas:core-brain-validate` — verify brain integrity if anything looked off.
 - `/atlas:explore` — start mapping the product if domains/flows are empty.
 - `/atlas:report` — produce a full report when counts are non-zero.

@@ -4,7 +4,7 @@ description: Umbrella router for V2 council commands. Selects a conversation mod
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="c9b13d6b2158808d6a9f95880a2169798bc75768d02c8f8c725190884467eabd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="d985a2ac0355665ab3fb2e68edaa9201d3d93f1d4d1c819401b0d7aa109ad0a4" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,7 +70,7 @@ Every dispatched session emits: a final summary, accepted findings, rejected fin
 
 - Operator did not provide a topic → halt with question.
 - Chosen mode not one of the 9 PRD §7.9 modes → halt with mode menu.
-- `_testatlas/brain/agent_sessions.json` missing → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/agent_sessions.json` missing → halt: "Run `/atlas:core-init --mode upgrade` first."
 
 ## Completion Criteria
 

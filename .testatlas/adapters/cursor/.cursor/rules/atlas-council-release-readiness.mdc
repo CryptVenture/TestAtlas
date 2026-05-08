@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="a23fc29d6497157c6cdb3f1e25e1ef6a2723d7055a2a7ef1d26fb628364ef464" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="c96b97fb6daea388b0124cbed66f307638fb15b88aa61bb75f85d5bff142e6a9" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-council-release-readiness.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -62,7 +62,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## Stop Conditions
 
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - Final decision is `no-go` AND human override requested → halt and escalate.
 - Required gate inputs missing (issues.json, coverage.json) → halt.
 

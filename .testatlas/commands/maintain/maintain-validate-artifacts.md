@@ -135,5 +135,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-va
 Now that artifacts have been validated:
 
 - **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
-- **`/atlas:brain-sync`** — re-index brain state after artifact validation.
+- **`/atlas:core-brain-sync`** — re-index brain state after artifact validation.
 - **`/atlas:report`** — produce a fresh readiness report on the cleaned workspace.

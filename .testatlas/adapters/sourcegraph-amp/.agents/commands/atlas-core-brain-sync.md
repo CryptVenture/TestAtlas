@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-sync. Invoke as /atlas-core-brain-sync. Description: Detect and reconcile drift between markdown artifacts and brain JSON indexes; orchestrates sync-markdown-json + validate-brain. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="3bdfa3521cf395d1de7ee921af70408adaa09f7cd4ce1dbace9d1625c9230908" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="425baf4d9fe5a966d1bebaa56cbd42a734fdc5e329003539b2ad2e159ca32f7f" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-core-brain-sync.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -49,7 +49,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 
 ## Stop Conditions
 
-- `_testatlas/brain/` missing → halt with `Run /atlas:init first.`
+- `_testatlas/brain/` missing → halt with `Run /atlas:core-init first.`
 - AJV validation fails after sync → halt; do not commit drift; surface findings verbatim.
 
 ## Completion Criteria
@@ -64,8 +64,8 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync 
 
 ## What's Next
 
-- `/atlas:brain-validate` — confirm clean state.
-- `/atlas:status` — view the refreshed brain summary.
-- `/atlas:brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
-- `/atlas:brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.
+- `/atlas:core-brain-validate` — confirm clean state.
+- `/atlas:core-status` — view the refreshed brain summary.
+- `/atlas:core-brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
+- `/atlas:core-brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

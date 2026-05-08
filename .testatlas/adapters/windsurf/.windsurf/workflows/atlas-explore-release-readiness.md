@@ -3,7 +3,7 @@ description: Map release artifacts, blockers, readiness state, version tags, and
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="1802fa707a19082cc75000a776446966f6448ba160429b6e9817eb05867a520a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="6511aa367ad69a7c5e69c9d3ac57923bb5806ea01f018a1bcc5f0379ff72fdd7" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -83,7 +83,7 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## Stop Conditions
 
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `shell` unavailable AND brain JSON files missing → halt.
 - Any captured artifact path fails to materialize on disk → halt.
 
@@ -98,6 +98,6 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 ## What's Next
 
 - **`/atlas:report`** — produce the full quality report tying readiness to coverage and quality.
-- **`/atlas:brain-export --mode archive`** — snapshot the brain alongside the release.
+- **`/atlas:core-brain-export --mode archive`** — snapshot the brain alongside the release.
 - (When ready) `node .testatlas/scripts/bump-version.js` — actually bump (manual step; this command does not auto-bump).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-cleanup. Invoke as /atlas-cleanup. Description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="e091a602e67f228b1bd225926e166b65f17603ee888492d59a08915009353743" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="6567248362e043c1d825fcb1442440915046a523efe2d67001e1ef3d9489342b" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-cleanup.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,6 +76,6 @@ Now that the workspace is tidy:
 
 - **`/atlas:update`** — pull the latest suite version on a clean tree
 - **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift
-- **`/atlas:brain-sync`** — re-index brain state after cleanup so brain reflects the cleaned workspace.
+- **`/atlas:core-brain-sync`** — re-index brain state after cleanup so brain reflects the cleaned workspace.
 - **`/atlas:maintain-validate-artifacts`** — V2 cleanup completion check; validates remaining artifacts are coherent.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

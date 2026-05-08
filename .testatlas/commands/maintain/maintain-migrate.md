@@ -113,7 +113,7 @@ produces a no-op success. Always safe to retry.
 
 ## Stop Conditions
 
-- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:init` first.
+- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:core-init` first.
 - V2 markers already present AND `--force` not passed → halt with `ALREADY_V2` (operator can re-run with `--force` for re-baseline).
 - Backup creation fails → halt with `BACKUP_FAILED` BEFORE any migration write.
 
@@ -125,6 +125,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-mi
 
 Now that the workspace has migrated to V2:
 
-- **`/atlas:brain-validate`** — confirm the migrated workspace's brain layer is intact.
-- **`/atlas:status`** — refresh the V2 status snapshot for the migrated workspace.
+- **`/atlas:core-brain-validate`** — confirm the migrated workspace's brain layer is intact.
+- **`/atlas:core-status`** — refresh the V2 status snapshot for the migrated workspace.
 - **`/atlas:explore`** — re-run exploration on the V2 layout.

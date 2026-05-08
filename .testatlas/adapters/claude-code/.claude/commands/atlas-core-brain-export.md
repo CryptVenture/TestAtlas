@@ -3,7 +3,7 @@ description: Export the V2 brain as a JSON dump, a graph snapshot, or a full arc
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="20e23c4ee1d0240662e476c99154e0d6f50fc5f77e4caf1e093e758b5b4a36d3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-export.md" hash="847a348671543892804d60583a287d074068975fbb766ca90a374b7a0ca26531" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-core-brain-export.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -46,7 +46,7 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 ## Stop Conditions
 
-- Brain validation finds errors → REFUSE to export until they are resolved (run `/atlas:brain-sync` then `/atlas:brain-validate`).
+- Brain validation finds errors → REFUSE to export until they are resolved (run `/atlas:core-brain-sync` then `/atlas:core-brain-validate`).
 - Output path already exists and `--force` not specified → halt to avoid overwrite.
 
 ## Completion Criteria
@@ -64,5 +64,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-expor
 
 - `--mode json` → feed the file into a dashboard; pair with **`/atlas:report-dashboard-data`** to refresh the canonical dashboard.
 - `--mode archive` → ship the directory to the next agent or back up off-repo; follow with **`/atlas:handoff`** to package the workspace.
-- After export, run **`/atlas:brain-sync`** to ensure the live brain stays in lockstep with what was exported.
+- After export, run **`/atlas:core-brain-sync`** to ensure the live brain stays in lockstep with what was exported.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

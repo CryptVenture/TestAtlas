@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-brain-compact. Invoke as /atlas-core-brain-compact. Description: Summarize long transcripts and run logs into durable summaries; keeps the brain compact without losing decisions or evidence. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-compact.md" hash="be7c7440388ef0601775e2610a6d67e90a4e2199860c935f97d27431fbdc50a3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-compact.md" hash="d718944c1ebeb66a2fddd886982836e90864c77ded332958d828d2abdec91362" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-core-brain-compact.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -56,6 +56,6 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-compa
 
 ## What's Next
 
-- `/atlas:brain-validate` — confirm post-compaction integrity.
-- `/atlas:brain-export` — archive the (now smaller) brain.
+- `/atlas:core-brain-validate` — confirm post-compaction integrity.
+- `/atlas:core-brain-export` — archive the (now smaller) brain.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

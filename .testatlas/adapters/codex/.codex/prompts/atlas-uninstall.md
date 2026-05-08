@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-uninstall. Invoke as /prompts:atlas-uninstall. Description: Remove the TestAtlas suite tree (`.testatlas/`) per the install manifest; with `--purge`, also remove the `_testatlas/` workspace. Operator-confirmed; never runs without explicit invocation. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/uninstall.md" hash="612b4b186a27d69bf47936d3bef5fd73dcfce7b453371b2a6a89b0b9d9ad57db" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/uninstall.md" hash="86af51f6a06669eaf2f7f0b70ab2db3239e8ce29e3b3a6e53575a527a3a50222" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-uninstall.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,7 +58,7 @@ When `--purge` IS used, no lifecycle updates are possible (workspace is gone). T
 
 The repo no longer contains TestAtlas. After re-running `npx @webventures/testatlas init`:
 
-- **`/atlas:init`** — recreate the `_testatlas/` workspace tree
+- **`/atlas:core-init`** — recreate the `_testatlas/` workspace tree
 - **`/atlas:bootstrap`** — reload the constitution after reinstall
 - **`/atlas:validate-workspace`** — confirm the freshly reinstalled tree is clean
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

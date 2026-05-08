@@ -94,7 +94,7 @@ Schema-validated against `.testatlas/schemas/dashboard_data.schema.json` (PRD §
 ## Downstream Consumption
 
 - **External dashboards** can poll `dashboard-data.json` directly and render quality state without parsing markdown reports.
-- **The optional static HTML report** (see `docs/static-html-report-spec.md`) is designed to consume this exact file.
+- **The optional static HTML report** (specification published in the suite repo's `docs/` tree) is designed to consume this exact file.
 - **CI** can post the file to a status check or upload it as a build artifact for retention.
 
 The contract is: a downstream consumer can render the full quality state from this single JSON file with zero additional brain reads.

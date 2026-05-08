@@ -85,7 +85,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/11_workspace_manifest.json` missing → halt; print `Workspace not initialized; run /atlas:init first.`
+- `_testatlas/11_workspace_manifest.json` missing → halt; print `Workspace not initialized; run /atlas:core-init first.`
 - More than 50 critical findings → halt; require operator review before continuing the session per `bootstrap.md` §24.
 - Schema files missing under `.testatlas/schemas/` → halt; the suite is corrupted and must be reinstalled.
 - Manifest fails its own schema validation → halt; refuse to validate downstream artifacts against a broken manifest.
@@ -106,5 +106,5 @@ Now that the workspace is validated:
 - **`/atlas:explore`** — proceed with discovery if validation passed clean
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
 - **`/atlas:update`** — refresh the suite if the report flagged a stale version
-- **`/atlas:brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
+- **`/atlas:core-brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
 - **`/atlas:maintain-migrate`** — if validation flags `schema_version: 1.x` on a V2 suite, run migration.

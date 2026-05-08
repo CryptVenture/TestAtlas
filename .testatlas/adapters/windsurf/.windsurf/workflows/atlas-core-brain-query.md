@@ -3,7 +3,7 @@ description: Answer a question about the workspace by reading brain JSON; cite f
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="a352252f738755c1de38ac435f40be80c3dd3c029d90fb14c451c2a137fec84e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-query.md" hash="d37c06a7142342658bfd5a8b52711397e4d4ec197c6bb6063b79ef144548a65c" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-brain-query.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -44,7 +44,7 @@ None required — all reads are local filesystem.
 
 ## Stop Conditions
 
-- Brain dir missing → halt with `Run /atlas:init first.`
+- Brain dir missing → halt with `Run /atlas:core-init first.`
 - Question is out of scope (e.g. "is this code production-ready?") → answer with caveats and refuse to invent.
 
 ## Completion Criteria
@@ -60,5 +60,5 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query
 ## What's Next
 
 - Question revealed a coverage gap → `/atlas:explore-<area>` for the missing area.
-- Question revealed stale data → `/atlas:brain-sync` then re-query.
+- Question revealed stale data → `/atlas:core-brain-sync` then re-query.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

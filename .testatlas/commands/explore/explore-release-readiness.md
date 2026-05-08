@@ -113,7 +113,7 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## Stop Conditions
 
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `shell` unavailable AND brain JSON files missing → halt.
 - Any captured artifact path fails to materialize on disk → halt.
 
@@ -128,5 +128,5 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 ## What's Next
 
 - **`/atlas:report`** — produce the full quality report tying readiness to coverage and quality.
-- **`/atlas:brain-export --mode archive`** — snapshot the brain alongside the release.
+- **`/atlas:core-brain-export --mode archive`** — snapshot the brain alongside the release.
 - (When ready) `node .testatlas/scripts/bump-version.js` — actually bump (manual step; this command does not auto-bump).

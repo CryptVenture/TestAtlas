@@ -79,7 +79,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 
 ## Stop Conditions
 
-- `_testatlas/brain/` missing → halt with `Run /atlas:init first.`
+- `_testatlas/brain/` missing → halt with `Run /atlas:core-init first.`
 - AJV validation fails after sync → halt; do not commit drift; surface findings verbatim.
 
 ## Completion Criteria
@@ -94,7 +94,7 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-sync 
 
 ## What's Next
 
-- `/atlas:brain-validate` — confirm clean state.
-- `/atlas:status` — view the refreshed brain summary.
-- `/atlas:brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
-- `/atlas:brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.
+- `/atlas:core-brain-validate` — confirm clean state.
+- `/atlas:core-status` — view the refreshed brain summary.
+- `/atlas:core-brain-compact` — distill long transcripts and run logs into durable summaries when the brain grows large.
+- `/atlas:core-brain-query` — answer a question about the workspace by reading the freshly-synced brain JSON.

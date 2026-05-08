@@ -4,7 +4,7 @@ description: Migrate a V1 TestAtlas workspace to V2 via `scripts/v2-migrate.js`.
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="e2dcab6408f1535d2c97ec82a1a26648df6510ef024039060fa5ac7e5f705348" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="b4f8d6b6c46ae06d7f7efad50f7ea249bda77bec3d9f501a0a41fc71cae87202" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-maintain-migrate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -86,7 +86,7 @@ produces a no-op success. Always safe to retry.
 
 ## Stop Conditions
 
-- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:init` first.
+- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:core-init` first.
 - V2 markers already present AND `--force` not passed → halt with `ALREADY_V2` (operator can re-run with `--force` for re-baseline).
 - Backup creation fails → halt with `BACKUP_FAILED` BEFORE any migration write.
 
@@ -98,7 +98,7 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-mi
 
 Now that the workspace has migrated to V2:
 
-- **`/atlas:brain-validate`** — confirm the migrated workspace's brain layer is intact.
-- **`/atlas:status`** — refresh the V2 status snapshot for the migrated workspace.
+- **`/atlas:core-brain-validate`** — confirm the migrated workspace's brain layer is intact.
+- **`/atlas:core-status`** — refresh the V2 status snapshot for the migrated workspace.
 - **`/atlas:explore`** — re-run exploration on the V2 layout.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

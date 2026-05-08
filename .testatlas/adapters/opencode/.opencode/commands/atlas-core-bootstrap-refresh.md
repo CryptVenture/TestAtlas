@@ -2,7 +2,7 @@
 description: Re-read the constitution, validate token budget, and refresh bootstrap shards so a long-running agent doesn't drift from the rules.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="f16a1a4c377b2dfd2d054c1bb144faa1964283735568d456760957e0ab35cd87" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/bootstrap-refresh.md" hash="e0d960b5bb441ee1b68c8f5422006ef22fae6b3a02472aa75d74b1aa3b26ba81" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-core-bootstrap-refresh.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,6 +58,6 @@ Call `node .testatlas/scripts/update-brain-after-command.js --command bootstrap-
 
 ## What's Next
 
-- `/atlas:status` — confirm the workspace is in the expected state.
-- `/atlas:brain-validate` — verify brain integrity if you suspect drift.
+- `/atlas:core-status` — confirm the workspace is in the expected state.
+- `/atlas:core-brain-validate` — verify brain integrity if you suspect drift.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

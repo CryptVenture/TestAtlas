@@ -108,7 +108,7 @@ When `shell` is available, the suite ships idempotent, schema-validating acceler
 
 | Command | Accelerator | Effect |
 |---------|-------------|--------|
-| `/atlas:init` | `init-workspace.js` | Bootstrap `_testatlas/` tree + manifest |
+| `/atlas:core-init` | `init-workspace.js` | Bootstrap `_testatlas/` tree + manifest |
 | `/atlas:log-issue` | `create-issue.js` | Emit `to_fix/ISSUE-*.{md,json}` (refuses empty evidence) |
 | `/atlas:plan` | `create-flow.js` | Emit `flows/FLOW-*.{md,json}` |
 | `/atlas:test-flow` | `create-evidence-record.js` | Emit `evidence/EVIDENCE-*/evidence.{md,json}` |
@@ -151,8 +151,8 @@ The agent emits a one-sentence confirmation that all 24 PRD §9 sections of `.te
 
 Now that the constitution is reloaded:
 
-- **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
+- **`/atlas:core-init`** — bootstrap the workspace if `_testatlas/` is missing or partial
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
-- **`/atlas:brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
-- **`/atlas:status`** — V2 status snapshot of the freshly bootstrapped workspace.
-- **`/atlas:bootstrap-refresh`** — long-running session shard refresh (V2 token-budget audit + bootstrap-shard regeneration).
+- **`/atlas:core-brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
+- **`/atlas:core-status`** — V2 status snapshot of the freshly bootstrapped workspace.
+- **`/atlas:core-bootstrap-refresh`** — long-running session shard refresh (V2 token-budget audit + bootstrap-shard regeneration).

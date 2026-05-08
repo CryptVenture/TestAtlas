@@ -71,7 +71,7 @@ None required — all reads are local filesystem.
 
 ## Stop Conditions
 
-- Brain dir missing → halt with `Run /atlas:init first.`
+- Brain dir missing → halt with `Run /atlas:core-init first.`
 - Question is out of scope (e.g. "is this code production-ready?") → answer with caveats and refuse to invent.
 
 ## Completion Criteria
@@ -87,4 +87,4 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-query
 ## What's Next
 
 - Question revealed a coverage gap → `/atlas:explore-<area>` for the missing area.
-- Question revealed stale data → `/atlas:brain-sync` then re-query.
+- Question revealed stale data → `/atlas:core-brain-sync` then re-query.

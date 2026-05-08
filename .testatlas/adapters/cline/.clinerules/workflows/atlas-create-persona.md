@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-create-persona. Invoke as /atlas-create-persona.md. Description: Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/create-persona.md" hash="45b6ac8675133433ac9fa0751c0a9aa1616d9264e0773275cbca1efdd2dc4c4b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/create-persona.md" hash="cae6e6ffa022e0c6cd2b6f8e0c2f941c9d148e28c1aaacbbbf78ef8892ce460b" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-create-persona.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -57,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `--name`, `--type`, or `--mission` missing → halt; the script refuses with `TESTATLAS_INVALID_ARGS`.
 - `--type` not one of `system | generated | project` → halt; the schema enum rejects.
 - Persona record fails schema validation → halt; surface AJV errors verbatim. Do NOT write a malformed persona.
-- `_testatlas/brain/` not initialized → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `safeMode: true` AND a step would mutate target-repo source files → halt; only `_testatlas/` is writable.
 
 ## Completion Criteria
@@ -71,6 +71,6 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## What's Next
 
 - **`/atlas:council`** — invoke a council session that includes the new persona (route via the dispatcher to a sub-command matching the persona's expertise).
-- **`/atlas:brain-sync`** — refresh the brain so subsequent commands see the new persona.
-- **`/atlas:status`** — confirm the workspace recognizes the new persona.
+- **`/atlas:core-brain-sync`** — refresh the brain so subsequent commands see the new persona.
+- **`/atlas:core-status`** — confirm the workspace recognizes the new persona.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

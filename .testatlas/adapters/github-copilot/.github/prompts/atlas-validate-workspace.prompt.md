@@ -3,7 +3,7 @@ mode: agent
 description: Schema-validate the _testatlas/ workspace; surface drift, broken links, orphaned evidence, and other PRD §33 violations as findings.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="892068b08287ec92d98512477f8f9a26c109883030ad66fa3ba2df239d9be0bb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="a6888e376673429d0bc025a41fd2bf83d204cd8879dd7dde612a7b202c1961db" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-validate-workspace.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -59,7 +59,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/11_workspace_manifest.json` missing → halt; print `Workspace not initialized; run /atlas:init first.`
+- `_testatlas/11_workspace_manifest.json` missing → halt; print `Workspace not initialized; run /atlas:core-init first.`
 - More than 50 critical findings → halt; require operator review before continuing the session per `bootstrap.md` §24.
 - Schema files missing under `.testatlas/schemas/` → halt; the suite is corrupted and must be reinstalled.
 - Manifest fails its own schema validation → halt; refuse to validate downstream artifacts against a broken manifest.
@@ -80,6 +80,6 @@ Now that the workspace is validated:
 - **`/atlas:explore`** — proceed with discovery if validation passed clean
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift
 - **`/atlas:update`** — refresh the suite if the report flagged a stale version
-- **`/atlas:brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
+- **`/atlas:core-brain-validate`** — V2 brain-layer validation that complements V1 schema validation.
 - **`/atlas:maintain-migrate`** — if validation flags `schema_version: 1.x` on a V2 suite, run migration.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

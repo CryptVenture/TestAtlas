@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-status. Invoke as /atlas-core-status. Description: Summarize the current TestAtlas workspace — phase, counts, blockers, stale areas — by reading the V2 brain state. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="fa02bd0d8b1472be24c180f18202cc96a2a9c812a609fec56d4275450b1f696e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="e25e40d42cbcf357b7f0cbce2723415fb2cfa5020a9001a5ecf096bd4a4be8ed" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-core-status.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -17,7 +17,7 @@ Render a concise, evidence-backed status report of the V2 brain so the next agen
 
 ## Required Actions
 
-1. Load `_testatlas/brain/state.json`. If missing → halt with `Run /atlas:init first.`
+1. Load `_testatlas/brain/state.json`. If missing → halt with `Run /atlas:core-init first.`
 2. Print:
    - Project name + active environment
    - Current phase + last command + last updated timestamp
@@ -59,7 +59,7 @@ After the status block is rendered, call `node .testatlas/scripts/update-brain-a
 
 ## What's Next
 
-- `/atlas:brain-validate` — verify brain integrity if anything looked off.
+- `/atlas:core-brain-validate` — verify brain integrity if anything looked off.
 - `/atlas:explore` — start mapping the product if domains/flows are empty.
 - `/atlas:report` — produce a full report when counts are non-zero.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

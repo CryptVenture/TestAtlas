@@ -97,7 +97,7 @@ Every dispatched session emits: a final summary, accepted findings, rejected fin
 
 - Operator did not provide a topic → halt with question.
 - Chosen mode not one of the 9 PRD §7.9 modes → halt with mode menu.
-- `_testatlas/brain/agent_sessions.json` missing → halt: "Run `/atlas:init --mode upgrade` first."
+- `_testatlas/brain/agent_sessions.json` missing → halt: "Run `/atlas:core-init --mode upgrade` first."
 
 ## Completion Criteria
 
