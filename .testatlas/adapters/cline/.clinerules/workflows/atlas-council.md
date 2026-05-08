@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council. Invoke as /atlas-council.md. Description: Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="7795eeaeac3a3c30288d24a904698d2760d6ad3b8e4b98eb39f5e0ec80c60f4c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="c9b13d6b2158808d6a9f95880a2169798bc75768d02c8f8c725190884467eabd" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -89,5 +89,5 @@ Council is a dispatcher; pick the appropriate sub-command:
 - **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested.
 - **`/atlas:council-brain-audit`** — audit the brain layer's signals (drift, scores, graph) via council.
 
-Each sub-command embeds the 9-round protocol, the PRD §12.5 disagreement classification, the +2 / -2 voting scale, and the consolidation requirement described in this dispatcher. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:brain-validate` to confirm the council's brain updates.
+Each sub-command embeds the 9-round protocol, the PRD §12.5 disagreement classification, the +2 / -2 voting scale, and the consolidation requirement described in this dispatcher. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:core-brain-validate` to confirm the council's brain updates.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

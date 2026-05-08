@@ -3,7 +3,7 @@ description: Roundtable review of a domain — every persona reads the domain's 
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="1a90d394757003f778a88a0f9e3ca83d480794ef38162ce0059911ca29e1d911" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="284aba05f38dad00095df0aba1cb96ae13f4999512c8c78a65aad2d45902f555" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,6 +79,6 @@ Every council session produces:
 ## What's Next
 
 - `/atlas:report` to refresh the latest quality report.
-- `/atlas:brain-validate` to confirm consolidation produced valid brain state.
+- `/atlas:core-brain-validate` to confirm consolidation produced valid brain state.
 - If disputed claims remain, queue a `/atlas:council-red-team` to challenge them.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

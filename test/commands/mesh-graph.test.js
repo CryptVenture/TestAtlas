@@ -28,6 +28,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { commandBaseNameFromSource } from '../../scripts/lib/adapters/_shared.js';
 import { listCommandFiles } from '../../scripts/lib/list-command-files.js';
 import { extractFrontmatter } from '../../scripts/lib/parse-frontmatter.js';
 
@@ -86,11 +87,23 @@ async function loadCommandGraph(cwd = process.cwd()) {
       // Malformed frontmatter is a different defect class; skip here.
       continue;
     }
-    const slug = `atlas-${path.basename(absPath, '.md')}`;
+    // Each source file is reachable via TWO slug forms:
+    //   - flat: atlas-<basename>           (V1-style / muscle-memory in body refs)
+    //   - rendered: atlas-<categoryAware>  (Phase 16 flatten-at-render: what the
+    //     installer actually emits as the slash slot name)
+    // For categorized V2 commands these differ (e.g. core/brain-validate.md →
+    // flat atlas-brain-validate / rendered atlas-core-brain-validate). For flat
+    // V1 commands and category-collapsed cases (council/council.md, files whose
+    // basename already starts with the category) the two collapse to the same
+    // string. Both refs route to the same source file, so register both.
+    const flatSlug = `atlas-${path.basename(absPath, '.md')}`;
+    const renderedSlug = `atlas-${commandBaseNameFromSource(absPath)}`;
     const rel = path.relative(cwd, absPath);
-    files.push({ absPath, rel, slug, body });
-    if (!slugToFiles.has(slug)) slugToFiles.set(slug, []);
-    slugToFiles.get(slug).push(rel);
+    files.push({ absPath, rel, slug: flatSlug, renderedSlug, body });
+    for (const slug of new Set([flatSlug, renderedSlug])) {
+      if (!slugToFiles.has(slug)) slugToFiles.set(slug, []);
+      if (!slugToFiles.get(slug).includes(rel)) slugToFiles.get(slug).push(rel);
+    }
   }
 
   return { files, slugToFiles };
@@ -146,19 +159,33 @@ function extractWhatsNextSection(body) {
 test('REVIEW-INV-C orphans: every non-root command slug has inbound /atlas: links', async () => {
   const { files } = await loadCommandGraph();
   const inbound = new Map();
-  for (const f of files) inbound.set(f.slug, 0);
+  // Map every alias slug (flat + rendered) to its file's canonical (flat) slug
+  // so refs using either form route to the same inbound counter. Without this
+  // alias map, a ref via the rendered form (e.g. /atlas:core-brain-validate)
+  // would land in a separate slug entry from the flat form, causing a false
+  // orphan flag for the file's flat slug.
+  const aliasToCanonical = new Map();
+  for (const f of files) {
+    inbound.set(f.slug, 0);
+    aliasToCanonical.set(f.slug, f.slug);
+    if (f.renderedSlug && f.renderedSlug !== f.slug) {
+      aliasToCanonical.set(f.renderedSlug, f.slug);
+    }
+  }
 
   for (const f of files) {
     const refs = extractAtlasRefs(f.body);
     const seenInThisFile = new Set();
     for (const r of refs) {
+      // Resolve any alias to the canonical (flat) slug for inbound accounting.
+      const canonical = aliasToCanonical.get(r.target) ?? r.target;
       // Don't count self-references; don't double-count multiple references
       // from the same source file (one inbound edge per source).
-      if (r.target === f.slug) continue;
-      if (seenInThisFile.has(r.target)) continue;
-      seenInThisFile.add(r.target);
-      if (inbound.has(r.target)) {
-        inbound.set(r.target, inbound.get(r.target) + 1);
+      if (canonical === f.slug) continue;
+      if (seenInThisFile.has(canonical)) continue;
+      seenInThisFile.add(canonical);
+      if (inbound.has(canonical)) {
+        inbound.set(canonical, inbound.get(canonical) + 1);
       }
     }
   }
@@ -211,6 +238,11 @@ test("REVIEW-INV-C dead-ends: every source file has a What's Next section with /
 
 test('REVIEW-INV-C broken-refs: every /atlas: reference targets an existing source slug', async () => {
   const { files, slugToFiles } = await loadCommandGraph();
+  // `slugToFiles` already registers BOTH the flat and category-aware
+  // (rendered) forms for every source file (see loadCommandGraph), so a ref
+  // is valid if either form resolves. This accommodates V1 muscle-memory
+  // (`/atlas:brain-validate`) plus the post-Phase-16 rendered form
+  // (`/atlas:core-brain-validate`) — both route to the same source file.
   const validSlugs = new Set(slugToFiles.keys());
 
   /** @type {Array<{ source: string, target: string, snippet: string }>} */

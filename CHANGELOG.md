@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Fixed (post-Phase-19 dogfood round 3)
+
+- **ISSUE-016 — Council commands referenced non-existent slash slots.** Five source command bodies under `.testatlas/commands/council/` invoked four broken `/atlas:*` references that would fail at runtime in any installed adapter:
+  - `council-design-critique.md:95` — `/atlas:explore ui` → `/atlas:explore-ui` (space-syntax was dropped at the regex boundary; the rendered slot is hyphen-joined).
+  - `council-brain-audit.md:106` — `/atlas:brain-validate` → `/atlas:core-brain-validate`.
+  - `council-brain-audit.md:107` — `/atlas:brain-sync` → `/atlas:core-brain-sync`.
+  - `council-retest.md:96` — `/atlas:generate-retest-pack` → `/atlas:test-generate-retest-pack`.
+  - `council-domain-review.md:112` — `/atlas:brain-validate` → `/atlas:core-brain-validate`.
+  - `council.md:123` — `/atlas:brain-validate` → `/atlas:core-brain-validate`.
+  Per Phase 16 flatten-at-render, the installer emits `atlas-<category>-<basename>` for V2 categorized commands (unless the basename already starts with the category, e.g. `council/council-*` collapses). The corrected forms now route to the same source files via the post-Phase-16 rendered slot names.
+- **ISSUE-015 — Skeleton template names didn't match the doc placeholder pattern.** `.testatlas/commands/test/generate-automation.md` instructs the agent to read `.testatlas/templates/markdown/<framework>-skeleton.md` for the chosen framework. Templates were inconsistent: `playwright-skeleton.md` and `cypress-skeleton.md` matched the placeholder, but `api-test-skeleton.md`, `cli-test-skeleton.md`, `contract-test-skeleton.md`, and `smoke-test-skeleton.md` carried a `-test-` infix the placeholder didn't capture. Renamed the four files so all six follow the `<framework>-skeleton.md` convention. Verified zero references to the old names anywhere in source / scripts / tests; the only remaining mention is the historical Phase 14 narrative in this file.
+- **mesh-graph + cross-reference-integrity tests extended for category-aware naming.** `test/commands/mesh-graph.test.js` and `test/agentic/cross-reference-integrity.test.js` previously registered each source file under its flat `path.basename(file, '.md')` only — leaving the post-Phase-16 rendered slot names (`atlas-core-brain-validate` etc.) silently invisible to the broken-ref invariant. Both tests now register BOTH the flat form (V1 muscle-memory) and the category-aware rendered form (Phase 16: `commandBaseNameFromSource`). `slugToFiles` deduplicates per-file; orphan inbound counter aliases all targets to the canonical (flat) slug so refs via either form contribute to the same file. Catches dogfood-style category-prefix mismatches without flagging V1-style refs.
+
+#### Verdicts on companion items from the same dogfood round
+
+- **ISSUE-014** — false positive. The dogfood report claimed `.testatlas/commands/core/init.md` Outputs section lists `01_product_understanding.md` and `02_personas.md`. Source verification: `grep -rn "01_product_understanding\\|02_personas" .testatlas/` returns zero hits across source AND `/root/tmpv2/`. The actual init.md Outputs section names no specific filenames at all — just the directory tree, file count by category, and the manifest paths. No source change.
+- **Already-fixed in prior rounds:** ISSUE-002 (Phase 18 / Plan 18-09 adapter regen) and ISSUE-013 (Phase 18 / Plan 18-06 matrix-id lint). Both confirmed RESOLVED upstream.
+- **Halted/partial dogfood results** (`explore-performance`, `explore-state`, `explore-accessibility`, `test-performance`, `test-accessibility`) are expected per command bodies — they require a populated `12_app_map.json` and `prd/prd.md` which the dogfood subject doesn't ship. Not regressions.
+
 ### Fixed (post-Phase-19 dogfood round 2 — NEW-003)
 
 - **`generate-report.js` flag mismatch in two release-readiness command bodies (NEW-003 from `/root/tmpv2/logs/testatlas-open-issues.md` round 2).** `.testatlas/commands/council/council-release-readiness.md:66` and `.testatlas/commands/explore/explore-release-readiness.md:83` invoked the report renderer with `--type release-readiness --output …`, but Phase 18 / Plan 18-04 implemented the flag as `--kind`, and the script's CLI parser exposes the output path as `--report-path` (not `--output`). Both flags rejected with `process.exit(2)` on invocation. Replaced with the canonical forms (`--kind release-readiness --report-path=…`) in both source command bodies; regenerated all 18 adapter trees; `check-adapter-parity --strict` 1314/1314 GREEN. Phase 17 + 18 invariants stay GREEN.

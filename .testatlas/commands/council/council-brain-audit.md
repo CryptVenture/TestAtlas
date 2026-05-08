@@ -103,6 +103,6 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:brain-validate` to confirm post-audit brain integrity.
-- `/atlas:brain-sync` to apply markdown↔JSON sync fixes.
+- `/atlas:core-brain-validate` to confirm post-audit brain integrity.
+- `/atlas:core-brain-sync` to apply markdown↔JSON sync fixes.
 - If many drift findings, schedule `/atlas:council-retest` for affected issues.

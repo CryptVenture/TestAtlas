@@ -92,7 +92,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 ## Stop Conditions
 
 - Target flow not specified → halt with question.
-- No UI evidence captured AND browser+MCP capabilities unavailable → halt: "Run `/atlas:explore ui` first or grant browser+MCP."
+- No UI evidence captured AND browser+MCP capabilities unavailable → halt: "Run `/atlas:explore-ui` first or grant browser+MCP."
 - Fewer than 2 participants → halt.
 
 ## Completion Criteria

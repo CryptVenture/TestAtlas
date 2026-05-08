@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="8e2645718f83730599aa95a43e3acad97ea9423cae781238b40364035fd2fd1d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="53fc8612e5493b3a1cb53fd0df9a7921f2425bbe30390f744d4bd3680b208751" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -80,7 +80,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
 ## What's Next
 
-- `/atlas:brain-validate` to confirm post-audit brain integrity.
-- `/atlas:brain-sync` to apply markdown↔JSON sync fixes.
+- `/atlas:core-brain-validate` to confirm post-audit brain integrity.
+- `/atlas:core-brain-sync` to apply markdown↔JSON sync fixes.
 - If many drift findings, schedule `/atlas:council-retest` for affected issues.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

@@ -120,4 +120,4 @@ Council is a dispatcher; pick the appropriate sub-command:
 - **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested.
 - **`/atlas:council-brain-audit`** — audit the brain layer's signals (drift, scores, graph) via council.
 
-Each sub-command embeds the 9-round protocol, the PRD §12.5 disagreement classification, the +2 / -2 voting scale, and the consolidation requirement described in this dispatcher. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:brain-validate` to confirm the council's brain updates.
+Each sub-command embeds the 9-round protocol, the PRD §12.5 disagreement classification, the +2 / -2 voting scale, and the consolidation requirement described in this dispatcher. After the sub-command finishes, run `/atlas:report` for an updated quality report or `/atlas:core-brain-validate` to confirm the council's brain updates.

@@ -92,9 +92,17 @@ test('every /atlas:<name> reference resolves to a real command file', async () =
   );
   const flat = await listCommandFiles({ cwd: REPO_ROOT });
   const categorized = await listCategorizedCommandFiles({ cwd: REPO_ROOT });
+  // Per Phase 16 flatten-at-render: categorized commands install as
+  // `atlas-<category>-<basename>` slots (unless the basename already starts
+  // with the category, e.g. council/council-foo → atlas-council-foo). Source
+  // body refs may use either the bare basename (V1 muscle-memory) or the
+  // category-prefixed rendered form. Both must resolve.
   const validNames = new Set([
     ...flat.map((p) => path.basename(p, '.md')),
     ...categorized.map((c) => c.basename),
+    ...categorized
+      .filter((c) => c.basename !== c.category && !c.basename.startsWith(`${c.category}-`))
+      .map((c) => `${c.category}-${c.basename}`),
   ]);
 
   const files = await collectMdFiles();

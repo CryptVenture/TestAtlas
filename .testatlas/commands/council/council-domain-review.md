@@ -109,5 +109,5 @@ Every council session produces:
 ## What's Next
 
 - `/atlas:report` to refresh the latest quality report.
-- `/atlas:brain-validate` to confirm consolidation produced valid brain state.
+- `/atlas:core-brain-validate` to confirm consolidation produced valid brain state.
 - If disputed claims remain, queue a `/atlas:council-red-team` to challenge them.

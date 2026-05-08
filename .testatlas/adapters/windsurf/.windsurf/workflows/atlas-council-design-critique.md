@@ -3,7 +3,7 @@ description: Design Critique — Product Strategist, User Advocate, and Accessib
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="a967dc04f70c7c0d34af81174f6244fbe72b9fbf52100d70057ada464331c21c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="de9334eeecc3ddc5600eb09ff5590596f81f3b68f476c89fa8fcb895befe47a2" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -62,7 +62,7 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 ## Stop Conditions
 
 - Target flow not specified → halt with question.
-- No UI evidence captured AND browser+MCP capabilities unavailable → halt: "Run `/atlas:explore ui` first or grant browser+MCP."
+- No UI evidence captured AND browser+MCP capabilities unavailable → halt: "Run `/atlas:explore-ui` first or grant browser+MCP."
 - Fewer than 2 participants → halt.
 
 ## Completion Criteria
