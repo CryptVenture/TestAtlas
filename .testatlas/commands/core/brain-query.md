@@ -80,7 +80,7 @@ None required — all reads are local filesystem.
 - Lifecycle artifacts updated.
 - A `command_completed` event recorded in `events.jsonl`.
 
-## Post-Operation Brain Update
+## Lifecycle
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-query --actor agent --summary "Q: <question summary>"`. This appends a `command_completed` event so future agents see what was asked — useful for spotting repeated questions and gaps in coverage.
 

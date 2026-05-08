@@ -83,7 +83,7 @@ This command requires only `file-write`. No degradation needed.
 - The 5 lifecycle artifacts updated.
 - An `EVENT-N` of type `command_completed` is appended to `_testatlas/brain/events.jsonl`.
 
-## Post-Operation Brain Update
+## Lifecycle
 
 After the status block is rendered, call `node .testatlas/scripts/update-brain-after-command.js --command core-status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
 
