@@ -41,7 +41,7 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy — snake_case union per `.testatlas/schemas/vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md` — list of system personas + recommended slates per mode.
 - `_testatlas/brain/state.json` — current phase, counts, last-command.
 
@@ -75,7 +75,7 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
 
 ## 9-Round Protocol (Reminder)
 
-Every dispatched sub-command follows the PRD §12.4 9-round protocol: context-read → independent-review → initial findings → cross-question → disagreement capture → rebuttal or evidence-request → vote / confidence-rating → consolidation → canonical-update. Disagreements are classified per PRD §12.5 (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation). Full protocol: `.testatlas/reference/council-protocol.md`.
+Every dispatched sub-command follows the PRD §12.4 9-round protocol: context-read → independent-review → initial findings → cross-question → disagreement capture → rebuttal or evidence-request → vote / confidence-rating → consolidation → canonical-update. Disagreements are classified per PRD §12.5 using the snake_case union from `vocabulary.schema.json#/$defs/disagreement_type` (factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy). Full protocol: `.testatlas/reference/council-protocol.md`.
 
 ## Voting Scale Reminder
 
