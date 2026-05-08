@@ -38,7 +38,7 @@ If there is a conflict:
 
 ## Purpose
 
-Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.json` per PRD §26.7 — a Chrome DevTools MCP-driven audit that asserts each scenario against PRD §13.9 thresholds (lighthouse accessibility category score, presence/absence of critical violations, keyboard-traversal completeness, ARIA correctness, contrast minimums). Output is a `_testatlas/runs/RUN-<timestamp>.{md,json}` pair tagged `type: "accessibility"` (the JSON validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/` (lighthouse JSON, ARIA inventories, focus-order trails, contrast samples, screenshots). Every claim about a11y behaviour MUST be backed by evidence captured first; degrading without MCP/browser MUST mark findings `confidence: needs-validation`.
+Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.json` per PRD §26.7 — a Chrome DevTools MCP-driven audit that asserts each scenario against PRD §13.9 thresholds (lighthouse accessibility category score, presence/absence of critical violations, keyboard-traversal completeness, ARIA correctness, contrast minimums). Output is a `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` pair tagged `type: "accessibility"` (the JSON validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/` (lighthouse JSON, ARIA inventories, focus-order trails, contrast samples, screenshots). Every claim about a11y behaviour MUST be backed by evidence captured first; degrading without MCP/browser MUST mark findings `confidence: needs-validation`.
 
 ## Required First Reads
 
@@ -75,13 +75,13 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
    f. Capture `list_console_messages` output as `console.log.txt`.
    g. Save all evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/`.
 7. **Threshold assertion.** Compare the captured evidence against the scenario's expected thresholds (e.g. `lighthouse.score >= 90`, `criticalViolations === 0`, `focusOrderComplete === true`, `noUnlabeledControls === true`, `minContrastRatio >= 4.5`). Status is `passed` / `failed` / `skipped` / `blocked`. Each per-result `confidence` per `bootstrap.md` §8.
-8. Write `_testatlas/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/runs/RUN-<timestamp>.json` with `type: "accessibility"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
+8. Write `_testatlas/tests/runs/RUN-<timestamp>.md` (human narrative — one section per scenario) and `_testatlas/tests/runs/RUN-<timestamp>.json` with `type: "accessibility"`. Include a top-level summary: total / passed / failed / skipped / blocked, capabilities used, capabilities unavailable, environment fingerprint.
 9. Validate the produced RUN JSON against `test-run.schema.json` before commit. Halt if validation fails.
 10. Close the lifecycle (next section).
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.md` and `_testatlas/runs/RUN-<timestamp>.json` — accessibility-typed run record with per-scenario results, threshold assertions, and evidence paths.
+- `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — accessibility-typed run record with per-scenario results, threshold assertions, and evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/accessibility/` — lighthouse JSON, ARIA inventory, focus-order trail, contrast samples, console capture, screenshots.
 
 ## Lifecycle

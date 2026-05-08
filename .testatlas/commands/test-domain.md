@@ -39,7 +39,7 @@ If there is a conflict:
 
 ## Purpose
 
-Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against the running target product across four PRD §26 modes: **negative** (§26.5), **state** (§26.6), **integration** (§26.9), and **setup-testability** (§26.10). Smoke / user-flow / exploratory belong to `/atlas:test-flow`; accessibility and performance belong to `/atlas:test-accessibility` and `/atlas:test-performance`. The scenario's `type` field selects the mode. Output is `_testatlas/runs/RUN-<timestamp>.{md,json}` (validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/`. High fabrication-risk surface — every claim MUST cite evidence captured first.
+Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against the running target product across four PRD §26 modes: **negative** (§26.5), **state** (§26.6), **integration** (§26.9), and **setup-testability** (§26.10). Smoke / user-flow / exploratory belong to `/atlas:test-flow`; accessibility and performance belong to `/atlas:test-accessibility` and `/atlas:test-performance`. The scenario's `type` field selects the mode. Output is `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` (validates against `test-run.schema.json`) plus per-scenario evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/`. High fabrication-risk surface — every claim MUST cite evidence captured first.
 
 ### Mode discoverability
 
@@ -80,7 +80,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
    - **`setup-testability`** — exercise install/seed/migrate/configure paths the next agent needs to reproduce results. Capture before-state, command run, after-state, side-effect inventory. Passes when after-state matches expected post-condition.
 6. Capture evidence under `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` BEFORE any pass/fail/skipped/blocked claim. Use stable, self-describing names (`request.json`, `response.json`, `state-empty.png`, `before.json`, `after.json`, `console.log.txt`). Apply TEST-03 redaction per `evidence.schema.json` — strip secrets, tokens, PII before persisting.
 7. Record per-scenario: id, name, `type` (one of `negative` | `state` | `integration` | `setup-testability`), status (`passed`/`failed`/`skipped`/`blocked`), evidence paths, observed vs expected, deltas, and `confidence` per `bootstrap.md` §8.
-8. Write `_testatlas/runs/RUN-<timestamp>.{md,json}` (the JSON validates against `test-run.schema.json`). Include top-level summary: total / passed / failed / skipped / blocked, per-mode counts, capabilities used, capabilities unavailable, environment fingerprint.
+8. Write `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` (the JSON validates against `test-run.schema.json`). Include top-level summary: total / passed / failed / skipped / blocked, per-mode counts, capabilities used, capabilities unavailable, environment fingerprint.
 9. Validate RUN JSON against `test-run.schema.json` before commit. Halt on validation failure.
 10. Update flow confidence per outcome — passes climb; failures/skips drop and flag for next plan cycle.
 11. Close the lifecycle (next section).
@@ -91,7 +91,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 
 ## Outputs
 
-- `_testatlas/runs/RUN-<timestamp>.{md,json}` — schema-valid run record with per-scenario results, mode tags, evidence paths.
+- `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` — schema-valid run record with per-scenario results, mode tags, evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` — captured request/response/state/before-after evidence.
 - Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched.
 
@@ -119,7 +119,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 
 ## Completion Criteria
 
-- At least one `_testatlas/runs/RUN-<timestamp>.{md,json}` pair exists, or unambiguous zero justification recorded in the summary.
+- At least one `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` pair exists, or unambiguous zero justification recorded in the summary.
 - Every result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
 - Every result's `type` is one of `negative` / `state` / `integration` / `setup-testability`.
 - RUN JSON validates against `test-run.schema.json`.

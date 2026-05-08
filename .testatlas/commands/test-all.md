@@ -94,7 +94,7 @@ Spawn-and-aggregate orchestrator. When the host declares `subagent-spawn`, the u
 ## Outputs
 
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — merged run record with per-scenario results from BOTH children, executionMode metadata, and a `children:` sub-object.
-- Per-child RUN pairs survive at their authored locations (test-flow → `_testatlas/tests/runs/`; test-domain → `_testatlas/runs/`).
+- Per-child RUN pairs survive at their authored locations under `_testatlas/tests/runs/`. All test-* runners write to `_testatlas/tests/runs/RUN-<ts>` — there is no per-runner output-path split.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/` — owned by the executing child.
 - Optional `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` — aggregate issue candidates, deduped.
 - Updated flow + domain confidence for every flow/domain touched.
