@@ -121,6 +121,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
 
+## Completion Criteria
+
+- All `_testatlas/tests/scenarios/TEST-<flow-slug>-generated.{md,json}` pairs for in-scope flows exist on disk (per Required Actions).
+- Every produced JSON sidecar validates against `test-scenario.schema.json` and carries `status: "generated-not-yet-validated"`.
+- `_testatlas/09_artifact_index.md` lists every newly emitted scenario pair.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`FLOWS_MISSING`, flow JSON parse failure, AJV schema-validation failure all clear; capability gaps logged with `confidence: needs_validation`, no fabrication).
+
 ## What's Next
 
 Now that scenarios are generated:
