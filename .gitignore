@@ -57,4 +57,15 @@ CLAUDE.md
 AGENTS.md
 tmp-test-v2-migration/
 tmp/
-.claude
+.claude/
+.cursor/
+.opencode/
+.kilocode/
+.aider/
+.windsurf/
+.continue/
+.cline/
+.codex/
+.gemini/
+.roo/
+.kiro/
