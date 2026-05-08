@@ -172,6 +172,13 @@ async function extractSupportedFlags(scriptPath) {
   }
   // 3. a === '--foo'  /  argv.includes('--foo')  /  a.startsWith('--foo=')
   for (const m of src.matchAll(/['"`](--[\w-]+)['"`]/g)) flags.add(m[1]);
+  // 4. commander: .option('--foo <bar>', ...) / .option('--foo, -f <bar>', ...)
+  //    The literal contains a space + placeholder, so step 3's strict
+  //    `'--foo'` form misses it. Catch the bare flag inside the literal.
+  for (const m of src.matchAll(/\.option\s*\(\s*['"`]([^'"`]+)['"`]/g)) {
+    const spec = m[1]; // e.g. "--target <dir>" or "-f, --foo <bar>"
+    for (const f of spec.matchAll(/(--[\w-]+)/g)) flags.add(f[1]);
+  }
 
   if (flags.size === 0) return 'cannot-introspect';
   return flags;

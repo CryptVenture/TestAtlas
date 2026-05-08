@@ -46,7 +46,7 @@ Run a Brain Audit Council (PRD §7.9) after large runs, before final reports, or
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/drift.json`
 - `_testatlas/09_artifact_index.md`, `_testatlas/00_overview.md`
-- Output of `node .testatlas/scripts/validate-brain.js` and `node .testatlas/scripts/sync-markdown-json.js --check`
+- Output of `node .testatlas/scripts/validate-brain.js` and `node .testatlas/scripts/sync-markdown-json.js --dry-run`
 
 ## Participant Selection
 
