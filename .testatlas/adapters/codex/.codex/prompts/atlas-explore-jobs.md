@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-jobs. Invoke as /prompts:atlas-explore-jobs. Description: Map background jobs, schedules, queues, retry policies, timeouts, and failure scenarios; observable via shell + log inspection; degrade to code-reading when shell unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="72f1c45ea9c90e38134570e69b7eee59917157f66b72ddaad60c34bf6f94bf19" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="ee3edb76f8f7a4dcbdd033cb2e8706f63588bca92a10ea0f2313bf198cb1f4d0" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-jobs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,7 +19,7 @@ Map every background job, scheduled task, queue worker, cron, and serverless tri
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8.
 
-2. **Capability check.** Requires `shell` (for invoking job runners, reading queue tooling like `bullmq`, `sidekiq`, `celery`, `pg-boss`, `cloud Scheduler`, etc.). If `shell` unavailable, degrade to code reading: parse job-definition source files referenced by `12_app_map.json.jobs[].source`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`. Never invent retry counts, queue depths, or timing data.
+2. **Capability check.** Requires `shell` (for invoking job runners, reading queue tooling like `bullmq`, `sidekiq`, `celery`, `pg-boss`, `Cloud Scheduler`, etc.). If `shell` unavailable, degrade to code reading: parse job-definition source files referenced by `12_app_map.json.jobs[].source`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`. Never invent retry counts, queue depths, or timing data.
 
 3. **Source enumeration.** For each job in `12_app_map.json.jobs[]`:
    - Open the source file referenced by `source.file`.

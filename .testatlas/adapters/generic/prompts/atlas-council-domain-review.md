@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-domain-review. Paste .testatlas/bootstrap.md first; description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="490b7f3d4ceb936f27cc4c22b026647d08e9d8f16e40b1298ac46e2a2efcdd57" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="70154a85fd048538ee5a798b441dede2a96c85278c75473f23e702add000fc53" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -64,6 +64,18 @@ Every council session produces:
 - Target domain's `domain.{md,json}` missing → halt: "Run `/atlas:map-domains` first."
 - Fewer than 2 participants → halt (a council requires multi-persona).
 - Any persona's `may_update` deny-list violation detected during outputs → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`roundtable-review`), target domain, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated `_testatlas/domains/<domain>/domain.{md,json}` artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`roundtable-review` / domain `<domain>`) — `<n>` participants / `<n>` rounds / `<n>` review findings / `<n>` accepted canonical updates; consolidation proposes updates to `_testatlas/domains/<domain>/`."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-domain-review --actor agent --summary "Ran Domain Review Council on <domain> and produced canonical-update proposals" --status completed --reindex`.
 
 ## Completion Criteria
 

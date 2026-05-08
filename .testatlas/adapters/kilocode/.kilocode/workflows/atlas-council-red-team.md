@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="c0f8327746b227eb6d839584dc48950b4bf86661eb59b744bd021cf0971e0846" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="6821e2c9aa8b47aa46e27e0ceabec0bd520e195ec8e46651fc41b429c79e2cf4" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-red-team.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,6 +70,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Scope not specified → halt with question.
 - Any persona attempts an exploit payload → halt; this command does NOT execute exploits.
 - Fewer than 2 participants → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`red-team`), scope, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated risk-register / issue artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`red-team` / scope `<scope>`) — `<n>` participants / `<n>` rounds / `<n>` claims attacked / `<n>` weakened / `<n>` overturned; consolidation proposes risk-register and issue updates."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-red-team --actor agent --summary "Ran Red Team Council on <scope> and produced risk-register / issue updates" --status completed --reindex`.
 
 ## Completion Criteria
 

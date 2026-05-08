@@ -3,7 +3,7 @@ mode: agent
 description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="5033160cfe25be04df5e78a67e77cb6a561ba57b307b368eccaef26e7e3dc2f7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="bc329dceea61ba21bacf563dcb334af854dfe07264df368b6ed77cf2a99a35af" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-tests.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -29,14 +29,14 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
    **Preferred path (if `shell` is available):** run `node .testatlas/scripts/explore-tests.js --out _testatlas/evidence/explore-tests/<timestamp>/inventory.json`. The script deterministically walks the repo, detects runners from manifest files (package.json, pyproject.toml, Cargo.toml, Gemfile, go.mod), inventories every test file by language pattern, categorises by directory token (unit / integration / e2e / contract / performance / smoke), infers runner per file, and emits a `{runners, inventory, summary, refreshedAt}` slice. Use `--refresh` to emit only the slice (without merging into `12_app_map.json`) — this is the form council-release-readiness round-6 invokes.
 
-   **Manual fallback (no `shell`):** Walk the repo with `git ls-files` filtered to test paths:
+   **Manual fallback (no `shell`):** Use only file-read primitives the agent has without shell — read filesystem directories via the host's file-enumeration capability (e.g. directory-listing builtin, MCP filesystem tool, or `node:fs/promises` `readdir({withFileTypes,recursive})` if available without spawning a shell). Filter the listing to the canonical test-path globs:
    - `**/*.test.{js,jsx,ts,tsx,mjs,cjs}` for Jest/Vitest/node:test.
    - `**/*.spec.{js,jsx,ts,tsx,mjs,cjs}` for Mocha/Jasmine/Karma.
    - `tests/**/test_*.py` + `**/*_test.py` for Pytest.
    - `**/*_test.go` for Go test.
    - `spec/**/*_spec.rb` for RSpec.
    - `**/Test*.java` for JUnit.
-   Bucket each test file by category (unit / integration / e2e / contract / performance). Capture the count per category into `evidence/inventory.json`.
+   Bucket each test file by category (unit / integration / e2e / contract / performance). Capture the count per category into `evidence/inventory.json`. **Halt if neither `shell` NOR a file-enumeration capability is available** — the inventory pass cannot proceed without a path to truth, and fabricating a count from training-data priors is forbidden per `bootstrap.md` §8. (NOTE: `git ls-files` itself requires `shell` and is therefore NOT a valid fallback when `shell` is unavailable; it is listed only as the preferred discovery command when `shell` IS available.)
 
 5. **Run the suite (sandbox only).** Invoke the runner with coverage flags:
    - Jest / Vitest: `--coverage --coverageReporters=json-summary,lcov`.
@@ -48,7 +48,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 6. **Coverage parse.** Parse the coverage report into a normalized structure: per-file `{lines, branches, functions, percent}`. Compute aggregate per package + per app. Cross-reference each source file in `12_app_map.json` against coverage data — files with zero coverage become "uncovered" rows.
 
-7. **Flaky-test detection.** Re-run the same test suite twice. Diff the two run results. Tests that pass once and fail once are flaky. Capture flaky list to `evidence/flaky.json`. Recommend `node:test --concurrency=1` (or runner-equivalent) to verify it's not concurrency-related.
+7. **Flaky-test detection.** Re-run the same test suite twice (intentional — two runs is the minimum signal needed to distinguish a deterministic failure from a flake). Diff the two run results: tests that pass once and fail once are flaky. Capture the flaky list to `evidence/flaky.json`. Recommend `node:test --concurrency=1` (or runner-equivalent) to verify it's not concurrency-related. **Cost guardrail:** when the suite runtime exceeds the budget set by `.testatlas/default.config.json`, restrict the second run to the subset previously marked `flaky_candidate: true` (or the failing-tests-from-run-1 subset if no such marker exists) to keep the cost bounded; record the scoping decision in `evidence/run.txt`.
 
 8. **Gap analysis.** For each uncovered or thinly covered file (≥ 50 LOC, < 30% line coverage), produce a gap entry: `{file, percent, complexity_estimate, suggested_test_type, owning_domain}`. Write all gaps to `_testatlas/maps/coverage-gaps.md`.
 

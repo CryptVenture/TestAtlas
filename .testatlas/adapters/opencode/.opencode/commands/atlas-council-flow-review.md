@@ -2,7 +2,7 @@
 description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="282705e7a614b49264b7f9b8d6b64bbef1688c425689f4cc9ee4d07ab42a7611" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="0f56dc7a2adcce91af4c1f7e030f036dce4b6ce84054ee5be2dbb312547bd43e" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-council-flow-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -63,6 +63,18 @@ Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after rou
 - Target flow not specified → halt with question.
 - Flow's `flow.{md,json}` missing → halt: "Run `/atlas:map-domains` and create the flow first."
 - Fewer than 2 participants → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`roundtable-review`), target flow, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated `_testatlas/domains/<domain>/flows/<flow>/flow.{md,json}` artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`roundtable-review` / flow `<flow>`) — `<n>` participants / `<n>` rounds / `<n>` flow findings / `<n>` accepted canonical updates; consolidation proposes updates to the flow artifacts."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-flow-review --actor agent --summary "Ran Flow Review Council on <flow> and produced canonical-update proposals" --status completed --reindex`.
 
 ## Completion Criteria
 

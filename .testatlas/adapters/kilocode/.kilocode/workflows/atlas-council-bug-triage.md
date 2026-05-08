@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-bug-triage.md" hash="5e9837a9ffb7bb740ea3e6309a1d5dbdfdc00adba670064dc53c9bba2c76abdd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-bug-triage.md" hash="0e74ae31a67774a1e99f24f3232dd620a9f32c6659efce93e95d617d9b27661e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-bug-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,6 +70,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Issue batch not specified → halt with question.
 - Fewer than 2 participants → halt.
 - Issues outside the in-scope batch referenced → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`bug-triage`), participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated issue artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`bug-triage`) — `<n>` participants / `<n>` rounds / `<n>` issues triaged / `<n>` re-prioritized / `<n>` deferred; consolidation proposes updates to `_testatlas/issues/*.md`."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-bug-triage --actor agent --summary "Ran Bug Triage Council and produced prioritized issue dispositions" --status completed --reindex`.
 
 ## Completion Criteria
 

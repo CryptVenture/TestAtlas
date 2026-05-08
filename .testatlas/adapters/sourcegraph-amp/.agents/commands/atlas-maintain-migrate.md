@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-maintain-migrate. Invoke as /atlas-maintain-migrate. Description: Migrate a V1 TestAtlas workspace to V2 via `.testatlas/scripts/v2-migrate.js`. Backs up the existing workspace, creates V2 brain + agent + maps + stories + tests directories, populates baseline brain JSON, and bumps the manifest. Idempotent and rollback-safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="2140de6d90859919c9363fbf77fd91e84b72375576143eb1197a885eaa877048" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-migrate.md" hash="978bb17bbf1e2b3f11895fd26e5139ff15a68e63d9abf06a0b312c1b6b211f74" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-maintain-migrate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -29,14 +29,19 @@ produces a no-op success. Always safe to retry.
 ## Required Actions
 
 1. **Backup first (always).**
-   - Before any write, run `cp -a _testatlas _testatlas.bak.<ISO8601-fs-safe>` (or the
-     equivalent `tar -czf _testatlas.bak.<ISO8601-fs-safe>.tar.gz _testatlas`),
-     where `<ISO8601-fs-safe>` is the current ISO-8601 timestamp with `:` and `.`
-     replaced by `-` (filesystem-safe form, matching `v2-migrate.js`). Example:
-     `_testatlas.bak.2026-05-08T12-34-56-789Z`. The backup path MUST be reported
-     in the run output so the operator can reference it for rollback.
-   - The migration script tolerates missing backups but the operator SHOULD
-     always pre-create one. CI flows can pin a deterministic timestamp.
+   - Before any V2 write, the migration script ALWAYS creates a directory-copy
+     backup at `_testatlas.bak.<ISO8601-fs-safe>` via `cp(wsDir, backupPath, { recursive: true, force: true })`
+     (`.testatlas/scripts/v2-migrate.js:166-167`). The backup is unconditional once the
+     script proceeds past the no-op early-exits (no-workspace / already-v2);
+     it is NOT skippable, NOT optional, and NOT user-elidable.
+   - The backup format is **directory copy only** — no tarball is produced by
+     the script. `<ISO8601-fs-safe>` is the current ISO-8601 timestamp with
+     `:` and `.` replaced by `-` (filesystem-safe form). Example:
+     `_testatlas.bak.2026-05-08T12-34-56-789Z`.
+   - For operator-side pre-backup (advisory, before invoking the script), use
+     the same directory-copy form: `cp -a _testatlas _testatlas.bak.<ISO8601-fs-safe>`.
+     The backup path appears in the run output so the operator can reference
+     it for rollback. CI flows can pin a deterministic timestamp.
 2. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/v2-migrate.js [--workspace <path>] [--cwd <path>] [--force]`.
    - The script:
@@ -62,24 +67,24 @@ produces a no-op success. Always safe to retry.
 ## Allowed Tools
 
 - filesystem (read+write under `_testatlas/`)
-- shell (preferred path; `node`, `cp`, `tar`)
-- file-write (creating V2 baseline brain JSON and the backup tarball)
+- shell (preferred path; `node`, `cp`)
+- file-write (creating V2 baseline brain JSON and the directory-copy backup)
 
 ## Capability Degradation
 
-`shell` unavailable → use the fallback path. The hand-built tree MUST match the V2 directory list above and the baseline brain JSON MUST validate against `manifest.schema.json` (V2). Without `shell`, no backup tarball is possible — the operator MUST take a workspace snapshot in their own tooling before applying the migration.
+`shell` unavailable → use the fallback path. The hand-built tree MUST match the V2 directory list above and the baseline brain JSON MUST validate against `manifest.schema.json` (V2). Without `shell`, the script cannot run and no automated backup is created — the operator MUST take a workspace snapshot in their own tooling (e.g. a manual directory copy) before applying the migration.
 
 ## Backup + Rollback
 
-- **Backup** — always taken before mutation. Path is `_testatlas.bak.<ISO8601-fs-safe>` (directory copy) or `_testatlas.bak.<ISO8601-fs-safe>.tar.gz` (tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`) — the form `v2-migrate.js` produces. The migration run record cites the backup path so it can be located later.
-- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup (`mv _testatlas.bak.<ISO8601-fs-safe> _testatlas` or `tar -xzf _testatlas.bak.<ISO8601-fs-safe>.tar.gz`). After rollback, `validate-workspace` should report a clean V1 state.
+- **Backup** — always taken before mutation by `.testatlas/scripts/v2-migrate.js` (unconditional once the script proceeds past the no-op early-exits). Path is `_testatlas.bak.<ISO8601-fs-safe>` — a directory copy only (no tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`). The migration run record cites the backup path so it can be located later.
+- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup directory (`mv _testatlas.bak.<ISO8601-fs-safe> _testatlas`). After rollback, `validate-workspace` should report a clean V1 state.
 - **Re-running** the migration after rollback is safe — the script is idempotent.
 
 ## Outputs
 
 - New V2 directory tree + baseline brain JSON files under `_testatlas/`.
 - `_testatlas/11_workspace_manifest.json` bumped to `schema_version: 2.0.0`.
-- Backup tarball or directory at `_testatlas.bak.<ISO8601-fs-safe>(.tar.gz)?` (timestamp with `:` and `.` replaced by `-`, per `v2-migrate.js`).
+- Backup directory at `_testatlas.bak.<ISO8601-fs-safe>` (directory copy; timestamp with `:` and `.` replaced by `-`, per `v2-migrate.js`).
 - Brain event + lifecycle close.
 
 ## Stop Conditions

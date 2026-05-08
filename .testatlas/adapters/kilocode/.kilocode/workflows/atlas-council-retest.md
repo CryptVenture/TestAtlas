@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="57b9938bbec8b46ae110ba25b3e569c5e4a82d8d5cd53b3f53423de06d895c61" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="3a43ad428da20464c7a7f82d882fcb958a9292597acdfb84e04d6014a1b9a0c2" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -71,6 +71,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Issue not in `fixed_pending_retest` status → halt: "Issue must be marked fixed before retesting."
 - Retest pack missing → halt: "Run `/atlas:test-generate-retest-pack --issue-id <id>` first."
 - Fewer than 2 participants → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`retest`), target issue id, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and the updated `_testatlas/issues/<id>.md` artifact must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`retest` / issue `<id>`) — `<n>` participants / `<n>` rounds / verdict `<verified|reopened>`; consolidation proposes the issue-status transition."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-retest --actor agent --summary "Ran Retest Council on issue <id> and produced verified/reopened verdict" --status completed --reindex`.
 
 ## Completion Criteria
 

@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="e0d4fa4b1d1918d18b061fafacbe4fafe1916c0e8abf6876dc48f7fba5a61d94" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="d761b1a7b29f6b53130a9ef2968d14e28e81d09b3c3f9b52b0cc553eb9e1a044" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-product-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -69,6 +69,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Debate question not specified → halt.
 - Fewer than 2 participants → halt.
 - Disputed claims remain after consolidation AND priority is `critical` → escalate to human (`generated_questions.md`).
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`debate`), debate question, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`debate` / `<debate-question-slug>`) — `<n>` participants / `<n>` rounds / `<n>` accepted claims / `<n>` rejected / `<n>` disputed; consolidation produces a strategy memo for human review."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-product-review --actor agent --summary "Ran Product Review Council debate on <debate-question> and produced strategy memo" --status completed --reindex`.
 
 ## Completion Criteria
 

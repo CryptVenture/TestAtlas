@@ -4,7 +4,7 @@ description: Brain Audit Council — personas inspect the _testatlas workspace f
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="571b08883a8fc7a2e09196952d02089799f057dc15e678a20bd6790b196e41d2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="fc1901eeff2f9f7ae18b6e86ae5f643f90b5b6f632a1c1f0a22ce972c86aa218" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -65,6 +65,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - `_testatlas/brain/` not initialized → halt: "Run `/atlas:core-init --mode upgrade` first."
 - `validate-brain.js` reports unrecoverable schema violations → halt; resolve those first.
 - Fewer than 2 participants → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`brain-audit`), participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated drift artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`brain-audit`) — `<n>` participants / `<n>` rounds / `<n>` drift records / `<n>` contradictions / `<n>` missing-update findings; consolidation proposes updates to `_testatlas/brain/drift.json`."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-brain-audit --actor agent --summary "Ran Brain Audit Council and produced drift / contradiction / missing-update findings" --status completed --reindex`.
 
 ## Completion Criteria
 

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-data. Paste .testatlas/bootstrap.md first; description: Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="9671ac7378db38922852c06f29e4c83e9b38bf709ca5aba258e5a7e59f22468e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="a1ae3fc262515482cbc8ea0f5bf55b390ae207af85d51d62f9c311a0c2ac66da" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -57,6 +57,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Entity/queue/cache/storage counts live in `12_app_map.json`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-data --actor agent --summary "Mapped data layer schemas, entities, lifecycle states, and queue/cache/storage surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

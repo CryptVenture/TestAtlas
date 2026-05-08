@@ -4,7 +4,7 @@ description: Umbrella explorer orchestrator — classifies sub-explorers, spawns
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="9d2e5aef7af94a7e0886278e2dc2f9b08ba5503538dbe32a065bd829d1344ff8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="f4755dd42a56a282a415d0c19e14beaf34c7839db4e7d73a31b6440cf3b4a5c2" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -23,7 +23,7 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
 1. Read `_testatlas/12_app_map.json`. If absent, halt with: "Run `/atlas:explore-codebase` first — the umbrella explorer requires an app map." Do NOT invent surface signals.
 2. Detect product surface area from app-map signals: presence of UI (web routes/pages, frontend frameworks), CLI (binaries/scripts, `bin` entries in manifests), HTTP API (route count > 0; REST/GraphQL/RPC handlers), data persistence (models/migrations/schemas), external integrations (auth/payment/email/analytics SDKs).
 3. Classify each PRD §13 / §6.5 explorer as `recommended`, `optional`, or `skip` based on the detected surface. Examples: a CLI-only tool → `skip` for `explore-ui` and `explore-accessibility`; a static site without backend → `skip` for `explore-data` and `explore-integrations`; every product → `recommended` for `explore-codebase`, `explore-docs`, `explore-runtime`, `explore-security`.
-4. **Idempotency filter.** For each recommended child, check `_testatlas/evidence/<child-name>/<timestamp>/`. If a successful evidence dir exists with a timestamp under 1 hour old AND no source-file mtime drift since (same heuristic as F-10 explore-codebase short-circuit), mark the child `cached` and skip its spawn. Record cached children in the overview's child-results-table with a link to the existing evidence dir.
+4. **Idempotency filter.** For each recommended child, check `_testatlas/evidence/<child-name>/<timestamp>/`. If a successful evidence dir exists with a timestamp under 1 hour old AND no source-file mtime drift since (the same already-mapped short-circuit heuristic documented in `explore-codebase.md` Required Actions step 0 — `git rev-parse HEAD` comparison against the per-run cache sidecar `.lastrun.json`), mark the child `cached` and skip its spawn. Record cached children in the overview's child-results-table with a link to the existing evidence dir.
 5. **Select `executionMode`** per host capability and non-cached recommended count:
    - `subagent-spawn` available + ≥2 non-cached recommended children → `parallel-subagents`.
    - `subagent-spawn` available + exactly 1 non-cached recommended child → `single-spawn-inline` (degenerate spawn = inline execution).

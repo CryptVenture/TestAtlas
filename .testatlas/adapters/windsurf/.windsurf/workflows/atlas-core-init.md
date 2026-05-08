@@ -3,7 +3,7 @@ description: Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatl
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="2f997161bf3eeeebc835dd7fc5f83accc38a9234a206f8732a6356176944e7fd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="1518e7641b7e2c30fb0a95400ca5a6137f639af73f9e70157714b5643fc9faaa" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -24,7 +24,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
    - Mirror schemas to `_testatlas/brain/schema/` for offline validation.
    - Update `_testatlas/brain/manifest.json` with `schema_version: "2.0.0"`, `suite_version`, `initialized_at`, `last_updated`, `project_name`.
 3. **Adapter registration:** detect any agent-specific adapter directories (`.claude/`, `.cursor/`, `.opencode/`, etc.) and record them in `manifest.adapters`.
-4. **Fallback (no `shell`):** layout files manually per PRD §8 plus the V2 brain. Mark run `confidence: needs-validation` because runtime detection is unavailable.
+4. **Fallback (no `shell`):** hand-author the V1 + V2 directory tree per PRD §8 and the structure listed in `## Outputs` below. Render each canonical template from `.testatlas/templates/canonical/` by substituting the placeholder ISO-timestamp token `0000-00-00T00:00:00Z` with the current ISO-now timestamp (and, for `11_workspace_manifest.json`, populate `workspaceDir`, `initializedAt`, `lastUpdatedAt`, `project.name`, and `generatedSections` per the same rendering pass `init-workspace.js` performs in its `renderTimestamps` + `renderManifest` helpers). Hand-author the V2 brain skeleton with the 20 JSON + 3 JSONL files listed under `## Outputs`. Mark the run `confidence: needs-validation` because runtime detection is unavailable.
 5. Validate the resulting manifest against `workspace-manifest.schema.json` AND `manifest.schema.json` (V2). If validation fails, halt and surface AJV errors verbatim.
 6. Close the lifecycle.
 
@@ -40,7 +40,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Outputs
 
-- `_testatlas/` directory tree (V1 23 subdirs + V2 brain).
+- `_testatlas/` directory tree — 23 V1 top-level subdirectories + 23 V1 nested subdirectories + 16 V2 nested subdirectories (`bootstrap/`, `brain/schema/`, `agents/personas/{system,generated,project}/`, `agents/councils/{council_templates,sessions,transcripts,outputs,consolidations}/`, `agents/{handoffs,outputs,scorecards}/`, `maps/`, `tests/{generated_automation,retest_packs}/`) created by `.testatlas/scripts/init-workspace.js` (`TOP_LEVEL_SUBDIRS`, `NESTED_DIRS`, `V2_NESTED_DIRS`).
 - 14 V1 canonical markdown files (already shipped); 23 V2 brain files (20 JSON + 3 JSONL).
 - `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
 - V2 brain files written by `init-workspace.js` (20 JSON + 3 JSONL = 23 total):

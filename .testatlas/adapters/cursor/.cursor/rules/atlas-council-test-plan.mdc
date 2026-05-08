@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="c4c438d522599bdc544df28c4ff96d3a0bac3a7353ea87b84a4537c473426b0d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="1dbdb6aaada5c4e7d08fc8af3069348de19d6ca438a088e5e2d57a585a2078e7" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-council-test-plan.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -73,6 +73,18 @@ The Test Plan Council produces all 15 PRD §7.8 council-session artifacts inside
 - Scope not specified → halt with question.
 - `_testatlas/brain/coverage.json` missing → halt: "Run `/atlas:explore` first to establish a baseline."
 - Fewer than 2 participants → halt.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`test-plan`), participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/` plus the proposed updates to `_testatlas/02_test_strategy.md`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated `02_test_strategy.md` must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`test-plan`) — `<n>` participants / `<n>` rounds / `<n>` accepted scenarios / `<n>` rejected / `<n>` disputed; consolidation proposes `02_test_strategy.md` updates."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-test-plan --actor agent --summary "Ran Test Plan Council and produced layered test plan + automation candidates" --status completed --reindex`.
 
 ## Completion Criteria
 
