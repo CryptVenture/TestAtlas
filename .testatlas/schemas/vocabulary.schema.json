@@ -234,9 +234,13 @@
         "priority",
         "scope",
         "evidence_sufficiency",
-        "risk_assessment"
+        "risk_assessment",
+        "safety",
+        "implementation_interpretation",
+        "expected_behavior",
+        "product_strategy"
       ],
-      "description": "V2 — Disagreement classification. PRD §12.5. Used when two personas hold conflicting positions; informs resolution strategy (more evidence, vote, escalate, defer)."
+      "description": "V2 — Disagreement classification. PRD §12.5. Used when two personas hold conflicting positions; informs resolution strategy (more evidence, vote, escalate, defer). Phase-20 round-7 expansion: added safety, implementation_interpretation, expected_behavior, product_strategy from council command bodies and standardized to snake_case (closes ISSUE-063, 064)."
     },
     "vote_value": {
       "type": "string",
