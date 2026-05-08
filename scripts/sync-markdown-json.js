@@ -17,11 +17,14 @@
 // Idempotent: a second invocation with no on-disk changes yields no writes.
 //
 // CLI:
-//   node scripts/sync-markdown-json.js [--cwd <dir>]
+//   node scripts/sync-markdown-json.js [--cwd <dir>] [--dry-run]
+//
+// --dry-run prints the writes that WOULD occur and exits 0 without
+// mutating any file (no atomicWrite / no rename / no fs.writeFile).
 //
 // Programmatic API:
 //   import { syncMarkdownJson } from './sync-markdown-json.js';
-//   const { ok, changed } = await syncMarkdownJson({ cwd });
+//   const { ok, changed } = await syncMarkdownJson({ cwd, dryRun });
 
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
@@ -117,8 +120,12 @@ async function buildDomainIndexEntries(artifacts) {
 /**
  * Update brain/<indexFile> with the freshly built entries; return true if a
  * write actually occurred (content differs from on-disk).
+ *
+ * When `dryRun === true`, no atomicWrite is performed; the function still
+ * returns true if a write WOULD occur (so callers can list it as a planned
+ * write).
  */
-async function maybeWriteIndex(brainDir, indexFile, collection, entries) {
+async function maybeWriteIndex(brainDir, indexFile, collection, entries, dryRun = false) {
   const indexPath = path.join(brainDir, indexFile);
   let current;
   try {
@@ -130,16 +137,20 @@ async function maybeWriteIndex(brainDir, indexFile, collection, entries) {
   // Compare collection only (ignore last_updated to keep idempotency).
   const same = JSON.stringify(current[collection] ?? []) === JSON.stringify(entries);
   if (same) return false;
+  if (dryRun) return true;
   next.last_updated = new Date().toISOString();
   await atomicWrite(indexPath, `${JSON.stringify(next, null, 2)}\n`);
   return true;
 }
 
 /**
- * @param {{ cwd?: string }} [opts]
- * @returns {Promise<{ ok: boolean, changed: string[] }>}
+ * @param {{ cwd?: string, dryRun?: boolean }} [opts]
+ * @returns {Promise<{ ok: boolean, changed: string[], dryRun?: boolean, plannedWrites?: string[] }>}
+ *
+ * When `dryRun === true`, no fs mutation occurs. `changed` is empty and
+ * `plannedWrites` lists every file that WOULD have been written.
  */
-export async function syncMarkdownJson({ cwd = process.cwd() } = {}) {
+export async function syncMarkdownJson({ cwd = process.cwd(), dryRun = false } = {}) {
   const wsDir = path.join(cwd, '_testatlas');
   const brainDir = path.join(wsDir, 'brain');
   if (!(await fileExists(brainDir))) {
@@ -147,29 +158,45 @@ export async function syncMarkdownJson({ cwd = process.cwd() } = {}) {
   }
 
   const changed = [];
+  const plannedWrites = [];
   for (const cfg of ARTIFACT_DIRS) {
     const artifacts = await listDomainArtifacts(wsDir);
     const entries = await buildDomainIndexEntries(artifacts);
-    const wrote = await maybeWriteIndex(brainDir, cfg.indexFile, cfg.collection, entries);
-    if (wrote) changed.push(path.join(brainDir, cfg.indexFile));
+    const wrote = await maybeWriteIndex(brainDir, cfg.indexFile, cfg.collection, entries, dryRun);
+    if (wrote) {
+      const target = path.join(brainDir, cfg.indexFile);
+      if (dryRun) plannedWrites.push(target);
+      else changed.push(target);
+    }
   }
 
+  if (dryRun) return { ok: true, changed: [], dryRun: true, plannedWrites };
   return { ok: true, changed };
 }
 
 const isMain = import.meta.url === `file://${process.argv[1]}`;
 if (isMain) {
   let cwd = process.cwd();
+  let dryRun = false;
   const argv = process.argv.slice(2);
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--cwd' && i + 1 < argv.length) {
       cwd = path.resolve(argv[++i]);
+    } else if (argv[i] === '--dry-run') {
+      dryRun = true;
     }
   }
-  const r = await syncMarkdownJson({ cwd });
+  const r = await syncMarkdownJson({ cwd, dryRun });
   if (!r.ok) {
     console.error(`sync-markdown-json: FAIL — ${r.error ?? 'unknown error'}`);
     process.exit(1);
+  }
+  if (dryRun) {
+    const planned = r.plannedWrites ?? [];
+    console.log('DRY RUN — no files were modified.');
+    console.log(`Planned writes: ${planned.length}`);
+    for (const f of planned) console.log(`  ${f}`);
+    process.exit(0);
   }
   if (r.changed.length === 0) {
     console.log('sync-markdown-json: no changes');
