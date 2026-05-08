@@ -47,12 +47,15 @@
 //
 // Exit codes: 0 = no violations; 1 = violations detected; 2 = bad CLI args.
 
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   ENUM_FLAGS as DEFAULT_ENUM_FLAGS,
   REQUIRED_FLAGS as DEFAULT_REQUIRED_FLAGS,
+  getConfigKeys,
+  getSchemaFiles,
+  getVocabEnums,
 } from './lib/script-flag-metadata.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -704,6 +707,731 @@ export async function checkLifecyclePosition({ commandsDir }) {
   return violations;
 }
 
+// ─── Invariant 8: schema-file-existence (Quick 260508-syv) ──────────────────
+
+const SCHEMA_REF_RE = /\b([\w-]+\.schema\.json)\b/g;
+// Schema names that are conceptual references in prose (e.g., docs about
+// "schema-of-a-schema") rather than claims of file existence. Skip these.
+const SCHEMA_REF_ALLOWLIST = new Set([
+  'config.schema.json', // self-reference inside default.config.json's $schema
+]);
+
+/**
+ * For every `<X>.schema.json` token in command bodies, resolve to
+ * `<schemasDir>/<X>.schema.json` and HARD-FAIL if the file is missing.
+ *
+ * @param {{commandsDir:string, schemasDir:string, schemaFiles?:Set<string>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkSchemaFileExistence({ commandsDir, schemasDir, schemaFiles }) {
+  const violations = [];
+  const known = schemaFiles ?? getSchemaFiles({ schemasDir });
+  if (!known || known.size === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const re = new RegExp(SCHEMA_REF_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const ref = m[1];
+        if (SCHEMA_REF_ALLOWLIST.has(ref)) continue;
+        if (known.has(ref)) continue;
+        violations.push({
+          invariant: 'schema-file-existence',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `referenced schema file ${ref} does not exist under .testatlas/schemas/`,
+          detail: `${ref} not present in schemas dir (sidecar maps are untyped — remove the schema claim or add the schema)`,
+          suggestion: `remove the validation claim, or create .testatlas/schemas/${ref}`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 9: maps-path-consistency (Quick 260508-syv) ──────────────────
+
+const MAP_PATH_RE = /_testatlas\/maps\/([\w-]+)\.json/g;
+
+/**
+ * Within a single command body, all `_testatlas/maps/<X>.json` references
+ * must use a consistent X. HARD-FAIL on intra-doc inconsistency where the
+ * map names are obvious singular/plural or naming-style variants of one
+ * another (e.g., apis vs api, entities vs data, cli-commands vs cli, vs
+ * cli_commands).
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkMapsPathConsistency({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    // Collect (mapName, lineIdx) per occurrence.
+    const lines = text.split('\n');
+    const occurrences = [];
+    for (let i = 0; i < lines.length; i++) {
+      const re = new RegExp(MAP_PATH_RE.source, 'g');
+      let m;
+      while ((m = re.exec(lines[i])) !== null) {
+        occurrences.push({ name: m[1], line: i + 1 });
+      }
+    }
+    if (occurrences.length < 2) continue;
+    // Group occurrences by an aliased family. We only flag conflicts within
+    // a family — cross-domain references (apis vs flows) are legitimate.
+    const families = aliasFamilies(occurrences.map((o) => o.name));
+    for (const family of families) {
+      if (family.size < 2) continue;
+      const sortedNames = [...family].sort();
+      // Pick the canonical name = the most common variant in this file;
+      // ties → the longest/most-descriptive one.
+      const counts = new Map();
+      for (const o of occurrences) {
+        if (family.has(o.name)) counts.set(o.name, (counts.get(o.name) || 0) + 1);
+      }
+      const ranked = [...counts.entries()].sort(
+        (a, b) => b[1] - a[1] || b[0].length - a[0].length,
+      );
+      const canonical = ranked[0][0];
+      for (const o of occurrences) {
+        if (!family.has(o.name)) continue;
+        if (o.name === canonical) continue;
+        violations.push({
+          invariant: 'maps-path-consistency',
+          file: path.relative(PROJECT_ROOT, file),
+          line: o.line,
+          reason: `inconsistent map name '${o.name}' vs '${canonical}' within same file`,
+          detail: `_testatlas/maps/${o.name}.json conflicts with _testatlas/maps/${canonical}.json (variants in this file: ${sortedNames.join(', ')})`,
+          suggestion: `unify on _testatlas/maps/${canonical}.json across this file`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+/**
+ * Group a list of map names into families of obvious variants.
+ *   - singular ↔ plural (api ↔ apis, entity ↔ entities, route ↔ routes)
+ *   - kebab vs underscore vs short (cli-commands vs cli_commands vs cli)
+ *
+ * Returns an array of Set<string>; each set is one family.
+ *
+ * @param {string[]} names
+ * @returns {Array<Set<string>>}
+ */
+function aliasFamilies(names) {
+  const norm = (s) => s.replace(/[-_]/g, '').replace(/s$/, '').toLowerCase();
+  const buckets = new Map();
+  for (const n of names) {
+    const key = norm(n);
+    // Also group "cli" with "clicommands" (short ↔ kebab/underscore)
+    let bucketKey = key;
+    for (const existing of buckets.keys()) {
+      if (existing.startsWith(key) || key.startsWith(existing)) {
+        bucketKey = existing;
+        break;
+      }
+    }
+    if (!buckets.has(bucketKey)) buckets.set(bucketKey, new Set());
+    buckets.get(bucketKey).add(n);
+    // The "data" / "entities" pair is a known semantic alias (Round-11
+    // ISSUE-123b). Family-merge it explicitly.
+  }
+  // Explicit alias merge: data ↔ entities
+  const dataBucket = [...buckets.entries()].find(
+    ([_k, v]) => v.has('data') || v.has('entities') || v.has('entity'),
+  );
+  if (dataBucket) {
+    const [, set] = dataBucket;
+    for (const [k, v] of buckets) {
+      if (v === set) continue;
+      if (v.has('data') || v.has('entities') || v.has('entity')) {
+        for (const x of v) set.add(x);
+        buckets.delete(k);
+      }
+    }
+  }
+  return [...buckets.values()];
+}
+
+// ─── Invariant 10: vocabulary-enum-presence (Quick 260508-syv) ──────────────
+
+/**
+ * Pattern matchers for common "status / severity / etc." literal claims in
+ * command-body prose. Each entry binds a cue+capture to a vocabulary enum
+ * name. The capture is a single token immediately after the cue; we only
+ * inspect tokens that look like enum members (kebab/underscore lowercase).
+ */
+const VOCAB_LITERAL_PATTERNS = [
+  { enum: 'issueStatus', re: /\bstatus[:\s]+`?([a-z][a-z0-9_]*)`?/gi },
+  { enum: 'severity', re: /\bseverity[:\s]+`?([a-z][a-z0-9_]*)`?/gi },
+  { enum: 'confidence', re: /\bconfidence[:\s]+`?([a-z][a-z0-9_-]*)`?/gi },
+];
+
+const VOCAB_LITERAL_IGNORE = new Set([
+  // Words that are not enum literals — these surface from the cue regex when
+  // prose says e.g. "status: the result of …".
+  'the',
+  'a',
+  'is',
+  'must',
+  'should',
+  'and',
+  'or',
+  'one',
+  'of',
+  'value',
+  'string',
+  'enum',
+  'literal',
+  'set',
+  'see',
+  'either',
+  'when',
+  'each',
+  'this',
+  'as',
+  'per',
+  'for',
+  'note',
+  'eg',
+]);
+
+/**
+ * For every status/severity/confidence literal in command bodies, verify the
+ * literal is in the corresponding vocabulary enum.
+ *
+ * @param {{commandsDir:string, schemasDir:string, vocabEnums?:Object<string,Set<string>>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkVocabularyEnumPresence({ commandsDir, schemasDir, vocabEnums }) {
+  const violations = [];
+  const enums =
+    vocabEnums ?? (() => {
+      const fromDisk = getVocabEnums({
+        vocabPath: path.join(schemasDir ?? '', 'vocabulary.schema.json'),
+      });
+      return fromDisk;
+    })();
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (const p of VOCAB_LITERAL_PATTERNS) {
+        const set = enums?.[p.enum];
+        if (!set || (set instanceof Set && set.size === 0)) continue;
+        const re = new RegExp(p.re.source, p.re.flags);
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          const literal = m[1];
+          if (!literal) continue;
+          if (VOCAB_LITERAL_IGNORE.has(literal)) continue;
+          const allowed = set instanceof Set ? set : new Set(set);
+          if (allowed.has(literal)) continue;
+          violations.push({
+            invariant: 'vocabulary-enum-presence',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `literal '${literal}' is not in vocabulary $defs.${p.enum}.enum`,
+            detail: `'${literal}' used as ${p.enum} value but not in enum (allowed: ${[...allowed].join(', ')})`,
+            suggestion: `use one of: ${[...allowed].join(', ')} — or extend vocabulary.schema.json $defs.${p.enum}.enum`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 11: bare-script-path (Quick 260508-syv) ──────────────────────
+
+/**
+ * For every `scripts/<X>.js` reference in body prose that is NOT preceded
+ * by `.testatlas/`, HARD-FAIL. Extension of the Phase-17 invariant from
+ * frontmatter into body text.
+ *
+ * Allowlisted: documentation contexts that legitimately reference the
+ * source-repo dev path. The allowlist is intentionally small — most
+ * references must use the canonical `node .testatlas/scripts/<X>.js`
+ * form per CLAUDE.md.
+ *
+ * @param {{commandsDir:string, allowlist?:Array<{file:string,line:RegExp}>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkBareScriptPath({ commandsDir, allowlist }) {
+  const violations = [];
+  const allow = allowlist ?? [
+    // commands/council/council.md line 106 references LIFECYCLE_ALLOWLIST
+    // metadata in scripts/lint-commands.js — that line legitimately cites
+    // the linter source path itself, not invocation. Explicitly allow.
+    { fileRe: /council\/council\.md$/, lineRe: /LIFECYCLE_ALLOWLIST/ },
+  ];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  // Negative-lookbehind: bare `scripts/<x>.js` not preceded by `.testatlas/`.
+  const RE = /(?<!\.testatlas\/)\bscripts\/([\w-]+)\.js\b/g;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const re = new RegExp(RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const scriptName = m[1];
+        const allowed = allow.some(
+          (a) => a.fileRe.test(file) && a.lineRe && a.lineRe.test(line),
+        );
+        if (allowed) continue;
+        violations.push({
+          invariant: 'bare-script-path',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `bare scripts/ form in body prose (Phase-17 violation)`,
+          detail: `bare \`scripts/${scriptName}.js\` should be \`node .testatlas/scripts/${scriptName}.js\``,
+          suggestion: `prefix with node .testatlas/ — \`node .testatlas/scripts/${scriptName}.js\``,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 12: lifecycle-heading-strict (Quick 260508-syv) ──────────────
+
+const LIFECYCLE_HEADING_ALIASES = [
+  /^#{1,3}\s+Post-Operation\s+Brain\s+Update\s*$/i,
+  /^#{1,3}\s+Brain\s+Lifecycle\s*$/i,
+  /^#{1,3}\s+Post-Run\s+Lifecycle\s*$/i,
+  /^#{1,3}\s+After\s+Operation\s*$/i,
+];
+
+/**
+ * Heading must be EXACTLY `## Lifecycle` (or `# Lifecycle` / `### Lifecycle`).
+ * Aliases like `## Post-Operation Brain Update` HARD-FAIL.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkLifecycleHeadingStrict({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      for (const alias of LIFECYCLE_HEADING_ALIASES) {
+        if (alias.test(line)) {
+          violations.push({
+            invariant: 'lifecycle-heading-strict',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `non-canonical lifecycle heading on line ${i + 1}`,
+            detail: `"${line.trim()}" should be the canonical "## Lifecycle"`,
+            suggestion: `rename to \`## Lifecycle\` (Round-9/10/11 invariant)`,
+          });
+          break;
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 13: config-key-existence (Quick 260508-syv) ──────────────────
+
+const CONFIG_KEY_HINT_RE =
+  /(?:default\.config\.json|configurable via|config key|config setting)[^\n]*?`([a-z][a-zA-Z0-9_]*)`/gi;
+
+/**
+ * For every `<key>` in command bodies that is claimed (via cue prose) as a
+ * configuration key, resolve against `.testatlas/default.config.json` and
+ * HARD-FAIL if the key doesn't exist.
+ *
+ * @param {{commandsDir:string, configKeys?:Set<string>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkConfigKeyExistence({ commandsDir, configKeys }) {
+  const violations = [];
+  const known = configKeys ?? getConfigKeys();
+  if (!known || known.size === 0) return violations;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const re = new RegExp(CONFIG_KEY_HINT_RE.source, CONFIG_KEY_HINT_RE.flags);
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const key = m[1];
+        if (!key) continue;
+        if (known.has(key)) continue;
+        violations.push({
+          invariant: 'config-key-existence',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `config key '${key}' not in default.config.json`,
+          detail: `claimed config key \`${key}\` does not exist (known keys: ${[...known].sort().slice(0, 8).join(', ')}…)`,
+          suggestion: `add ${key} to .testatlas/default.config.json or remove the claim`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 14: option-pair-completeness (Quick 260508-syv) ──────────────
+
+const OPTION_LABEL_RE = /\bOption\s+([A-Z])\b/g;
+
+/**
+ * If the file mentions Option B / Option C / etc., a preceding Option A
+ * (or earlier letter) anchor must exist in the same file. HARD-FAIL on
+ * dangling option labels.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkOptionPairCompleteness({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    // Collect all (letter, lineIdx) pairs.
+    const lines = text.split('\n');
+    const seen = [];
+    for (let i = 0; i < lines.length; i++) {
+      const re = new RegExp(OPTION_LABEL_RE.source, 'g');
+      let m;
+      while ((m = re.exec(lines[i])) !== null) {
+        seen.push({ letter: m[1], line: i + 1 });
+      }
+    }
+    if (seen.length === 0) continue;
+    // Build the set of letters present in the file. For each letter > A,
+    // require all earlier letters (A..letter-1) to be present.
+    const letters = new Set(seen.map((s) => s.letter));
+    for (const s of seen) {
+      const code = s.letter.charCodeAt(0);
+      for (let c = 'A'.charCodeAt(0); c < code; c++) {
+        const earlier = String.fromCharCode(c);
+        if (!letters.has(earlier)) {
+          violations.push({
+            invariant: 'option-pair-completeness',
+            file: path.relative(PROJECT_ROOT, file),
+            line: s.line,
+            reason: `Option ${s.letter} appears without preceding Option ${earlier}`,
+            detail: `dangling Option ${s.letter} on line ${s.line}; no Option ${earlier} anchor in same file`,
+            suggestion: `add an Option ${earlier} block above, or rename to a single-path label (e.g., "Fallback Path")`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Invariant 15: step-cross-reference (Quick 260508-syv) ──────────────────
+
+const STEP_LIST_RE = /^\s*(\d+)\.\s+/;
+const STEP_REF_RE = /\bstep\s+(\d+)\b/gi;
+
+/**
+ * For every `step N` reference in a command body, parse the document into
+ * numbered list steps and assert that step N exists. HARD-FAIL on broken
+ * cross-reference. Content-claim mismatch is deferred to future work.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkStepCrossReference({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    // Build the set of numbered step IDs that appear as `^\s*N\.\s+`. We
+    // accept any 1-N as a valid step id — collect the union.
+    const validSteps = new Set();
+    for (const line of lines) {
+      const m = STEP_LIST_RE.exec(line);
+      if (m) validSteps.add(parseInt(m[1], 10));
+    }
+    if (validSteps.size === 0) continue;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      // Skip the line itself if it's a numbered step heading.
+      if (STEP_LIST_RE.test(line)) continue;
+      const re = new RegExp(STEP_REF_RE.source, STEP_REF_RE.flags);
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const ref = parseInt(m[1], 10);
+        if (validSteps.has(ref)) continue;
+        violations.push({
+          invariant: 'step-cross-reference',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `step ${ref} reference does not resolve to any numbered step in this file`,
+          detail: `"step ${ref}" cited on line ${i + 1}; max step in file is ${Math.max(...validSteps)}`,
+          suggestion: `correct the cross-reference to an existing step (1..${Math.max(...validSteps)})`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+// ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
+
+/**
+ * Walk every command body, extract every claim, attempt resolution against
+ * ground truth, and write a single JSON file at `outPath` with the
+ * documented manifest shape.
+ *
+ * Resolution is non-blocking — `emitManifest` does not throw on unresolved
+ * claims; it just records `resolution: "missing" | "unresolved"`.
+ *
+ * @param {{
+ *   commandsDir:string,
+ *   scriptsDir:string,
+ *   schemasDir:string,
+ *   configKeys?:Set<string>,
+ *   schemaFiles?:Set<string>,
+ *   vocabEnums?:Object<string,Set<string>>,
+ *   outPath:string,
+ * }} ctx
+ * @returns {Promise<{summary:object, commands:object}>}
+ */
+export async function emitManifest(ctx) {
+  const {
+    commandsDir,
+    scriptsDir,
+    schemasDir,
+    configKeys,
+    schemaFiles,
+    vocabEnums,
+    outPath,
+  } = ctx;
+  const knownSchemas = schemaFiles ?? getSchemaFiles({ schemasDir });
+  const knownConfigKeys = configKeys ?? getConfigKeys();
+  const knownVocab =
+    vocabEnums ??
+    getVocabEnums({ vocabPath: path.join(schemasDir, 'vocabulary.schema.json') });
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const commands = {};
+  let extracted = 0;
+  let resolved = 0;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const claims = await extractClaims({
+      file,
+      text,
+      scriptsDir,
+      knownSchemas,
+      knownConfigKeys,
+      knownVocab,
+    });
+    for (const c of claims) {
+      extracted += 1;
+      if (c.resolution === 'valid') resolved += 1;
+    }
+    const rel = path.relative(commandsDir, file);
+    commands[rel] = { claims };
+  }
+  const unresolved = extracted - resolved;
+  const rate = extracted === 0 ? '100%' : `${((resolved / extracted) * 100).toFixed(1)}%`;
+  const manifest = {
+    version: 1,
+    generated_at: new Date().toISOString(),
+    summary: {
+      commands_scanned: cmdFiles.length,
+      claims_extracted: extracted,
+      claims_resolved: resolved,
+      claims_unresolved: unresolved,
+      resolution_rate: rate,
+    },
+    commands,
+  };
+  await mkdir(path.dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  return manifest;
+}
+
+/**
+ * Extract every claim per command body. Returns array of
+ * `{type, value, location, resolution}`.
+ *
+ * @param {{file:string, text:string, scriptsDir:string, knownSchemas:Set<string>, knownConfigKeys:Set<string>, knownVocab:Object<string,Set<string>>}} ctx
+ * @returns {Promise<Array<{type:string,value:string,location:string,resolution:string}>>}
+ */
+async function extractClaims({
+  file: _file,
+  text,
+  scriptsDir,
+  knownSchemas,
+  knownConfigKeys,
+  knownVocab,
+}) {
+  const claims = [];
+  const lines = text.split('\n');
+  // Cache for script-file existence.
+  const scriptExists = new Map();
+  async function existsScript(name) {
+    if (scriptExists.has(name)) return scriptExists.get(name);
+    let ok = false;
+    try {
+      await stat(path.join(scriptsDir, `${name}.js`));
+      ok = true;
+    } catch {
+      ok = false;
+    }
+    scriptExists.set(name, ok);
+    return ok;
+  }
+  const SCRIPT_INVOKE_RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b([^\n`]*)/g;
+  const SLASH_CMD_RE = /(?:^|\s)(\/atlas:[\w/-]+)/g;
+  const MCP_TOOL_RE = /\b(chrome-devtools|context7|serena|playwright|brain)[:.]([\w_]+)/g;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const loc = `L${i + 1}`;
+    // script-invocation + script-flag claims
+    {
+      const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const scriptName = m[1];
+        const ok = await existsScript(scriptName);
+        claims.push({
+          type: 'script-invocation',
+          value: `${scriptName}.js`,
+          location: loc,
+          resolution: ok ? 'valid' : 'missing',
+        });
+        const flagsBlob = m[2] || '';
+        for (const fm of flagsBlob.matchAll(/(--[\w][\w-]*)/g)) {
+          claims.push({
+            type: 'script-flag',
+            value: `${scriptName}.js ${fm[1]}`,
+            location: loc,
+            resolution: 'unresolved', // future: resolve via flag-existence map
+          });
+        }
+      }
+    }
+    // schema-file claims
+    {
+      const re = new RegExp(SCHEMA_REF_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const ref = m[1];
+        if (SCHEMA_REF_ALLOWLIST.has(ref)) continue;
+        claims.push({
+          type: 'schema-file',
+          value: ref,
+          location: loc,
+          resolution: knownSchemas.has(ref) ? 'valid' : 'missing',
+        });
+      }
+    }
+    // map-path claims
+    {
+      const re = new RegExp(MAP_PATH_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        claims.push({
+          type: 'map-path',
+          value: `_testatlas/maps/${m[1]}.json`,
+          location: loc,
+          resolution: 'valid', // syntactic-form check only at this layer
+        });
+      }
+    }
+    // vocab-enum-value claims (status / severity / confidence)
+    for (const p of VOCAB_LITERAL_PATTERNS) {
+      const set = knownVocab?.[p.enum];
+      if (!set) continue;
+      const re = new RegExp(p.re.source, p.re.flags);
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const lit = m[1];
+        if (!lit || VOCAB_LITERAL_IGNORE.has(lit)) continue;
+        const allowed = set instanceof Set ? set : new Set(set);
+        claims.push({
+          type: 'vocab-enum-value',
+          value: `${p.enum}:${lit}`,
+          location: loc,
+          resolution: allowed.has(lit) ? 'valid' : 'missing',
+        });
+      }
+    }
+    // config-key claims
+    {
+      const re = new RegExp(CONFIG_KEY_HINT_RE.source, CONFIG_KEY_HINT_RE.flags);
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const k = m[1];
+        if (!k) continue;
+        claims.push({
+          type: 'config-key',
+          value: k,
+          location: loc,
+          resolution: knownConfigKeys.has(k) ? 'valid' : 'missing',
+        });
+      }
+    }
+    // slash-command references
+    {
+      const re = new RegExp(SLASH_CMD_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        claims.push({
+          type: 'slash-command',
+          value: m[1],
+          location: loc,
+          resolution: 'unresolved', // resolver deferred; emit for retro-resolution
+        });
+      }
+    }
+    // step-cross-reference claims (recorded; resolution computed per file)
+    {
+      const re = new RegExp(STEP_REF_RE.source, STEP_REF_RE.flags);
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        claims.push({
+          type: 'step-cross-reference',
+          value: `step ${m[1]}`,
+          location: loc,
+          resolution: 'unresolved', // checked by invariant 15; manifest records raw
+        });
+      }
+    }
+    // mcp-tool claims (deferred resolver per CONTEXT.md)
+    {
+      const re = new RegExp(MCP_TOOL_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        claims.push({
+          type: 'mcp-tool',
+          value: `${m[1]}:${m[2]}`,
+          location: loc,
+          resolution: 'unresolved',
+        });
+      }
+    }
+  }
+  return claims;
+}
+
 // ─── Public entry point ─────────────────────────────────────────────────────
 
 /**
@@ -746,6 +1474,15 @@ export async function runLinter(opts = {}) {
     () => checkFrontmatterScriptForm({ commandsDir }),
     () => checkVocabEnumDrift({ commandsDir, schemasDir }),
     () => checkLifecyclePosition({ commandsDir }),
+    // Round-11 (Quick 260508-syv) — 8 new invariants:
+    () => checkSchemaFileExistence({ commandsDir, schemasDir }),
+    () => checkMapsPathConsistency({ commandsDir }),
+    () => checkVocabularyEnumPresence({ commandsDir, schemasDir }),
+    () => checkBareScriptPath({ commandsDir }),
+    () => checkLifecycleHeadingStrict({ commandsDir }),
+    () => checkConfigKeyExistence({ commandsDir }),
+    () => checkOptionPairCompleteness({ commandsDir }),
+    () => checkStepCrossReference({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -796,11 +1533,21 @@ Invariants:
   5   frontmatter-script-form   (HARD) no bare scripts/ in frontmatter
   6   vocab-enum-drift          (HARD) doc lists are subsets of vocab enums (rqx)
   7   lifecycle-position        (HARD) ## Lifecycle precedes brain-update hook (rqx)
+  8   schema-file-existence     (HARD) referenced .schema.json file exists (syv)
+  9   maps-path-consistency     (HARD) intra-doc map names consistent (syv)
+  10  vocabulary-enum-presence  (HARD) status/severity literals in vocab enum (syv)
+  11  bare-script-path          (HARD) no bare scripts/ in body prose (syv)
+  12  lifecycle-heading-strict  (HARD) heading is exactly \`## Lifecycle\` (syv)
+  13  config-key-existence      (HARD) cited config keys exist in default.config.json (syv)
+  14  option-pair-completeness  (HARD) Option B implies Option A precedes (syv)
+  15  step-cross-reference      (HARD) "step N" references resolve (syv)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
+  --commands-root <path>  Alias for --commands-dir
   --scripts-dir <path>    Scripts root (default: scripts)
   --schemas-dir <path>    Schemas root (default: .testatlas/schemas)
+  --manifest <path>       Emit audit-manifest JSON to <path> (skips lint)
   --quiet                 Suppress per-violation output
   --json                  Emit machine-readable JSON
   --help                  Show this message
@@ -813,11 +1560,14 @@ Exit codes:
 
 async function runCli(argv) {
   const opts = { quiet: false, json: false };
+  let manifestOut = null;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
-    if (a === '--commands-dir') opts.commandsDir = path.resolve(argv[++i]);
+    if (a === '--commands-dir' || a === '--commands-root')
+      opts.commandsDir = path.resolve(argv[++i]);
     else if (a === '--scripts-dir') opts.scriptsDir = path.resolve(argv[++i]);
     else if (a === '--schemas-dir') opts.schemasDir = path.resolve(argv[++i]);
+    else if (a === '--manifest') manifestOut = path.resolve(argv[++i]);
     else if (a === '--quiet') opts.quiet = true;
     else if (a === '--json') opts.json = true;
     else if (a === '--help' || a === '-h') {
@@ -827,6 +1577,23 @@ async function runCli(argv) {
       process.stderr.write(`lint-commands: unknown arg "${a}"\n${USAGE}`);
       process.exit(2);
     }
+  }
+  if (manifestOut) {
+    const commandsDir = opts.commandsDir ?? path.join(PROJECT_ROOT, '.testatlas/commands');
+    const scriptsDir = opts.scriptsDir ?? path.join(PROJECT_ROOT, 'scripts');
+    const schemasDir = opts.schemasDir ?? path.join(PROJECT_ROOT, '.testatlas/schemas');
+    const manifest = await emitManifest({
+      commandsDir,
+      scriptsDir,
+      schemasDir,
+      outPath: manifestOut,
+    });
+    if (!opts.quiet) {
+      process.stdout.write(
+        `lint-commands: manifest written to ${manifestOut} (${manifest.summary.commands_scanned} commands, ${manifest.summary.claims_extracted} claims, ${manifest.summary.resolution_rate} resolved)\n`,
+      );
+    }
+    process.exit(0);
   }
   const r = await runLinter(opts);
   if (opts.json) {
