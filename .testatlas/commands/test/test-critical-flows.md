@@ -152,6 +152,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
 
+## Completion Criteria
+
+- All `RUN-<timestamp>.md` and matching `RUN-<timestamp>.json` files for every critical flow exercised exist under `_testatlas/tests/runs/` (per Required Actions step 4).
+- Every produced `RUN-*.json` validates against `test-run.schema.json` (run `node .testatlas/scripts/validate-workspace.js` and confirm zero schema-validation findings under `tests/runs/`).
+- `_testatlas/11_workspace_manifest.json` reflects updated `counts.testRuns` and `counts.evidenceRecords` (these ARE the schema's canonical keys per `workspace-manifest.schema.json` — do not rename).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`TEST_STRATEGY_MISSING`, `MATRIX_MISSING`, `NO_CRITICAL_FLOWS`, `EVIDENCE_DIR_UNWRITABLE` all clear; capability gaps logged with `confidence: needs-validation`, no fabrication).
+
 ## What's Next
 
 Now that critical flows have run:
