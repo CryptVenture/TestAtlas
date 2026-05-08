@@ -47,9 +47,10 @@
 //
 // Exit codes: 0 = no violations; 1 = violations detected; 2 = bad CLI args.
 
-import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { MCP_TOOL_CATALOG } from './lib/mcp-tool-catalog.js';
 import {
   ENUM_FLAGS as DEFAULT_ENUM_FLAGS,
   REQUIRED_FLAGS as DEFAULT_REQUIRED_FLAGS,
@@ -57,7 +58,6 @@ import {
   getSchemaFiles,
   getVocabEnums,
 } from './lib/script-flag-metadata.js';
-import { MCP_TOOL_CATALOG } from './lib/mcp-tool-catalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -117,9 +117,8 @@ export async function checkFlagExistence({ commandsDir, scriptsDir }) {
     const lines = text.split('\n');
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx];
-      let m;
       const re = new RegExp(RE.source, 'g');
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const scriptName = m[1];
         const flagsBlob = m[2] || '';
         // Extract long-form flags from the blob. Short flags or non-flag
@@ -302,8 +301,7 @@ export async function checkSchemaKeyExistence({ commandsDir, schemasDir }) {
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx];
       const re = new RegExp(RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const key = m[1];
         if (validKeys.has(key)) continue;
         violations.push({
@@ -462,8 +460,7 @@ export async function checkRequiredFlags({ commandsDir, requiredFlags }) {
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx];
       const re = new RegExp(RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const scriptName = `${m[1]}.js`;
         const reqList = required[scriptName];
         if (!Array.isArray(reqList) || reqList.length === 0) continue;
@@ -514,8 +511,7 @@ export async function checkEnumValueValidity({ commandsDir, enumFlags }) {
     for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
       const line = lines[lineIdx];
       const re = new RegExp(RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const scriptName = `${m[1]}.js`;
         const enumMap = enums[scriptName];
         if (!enumMap || Object.keys(enumMap).length === 0) continue;
@@ -523,8 +519,7 @@ export async function checkEnumValueValidity({ commandsDir, enumFlags }) {
         // Match `--flag value` pairs (value = next non-flag token, no `--` prefix,
         // optionally quoted). Also match `--flag=value` form.
         const pairRe = /(--[\w][\w-]*)(?:\s+|=)([\w-]+)/g;
-        let p;
-        while ((p = pairRe.exec(flagsBlob)) !== null) {
+        for (const p of flagsBlob.matchAll(pairRe)) {
           const flag = p[1];
           const literal = p[2];
           const allowed = enumMap[flag];
@@ -614,9 +609,7 @@ export async function checkVocabEnumDrift({ commandsDir, schemasDir, vocabPatter
         const runs = [...line.matchAll(csvRunRe)].map((m) => m[0]);
         for (const run of runs) {
           const tokensInRun = [...run.matchAll(tokenRe)].map((m) => m[0]);
-          const enumLike = tokensInRun.filter((t) =>
-            /^[a-z][a-z0-9]*([-_][a-z0-9]+)*$/.test(t),
-          );
+          const enumLike = tokensInRun.filter((t) => /^[a-z][a-z0-9]*([-_][a-z0-9]+)*$/.test(t));
           if (enumLike.length < 3) continue;
           const inSetCount = enumLike.filter((t) => set.has(t)).length;
           if (inSetCount < 2) continue;
@@ -735,8 +728,7 @@ export async function checkSchemaFileExistence({ commandsDir, schemasDir, schema
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const re = new RegExp(SCHEMA_REF_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const ref = m[1];
         if (SCHEMA_REF_ALLOWLIST.has(ref)) continue;
         if (known.has(ref)) continue;
@@ -778,8 +770,7 @@ export async function checkMapsPathConsistency({ commandsDir }) {
     const occurrences = [];
     for (let i = 0; i < lines.length; i++) {
       const re = new RegExp(MAP_PATH_RE.source, 'g');
-      let m;
-      while ((m = re.exec(lines[i])) !== null) {
+      for (const m of lines[i].matchAll(re)) {
         occurrences.push({ name: m[1], line: i + 1 });
       }
     }
@@ -796,9 +787,7 @@ export async function checkMapsPathConsistency({ commandsDir }) {
       for (const o of occurrences) {
         if (family.has(o.name)) counts.set(o.name, (counts.get(o.name) || 0) + 1);
       }
-      const ranked = [...counts.entries()].sort(
-        (a, b) => b[1] - a[1] || b[0].length - a[0].length,
-      );
+      const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length);
       const canonical = ranked[0][0];
       for (const o of occurrences) {
         if (!family.has(o.name)) continue;
@@ -939,7 +928,8 @@ const VOCAB_LITERAL_IGNORE = new Set([
 export async function checkVocabularyEnumPresence({ commandsDir, schemasDir, vocabEnums }) {
   const violations = [];
   const enums =
-    vocabEnums ?? (() => {
+    vocabEnums ??
+    (() => {
       const fromDisk = getVocabEnums({
         vocabPath: path.join(schemasDir ?? '', 'vocabulary.schema.json'),
       });
@@ -955,8 +945,7 @@ export async function checkVocabularyEnumPresence({ commandsDir, schemasDir, voc
         const set = enums?.[p.enum];
         if (!set || (set instanceof Set && set.size === 0)) continue;
         const re = new RegExp(p.re.source, p.re.flags);
-        let m;
-        while ((m = re.exec(line)) !== null) {
+        for (const m of line.matchAll(re)) {
           const literal = m[1];
           if (!literal) continue;
           if (VOCAB_LITERAL_IGNORE.has(literal)) continue;
@@ -1014,12 +1003,9 @@ export async function checkBareScriptPath({ commandsDir, allowlist }) {
       const line = lines[i];
       if (OPT_OUT_RE.test(line)) continue;
       const re = new RegExp(RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const scriptName = m[1];
-        const allowed = allow.some(
-          (a) => a.fileRe.test(file) && a.lineRe && a.lineRe.test(line),
-        );
+        const allowed = allow.some((a) => a.fileRe.test(file) && a.lineRe?.test(line));
         if (allowed) continue;
         violations.push({
           invariant: 'bare-script-path',
@@ -1112,8 +1098,7 @@ export async function checkConfigKeyExistence({ commandsDir, configKeys }) {
       const line = lines[i];
       for (const proto of CONFIG_KEY_HINT_RES) {
         const re = new RegExp(proto.source, proto.flags);
-        let m;
-        while ((m = re.exec(line)) !== null) {
+        for (const m of line.matchAll(re)) {
           const key = m[1];
           if (!key) continue;
           if (known.has(key)) continue;
@@ -1154,8 +1139,7 @@ export async function checkOptionPairCompleteness({ commandsDir }) {
     const seen = [];
     for (let i = 0; i < lines.length; i++) {
       const re = new RegExp(OPTION_LABEL_RE.source, 'g');
-      let m;
-      while ((m = re.exec(lines[i])) !== null) {
+      for (const m of lines[i].matchAll(re)) {
         seen.push({ letter: m[1], line: i + 1 });
       }
     }
@@ -1215,8 +1199,7 @@ export async function checkStepCrossReference({ commandsDir }) {
       // Skip the line itself if it's a numbered step heading.
       if (STEP_LIST_RE.test(line)) continue;
       const re = new RegExp(STEP_REF_RE.source, STEP_REF_RE.flags);
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const ref = parseInt(m[1], 10);
         if (validSteps.has(ref)) continue;
         violations.push({
@@ -1337,8 +1320,7 @@ export async function checkStopCodeExistence({ commandsDir, scriptsDir }) {
     const referencedScripts = new Set();
     {
       const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
-      let m;
-      while ((m = re.exec(text)) !== null) referencedScripts.add(m[1]);
+      for (const m of text.matchAll(re)) referencedScripts.add(m[1]);
     }
     if (referencedScripts.size === 0) continue;
     // Load each referenced script's source — combined haystack.
@@ -1353,8 +1335,7 @@ export async function checkStopCodeExistence({ commandsDir, scriptsDir }) {
       const line = lines[i];
       const tokens = new Set();
       const re = new RegExp(STOP_CODE_TOKEN_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const tok = m[1];
         if (STOP_CODE_GENERIC_ALLOWLIST.has(tok)) continue;
         tokens.add(tok);
@@ -1461,11 +1442,12 @@ function collectTestatlasPaths(section, { writeOnly = false } = {}) {
       if (isRead || !isWrite) continue;
     }
     const re = new RegExp(TESTATLAS_PATH_RE.source, 'g');
-    let m;
-    while ((m = re.exec(line)) !== null) {
+    for (const m of line.matchAll(re)) {
       let p = m[0];
       p = p.replace(/[.,;:)\]]+$/, '');
-      const fileSuffixMatch = p.match(/^(_testatlas\/[\w./_-]+?\.(?:json|jsonl|md|txt|yml|yaml))(?:\.[\w_-]+)?$/);
+      const fileSuffixMatch = p.match(
+        /^(_testatlas\/[\w./_-]+?\.(?:json|jsonl|md|txt|yml|yaml))(?:\.[\w_-]+)?$/,
+      );
       if (fileSuffixMatch) p = fileSuffixMatch[1];
       if (p.endsWith('/')) continue;
       if (!/\.(?:json|jsonl|md|txt|yml|yaml)$/.test(p)) continue;
@@ -1554,7 +1536,7 @@ function staticBrainFileCounts(src) {
     const body = m[1];
     // Sanity — must look like a literal array of strings (no nested brackets,
     // no `await`, no template literals; commas separate strings).
-    if (/[\[\]]|\bawait\b|\$\{/.test(body)) return null;
+    if (/[[\]]|\bawait\b|\$\{/.test(body)) return null;
     // Count single/double/backtick-quoted strings.
     const items = [...body.matchAll(/['"`][^'"`]*['"`]/g)];
     if (items.length === 0) return null;
@@ -1621,8 +1603,7 @@ export async function checkNumericalClaimVsScript({ commandsDir, scriptsDir }) {
     const refs = new Set();
     {
       const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
-      let m;
-      while ((m = re.exec(text)) !== null) refs.add(m[1]);
+      for (const m of text.matchAll(re)) refs.add(m[1]);
     }
     if (refs.size === 0) continue;
     // Resolve to first script with statically-known counts. If none, skip.
@@ -1644,8 +1625,7 @@ export async function checkNumericalClaimVsScript({ commandsDir, scriptsDir }) {
       // Pair pattern: "n JSON + m JSONL [ = total ]"
       {
         const re = new RegExp(NUM_CLAIM_RE_PAIR.source, 'g');
-        let m;
-        while ((m = re.exec(line)) !== null) {
+        for (const m of line.matchAll(re)) {
           const j = parseInt(m[1], 10);
           const jl = parseInt(m[2], 10);
           const total = m[3] != null ? parseInt(m[3], 10) : null;
@@ -1666,8 +1646,7 @@ export async function checkNumericalClaimVsScript({ commandsDir, scriptsDir }) {
       // Checks pattern: "checks N artifacts"
       {
         const re = new RegExp(NUM_CLAIM_RE_CHECKS.source, NUM_CLAIM_RE_CHECKS.flags);
-        let m;
-        while ((m = re.exec(line)) !== null) {
+        for (const m of line.matchAll(re)) {
           const n = parseInt(m[1], 10);
           const expected = truth.jsonCount + truth.jsonlCount;
           if (n === expected) continue;
@@ -1809,8 +1788,7 @@ export async function checkMcpToolParamValidity({ commandsDir }) {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       const re = new RegExp(MCP_CALL_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const tool = m[1];
         const body = m[2];
         const namespaced = MCP_BARE_TO_NAMESPACED.get(tool);
@@ -1820,8 +1798,7 @@ export async function checkMcpToolParamValidity({ commandsDir }) {
         // Extract param keys from the object literal.
         const keys = new Set();
         const kre = new RegExp(MCP_PARAM_KEY_RE.source, 'g');
-        let km;
-        while ((km = kre.exec(body)) !== null) keys.add(km[1]);
+        for (const km of body.matchAll(kre)) keys.add(km[1]);
         const invalid = [...keys].filter((k) => !allowed.has(k));
         if (invalid.length === 0) continue;
         violations.push({
@@ -1908,20 +1885,11 @@ export async function checkDuplicateSectionHeadings({ commandsDir }) {
  * @returns {Promise<{summary:object, commands:object}>}
  */
 export async function emitManifest(ctx) {
-  const {
-    commandsDir,
-    scriptsDir,
-    schemasDir,
-    configKeys,
-    schemaFiles,
-    vocabEnums,
-    outPath,
-  } = ctx;
+  const { commandsDir, scriptsDir, schemasDir, configKeys, schemaFiles, vocabEnums, outPath } = ctx;
   const knownSchemas = schemaFiles ?? getSchemaFiles({ schemasDir });
   const knownConfigKeys = configKeys ?? getConfigKeys();
   const knownVocab =
-    vocabEnums ??
-    getVocabEnums({ vocabPath: path.join(schemasDir, 'vocabulary.schema.json') });
+    vocabEnums ?? getVocabEnums({ vocabPath: path.join(schemasDir, 'vocabulary.schema.json') });
   const cmdFiles = await listMarkdownFiles(commandsDir);
   const commands = {};
   let extracted = 0;
@@ -2002,8 +1970,7 @@ async function extractClaims({
     // script-invocation + script-flag claims
     {
       const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const scriptName = m[1];
         const ok = await existsScript(scriptName);
         claims.push({
@@ -2026,8 +1993,7 @@ async function extractClaims({
     // schema-file claims
     {
       const re = new RegExp(SCHEMA_REF_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const ref = m[1];
         if (SCHEMA_REF_ALLOWLIST.has(ref)) continue;
         claims.push({
@@ -2041,8 +2007,7 @@ async function extractClaims({
     // map-path claims
     {
       const re = new RegExp(MAP_PATH_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         claims.push({
           type: 'map-path',
           value: `_testatlas/maps/${m[1]}.json`,
@@ -2056,8 +2021,7 @@ async function extractClaims({
       const set = knownVocab?.[p.enum];
       if (!set) continue;
       const re = new RegExp(p.re.source, p.re.flags);
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const lit = m[1];
         if (!lit || VOCAB_LITERAL_IGNORE.has(lit)) continue;
         const allowed = set instanceof Set ? set : new Set(set);
@@ -2072,8 +2036,7 @@ async function extractClaims({
     // config-key claims
     for (const proto of CONFIG_KEY_HINT_RES) {
       const re = new RegExp(proto.source, proto.flags);
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         const k = m[1];
         if (!k) continue;
         claims.push({
@@ -2087,8 +2050,7 @@ async function extractClaims({
     // slash-command references
     {
       const re = new RegExp(SLASH_CMD_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         claims.push({
           type: 'slash-command',
           value: m[1],
@@ -2100,8 +2062,7 @@ async function extractClaims({
     // step-cross-reference claims (recorded; resolution computed per file)
     {
       const re = new RegExp(STEP_REF_RE.source, STEP_REF_RE.flags);
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         claims.push({
           type: 'step-cross-reference',
           value: `step ${m[1]}`,
@@ -2113,8 +2074,7 @@ async function extractClaims({
     // mcp-tool claims (deferred resolver per CONTEXT.md)
     {
       const re = new RegExp(MCP_TOOL_RE.source, 'g');
-      let m;
-      while ((m = re.exec(line)) !== null) {
+      for (const m of line.matchAll(re)) {
         claims.push({
           type: 'mcp-tool',
           value: `${m[1]}:${m[2]}`,
