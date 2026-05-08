@@ -2,7 +2,7 @@
 command: test-accessibility
 version: 1.0.0
 description: Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
-capabilities: [browser, MCP, file-write]
+capabilities: [browser, MCP, shell, file-write]
 produces:
   - test-run
   - evidence

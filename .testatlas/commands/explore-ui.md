@@ -2,7 +2,7 @@
 command: explore-ui
 version: 1.0.0
 description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
-capabilities: [browser, MCP, file-write]
+capabilities: [browser, MCP, shell, file-write]
 produces:
   - route
   - component

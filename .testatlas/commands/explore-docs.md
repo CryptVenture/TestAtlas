@@ -2,7 +2,7 @@
 command: explore-docs
 version: 1.0.0
 description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs.
-capabilities: [file-write]
+capabilities: [shell, file-write]
 produces:
   - evidence
   - command-result
