@@ -100,7 +100,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Audited `<n>` routes for accessibility — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-accessibility --actor agent --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-accessibility --actor agent --summary "Audited routes for accessibility and recorded findings" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

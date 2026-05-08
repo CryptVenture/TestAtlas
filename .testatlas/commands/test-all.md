@@ -109,7 +109,7 @@ Update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by ONE (per-child runs accounted for via `children:`); recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-all, executionMode `<mode>`) executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-all --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-all --actor agent --summary "Executed all scenarios across the matrix" --status completed --reindex`.
 
 ## Stop Conditions
 

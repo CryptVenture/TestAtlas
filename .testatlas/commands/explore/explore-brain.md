@@ -122,7 +122,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Audited brain — `<n>` validation findings / `<s>` stale / `<d>` dangling refs / `<o>` orphans in `_testatlas/evidence/explore-brain/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:core-brain-sync` runs and would mask drift this audit just surfaced.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-brain --actor agent --summary "Audited brain consistency and surfaced drift signals" --status completed`. Do NOT pass `--reindex` from this command — `index-artifacts.js` is what `/atlas:core-brain-sync` runs and would mask drift this audit just surfaced.
 
 ## Stop Conditions
 

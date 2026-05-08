@@ -90,7 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{routes,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` routes / `<m>` redirects / `<k>` guarded paths in `_testatlas/evidence/explore-routes/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-routes --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-routes --actor agent --summary "Mapped routing surfaces with redirects and guards" --status completed --reindex`.
 
 ## Stop Conditions
 

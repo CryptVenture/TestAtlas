@@ -87,7 +87,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Catalogued security surface — `<n>` auth surfaces / `<n>` secret-handling sites / `<n>` redaction risks; `<n>` critical / `<n>` high / `<n>` medium / `<n>` low / `<n>` enhancement findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security --actor agent --summary "Catalogued security surface and redaction risks" --status completed --reindex`.
 
 ## Stop Conditions
 

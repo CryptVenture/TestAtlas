@@ -92,7 +92,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-performance) — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked across `<n>` perf scenarios; throttle `<profile>`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-performance --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-performance --actor agent --summary "Executed performance scenarios with throttle profile" --status completed --reindex`.
 
 ## Stop Conditions
 

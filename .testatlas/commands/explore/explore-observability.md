@@ -117,7 +117,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Audited logging / metrics / alerts / tracing in `_testatlas/evidence/explore-observability/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-observability --actor agent --summary "Audited logging, metrics, alerts, and tracing surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

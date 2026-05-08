@@ -106,7 +106,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Performance-traced `<n>` routes (baseline + throttled) — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-performance --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-performance --actor agent --summary "Performance-traced routes and recorded findings" --status completed --reindex`.
 
 ## Stop Conditions
 

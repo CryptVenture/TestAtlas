@@ -105,7 +105,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-domain --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-domain --actor agent --summary "Executed domain scenarios and recorded outcomes" --status completed --reindex`.
 
 ## Stop Conditions
 

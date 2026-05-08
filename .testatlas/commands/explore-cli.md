@@ -99,7 +99,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the cli-command count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` CLI commands (`<safe>` safe, `<destructive>` destructive) into `12_app_map.json`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --summary "Mapped CLI commands into 12_app_map.json" --status completed --reindex`.
 
 ## Stop Conditions
 

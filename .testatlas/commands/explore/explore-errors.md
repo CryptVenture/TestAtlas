@@ -117,7 +117,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{evidence,issues}`.
 - `_testatlas/history/run_log.md` — narrative: "Probed `<n>` error paths across `<m>` surfaces; filed `<k>` issues; evidence at `_testatlas/evidence/explore-errors/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-errors --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-errors --actor agent --summary "Probed error paths and filed issues across surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

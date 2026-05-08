@@ -116,7 +116,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{issues,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Audited `<n>` auth flows / `<m>` permission boundaries / `<k>` injection surfaces; filed `<i>` issues."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security-privacy --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security-privacy --actor agent --summary "Audited auth flows, permissions, and injection surfaces" --status completed --reindex`.
 
 ## Stop Conditions
 

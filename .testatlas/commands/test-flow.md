@@ -116,7 +116,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-flow --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-flow --actor agent --summary "Executed flow scenarios and recorded outcomes" --status completed --reindex`.
 
 ## Stop Conditions
 

@@ -101,7 +101,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the api-endpoint count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` API endpoints across `<surfaces>` into `12_app_map.json`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-api --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-api --actor agent --summary "Mapped API endpoints into 12_app_map.json" --status completed --reindex`.
 
 ## Stop Conditions
 

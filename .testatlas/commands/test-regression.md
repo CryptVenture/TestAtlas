@@ -88,7 +88,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (regression vs `<baselineRunId>`) — `<n>` recovered / `<n>` unchanged / `<n>` regressed / `<n>` unverified."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --summary "Executed regression run against baseline" --status completed --reindex`.
 
 ## Stop Conditions
 

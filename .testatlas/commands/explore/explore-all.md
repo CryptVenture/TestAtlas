@@ -123,7 +123,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Do NOT alter `counts.*` (children's responsibility).
 - `_testatlas/history/run_log.md` — narrative: "Routed `<n>` recommended / `<m>` cached / `<k>` skip explorers (executionMode=`<mode>`); aggregated into `02_product_overview.md`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-all --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-all --actor agent --summary "Routed and ran explorers; aggregated into product overview" --status completed --reindex`.
 
 ## Stop Conditions
 

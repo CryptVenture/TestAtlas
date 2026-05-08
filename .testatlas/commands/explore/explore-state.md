@@ -110,7 +110,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` surfaces / `<m>` states / `<t>` transitions in `_testatlas/evidence/explore-state/<ts>/`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-state --actor agent --status completed --reindex` so the brain reflects the new evidence and map updates.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-state --actor agent --summary "Mapped surfaces, states, and transitions" --status completed --reindex` so the brain reflects the new evidence and map updates.
 
 ## Stop Conditions
 

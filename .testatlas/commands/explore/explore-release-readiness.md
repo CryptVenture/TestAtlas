@@ -109,7 +109,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Release readiness: `<state>` — `<n>` blockers / suggested bump `<bump>` — report at `_testatlas/reports/REPORT-release-readiness-<ts>.md`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-release-readiness --actor agent --status completed --reindex`.
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-release-readiness --actor agent --summary "Assessed release readiness across V2 quality signals" --status completed --reindex`.
 
 ## Stop Conditions
 
