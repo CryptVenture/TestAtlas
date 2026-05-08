@@ -89,6 +89,15 @@ test('normalize-slugs: --apply renames files and updates index references', asyn
   const fx = await makeValidationFixture('_base-good');
   t.after(fx.cleanup);
 
+  // Phase 19-02 (B1): the apply branch is now gated by
+  // requireCapability('destructive-fs'). Override the suite default
+  // (safeMode:true) so this legacy test can exercise the rename path.
+  await writeFile(
+    path.join(fx.cwd, 'testatlas.config.json'),
+    JSON.stringify({ safeMode: false, allowDestructiveActions: true }, null, 2),
+    'utf8',
+  );
+
   // Add a mis-slugged file pair under to_fix.
   await writeFile(path.join(fx.wsDir, 'to_fix', 'ISSUE-002-Bad_Name.md'), '# bad\n', 'utf8');
   await writeFile(

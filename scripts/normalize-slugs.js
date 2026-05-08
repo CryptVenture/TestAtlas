@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
+import { requireCapability } from './lib/safety.js';
 import { ID_PATTERNS, KEBAB_RE, slugify } from './lib/slug.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
@@ -257,6 +258,11 @@ export async function normalizeSlugs(args = {}, _inject = {}) {
   let applied = false;
 
   if (apply && !dryRun) {
+    // Phase 19-02 (B1): destructive-fs gate. The apply branch performs
+    // rename(...) on user-workspace artifacts under
+    // _testatlas/{to_fix,flows,domains,evidence,reports,tests/runs}/.
+    // Mirror the v2-migrate.js Phase 18 pattern (ISSUE-010).
+    requireCapability(config, 'destructive-fs');
     // Execute renames first.
     for (const entry of renamePlan) {
       await _rename(entry.from, entry.to);
