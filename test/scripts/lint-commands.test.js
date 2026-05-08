@@ -19,11 +19,15 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
+  checkEnumValueValidity,
   checkFlagExistence,
   checkFrontmatterScriptForm,
+  checkLifecyclePosition,
   checkLifecycleCompleteness,
   checkPathCanonicity,
+  checkRequiredFlags,
   checkSchemaKeyExistence,
+  checkVocabEnumDrift,
   runLinter,
 } from '../../scripts/lint-commands.js';
 
@@ -392,6 +396,260 @@ test('checkFrontmatterScriptForm: NEGATIVE — bare scripts/ form in description
   assert.equal(violations.length, 1);
   assert.equal(violations[0].invariant, 'frontmatter-script-form');
   assert.match(violations[0].file, /cmd\.md$/);
+});
+
+// ─── Sub-invariant 1.1: flag-completeness (Quick 260508-rqx) ────────────────
+
+const REQUIRED_BRAIN_FLAGS = {
+  'update-brain-after-command.js': ['--command', '--actor', '--summary'],
+};
+
+test('checkRequiredFlags: POSITIVE — invocation with all required flags emits no violations', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv1.1-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command foo --actor agent --summary "did foo" --status completed`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkRequiredFlags({
+    commandsDir,
+    requiredFlags: REQUIRED_BRAIN_FLAGS,
+  });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkRequiredFlags: NEGATIVE — missing --summary emits one violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv1.1-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command foo --actor agent --status completed`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkRequiredFlags({
+    commandsDir,
+    requiredFlags: REQUIRED_BRAIN_FLAGS,
+  });
+  assert.equal(violations.length, 1, `expected 1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'flag-completeness');
+  assert.match(violations[0].reason, /--summary/);
+  assert.ok(violations[0].suggestion && /--summary/.test(violations[0].suggestion));
+  assert.equal(typeof violations[0].file, 'string');
+  assert.equal(typeof violations[0].line, 'number');
+});
+
+// ─── Sub-invariant 1.2: enum-value-validity (Quick 260508-rqx) ──────────────
+
+const ENUM_BRAIN_FLAGS = {
+  'update-brain-after-command.js': {
+    '--status': ['completed', 'aborted', 'in_progress'],
+  },
+};
+
+test('checkEnumValueValidity: POSITIVE — completed/aborted/in_progress all pass', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv1.2-pos');
+  await writeCmd(
+    commandsDir,
+    'a.md',
+    [
+      '# A',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command a --actor agent --summary x --status completed`.',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command a --actor agent --summary x --status aborted`.',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command a --actor agent --summary x --status in_progress`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkEnumValueValidity({
+    commandsDir,
+    enumFlags: ENUM_BRAIN_FLAGS,
+  });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkEnumValueValidity: NEGATIVE — --status success and --status failure are flagged', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv1.2-neg');
+  await writeCmd(
+    commandsDir,
+    'b.md',
+    [
+      '# B',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command b --actor agent --summary x --status success`.',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command b --actor agent --summary x --status failure`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkEnumValueValidity({
+    commandsDir,
+    enumFlags: ENUM_BRAIN_FLAGS,
+  });
+  assert.equal(violations.length, 2, `expected 2 violations, got: ${JSON.stringify(violations)}`);
+  for (const v of violations) {
+    assert.equal(v.invariant, 'enum-value-invalid');
+    assert.ok(v.detail && (/success/.test(v.detail) || /failure/.test(v.detail)));
+    assert.ok(v.suggestion && /completed/.test(v.suggestion));
+  }
+});
+
+// ─── Invariant 6: vocab-enum-drift (Quick 260508-rqx) ───────────────────────
+
+const FIXTURE_VOCAB = {
+  $defs: {
+    testType: {
+      enum: [
+        'smoke',
+        'user-flow',
+        'exploratory',
+        'regression',
+        'negative',
+        'state',
+        'accessibility',
+        'performance',
+        'integration',
+        'setup',
+      ],
+    },
+  },
+};
+
+const VOCAB_PATTERNS = [{ enum: 'testType', cuePattern: /\btest\s*types?\b/i }];
+
+test('checkVocabEnumDrift: POSITIVE — list members of testType enum pass', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv6-pos');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB);
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Test types: smoke, user-flow, exploratory.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkVocabEnumDrift({
+    commandsDir,
+    schemasDir,
+    vocabPatterns: VOCAB_PATTERNS,
+  });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkVocabEnumDrift: NEGATIVE — security and data-integrity flagged as not in testType enum', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv6-neg');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB);
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Test types: smoke, security, data-integrity.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkVocabEnumDrift({
+    commandsDir,
+    schemasDir,
+    vocabPatterns: VOCAB_PATTERNS,
+  });
+  assert.ok(violations.length >= 2, `expected >=2 violations, got: ${JSON.stringify(violations)}`);
+  const tokens = violations.map((v) => v.detail || v.reason).join(' ');
+  assert.ok(/security/.test(tokens), 'expected security to be flagged');
+  assert.ok(/data-integrity/.test(tokens), 'expected data-integrity to be flagged');
+  for (const v of violations) {
+    assert.equal(v.invariant, 'vocab-enum-drift');
+  }
+});
+
+// ─── Invariant 7: lifecycle-position (Quick 260508-rqx) ─────────────────────
+
+test('checkLifecyclePosition: POSITIVE — Lifecycle heading then brain hook passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv7-pos');
+  await writeCmd(
+    commandsDir,
+    'good.md',
+    [
+      '# Good',
+      '',
+      '## Lifecycle',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command good --actor agent --summary x --status completed`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecyclePosition({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkLifecyclePosition: NEGATIVE-A — brain hook present but Lifecycle heading missing', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv7-negA');
+  await writeCmd(
+    commandsDir,
+    'no-lifecycle.md',
+    [
+      '# No Lifecycle',
+      '',
+      '## Stuff',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command x --actor agent --summary y`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecyclePosition({ commandsDir });
+  assert.equal(violations.length, 1, `expected 1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'lifecycle-position');
+  assert.match(violations[0].reason, /Lifecycle/);
+});
+
+test('checkLifecyclePosition: NEGATIVE-B — brain hook before Lifecycle heading', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv7-negB');
+  await writeCmd(
+    commandsDir,
+    'wrong-order.md',
+    [
+      '# Wrong Order',
+      '',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command x --actor agent --summary y`.',
+      '',
+      '## Lifecycle',
+      '',
+      '- something else',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecyclePosition({ commandsDir });
+  assert.equal(violations.length, 1, `expected 1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'lifecycle-position');
+  assert.match(violations[0].reason, /position|before|out-of-position/i);
+});
+
+test('checkLifecyclePosition: ALLOWLIST — explore.md (umbrella) without ## Lifecycle is not flagged', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv7-allow');
+  await writeCmd(
+    commandsDir,
+    'explore.md',
+    [
+      '# Explore (umbrella)',
+      '',
+      '## Stuff',
+      '',
+      '- composes children',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecyclePosition({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
 });
 
 // ─── runLinter smoke ────────────────────────────────────────────────────────
