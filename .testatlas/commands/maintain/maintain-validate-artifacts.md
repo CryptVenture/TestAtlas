@@ -91,7 +91,7 @@ The four validation dimensions:
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
    - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON:
-     (a) every required brain file is present (22 total: 19 JSON + 3 JSONL),
+     (a) every required brain file is present (23 total: 20 JSON + 3 JSONL),
      (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
      object, (d) each file's parsed value validates against its registered
      V2 schema via AJV (per-file). The script does NOT perform cross-id
