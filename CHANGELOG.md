@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Added (Phase 19 — Handoff accelerator + capability-gate sweep)
+
+- **Group A — Handoff validation accelerator.** New `scripts/validate-handoff.js` validates `_testatlas/handoffs/HANDOFF-<ts>.json` sidecars against `sub-agent-handoff.schema.json` using the suite-canonical Ajv2020 + `ajv-formats` singleton (`scripts/lib/ajv-instance.js#getAjv()` + `scripts/lib/schema-loader.js#loadAllSchemas`). CLI: `node scripts/validate-handoff.js <handoff-json-path> [--cwd <p>] [--workspace <p>]`. `.testatlas/commands/handoff.md` Required Actions step 6 now ships a Preferred-path block invoking the accelerator (`node .testatlas/scripts/validate-handoff.js`); manual fallback wording preserved for adapters/agents without `shell` capability. All 18 adapter trees regenerated. New regression test `test/scripts/validate-handoff.test.js` covers valid + invalid + schemas-dir-missing cases. Closes the SUB-FINDING-4-DEFERRED Phase-18 deferral. After this change, `/atlas:handoff` reports `ok` instead of `partial`.
+
+- **Group B — Capability-gate sweep.** `scripts/normalize-slugs.js` apply branch is now gated by `requireCapability(config, 'destructive-fs')` — operator-confirmed under safeMode:false / allowDestructiveActions:true; refused under default-deny. `scripts/e2e/run-node-api-graph.js` carries a permanent SAFETY-EXEMPT annotation block documenting its tmpdir-only scope and the cross-reference to `test/safety/capability-gate-invariant.test.js`'s allowlist. The Phase 18 invariant test allowlist shrinks: `normalize-slugs.js` removed (the gate is now wired in, not allowlisted); `e2e/run-node-api-graph.js` justification refined. New regression test `test/scripts/normalize-slugs-safety.test.js` proves zero FS mutation under denial.
+
 ### Fixed
 
 - **Phase 18 / Plan 18-01 — Wave 0 safety hotfix (ISSUE-010 + ISSUE-011)** (see `prd/reviews/dogfood-tmpv2-2026-05-07-open-issues-review.md`). Closes both real safety gaps surfaced by the dogfood audit. The capability boundary the suite advertises is now structurally enforced.
