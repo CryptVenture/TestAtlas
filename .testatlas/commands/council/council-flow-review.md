@@ -95,6 +95,18 @@ Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after rou
 - Flow's `flow.{md,json}` missing → halt: "Run `/atlas:map-domains` and create the flow first."
 - Fewer than 2 participants → halt.
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`roundtable-review`), target flow, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated `_testatlas/domains/<domain>/flows/<flow>/flow.{md,json}` artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`roundtable-review` / flow `<flow>`) — `<n>` participants / `<n>` rounds / `<n>` flow findings / `<n>` accepted canonical updates; consolidation proposes updates to the flow artifacts."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-flow-review --actor agent --summary "Ran Flow Review Council on <flow> and produced canonical-update proposals" --status completed --reindex`.
+
 ## Completion Criteria
 
 - Session folder contains all 15 PRD §7.8 artifacts.

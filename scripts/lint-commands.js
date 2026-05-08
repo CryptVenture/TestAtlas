@@ -1863,6 +1863,54 @@ export async function checkDuplicateSectionHeadings({ commandsDir }) {
   return violations;
 }
 
+// ─── INV-H: missing-canonical-section (Round-13 follow-up, Quick 260508-u72) ─
+
+/**
+ * Every command body MUST have a `## Lifecycle` H2 section. The earlier
+ * `lifecycle-heading-strict` invariant (Quick 260508-syv) only catches
+ * misnamed lifecycle headings; if the section is **absent entirely**,
+ * that invariant emits no violation. INV-H closes that gap.
+ *
+ * Allow opt-out via `<!-- no-lifecycle: <reason> -->` placed anywhere in
+ * the file body (e.g., for read-only documentation surfaces with no
+ * brain-write side-effects).
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkMissingCanonicalSection({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const OPT_OUT_RE = /<!--\s*no-lifecycle\s*:[^>]*-->/i;
+  // H2-only: `## Lifecycle` (case-insensitive, trailing whitespace tolerated).
+  const LIFECYCLE_H2_RE = /^##\s+Lifecycle\s*$/i;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    if (OPT_OUT_RE.test(text)) continue;
+    const lines = text.split('\n');
+    let found = false;
+    for (const line of lines) {
+      if (LIFECYCLE_H2_RE.test(line)) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      violations.push({
+        invariant: 'missing-canonical-section',
+        file: path.relative(PROJECT_ROOT, file),
+        line: 1,
+        reason: 'command body has no `## Lifecycle` H2 section',
+        detail:
+          'Every command MUST declare a `## Lifecycle` section (H2) describing its post-run brain-update behavior. Absence indicates the command body lost or never had its lifecycle contract.',
+        suggestion:
+          'add a `## Lifecycle` H2 with the canonical brain-update hook, OR annotate the file with `<!-- no-lifecycle: <reason> -->` for legitimate read-only doc surfaces',
+      });
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -2145,6 +2193,8 @@ export async function runLinter(opts = {}) {
     () => checkCapabilityStopNonContradiction({ commandsDir, schemasDir }),
     () => checkMcpToolParamValidity({ commandsDir }),
     () => checkDuplicateSectionHeadings({ commandsDir }),
+    // Round-13 follow-up (Quick 260508-u72) — 4 new invariants:
+    () => checkMissingCanonicalSection({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2213,6 +2263,7 @@ Invariants:
   21  duplicate-section-heading (HARD) any H2 appearing more than once in a file (u72)
   22  bare-script-path-everywhere (HARD) opt-out marker honors source-repo refs (u72)
         (extends invariant 11 with <!-- bare-script-path-allowed: <reason> --> support)
+  23  missing-canonical-section (HARD) every command body has a \`## Lifecycle\` H2 (u72/Round-13)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)

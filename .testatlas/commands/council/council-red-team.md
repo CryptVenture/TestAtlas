@@ -94,6 +94,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Any persona attempts an exploit payload → halt; this command does NOT execute exploits.
 - Fewer than 2 participants → halt.
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`red-team`), scope, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder and any updated risk-register / issue artifacts must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`red-team` / scope `<scope>`) — `<n>` participants / `<n>` rounds / `<n>` claims attacked / `<n>` weakened / `<n>` overturned; consolidation proposes risk-register and issue updates."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-red-team --actor agent --summary "Ran Red Team Council on <scope> and produced risk-register / issue updates" --status completed --reindex`.
+
 ## Completion Criteria
 
 - Session folder contains all 15 PRD §7.8 artifacts.

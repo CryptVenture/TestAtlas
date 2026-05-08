@@ -93,6 +93,18 @@ Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 - Fewer than 2 participants → halt.
 - Disputed claims remain after consolidation AND priority is `critical` → escalate to human (`generated_questions.md`).
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record session id, mode (`debate`), debate question, participants, completion state, and pointers to the session folder under `_testatlas/agents/councils/sessions/<session-id>/`.
+- `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new session folder must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this council session id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Council session counts live in V2 brain state — see the `council_sessions` field of `_testatlas/brain/state.json`'s `counts` object — and are reconciled by the brain-update hook below; the V1 manifest's `counts.*` keys remain `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
+- `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`debate` / `<debate-question-slug>`) — `<n>` participants / `<n>` rounds / `<n>` accepted claims / `<n>` rejected / `<n>` disputed; consolidation produces a strategy memo for human review."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command council-product-review --actor agent --summary "Ran Product Review Council debate on <debate-question> and produced strategy memo" --status completed --reindex`.
+
 ## Completion Criteria
 
 - Session folder contains all 15 PRD §7.8 artifacts.
