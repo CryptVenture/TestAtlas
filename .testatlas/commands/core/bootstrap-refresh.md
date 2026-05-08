@@ -80,9 +80,9 @@ If `shell` is unavailable, skip the budget-check step and mark the run record `c
 - Lifecycle artifacts updated.
 - An `EVENT-N` of type `command_completed` is appended to `_testatlas/brain/events.jsonl`.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path.
+Call `node .testatlas/scripts/update-brain-after-command.js --command core-bootstrap-refresh --actor agent --summary "Bootstrap reaffirmed."` to append a `command_completed` event and bump `state.status.last_command`. This is the canonical post-operation brain update path; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

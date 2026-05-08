@@ -129,9 +129,9 @@ The four validation dimensions:
 - Brain directory missing → halt with `BRAIN_MISSING`; the workspace is V1 — recommend `maintain-migrate` first.
 - Any dimension reports issues → halt with non-zero exit so CI fails closed (the orchestrator does not support a `--report-only` bypass mode).
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status completed` (or `--status aborted` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

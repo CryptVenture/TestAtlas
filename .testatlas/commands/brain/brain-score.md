@@ -101,9 +101,9 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 - Schema validation failure on the written file → halt; do NOT publish a partial scores file.
 - Unknown `--category` → halt with the list of valid categories.
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --actor agent --summary "Scored workspace quality across drift signals" --status completed` (or `--status aborted` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --actor agent --summary "Scored workspace quality across drift signals" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts are updated by the brain-update hook plus the artifacts under Outputs.
 
 ## What's Next
 

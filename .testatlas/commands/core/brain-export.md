@@ -83,9 +83,9 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 - Lifecycle artifacts updated.
 - A `command_completed` event recorded.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-export --actor agent --summary "Exported brain: <mode>" --artifacts-written <export path>`. The export path is captured in the event so handoff to another agent has an audit trail; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

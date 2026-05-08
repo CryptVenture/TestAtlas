@@ -98,9 +98,9 @@ Detect drift between when each domain/flow/route was last explored and what has 
 - Brain directory missing → halt with `BRAIN_MISSING`.
 - Git not available AND `shell` declared → degrade to mtime-only and emit warning; do NOT halt.
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --actor agent --summary "Computed drift signals across workspace artifacts" --status completed` (or `--status aborted` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --actor agent --summary "Computed drift signals across workspace artifacts" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts (`_testatlas/03_execution_status.md`, `_testatlas/09_artifact_index.md`, `_testatlas/10_command_log.md`, `_testatlas/11_workspace_manifest.json` `lastUpdatedAt`, `_testatlas/history/run_log.md`) are updated by the brain-update hook and the artifacts referenced under Outputs.
 
 ## What's Next
 

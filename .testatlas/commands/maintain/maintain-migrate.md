@@ -117,9 +117,9 @@ produces a no-op success. Always safe to retry.
 - V2 markers already present AND `--force` not passed → halt with `ALREADY_V2` (operator can re-run with `--force` for re-baseline).
 - Backup creation fails → halt with `BACKUP_FAILED` BEFORE any migration write.
 
-## Update Brain After Command
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --actor "atlas-agent" --summary "Migrated workspace from V1 to V2 (or no-op if already V2)" --status completed` (or `--status aborted` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-migrate --actor "atlas-agent" --summary "Migrated workspace from V1 to V2 (or no-op if already V2)" --status completed` (or `--status aborted` with the error code). The standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

@@ -80,9 +80,9 @@ Keep the brain durable without bloating it. Long transcripts (`agents/councils/s
 - `validate-brain.js` exits 0 (or `needs-validation` if shell-degraded).
 - A `command_completed` event recorded.
 
-## Post-Operation Brain Update
+## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-compact --actor agent --summary "Compacted N file(s)" --artifacts-written <comma list>`. The compacted file paths are recorded in the event so the audit trail is preserved; the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 
