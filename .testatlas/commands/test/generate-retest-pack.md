@@ -112,7 +112,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/to_fix/` missing → halt with `TO_FIX_MISSING`.
+- `_testatlas/to_fix/` missing → tolerated as empty issue set (returns zero packs); not a halt.
 - `--issue-id` references a non-existent issue → halt with `ISSUE_NOT_FOUND`.
 - Schema validation failure on the written file → halt with the AJV error path; do NOT publish a partial pack.
 

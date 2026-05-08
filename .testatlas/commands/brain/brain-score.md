@@ -97,7 +97,7 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Stop Conditions
 
-- Brain directory missing → halt with `BRAIN_MISSING`; the operator must run `/atlas:core-init` first.
+- Brain directory missing → halt with `TESTATLAS_BRAIN_MISSING`; the operator must run `/atlas:core-init` first.
 - Schema validation failure on the written file → halt; do NOT publish a partial scores file.
 - Unknown `--category` → halt with the list of valid categories.
 

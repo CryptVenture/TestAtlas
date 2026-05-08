@@ -151,11 +151,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/02_test_strategy.md` missing → halt with `TEST_STRATEGY_MISSING`.
-- `_testatlas/tests/matrix.json` missing → halt with `MATRIX_MISSING`.
-- Critical flow set empty → halt with `NO_CRITICAL_FLOWS` and recommend a strategy review.
-- Evidence directory cannot be written → halt with `EVIDENCE_DIR_UNWRITABLE`.
-- AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with `RUN_SCHEMA_INVALID`; do not commit a malformed run sidecar.
+- `_testatlas/02_test_strategy.md` missing → agent halts before invoking any script; recommend running `/atlas:plan` first. (No enumerated error code — this is an agent-side precondition.)
+- `_testatlas/tests/matrix.json` missing → agent halts before invoking any script; recommend running `/atlas:plan` first. (Agent-side precondition.)
+- Critical flow set empty → agent halts and recommends a strategy review. (Agent-side precondition; no script halt code.)
+- Evidence directory cannot be written → the underlying `node:fs` `EACCES`/`EROFS` errno surfaces from the run script; the orchestrator aborts the run before recording any partial RUN sidecar.
+- AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with the AJV error path; do not commit a malformed run sidecar. (Validation runs through `validate-workspace.js` — see its typed findings for the precise path.)
 
 ## Update Brain After Command
 

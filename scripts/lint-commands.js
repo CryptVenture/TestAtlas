@@ -1227,6 +1227,153 @@ export async function checkStepCrossReference({ commandsDir }) {
   return violations;
 }
 
+// ─── Invariant 16: stop-code-existence (Quick 260508-u72 INV-A) ─────────────
+
+// Generic halt-style words that surface in `## Stop Conditions` blocks but
+// do NOT correspond to a specific enumerated error code in any script. These
+// are descriptive, not enumerated, and must not be flagged.
+const STOP_CODE_GENERIC_ALLOWLIST = new Set([
+  'STOP',
+  'HALT',
+  'ERROR',
+  'OK',
+  'FAIL',
+  'EXIT',
+  'CRITICAL',
+  'WARNING',
+  'INFO',
+  'NONE',
+  'TODO',
+  'NOTE',
+  'JSON',
+  'JSONL',
+  'YAML',
+  'NULL',
+  'UNDEFINED',
+  'TRUE',
+  'FALSE',
+  // POSIX errno codes that surface from Node fs operations — these are
+  // emitted by the runtime, not the script, and the script does not define
+  // them as throw-strings.
+  'EACCES',
+  'EROFS',
+  'ENOENT',
+  'EEXIST',
+  'EISDIR',
+  'ENOTDIR',
+  'EPERM',
+  'EBUSY',
+  'EMFILE',
+]);
+
+// Tokens are extracted ONLY when backtick-wrapped (e.g., `WORKSPACE_MISSING`)
+// — that's the convention for citing an enumerated error code in command
+// bodies. Bare-prose uppercase words (REFUSE, TESTATLAS, START, BEFORE, …)
+// and HTML-comment marker names (TESTATLAS:GENERATED) are NOT codes. The
+// backtick gate eliminates the noisy false-positive class.
+const STOP_CODE_TOKEN_RE = /`([A-Z][A-Z0-9_]{4,})`/g;
+
+/**
+ * Parse `## Stop Conditions` blocks for uppercase enum-style error codes
+ * (e.g., WORKSPACE_MISSING, BACKUP_FAILED). For each code, verify it appears
+ * in the source of at least one script invoked in the same command body
+ * (`node .testatlas/scripts/<x>.js`). Codes that exist in NO referenced
+ * script are flagged as fictional.
+ *
+ * Conservative — only triggers when:
+ *   1. A `## Stop Conditions` (level 1 or 2) heading exists.
+ *   2. The token matches the enum shape (≥5 chars, uppercase + digits + _).
+ *   3. The token is not on the generic allowlist (STOP/HALT/ERROR/etc).
+ *   4. The body contains at least one `node .testatlas/scripts/<x>.js`
+ *      invocation (otherwise the check cannot resolve and is silently skipped).
+ *
+ * @param {{commandsDir:string, scriptsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkStopCodeExistence({ commandsDir, scriptsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  // Cache: scriptName → string source (or null if missing/unreadable)
+  const scriptSrcCache = new Map();
+  async function loadScript(name) {
+    if (scriptSrcCache.has(name)) return scriptSrcCache.get(name);
+    let src = null;
+    try {
+      src = await readFile(path.join(scriptsDir, `${name}.js`), 'utf8');
+    } catch {
+      src = null;
+    }
+    scriptSrcCache.set(name, src);
+    return src;
+  }
+  const SCRIPT_INVOKE_RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b/g;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    // Locate `## Stop Conditions` (or `# Stop Conditions`) heading.
+    let startLine = -1;
+    for (let i = 0; i < lines.length; i++) {
+      if (/^#{1,2}\s+Stop\s+Conditions\s*$/i.test(lines[i])) {
+        startLine = i;
+        break;
+      }
+    }
+    if (startLine === -1) continue;
+    // Section ends at next H1/H2 heading.
+    let endLine = lines.length;
+    for (let i = startLine + 1; i < lines.length; i++) {
+      if (/^#{1,2}\s+\S/.test(lines[i])) {
+        endLine = i;
+        break;
+      }
+    }
+    // Collect all script invocations in the body (any section).
+    const referencedScripts = new Set();
+    {
+      const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
+      let m;
+      while ((m = re.exec(text)) !== null) referencedScripts.add(m[1]);
+    }
+    if (referencedScripts.size === 0) continue;
+    // Load each referenced script's source — combined haystack.
+    let combined = '';
+    for (const name of referencedScripts) {
+      const src = await loadScript(name);
+      if (src) combined += `\n${src}`;
+    }
+    if (combined.length === 0) continue;
+    // For each enum-shaped token in the section, verify presence in haystack.
+    for (let i = startLine + 1; i < endLine; i++) {
+      const line = lines[i];
+      const tokens = new Set();
+      const re = new RegExp(STOP_CODE_TOKEN_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const tok = m[1];
+        if (STOP_CODE_GENERIC_ALLOWLIST.has(tok)) continue;
+        tokens.add(tok);
+      }
+      for (const code of tokens) {
+        // Look for the code as a string-literal anywhere in the haystack
+        // (within throw new Error / return { code } / err.code = '<X>' /
+        // code: '<X>' / status: '<X>'). The simplest robust match is the
+        // token-as-substring with word-boundary; scripts use it as a string.
+        const codeRe = new RegExp(`\\b${code}\\b`);
+        if (codeRe.test(combined)) continue;
+        violations.push({
+          invariant: 'stop-code-existence',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `stop code "${code}" not found in any referenced script`,
+          detail: `${code} cited in ## Stop Conditions but absent from sources of scripts: ${[...referencedScripts].sort().join(', ')}`,
+          suggestion: `verify against actual throw/return statements; remove the citation if fictional, or align the script to emit the code`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -1519,6 +1666,8 @@ export async function runLinter(opts = {}) {
     () => checkConfigKeyExistence({ commandsDir }),
     () => checkOptionPairCompleteness({ commandsDir }),
     () => checkStepCrossReference({ commandsDir }),
+    // Round-12 (Quick 260508-u72) — 7 new invariants:
+    () => checkStopCodeExistence({ commandsDir, scriptsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -1579,6 +1728,7 @@ Invariants:
   13  config-key-existence      (HARD) cited config keys exist in default.config.json (syv)
   14  option-pair-completeness  (HARD) Option B implies Option A precedes (syv)
   15  step-cross-reference      (HARD) "step N" references resolve (syv)
+  16  stop-code-existence       (HARD) ## Stop Conditions codes exist in script (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)

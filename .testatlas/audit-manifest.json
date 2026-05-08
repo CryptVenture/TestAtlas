@@ -1,12 +1,12 @@
 {
   "version": 1,
-  "generated_at": "2026-05-08T21:18:46.330Z",
+  "generated_at": "2026-05-08T21:26:29.718Z",
   "summary": {
     "commands_scanned": 73,
-    "claims_extracted": 907,
-    "claims_resolved": 539,
+    "claims_extracted": 908,
+    "claims_resolved": 540,
     "claims_unresolved": 368,
-    "resolution_rate": "59.4%"
+    "resolution_rate": "59.5%"
   },
   "commands": {
     "bootstrap.md": {
@@ -4336,51 +4336,57 @@
           "resolution": "valid"
         },
         {
-          "type": "script-invocation",
-          "value": "generate-dashboard-data.js",
-          "location": "L125",
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L120",
           "resolution": "valid"
         },
         {
           "type": "script-invocation",
           "value": "generate-dashboard-data.js",
-          "location": "L128",
+          "location": "L126",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L129",
           "resolution": "valid"
         },
         {
           "type": "script-flag",
           "value": "generate-dashboard-data.js --output",
-          "location": "L128",
+          "location": "L129",
           "resolution": "unresolved"
         },
         {
           "type": "script-invocation",
           "value": "generate-dashboard-data.js",
-          "location": "L131",
+          "location": "L132",
           "resolution": "valid"
         },
         {
           "type": "script-flag",
           "value": "generate-dashboard-data.js --cwd",
-          "location": "L131",
+          "location": "L132",
           "resolution": "unresolved"
         },
         {
           "type": "script-invocation",
           "value": "validate-workspace.js",
-          "location": "L139",
+          "location": "L140",
           "resolution": "valid"
         },
         {
           "type": "schema-file",
           "value": "dashboard_data.schema.json",
-          "location": "L139",
+          "location": "L140",
           "resolution": "valid"
         },
         {
           "type": "schema-file",
           "value": "command-result.schema.json",
-          "location": "L141",
+          "location": "L142",
           "resolution": "valid"
         }
       ]

@@ -98,7 +98,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Stop Conditions
 
 - `quality_scores.json` missing → halt with instruction to run `brain-score`.
-- Domain slug not found in `_testatlas/brain/domains.json` → halt with `DOMAIN_NOT_FOUND`.
+- Domain slug not found in `_testatlas/brain/domains.json` → halt; the generator throws a prose error message naming the missing slug (no enumerated error code).
 
 ## Update Brain After Command
 

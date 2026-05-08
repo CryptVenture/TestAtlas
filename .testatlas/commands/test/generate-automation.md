@@ -127,8 +127,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/flows/` missing → halt with `FLOWS_MISSING`.
-- Unknown `--framework` value → halt with the list of supported frameworks.
+- `_testatlas/flows/` missing → tolerated as empty (no flows enumerated, zero files written); not a halt.
+- Unknown `--framework` value → halt with `UNKNOWN_FRAMEWORK` and the list of supported frameworks.
 - Both `--flow` and `--issue` absent without `--all` → emit zero files (no-op success).
 
 ## Update Brain After Command

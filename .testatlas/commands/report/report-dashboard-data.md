@@ -114,9 +114,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- Halt with `BRAIN_DIR_MISSING` if `_testatlas/brain/` does not exist.
+- Missing `_testatlas/brain/` is tolerated — the generator degrades to empty defaults (zero domains/flows/issues) rather than halting. Run `/atlas:core-init` first if a populated dashboard is expected.
 - Halt with `DASHBOARD_SCHEMA_VIOLATION` if the projected document fails AJV validation against `dashboard_data.schema.json`. (The generator throws this before write — no partial files reach disk.)
 - Halt with `BAD_FORMAT` if `--format` is not one of `json | html-preview`.
+- Halt with `SCHEMA_NOT_REGISTERED` if the V2 schema registry omits `dashboard_data.schema.json`.
 
 ## Examples
 

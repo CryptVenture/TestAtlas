@@ -113,7 +113,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Stop Conditions
 
-- `_testatlas/flows/` missing → halt with `FLOWS_MISSING`; the operator must run `/atlas:explore` first.
+- `_testatlas/flows/` missing → tolerated as empty flow set (returns zero scenarios); the operator should run `/atlas:explore` first to populate it.
 - A flow JSON sidecar fails parse → halt; do NOT publish a partial scenario set.
 - Schema validation failure on the written file → halt with the AJV error path.
 

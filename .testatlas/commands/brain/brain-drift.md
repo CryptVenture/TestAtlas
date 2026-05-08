@@ -95,7 +95,7 @@ Detect drift between when each domain/flow/route was last explored and what has 
 
 ## Stop Conditions
 
-- Brain directory missing → halt with `BRAIN_MISSING`.
+- Brain directory missing → halt with `TESTATLAS_BRAIN_MISSING`.
 - Git not available AND `shell` declared → degrade to mtime-only and emit warning; do NOT halt.
 
 ## Lifecycle
