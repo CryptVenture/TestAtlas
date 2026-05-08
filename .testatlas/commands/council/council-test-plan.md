@@ -47,7 +47,7 @@ Run a Test Plan Council (PRD §7.9) when planning a major test run, onboarding a
 - `_testatlas/brain/state.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/flows.json`
 - `_testatlas/02_test_strategy.md` (if present)
 - `_testatlas/explorers/tests/tests_explorer.json` (if present)
-- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json`
+- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json` — read each file IF PRESENT (the `_testatlas/maps/` directory is empty in fresh / pre-explore workspaces; treat any missing file as a tolerant skip rather than a halt, and surface the gap as a coverage-gap input to the council).
 
 ## Participant Selection
 

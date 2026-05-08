@@ -63,7 +63,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
    - Well-formed generated-section marker pair → re-render the generated content between the markers while preserving all bytes outside markers (per the markers parser semantics). The accelerator (`update-indexes.js`) regenerates section bodies **unconditionally**: any human edits made *inside* a `<!-- TESTATLAS:GENERATED -->` block will be replaced. The manifest's `generatedSections[<file>][<section>]` hash is updated to the freshly rendered body — it records the last render and is **not** consulted to skip re-renders. Operators must keep human-authored prose strictly outside markers.
    - Orphan / malformed markers (orphan START, orphan END, mismatched section attribute, missing END at EOF, nested START, duplicate section) → the accelerator throws `TESTATLAS_MARKER_INVALID` and **halts the entire run**, refusing to write any section of `09_artifact_index.md`. The operator must hand-repair the marker pair before re-running cleanup; the accelerator does not produce a partial-fix list.
 8. **Re-derive `_testatlas/09_artifact_index.md`** from disk truth. The artifact index must reflect what exists on disk, not what was previously recorded.
-9. **Reconcile `_testatlas/11_workspace_manifest.json` counts** to match the re-derived index. Bump `lastUpdatedAt`. If counts cannot be reconciled (e.g., the manifest claims more issues than exist on disk and the discrepancy cannot be explained by orphaned artifacts), halt and surface for operator review rather than silently rewrite.
+9. **Bump `_testatlas/11_workspace_manifest.json` `lastUpdatedAt`** when `update-indexes.js` runs (the accelerator does this automatically and refreshes `generatedSections[<file>][<section>]` hashes). The cleanup scripts (`update-indexes.js`, `normalize-slugs.js`, `check-stale-docs.js`) do NOT mutate `counts.*` — count reconciliation is owned by per-domain/flow/issue/evidence/run commands and `sync-status.js`, not cleanup. If the manifest's `counts.*` appear divergent from disk truth, surface for operator review rather than silently rewrite.
 10. **Write `_testatlas/cleanup-report-<ts>.md`** listing each enumerated item, the action taken (or `requires-review`), and the resulting state. The report is the durable record of this run.
 11. Close the lifecycle (next section).
 
@@ -71,7 +71,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 
 - `_testatlas/cleanup-report-<ts>.md` — list of orphans, broken links, stale markers, and the action taken for each (`re-linked`, `re-rendered`, `requires-review`).
 - Updated `_testatlas/09_artifact_index.md` — re-derived from disk.
-- Updated `_testatlas/11_workspace_manifest.json` — counts reconciled.
+- Updated `_testatlas/11_workspace_manifest.json` — `lastUpdatedAt` bumped and `generatedSections[<file>][<section>]` hash refreshed by `update-indexes.js` (cleanup does NOT touch `counts.*`).
 - Updated content inside `<!-- TESTATLAS:GENERATED -->` markers — section bodies are re-rendered unconditionally on every accelerator run; the manifest's `generatedSections[<file>][<section>]` hash is refreshed to the new body and is not used to skip re-renders.
 
 ## Lifecycle
@@ -81,7 +81,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record cleanup status + counts of orphans/broken-links/stale-markers found and resolved.
 - `_testatlas/09_artifact_index.md` — re-derived from disk truth.
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing the cleanup-report path.
-- `_testatlas/11_workspace_manifest.json` — counts reconciled; bump `lastUpdatedAt`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt` and refresh `generatedSections[<file>][<section>]` hash (handled automatically by `update-indexes.js`). Do NOT mutate `counts.*` — cleanup does not own count reconciliation.
 - `_testatlas/history/run_log.md` — narrative entry: "Cleanup pass: `<n>` orphans, `<n>` broken links, `<n>` stale markers; `<n>` resolved automatically; `<n>` require review."
 
 ## Stop Conditions
@@ -89,14 +89,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Would write to `.testatlas/` → halt immediately (two-tree invariant violation).
 - Would delete user-authored content (anything outside `<!-- TESTATLAS:GENERATED -->` markers) → refuse; surface for operator review instead.
 - Malformed marker pair detected by the markers parser (orphan START, orphan END, mismatched section attribute, missing END at EOF, nested START, duplicate section) → halt with `TESTATLAS_MARKER_INVALID`; refuse to write `09_artifact_index.md`. Section bodies between well-formed markers are otherwise re-rendered unconditionally — the operator is responsible for keeping human-authored content strictly outside `<!-- TESTATLAS:GENERATED -->` markers.
-- Manifest counts cannot be reconciled with disk truth even after orphan accounting → halt and surface; the manifest may be corrupt and a human should review before any rewrite.
+- Manifest `counts.*` appear divergent from disk truth → surface for operator review (cleanup does not own count reconciliation; the manifest may be corrupt or stale, and a human should review before any rewrite).
 - `_testatlas/.lock` exists → halt; an in-flight test run is using the workspace.
 
 ## Completion Criteria
 
 - Orphan artifacts, broken links, and stale markers are enumerated and either repaired safely or surfaced to the operator in `cleanup-report-<ts>.md`.
 - User-authored content is untouched.
-- `_testatlas/09_artifact_index.md` and `_testatlas/11_workspace_manifest.json` reflect on-disk reality.
+- `_testatlas/09_artifact_index.md` reflects on-disk reality; `_testatlas/11_workspace_manifest.json` has `lastUpdatedAt` bumped and `generatedSections` hashes refreshed (cleanup does not reconcile `counts.*`).
 - The five lifecycle files listed above are updated.
 - Zero stop conditions triggered.
 

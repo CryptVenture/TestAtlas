@@ -60,10 +60,12 @@ produces a no-op success. Always safe to retry.
 ## Required Actions
 
 1. **Backup first (always).**
-   - Before any write, run `cp -a _testatlas _testatlas.bak.<ISO8601>` (or the
-     equivalent `tar -czf _testatlas.bak.<ISO8601>.tar.gz _testatlas`). The
-     backup path MUST be reported in the run output so the operator can
-     reference it for rollback.
+   - Before any write, run `cp -a _testatlas _testatlas.bak.<ISO8601-fs-safe>` (or the
+     equivalent `tar -czf _testatlas.bak.<ISO8601-fs-safe>.tar.gz _testatlas`),
+     where `<ISO8601-fs-safe>` is the current ISO-8601 timestamp with `:` and `.`
+     replaced by `-` (filesystem-safe form, matching `v2-migrate.js`). Example:
+     `_testatlas.bak.2026-05-08T12-34-56-789Z`. The backup path MUST be reported
+     in the run output so the operator can reference it for rollback.
    - The migration script tolerates missing backups but the operator SHOULD
      always pre-create one. CI flows can pin a deterministic timestamp.
 2. **Preferred path (if `shell` available):**
@@ -100,15 +102,15 @@ produces a no-op success. Always safe to retry.
 
 ## Backup + Rollback
 
-- **Backup** — always taken before mutation. Path is `_testatlas.bak.<ISO8601>` (directory copy) or `_testatlas.bak.<ISO8601>.tar.gz` (tarball). The migration run record cites the backup path so it can be located later.
-- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup (`mv _testatlas.bak.<ISO8601> _testatlas` or `tar -xzf _testatlas.bak.<ISO8601>.tar.gz`). After rollback, `validate-workspace` should report a clean V1 state.
+- **Backup** — always taken before mutation. Path is `_testatlas.bak.<ISO8601-fs-safe>` (directory copy) or `_testatlas.bak.<ISO8601-fs-safe>.tar.gz` (tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`) — the form `v2-migrate.js` produces. The migration run record cites the backup path so it can be located later.
+- **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup (`mv _testatlas.bak.<ISO8601-fs-safe> _testatlas` or `tar -xzf _testatlas.bak.<ISO8601-fs-safe>.tar.gz`). After rollback, `validate-workspace` should report a clean V1 state.
 - **Re-running** the migration after rollback is safe — the script is idempotent.
 
 ## Outputs
 
 - New V2 directory tree + baseline brain JSON files under `_testatlas/`.
 - `_testatlas/11_workspace_manifest.json` bumped to `schema_version: 2.0.0`.
-- Backup tarball or directory at `_testatlas.bak.<ISO8601>(.tar.gz)?`.
+- Backup tarball or directory at `_testatlas.bak.<ISO8601-fs-safe>(.tar.gz)?` (timestamp with `:` and `.` replaced by `-`, per `v2-migrate.js`).
 - Brain event + lifecycle close.
 
 ## Stop Conditions

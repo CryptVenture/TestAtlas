@@ -86,7 +86,9 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Lifecycle
 
-After completing this command, update these workspace artifacts in PRD §40 order:
+**Short-circuit case (Required Actions step 0 — `status: already-mapped`):** when the command exits early because the existing app-map is current and HEAD has not advanced, the Lifecycle is INTENTIONALLY MINIMAL. Update ONLY `_testatlas/10_command_log.md` (append a row recording `status: already-mapped`); skip the other four lifecycle files and skip the `update-brain-after-command.js` invocation below — there is no new state to brain-index.
+
+**Full-run case (no short-circuit):** after completing this command, update these workspace artifacts in PRD §40 order:
 
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, and counts of apps / routes / integrations discovered.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and `12_app_map.json` must appear).
@@ -94,7 +96,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (This command does not write to `counts.*` — those track per-domain/flow/issue/evidence/run artifacts that explore-codebase does not produce. Run `node .testatlas/scripts/sync-status.js` if downstream commands have populated counts that need reconciling against on-disk reality.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` apps, `<n>` routes, `<n>` integrations into `12_app_map.json`."
 
-Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`.
+Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`.
 
 ## Stop Conditions
 

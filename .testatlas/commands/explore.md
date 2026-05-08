@@ -99,6 +99,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Do NOT alter `counts.*` — this command produces no countable schema artifacts.
 - `_testatlas/history/run_log.md` — narrative entry: "Routed `<n>` recommended / `<n>` optional / `<n>` skipped sub-explorers in `explore-plan.md`; aggregated `<m>` child findings into `02_product_overview.md` (executionMode: `<mode>`)."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore --actor agent --summary "Routed and aggregated explorer findings into product overview" --status completed`.
+
 ## Stop Conditions
 
 - `_testatlas/12_app_map.json` absent OR contains zero entries across all 11 surface arrays (`domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships`) → halt with the explore-codebase recommendation. The umbrella cannot classify without surface signals.
