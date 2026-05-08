@@ -3,7 +3,7 @@ description: Summarize the current TestAtlas workspace — phase, counts, blocke
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="b7ea90c469f0475d0c54bf68ace72e521e86c8633d4d398df46bf46a6eb51013" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/status.md" hash="3a9a5386bf97751a7a87d3a69e98185719da14afacbca52637807fe2baaa0504" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-core-status.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -56,7 +56,7 @@ This command requires only `file-write`. No degradation needed.
 - The 5 lifecycle artifacts updated.
 - An `EVENT-N` of type `command_completed` is appended to `_testatlas/brain/events.jsonl`.
 
-## Post-Operation Brain Update
+## Lifecycle
 
 After the status block is rendered, call `node .testatlas/scripts/update-brain-after-command.js --command core-status --actor agent --summary "Status reported." --status completed`. This appends a `command_completed` event to `events.jsonl`, bumps `state.status.last_command`, and refreshes `state.status.last_updated` — automating the post-operation brain update so no manual JSON edit is needed.
 

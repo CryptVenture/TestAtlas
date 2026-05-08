@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-generate-scenarios. Invoke as /atlas-test-generate-scenarios.md. Description: Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="bbf23de8eeab67d3773d515e08ed5e8543bd8530a5ac10ed1b35d1a5f9089921" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="36d06b764afa44b47b00fb4b5ab76921e0611ad3f240e9cb1a3154f4fd3d2e1a" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,7 +77,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new TEST-* sidecars appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the source flows.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Scenarios are not counted as runs/issues; downstream `/atlas:test-flow` execution promotes them to `validated`.
-- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` scenarios from `<n>` flows (status: `generated-not-yet-validated`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` scenarios from `<n>` flows (scenario-status: `generated-not-yet-validated`)."
 
 ## Stop Conditions
 

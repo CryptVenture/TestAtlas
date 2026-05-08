@@ -4,7 +4,7 @@ description: Test Plan Council — QA, automation, codebase, data, and runtime p
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="54a8a175301241d1afe2d685efa49ef91ee6f00df3fa0aac8f9b750c6932b1af" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="db0ded8af6fba9d92cea706c3e28f7fdca63b9001c02c1d746fadf8419c6954e" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -19,7 +19,7 @@ Run a Test Plan Council (PRD §7.9) when planning a major test run, onboarding a
 - `_testatlas/brain/state.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/flows.json`
 - `_testatlas/02_test_strategy.md` (if present)
 - `_testatlas/explorers/tests/tests_explorer.json` (if present)
-- `_testatlas/maps/{routes,components,endpoints,jobs,cli_commands,integrations}.json`
+- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json`
 
 ## Participant Selection
 
@@ -65,7 +65,7 @@ The Test Plan Council produces all 15 PRD §7.8 council-session artifacts inside
 11. `transcript.md` (or `transcript-<persona-id>.md` per persona) — per-persona round-by-round messages emitted during the 9-round protocol (`finding`, `critique`, `rebuttal`, `vote`, `consolidation`, `question`, `evidence_request`)
 12. `disagreements.md` — disagreements captured in round 5 with PRD §12.5 disagreement_type from `vocabulary.schema.json#/$defs/disagreement_type`
 13. `votes.json` — round-7 votes per motion on the +2 / -2 scale (per `vocabulary.schema.json#/$defs/vote_value`)
-14. `claims.jsonl` — extracted claims index (JSONL append-only event stream, per `scripts/extract-claims.js:129`) produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
+14. `claims.jsonl` — extracted claims index (JSONL append-only event stream, per `.testatlas/scripts/extract-claims.js:129`) produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
 15. `session.json` — schema-validated council session sidecar (validates against `council_session.schema.json`); brain delta also written under `_testatlas/brain/council-deltas/<session-id>.json` and the dispatch-log row appended at `_testatlas/agents/councils/sessions/dispatch-log.md`
 
 ## Stop Conditions

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-update. Invoke as /atlas-update. Description: Invoke the suite self-update flow — checks GitHub Releases per UPDATE-01, delegates to Phase 7 update.js for atomic apply with backup, never auto-applies without operator confirmation. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="98f88475df58bf7c264fb6504d0a1d12d82075f05b3cd1e59b44699fcf0f9f87" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="25f65d92df8207ca81459ff82f3ac88f7a2211eefdf45ca519236f95151332af" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-update.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -22,7 +22,7 @@ Invoke the suite self-update flow per UPDATE-01..07: check GitHub Releases for a
 3. **Honor disable flags (UPDATE-03).** Read `disableUpdateCheck` from `.testatlas/default.config.json` and check for the `--no-update-check` flag. If either is set, exit cleanly with the message `Update check disabled.` This is a clean exit, not a failure.
 4. **Workspace lockfile check (UPDATE-06).** If `_testatlas/.lock` exists, halt immediately with `In-flight test run detected; cannot update.` Updates while a test run is in progress can corrupt run output paths and break atomicity guarantees.
 5. **Read current version.** Load `.testatlas/VERSION`.
-6. **Resolve latest release (UPDATE-01) — two-step contract.** `scripts/update.js` does NOT call GitHub Releases on its own (per the script header at `scripts/update.js:8-11` and the `--latest-version` flag at line 35). The caller (this command) is responsible for resolving the latest version and passing it via `--latest-version <ver>`. Resolution paths, in priority order:
+6. **Resolve latest release (UPDATE-01) — two-step contract.** `.testatlas/scripts/update.js` does NOT call GitHub Releases on its own (per the script header at `.testatlas/scripts/update.js:8-11` and the `--latest-version` flag at line 35). The caller (this command) is responsible for resolving the latest version and passing it via `--latest-version <ver>`. Resolution paths, in priority order:
    - **`gh` CLI (preferred when authenticated):** `gh release view --repo <owner>/<repo> --json tagName -q .tagName` (parse the `vX.Y.Z` tag, strip the `v` prefix).
    - **`web-fetch` capability:** `GET https://api.github.com/repos/<owner>/<repo>/releases/latest` with a 5-second timeout; parse `tag_name` and `body` (release notes). Cache the result per `updateCheckTtlHours`.
    - If neither path is available: surface the offline state and exit cleanly per step 2's contract.

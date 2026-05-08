@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-core-init. Invoke as /atlas-core-init.md. Description: Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="f701580b5988905ec6a78b13f942e5c7d05a200486b281b1c419c31a209377cf" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="16d5754bb24d02903fd7100f6ad0e382a0c9bd831d16e10ff5607854d2133c9d" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-core-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -45,7 +45,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 ## Stop Conditions
 
 - `.testatlas/` suite tree missing → halt with `Run testatlas install first.`
-- Existing `_testatlas/` whose V1 manifest does not validate → halt; refuse to recreate without `--force`.
+- Existing `_testatlas/` directory present without an `11_workspace_manifest.json` (ambiguous workspace) → halt with `TESTATLAS_AMBIGUOUS_WORKSPACE`; pass `--force` to recreate. Note: `--force` ONLY resolves the ambiguous-workspace error code per `.testatlas/scripts/init-workspace.js:189-194`; manifest-validation failures on an existing workspace must be addressed by manual repair (review the failing AJV report from `node .testatlas/scripts/validate-workspace.js`), not by `--force`.
 - Target repo path is not writable → halt; never proceed silently.
 - `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable.
 
@@ -67,7 +67,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Lifecycle artifacts updated.
 - A `command_completed` event recorded.
 
-## Post-Operation Brain Update
+## Lifecycle
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command core-init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
 

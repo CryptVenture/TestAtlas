@@ -1,6 +1,6 @@
 description = "Map every route, navigation paths, guards, redirects, deep-link behavior, history (back/forward), and per-route ownership via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="ba86725e3beb3a3f05de2526d1113be68bbac4795f04d56363f2a306e1550068" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-routes.md" hash="cf938627fc4ff7f1953d7ed2d08ea9fc7b9678cfc09796f7fbdeb5fa141f7710" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -31,7 +31,7 @@ Map the full route surface: every URL the app responds to, the navigation paths 
    - **Guarded routes:** strip session via `evaluate_script`, then `navigate_page(routeUrl)`. Observe redirect (302 → login | 401 | 403 | render). Log the guard's redirect target. Re-authenticate as required roles, repeat to map per-role visibility.
    - **Redirect chains:** if the route is a redirect, capture every hop's URL + status via `list_network_requests`. Record the chain length and final destination.
    - **Programmatic navigation:** `evaluate_script(() => history.pushState(null, "", "<routeUrl>"))` and observe whether the framework router catches the change (some SPAs require explicit router methods). Record the discrepancy if direct + programmatic produce different surfaces.
-   - **History (back / forward) behavior:** from a known route, `navigate_page(otherRoute)` → `evaluate_script(() => history.back())` → `wait_for(settle)` → `take_snapshot`. Verify the prior route restores correctly (no stale state, scroll position OK, focus restoration). Symmetric `history.forward()`.
+   - **History (back / forward) behavior:** from a known route, `navigate_page(otherRoute)` → `evaluate_script(() => history.back())` → text-based wait `wait_for({text: ["<expected-content-on-prior-route>"], timeout: 5000})` → poll `evaluate_script(() => document.readyState === 'complete' && !document.querySelector('[data-loading]'))` until truthy or 5 s elapsed → `take_snapshot`. Verify the prior route restores correctly (no stale state, scroll position OK, focus restoration). Symmetric `history.forward()`. (Do NOT use `wait_for(settle)` — that is not a supported API on `chrome-devtools-mcp`; only the text-based form `wait_for({text: [...], timeout?})` is canonical per `.testatlas/reference/chrome-devtools-mcp.md`.)
 
 6. **Per-route metadata.** Record for each entry: `path`, `name`, `owning_domain` (cross-reference `_testatlas/domains/`), `methods`, `personas` (which personas reach this route), `purpose`, `entryPoints` (where this route is linked from), `actions` (interactive controls), `states[]` (cross-reference `_testatlas/maps/states.json`), `evidence[]`, `issues[]`, `confidence`.
 

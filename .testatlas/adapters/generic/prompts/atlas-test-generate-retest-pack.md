@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-generate-retest-pack. Paste .testatlas/bootstrap.md first; description: Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="306b0b77e0b425adcd3ee29017c56fa1777059c8fb463f8b0e8f209f207834d7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="5492304ba723b2ea30dccd1c9955d84825d8eda2249e4cb538a68131185ad947" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-test-generate-retest-pack.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -75,7 +75,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RETEST-* pair appears).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the issue + pack.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Retest packs are pre-execution scaffolds and are not counted as `testRuns` (the runner that consumes the pack increments `counts.testRuns` upon execution).
-- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (status: `pending`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (pack-status: `pending`)."
 
 ## Stop Conditions
 

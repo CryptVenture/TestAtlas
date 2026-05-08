@@ -4,7 +4,7 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="a4e8279ac48ac95ecfa42ae8bd3d819e34d1c07ad6f287687210faa4b1456a88" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="a632780a359a8ea4491e04d634f45a335f3a9697279dab1bad4f9bfa2cde5e43" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-validate-workspace.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,7 @@ Schema-validate every artifact under `_testatlas/`, detect drift between the wor
 1. **Preferred (always works):** `npx @webventures/testatlas validate`
 2. **In-tree (requires the @webventures/testatlas package locally installed):** `node .testatlas/scripts/validate-workspace.js`
 
-Use the manual fallback below only when shell capability is unavailable. `--auto-heal` is opt-in and surfaces findings without writing unless `--apply` is also passed.
+Use the manual fallback below only when shell capability is unavailable. `--auto-heal` applies fixes automatically by default (apply=true is auto-set when `--auto-heal` is present per `.testatlas/scripts/validate-workspace.js:340-346`); pass `--dry-run` alongside `--auto-heal` for surface-only mode that previews fixes without writing.
 
 ## Required First Reads
 
@@ -30,8 +30,8 @@ Use the manual fallback below only when shell capability is unavailable. `--auto
 3. **JSON Schema validity (PRD §33 condition 2):** for every JSON artifact (`_testatlas/11_workspace_manifest.json`, `app_map.json`, `domains/<slug>/domain.json`, `flows/<slug>/flow.json`, `to_fix/ISSUE-*.json`, `evidence/<id>/manifest.json`, `runs/<run-id>/run.json`, `reports/<id>/report.json`), validate against the matching schema in `.testatlas/schemas/`. Surface every AJV error verbatim — do not paraphrase.
 4. **Broken links (PRD §33 condition 3):** every markdown cross-reference whose target is a relative path (e.g. `[text](some-relative-path.md)`) resolves to an on-disk file or anchor inside `_testatlas/`.
 5. **Orphaned evidence (PRD §33 condition 4):** every `_testatlas/evidence/<id>/<file>` is referenced by at least one issue or run record. Unreferenced evidence is a finding (likely stale; do not delete in v1).
-6. **Issue index consistency (PRD §33 condition 5):** the per-domain issue indexes (`_testatlas/domains/<slug>/issues/index.md` — the canonical file emitted by `scripts/create-domain.js`), per-severity indexes (`_testatlas/to_fix/by_severity/*.md`), per-status indexes (`_testatlas/to_fix/by_status/*.md`), and per-flow indexes (`_testatlas/to_fix/by_flow/<flow-id>.md`) all match the actual issue files on disk.
-7. **Missing domain/flow indexes (PRD §33 condition 6):** every domain directory under `_testatlas/domains/` has its `index.md` and `issues/index.md`; flows live as file pairs `_testatlas/flows/FLOW-<domain>-<slug>.{md,json}` (per `scripts/create-flow.js`) — flows are NOT directories — so the per-flow issue index is `_testatlas/to_fix/by_flow/<flow-id>.md`, which must exist for any flow that has at least one referencing issue.
+6. **Issue index consistency (PRD §33 condition 5):** the per-domain issue indexes (`_testatlas/domains/<slug>/issues/index.md` — the canonical file emitted by `.testatlas/scripts/create-domain.js`), per-severity indexes (`_testatlas/to_fix/by_severity/*.md`), per-status indexes (`_testatlas/to_fix/by_status/*.md`), and per-flow indexes (`_testatlas/to_fix/by_flow/<flow-id>.md`) all match the actual issue files on disk.
+7. **Missing domain/flow indexes (PRD §33 condition 6):** every domain directory under `_testatlas/domains/` has its `index.md` and `issues/index.md`; flows live as file pairs `_testatlas/flows/FLOW-<domain>-<slug>.{md,json}` (per `.testatlas/scripts/create-flow.js`) — flows are NOT directories — so the per-flow issue index is `_testatlas/to_fix/by_flow/<flow-id>.md`, which must exist for any flow that has at least one referencing issue.
 8. **Duplicate IDs (PRD §33 condition 7):** no two issues, flows, domains, or evidence files share an ID. Allocation collisions indicate manifest corruption.
 9. **Stale generated sections (PRD §33 condition 8):** sections wrapped in `<!-- TESTATLAS:GENERATED:START section="..." -->` markers have content hashes matching the manifest's recorded `generatedSections` hash (PRD §14.11 + WORK-07). Do not overwrite when hashes diverge — WARN only.
 10. **Modified-generated-content (PRD §33 condition 9):** WARN on hash mismatch and surface the specific file + section. Per WORK-07, hash-based detection is preferred over textual diffs.

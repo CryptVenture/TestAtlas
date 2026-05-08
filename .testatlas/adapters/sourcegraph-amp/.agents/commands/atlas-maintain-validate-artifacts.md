@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-maintain-validate-artifacts. Invoke as /atlas-maintain-validate-artifacts. Description: Run comprehensive artifact validation beyond `validate-workspace` — brain JSON consistency, schema compliance for every artifact, orphaned evidence detection, dangling references, and markdown/JSON sync status. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ebd933c044a46ddec3a8cf02559f476f8c880b88b8fe9409d64a07a6bd0044b6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="da5d7cab4bb11e53407df8cc955ec3466a0b3aebe1860e2d6b4287d662e80a6e" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,11 +28,17 @@ The four validation dimensions:
    scenario, or run record (otherwise it is orphaned). Conversely, every
    `evidence_refs[]` array entry MUST point to an existing evidence
    sidecar (otherwise it is dangling).
-4. **Markdown/JSON sync status** — for paired md+json artifacts (issues,
-   flows, scenarios, retest packs), the markdown frontmatter and the JSON
-   sidecar MUST agree on `id`, `title`, `status`, `severity` (where
-   applicable), and `lastUpdatedAt`. Drift between md and json is reported
-   so an operator can run `sync-markdown-json` to reconcile.
+4. **Markdown/JSON sync status** — `.testatlas/scripts/sync-markdown-json.js`
+   (`ARTIFACT_DIRS` at lines 33-34) currently scans the `domains/`
+   directory only; for paired md+json artifacts under `domains/`, the
+   markdown frontmatter and the JSON sidecar MUST agree on `id`, `title`,
+   `status`, `severity` (where applicable), and `lastUpdatedAt`. Drift is
+   reported so an operator can run `sync-markdown-json` to reconcile.
+   (Sync coverage for `flows/`, `to_fix/`, and `tests/` paired artifacts
+   is a future enhancement — see CHANGELOG `Future work`. Today those
+   pairs are reconciled by their respective writer scripts: flows via
+   `.testatlas/scripts/create-flow.js`, issues via
+   `.testatlas/scripts/create-issue.js`, etc.)
 
 ## When to Run
 

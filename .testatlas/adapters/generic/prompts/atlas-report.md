@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report. Paste .testatlas/bootstrap.md first; description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="219909c1fddc18ed0cf8760554b3b4e7b27c379765bd8a7991563fcf8645b11f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="95930579b6c85c1be2fdc330662e364671f49052a9009624f1bfaef431c078a1" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-report.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -41,7 +41,7 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 
 ## Outputs
 
-- `_testatlas/reports/REPORT-latest.md` — narrative report with all 17 PRD §20 sections in order, verbatim per `scripts/generate-report.js` `REPORT_SECTIONS` (lines 34-52): (1) Run Summary; (2) Coverage; (3) Key Findings; (4) Severity Breakdown; (5) Confidence Breakdown; (6) Blockers; (7) Gaps; (8) Assumptions; (9) Next Actions; (10) Readiness Assessment; (11) Regressions; (12) Quality Risks; (13) Test Pyramid Health; (14) Evidence Catalog Summary; (15) Capability Degradation Notes; (16) Scorecard Snapshot; (17) Run Log Tail.
+- `_testatlas/reports/REPORT-latest.md` — narrative report with all 17 PRD §20 sections in order, verbatim per `.testatlas/scripts/generate-report.js` `REPORT_SECTIONS` (lines 34-52): (1) Run Summary; (2) Coverage; (3) Key Findings; (4) Severity Breakdown; (5) Confidence Breakdown; (6) Blockers; (7) Gaps; (8) Assumptions; (9) Next Actions; (10) Readiness Assessment; (11) Regressions; (12) Quality Risks; (13) Test Pyramid Health; (14) Evidence Catalog Summary; (15) Capability Degradation Notes; (16) Scorecard Snapshot; (17) Run Log Tail.
 - `_testatlas/reports/REPORT-latest.json` — schema-valid sidecar matching `report.schema.json`.
 - `_testatlas/reports/REPORT-<timestamp>.md` — historical immutable copy.
 - Refreshed `_testatlas/reports/regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md`.

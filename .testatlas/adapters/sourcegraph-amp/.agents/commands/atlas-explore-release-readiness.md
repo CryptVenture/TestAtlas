@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-release-readiness. Invoke as /atlas-explore-release-readiness. Description: Map release artifacts, blockers, readiness state, version tags, and gates. Synthesizes signal from prior explorers into a release/no-go decision report. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="280af914e3ee0ee9083e6be6309575e7d56b0c302b744a992f849cd160b52beb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="16cefc7074eff5044c3efc012b49aa6e4d7b01f84e5ffb634021e6babddb13f8" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -33,7 +33,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - Capture all of the above into `evidence/artifacts.json`.
 
 4. **Blocker enumeration.**
-   - **Open critical/high issues:** filter `brain/issues.json` for `severity in [critical, high]` AND `status != closed`. Count. ≥1 critical = blocker; ≥3 high = blocker (configurable via `.testatlas/default.config.json.releaseGates`).
+   - **Open critical/high issues:** filter `brain/issues.json` for `severity in [critical, high]` AND `status != closed`. Count. ≥1 critical = blocker; ≥3 high = blocker (threshold defaults; future enhancement: surface as a top-level config key under `.testatlas/default.config.json` once the release-gates feature is GA).
    - **Test status:** if `evidence/explore-tests/<latest>/run.txt` exists, parse for failures. Any failure = blocker.
    - **Coverage:** if `coverage.json` shows aggregate coverage < release threshold (default 60%, configurable), flag as blocker.
    - **Drift:** if `brain/drift.json` shows `state in [stale_requires_review]` for any release-blocking artifact, flag as blocker.

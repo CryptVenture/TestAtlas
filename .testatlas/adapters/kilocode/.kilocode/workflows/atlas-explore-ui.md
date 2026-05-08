@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="034ebb6fe28156c52a9e9b586b33d62e453203a055c5561496f409c0ff83016f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="6a647be604f16fac4e26c3ca6e3735f9ec41546229beb377a3414541bf9eb9fd" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -40,7 +40,7 @@ Runs as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standa
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
 
-2. Verify capabilities. `MCP` and `browser` are the runtime observation surfaces. **If either `MCP` or `browser` is unavailable, MUST NOT produce runtime UI findings — degrade to code reading via `12_app_map.json` and the source files it references. Mark every finding `confidence: needs-validation` and add `tool_unavailable: <MCP|browser>` per `bootstrap.md` §4. Never invent screenshots, network captures, console output, traces, or a11y scores from training-data priors.** When BOTH are unavailable, halt via the stop condition below — `explore-codebase` covers code-only mapping.
+2. Verify capabilities. `MCP` and `browser` are the runtime observation surfaces. **If either `MCP` or `browser` is unavailable, halt via the stop condition below** — defer code-only mapping to `/atlas:explore-codebase`, which is the canonical command for source-only enumeration. Partial UI findings (with one of the two surfaces missing) are a false-confidence hazard; the safer policy is to defer rather than mix runtime and code-only signals.
 
 3. **Mandatory walkthrough when capabilities are available.** When `browser` AND `MCP` are both available in this adapter context (verified per `.testatlas/reference/capabilities.md` per-capability action matrix), this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *Component-discovery walkthrough* and § *State-coverage walkthrough*. Skipping a walkthrough step when the underlying tool is reachable — because the result feels predictable, because training-data priors tell the agent what the page contains, or because coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a step legitimately cannot run (the surface does not exist on this route, the tool returns an error after retry), record the skip rationale on the resulting artifact entry. MUST NOT skip silently.
 
@@ -90,7 +90,7 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 ## Stop Conditions
 
 - `_testatlas/12_app_map.json` empty of UI routes → halt: "Run `/atlas:explore-codebase` first." Do not invent routes.
-- Both `MCP` and `browser` unavailable → halt; this command requires ≥1 runtime observation surface (code-only mapping is `explore-codebase`).
+- Either `MCP` or `browser` unavailable → halt; emit a partial-findings note recording which dependency was missing, then defer to `/atlas:explore-codebase` for code-only mapping. (This command requires BOTH runtime observation surfaces present; degrading on a single missing dependency yields false confidence — partial UI findings are a coverage hazard.)
 - Production target with `allowProductionTesting=false` → halt; never override safety in-process.
 - Destructive UI flow detected with `allowDestructiveActions=false` → halt or skip the specific control with rationale.
 - Any captured artifact path fails to materialize on disk → halt; do not record fabricated paths.
