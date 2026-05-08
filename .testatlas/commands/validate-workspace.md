@@ -12,7 +12,7 @@ lifecycle:
   - 10_command_log.md
   - 11_workspace_manifest.json
   - history/run_log.md
-boundary: Default mode surfaces findings only; pass --auto-heal (CLI) or set autoHeal=true (programmatic) to repair safely-fixable findings. Does NOT delete artifacts. Does NOT modify _testatlas/ except for lifecycle records and an optional report file. produces: [] is intentional — report-only command; the only output is the command-result row appended to 10_command_log.md via the lifecycle close (the markdown/JSON report is an out-of-tree side effect, not a workspace artifact).
+boundary: Default mode surfaces findings only; pass --auto-heal (CLI) or set autoHeal=true (programmatic) to repair safely-fixable findings (auto-heal applies fixes by default; pass --dry-run alongside for surface-only preview). Does NOT delete artifacts. Does NOT modify _testatlas/ except for lifecycle records and an optional report file. produces: [] is intentional — report-only command; the only output is the command-result row appended to 10_command_log.md via the lifecycle close (the markdown/JSON report is an out-of-tree side effect, not a workspace artifact).
 ---
 
 # TestAtlas Command: validate-workspace
@@ -39,7 +39,7 @@ Schema-validate every artifact under `_testatlas/`, detect drift between the wor
 1. **Preferred (always works):** `npx @webventures/testatlas validate`
 2. **In-tree (requires the @webventures/testatlas package locally installed):** `node .testatlas/scripts/validate-workspace.js`
 
-Use the manual fallback below only when shell capability is unavailable. `--auto-heal` is opt-in and surfaces findings without writing unless `--apply` is also passed.
+Use the manual fallback below only when shell capability is unavailable. `--auto-heal` applies fixes automatically by default (apply=true is auto-set when `--auto-heal` is present per `.testatlas/scripts/validate-workspace.js:340-346`); pass `--dry-run` alongside `--auto-heal` for surface-only mode that previews fixes without writing.
 
 ## Required First Reads
 

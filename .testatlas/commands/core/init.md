@@ -77,7 +77,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 ## Stop Conditions
 
 - `.testatlas/` suite tree missing → halt with `Run testatlas install first.`
-- Existing `_testatlas/` whose V1 manifest does not validate → halt; refuse to recreate without `--force`.
+- Existing `_testatlas/` directory present without an `11_workspace_manifest.json` (ambiguous workspace) → halt with `TESTATLAS_AMBIGUOUS_WORKSPACE`; pass `--force` to recreate. Note: `--force` ONLY resolves the ambiguous-workspace error code per `.testatlas/scripts/init-workspace.js:189-194`; manifest-validation failures on an existing workspace must be addressed by manual repair (review the failing AJV report from `node .testatlas/scripts/validate-workspace.js`), not by `--force`.
 - Target repo path is not writable → halt; never proceed silently.
 - `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable.
 

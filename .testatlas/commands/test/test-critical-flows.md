@@ -107,7 +107,14 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 4. Write `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` with summary
    counts (total / passed / failed / skipped / blocked) and a
    `prioritisation` field listing why each flow was in scope. Validates
-   against `test-run.schema.json`.
+   against `test-run.schema.json`. **One RUN sidecar pair per command
+   invocation — not one per flow.** A single command run aggregates all
+   exercised critical flows (per-flow detail lives inside the RUN sidecar's
+   flow array and the per-flow evidence directory). Re-running the command
+   emits a NEW RUN-`<timestamp>` pair; existing runs are immutable history.
+   Evidence path uses `<flow-id>` (not `<scenario-id>`) because the
+   per-flow evidence directory aggregates ALL scenarios executed for a
+   given flow within this run.
 5. Optionally append a `RUN-<timestamp>.suggestions.md` listing candidate
    issues for `/atlas:log-issue`.
 6. Close the lifecycle.
@@ -148,10 +155,11 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/tests/matrix.json` missing → halt with `MATRIX_MISSING`.
 - Critical flow set empty → halt with `NO_CRITICAL_FLOWS` and recommend a strategy review.
 - Evidence directory cannot be written → halt with `EVIDENCE_DIR_UNWRITABLE`.
+- AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with `RUN_SCHEMA_INVALID`; do not commit a malformed run sidecar.
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed` (or `--status aborted` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed --reindex` (or `--status aborted` with the error code; the `--reindex` flag is valid per `.testatlas/scripts/update-brain-after-command.js:138` and triggers a brain-index rebuild so `counts.testRuns` and `counts.evidenceRecords` reflect the just-written RUN sidecar + evidence files).
 
 ## Completion Criteria
 
