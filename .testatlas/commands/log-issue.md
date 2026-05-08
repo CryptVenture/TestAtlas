@@ -47,7 +47,7 @@ Capture a quality finding (functional bug, regression, accessibility issue, perf
 - `.testatlas/schemas/issue.schema.json` — required JSON shape this command must satisfy.
 - `.testatlas/schemas/evidence.schema.json` — required shape for evidence sidecars.
 - `_testatlas/11_workspace_manifest.json` — current `counts.issues` for next-ID allocation.
-- The relevant `_testatlas/domains/<slug>/` and `_testatlas/flows/<slug>/` directories for back-references.
+- The relevant `_testatlas/domains/<slug>/issues/index.md` per-domain index (per `scripts/create-domain.js`) and the `_testatlas/to_fix/by_flow/<flow-id>.md` per-flow index for back-references. (Note: flows themselves are file pairs `flows/FLOW-<domain>-<slug>.{md,json}` per `scripts/create-flow.js`, NOT directories — flow back-refs live under `_testatlas/to_fix/by_flow/`.)
 
 ## Required Actions
 
@@ -59,7 +59,11 @@ Capture a quality finding (functional bug, regression, accessibility issue, perf
 6. Determine **issue type** per `.testatlas/schemas/vocabulary.schema.json` `$defs.issueType`: one of `functional`, `regression`, `ux`, `copy`, `accessibility`, `performance`, `reliability`, `state`, `validation`, `integration` (full enum lives in the schema).
 7. Allocate the next issue ID per PRD §32 — zero-padded format `ISSUE-0001`, `ISSUE-0002`, etc. Read the manifest's `counts.issues`, increment by one, then verify no on-disk file at that ID already exists (manifest-corruption check).
 8. Write the issue pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.md` (human-readable) and `_testatlas/to_fix/ISSUE-<id>-<slug>.json` (schema-validated sidecar). Required fields per `issue.schema.json`: `id`, `slug`, `title`, `description`, `severity`, `confidence`, `type`, `status` (set to `new`), `domain`, `flow` (optional), `evidence` (non-empty array of paths under `_testatlas/evidence/`), `foundAt` (ISO-8601 UTC), `reproSteps`, `expected`, `actual`.
-9. Add back-references: append the issue ID to `_testatlas/domains/<domain-slug>/issues.md` (per-domain index) and to `_testatlas/flows/<flow-slug>/issues.md` if a flow is named.
+9. Add back-references: append the issue ID to `_testatlas/domains/<domain-slug>/issues/index.md` (per-domain index — single-file form `issues.md` does NOT exist; the canonical path is `issues/index.md` per `scripts/create-domain.js`).
+9.5. **Update flow back-ref index** — If the issue's `flow` field is non-null:
+   - Append the issue's id to `_testatlas/to_fix/by_flow/<flow-id>.md` (create the file if it doesn't exist)
+   - Maintain alphabetical / chronological order matching sibling indexes (severity, status, domain)
+   - This index is the canonical source for "what issues affect FLOW-X?" — flows themselves are file pairs (`flows/FLOW-<domain>-<slug>.{md,json}`) per `scripts/create-flow.js`, NOT directories, so `flows/<flow-id>/issues.md` does not exist.
 10. Update the cross-cut indexes: `_testatlas/to_fix/by_severity/<severity>.md` and `_testatlas/to_fix/by_status/new.md`. These are the views operators read first.
 11. Validate the new JSON sidecar against `issue.schema.json` before closing. If validation fails, halt — do not partially commit a malformed issue.
 12. Close the lifecycle (next section).
@@ -68,8 +72,8 @@ Capture a quality finding (functional bug, regression, accessibility issue, perf
 
 - `_testatlas/to_fix/ISSUE-<id>-<slug>.md` — human-readable issue document with repro steps, expected vs. actual, evidence links.
 - `_testatlas/to_fix/ISSUE-<id>-<slug>.json` — schema-validated JSON sidecar matching `issue.schema.json`.
-- Updated per-domain index `_testatlas/domains/<domain-slug>/issues.md`.
-- Updated per-flow index `_testatlas/flows/<flow-slug>/issues.md` (when applicable).
+- Updated per-domain index `_testatlas/domains/<domain-slug>/issues/index.md` (per `scripts/create-domain.js`).
+- Updated per-flow index `_testatlas/to_fix/by_flow/<flow-id>.md` (when applicable; flows are file pairs `flows/FLOW-*.{md,json}` per `scripts/create-flow.js`, not directories).
 - Updated cross-cut indexes under `_testatlas/to_fix/by_severity/` and `_testatlas/to_fix/by_status/`.
 - New evidence sidecar files under `_testatlas/evidence/` if any were referenced but not yet recorded.
 
