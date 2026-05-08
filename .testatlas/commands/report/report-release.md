@@ -121,6 +121,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
 
+## Completion Criteria
+
+- `_testatlas/reports/release_readiness.md` exists on disk after the run with the `TESTATLAS:GENERATED` markers re-rendered.
+- The rendered report carries one of the three verdicts (`go` / `conditional` / `no-go`) and the verdict matches the deterministic computation rule in the Required Actions section.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section, with `counts.reports` incremented and `lastUpdatedAt` bumped.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the published report.
+- Zero stop conditions triggered (`quality_scores.json missing`, `drift.json missing`, stale-input `go`-verdict block all clear; stale inputs surface a `Confidence: needs-validation` banner instead of fabricating freshness).
+
 ## What's Next
 
 Now that the release verdict is published:

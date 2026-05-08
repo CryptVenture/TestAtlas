@@ -103,6 +103,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
 
+## Completion Criteria
+
+- `_testatlas/reports/domain-<slug>.md` exists on disk after the run (one file per invocation, slug matching the domain id).
+- The rendered report references the canonical `_testatlas/brain/domains.json` and `_testatlas/brain/quality_scores.json` inputs (no fabricated scores; every figure traceable back to brain JSON).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the rendered domain report.
+- Zero stop conditions triggered (`quality_scores.json missing`, `DOMAIN_NOT_FOUND` all clear; capability degradation flagged `confidence: needs-validation` per the Capability Degradation section, no fabrication).
+
 ## What's Next
 
 Now that the domain report is generated:

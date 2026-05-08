@@ -133,6 +133,14 @@ node .testatlas/scripts/generate-dashboard-data.js --cwd /path/to/target-repo
 
 The dashboard data export is the V2 brain machine-readable face — JSON remains canonical; everything downstream is derived.
 
+## Completion Criteria
+
+- `_testatlas/reports/dashboard-data.json` (or the path given to `--output`) exists on disk after the run.
+- The produced file validates against `dashboard_data.schema.json` (run `node .testatlas/scripts/validate-workspace.js` and confirm zero schema-validation findings under `reports/`).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the export path.
+- Zero stop conditions triggered (`BRAIN_DIR_MISSING`, `DASHBOARD_SCHEMA_VIOLATION`, `BAD_FORMAT` all clear).
+
 ## What's Next
 
 Now that dashboard data is materialized:
