@@ -4,6 +4,61 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Added
+
+- **`scripts/lint-commands.js`** — new doc-vs-truth invariant linter that runs as part of `pnpm test` (chained before `node --test`) and inside `validate-workspace.js` (folded into the workspace exit code). Catches 5 classes of drift between command bodies and the scripts/schemas/paths they reference, preventing the recurring dogfood-round defect pattern (Rounds 7-9 surfaced 50+ doc-truth drift issues). Invariants:
+  1. **flag-existence** — every `node .testatlas/scripts/<x>.js [--flag]` must be a real argv flag of `scripts/<x>.js` (HARD-FAIL on mismatch). Extractor recognizes `KNOWN_FLAGS = new Set([...])`, `parseArgs({ options: { ... } })`, commander's `.option('--foo <bar>', ...)`, and bare `'--foo'` literals.
+  2. **path-canonicity** — every `_testatlas/<path>` reference must match the canonical layout in `scripts/lib/canonical-paths.json`; known anti-patterns (`_testatlas/runs/`, `_testatlas/flows/<slug>/`) HARD-FAIL with a suggested replacement.
+  3. **schema-key-existence** — every `counts.<key>` reference must resolve to a property in `.testatlas/schemas/workspace-manifest.schema.json` (`testRuns`, `evidenceRecords`, `reports`, `domains`, `flows`, `issues`).
+  4. **lifecycle-completeness** — every "brain-writer" command's Lifecycle section calls `update-brain-after-command.js`. Brain-writer signal: Lifecycle mentions `recompute` (counts adjustment) OR writes to `_testatlas/evidence/`. Pure housekeeping commands (cleanup, uninstall, update, bootstrap) are not flagged. Umbrella allowlist (`explore.md`, `report.md`, `maintain.md`, `test.md`, `init.md`, `handoff.md`, etc.) is explicit and documented.
+  5. **frontmatter-script-form** — Phase-17 invariant extended into frontmatter `description:` — bare `scripts/<x>.js` HARD-FAILS; only `node .testatlas/scripts/<x>.js` permitted.
+- **`scripts/lib/canonical-paths.json`** — source-of-truth for path-canonicity invariant. Encodes the 15 canonical `_testatlas/` patterns plus 2 documented anti-patterns with suggested replacements.
+- **`test/scripts/lint-commands.test.js`** — `node:test` coverage with positive + negative cases for each invariant, plus an umbrella-allowlist assertion, a non-brain-writer assertion (housekeeping commands not flagged), and a `runLinter` smoke test. 13 tests, all green.
+
+### Fixed (post-Phase-20 dogfood round 9 — ISSUE-084..095)
+
+**Linter-caught fixes (closed by lint-commands sweep):**
+
+- **ISSUE-084** — `commands/validate-workspace.md` preferred-path now describes `--auto-heal` alone as canonical and explicitly notes that `--apply` is redundant when `--auto-heal` is set (script auto-flips `apply=true` and emits a deprecation note; `--apply` will be removed in v2). Per `scripts/validate-workspace.js:341-348`. Linter caught (invariant 1).
+- **ISSUE-085** — `commands/maintain/maintain-validate-artifacts.md` drops `--strict` from `validate-brain.js` invocation and rewords step-1 + Stop Conditions to remove `--report-only` references. The script (`validate-brain.js:300-316`) supports only `--cwd` / `--brain-dir` / `--suite-cwd`. Linter caught (invariant 1).
+- **ISSUE-087** — `commands/explore-runtime.md` Lifecycle now ends with `node .testatlas/scripts/update-brain-after-command.js --command explore-runtime --actor agent --status completed --reindex`. Linter caught (invariant 4).
+- **ISSUE-088** — `commands/explore-security.md` same hook added. Linter caught (invariant 4).
+- **ISSUE-089** — `commands/explore-accessibility.md` same hook added. Linter caught (invariant 4).
+- **ISSUE-094** — `commands/create-persona.md` frontmatter `description:` field: bare `scripts/create-persona.js` → `node .testatlas/scripts/create-persona.js`. Phase-17 invariant violation. Linter caught (invariant 5).
+
+**Manual fixes (outside linter reach):**
+
+- **ISSUE-086a** — `commands/explore-performance.md` Lifecycle now references `update-brain-after-command.js` (linter would have caught had explore-performance been on the brain-writers list — it was; the linter swept it in the same pass). Inline collateral: `counts.evidence` → `counts.evidenceRecords`.
+- **ISSUE-086b** — `commands/explore-performance.md` `performance_analyze_insight` invocation now declares the required Chrome DevTools MCP params: `insightName` (`LCPBreakdown` / `INPBreakdown` / `LayoutShifts` / `RenderBlocking` / `DocumentLatency` / `NetworkDependencyTree` / ...) and `insightSetId` (the trace-set identifier returned by `performance_stop_trace`). Both required by the MCP schema; the previous bare `performance_analyze_insight(...)` description would have rejected at runtime.
+- **ISSUE-091** — `commands/report.md:80` 17-section list rewritten verbatim from `scripts/generate-report.js:34-52` `REPORT_SECTIONS`: Run Summary, Coverage, Key Findings, Severity Breakdown, Confidence Breakdown, Blockers, Gaps, Assumptions, Next Actions, Readiness Assessment, Regressions, Quality Risks, Test Pyramid Health, Evidence Catalog Summary, Capability Degradation Notes, Scorecard Snapshot, Run Log Tail. The doc had drifted with custom section names (Domains explored, Flows tested, Tests run by type, Risks, Capabilities used) — none of those exist in the script.
+- **ISSUE-092** — `commands/report/report-domain.md` Required First Reads now includes `_testatlas/brain/domains.json` (the brain index used to resolve the domain slug per Required Actions step 1 and Stop Conditions `DOMAIN_NOT_FOUND`).
+- **ISSUE-093** — `commands/report/report-release.md` verdict formula reconciled with prose ("at most 3 high issues with documented mitigations" at ~line 66). The previous formula tripped `conditional` when `high_issues > 3` only, ignoring the mitigation requirement entirely. New formula introduces `high_issues_with_mitigation`: `high_issues > 3 OR (high_issues > 0 AND high_issues_with_mitigation < high_issues) OR flow_score < 60 OR council_score < 70 -> conditional`. Prose preserved as truth; formula now matches it.
+- **ISSUE-095a** — `commands/handoff.md:46` directory-shaped `_testatlas/flows/<slug>/` → canonical file-pair `_testatlas/flows/FLOW-*.{md,json}` (flows are file pairs per `scripts/create-flow.js`, not subdirectories).
+- **ISSUE-095b** — `commands/handoff.md:46` `_testatlas/runs/` → canonical `_testatlas/tests/runs/`.
+- **ISSUE-095c** — `commands/handoff.md` Lifecycle no longer references non-existent `counts.handoffs`. Per `workspace-manifest.schema.json:39,44` only `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` exist as `counts.*` keys. Per CONTEXT decision we drop the doc claim rather than additively change the schema; handoffs continue to be written to `_testatlas/handoffs/` without a manifest counter.
+
+**Collateral hits caught by the new linter (same drift class, swept beyond Round-9 scope):**
+
+- **collateral-090a** — `commands/test-domain.md:105,126` non-canonical `counts.runs/counts.evidence` corrected to canonical `counts.testRuns/counts.evidenceRecords`. Surfaced during ISSUE-090 verification — the OPPOSITE direction of the dogfood claim. (Round-9 ISSUE-090 itself recorded NOT-REAL below.)
+- **collateral-canonical-counts** — bulk fix swept across 12 commands (`test-flow`, `test-performance`, `test-accessibility`, `test-regression`, `test-all`, `retest`, `explore/explore-brain`, `explore/explore-observability`, `explore/explore-state`, `explore/explore-jobs`, `explore/explore-release-readiness`, `explore/explore-tests`): `counts.evidence` → `counts.evidenceRecords`, `counts.runs` → `counts.testRuns`. Linter invariant 3.
+- **collateral-fictional-counts** — 5 commands (`explore-api`, `explore-cli`, `explore-data`, `explore-integrations`, `plan`) referenced `counts.api` / `counts.cli` / `counts.models` / `counts.integrations` / `counts.scenarios` / `counts.charters` — none of which exist in the schema. Reworded to point at the correct artifact (`12_app_map.json` sub-arrays or `tests/matrix.json`) and explicitly cite the manifest's actual keyset, so a future Round-N agent can no longer read the doc and conclude the manifest tracks per-explorer counts. Linter invariant 3.
+- **collateral-flow-paths** — 5 commands (`cleanup`, `consolidate`, `council-design-critique`, `council-flow-review`, `test/test-critical-flows`) corrected `_testatlas/flows/<slug>/flow.{md,json}` → `_testatlas/flows/FLOW-<slug>.{md,json}` and `_testatlas/runs/` → `_testatlas/tests/runs/`. Linter invariant 2.
+- **collateral-lifecycle-hooks** — 10 brain-writer commands (`explore-api`, `explore-cli`, `explore-docs`, `explore-ui`, `test-accessibility`, `test-all`, `test-domain`, `test-flow`, `test-performance`, `test-regression`) now end Lifecycle with `node .testatlas/scripts/update-brain-after-command.js --command <command> --actor agent --status completed --reindex`. Same drift class as the dogfood Round-9 explore-* targets; the linter swept all peers. Linter invariant 4.
+- **collateral-shell-capability** — 4 commands (`explore-accessibility`, `explore-docs`, `explore-ui`, `test-accessibility`) gained `shell` in their `capabilities:` frontmatter to satisfy Phase-17 REVIEW-INV-A (every command body invoking `node ...scripts/...` must declare `shell`). Same 4 also gained shell-fallback prose to satisfy CMD-04 (`test/commands/capability-fallback.test.js`).
+- **collateral-flag-existence** — `commands/council/council-brain-audit.md:49` `sync-markdown-json.js --check` → `--dry-run` (Phase-20 plan 20-02 introduced `--dry-run` as the canonical no-mutation reporter; `--check` was never wired). Linter invariant 1.
+
+### Round-9 NOT-REAL claim (recorded for traceability)
+
+- **ISSUE-090** — REJECTED. Re-filing of Phase-20 ISSUE-072. `counts.testRuns` / `counts.evidenceRecords` ARE canonical per `.testatlas/schemas/workspace-manifest.schema.json:39,44`. Sub-finding during verification: `commands/test-domain.md:105` was using non-canonical `counts.runs/counts.evidence` — fixed as **collateral-090a** above (the OPPOSITE direction of the dogfood claim).
+
+### Future work (deferred)
+
+- **Invariant 6 (prose-formula consistency)** — requires LLM-assisted reasoning (e.g., extracting prose claims like "at most 3 high issues" and matching against verdict formulas). Out of scope for this task; the ISSUE-093 fix is point-applied. Revisit when an LLM-callable rule engine lands.
+- **Lifecycle invariant tuning** — current rule keys on `recompute` keyword in Lifecycle OR `_testatlas/evidence/` reference. Future iteration could parse the command's Outputs section for evidence emissions and remove the keyword-based heuristic.
+- **Workspace migration** — `_testatlas/maps/*.json` baseline `TESTATLAS_UNKNOWN_SCHEMA` errors persist (9 errors carried forward from Phase-20 dogfood Round 8). Out of scope; tracked as separate workspace-migration item.
+
+**Verification gates:** `pnpm test` 1656/1658 GREEN (0 fail, 2 skipped); `lint-commands` 0 violations (post-fix corpus); `check-adapter-parity --strict` 1314/1314 obligations satisfied (100% coverage); `mesh-graph.test.js` 4/4 GREEN; `validate-workspace.js` exit 1 reflects pre-existing 9 `TESTATLAS_UNKNOWN_SCHEMA` errors on `_testatlas/maps/*.json` + `reports/dashboard-data.json` (carried forward from Round-8 baseline). No release cut; last tag remains `v1.2.6`. `scripts/lib/install-core.js` untouched (concurrent-agent WIP). All 18 adapter trees regenerated via `node scripts/assemble-adapter.js`.
+
 ### Fixed (post-Phase-20 dogfood round 8 — ISSUE-065..083)
 
 **Source command body fixes:**
