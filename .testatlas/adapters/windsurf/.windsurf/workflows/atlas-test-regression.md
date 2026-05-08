@@ -3,7 +3,7 @@ description: Re-run previously-failed scenarios from prior RUN-<timestamp>.json 
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="a006a6df613251d5acdfeae3e1e6c2fc2b85a7337ac6017ec2b4e66e6adb38eb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-regression.md" hash="f885d3ca9435ca1e96be09ad97b631763cc007ca87c1172e381b80065b46460f" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-regression.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -54,8 +54,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record run id, baseline ref, classification counts, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair, evidence directory, and updated regressions report must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id and the baseline run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by one; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (regression vs `<baselineRunId>`) — `<n>` recovered / `<n>` unchanged / `<n>` regressed / `<n>` unverified."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-regression --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -72,7 +74,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Every recorded classification cites a fresh evidence path that exists on disk under `_testatlas/evidence/runs/<run-id>/`.
 - The regression RUN JSON validates against `test-run.schema.json` and every result includes `priorRunRef` and `priorStatus`.
 - `_testatlas/reports/regressions.md` is updated inside its generated-section markers; human content outside the markers is preserved.
-- Manifest `counts.runs` and `counts.evidence` are updated to match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` are updated to match disk.
 - The five lifecycle files listed above are updated.
 
 ## What's Next

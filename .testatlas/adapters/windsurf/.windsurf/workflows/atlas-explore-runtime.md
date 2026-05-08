@@ -3,7 +3,7 @@ description: Map how to run the target product safely — package scripts, Docke
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="baa104c2704a01d0774c066ce14fd26859df3682b4d7b6ec745e7e4708e7a7e1" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="4918f8b4bd9e65de66a12471c7ef5984258bb7823bbfb937e41230bdf6733716" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -92,8 +92,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence directory path, service / port / ENV-key counts.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (new evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row per `command-result.schema.json`. Note any halts or refusals (live-secrets detection, host-volume mounts, missing flags).
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute runtime-related counts.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` services across `<n>` ports with `<n>` ENV keys; flagged `<n>` safety stops."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-runtime --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

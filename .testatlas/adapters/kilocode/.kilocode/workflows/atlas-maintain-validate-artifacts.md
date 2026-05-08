@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="0b5bac3344c0ac8998fc4ab91fe83cb7b4e24029f17ef9b3b03690662ac5ab68" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="73cefc7918035dd595113de45bcf42b011aa52ef8a1b9ff399a59bc8148cd02d" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -62,15 +62,18 @@ The four validation dimensions:
 1. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
-   - Run `node .testatlas/scripts/validate-brain.js --strict` — checks brain JSON
-     consistency (cross-reference resolution).
+   - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON
+     consistency (cross-reference resolution). Supported flags are
+     `--cwd <dir>`, `--brain-dir <dir>`, `--suite-cwd <dir>` only;
+     `--strict` and `--report-only` are not recognized by the script.
    - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
      the brain indexes; collect orphans + danglers.
    - Aggregate all four dimensions into `_testatlas/reports/validation.md`
      with TESTATLAS:GENERATED markers. Halt with non-zero exit if any
-     dimension reports issues, unless `--report-only` was passed.
+     dimension reports issues. (No `--report-only` mode exists; the
+     orchestrator always halts on issues.)
 2. **Fallback path (no `shell`):**
    - For each schema, load the JSON, compare against artifacts by hand
      using the schema's `required` + `additionalProperties` clauses.
@@ -102,7 +105,7 @@ The four validation dimensions:
 
 - Schemas directory missing → halt with `SCHEMAS_MISSING`.
 - Brain directory missing → halt with `BRAIN_MISSING`; the workspace is V1 — recommend `maintain-migrate` first.
-- Any dimension reports issues AND `--report-only` was NOT passed → halt with non-zero exit so CI fails closed.
+- Any dimension reports issues → halt with non-zero exit so CI fails closed (the orchestrator does not support a `--report-only` bypass mode).
 
 ## Update Brain After Command
 

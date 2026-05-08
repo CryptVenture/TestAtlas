@@ -3,7 +3,7 @@ mode: agent
 description: Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="3aee4ada91a23958a557b7923d07e642a077b55b5bc31202844b55262a7c6208" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="02375a974527217fe1b2c57142df87f2d99721bb2eccb43761b0c78c0582aaba" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-cli.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -69,6 +69,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the cli-command count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` CLI commands (`<safe>` safe, `<destructive>` destructive) into `12_app_map.json`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --status completed --reindex`.
+
 ## Stop Conditions
 
 - Target repo ships no recognizable CLI surface (no scripts, no `bin/`, no Make/Just) → record an empty inventory citing the absence and close. Do not fabricate commands.
@@ -80,7 +82,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 - Every cli-command entry cites at least one evidence path that exists on disk under `_testatlas/evidence/explore-cli/<timestamp>/`.
-- Manifest `counts.cli-commands` (or analogous) is updated to match the on-disk map.
+- `_testatlas/12_app_map.json` `cliCommands[]` reflects every command with the canonical fields populated; the workspace manifest (`workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports`) tracks no per-explorer CLI count.
 - All safe commands have a captured `--help` and (when applicable) `--version` evidence file.
 - Every destructive command has `safety: destructive` and `executed: false` recorded.
 - The five lifecycle files above are updated.

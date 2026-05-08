@@ -3,7 +3,7 @@ mode: agent
 description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="7197e8c65972a459dd51703958d0f9e146bed69ca43185040bc250582b718993" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="282705e7a614b49264b7f9b8d6b64bbef1688c425689f4cc9ee4d07ab42a7611" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-council-flow-review.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -16,7 +16,7 @@ Run a Roundtable Review (PRD §7.9) on a single user flow. Personas examine the 
 - `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/flows.json`
-- The target flow's `_testatlas/flows/<slug>/flow.{md,json}`
+- The target flow's `_testatlas/flows/FLOW-<slug>.{md,json}`
 - The flow's evidence directory under `_testatlas/evidence/`
 
 ## Participant Selection

@@ -3,7 +3,7 @@ mode: agent
 description: Map logging setup, metrics, alerts, and tracing — verify log generation, metric collection, alert triggers, and distributed-trace propagation. Static audit + live probe when shell available.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="5c9ce850ea014b8308d4e0fe2338aae3d6c6827f2d77beaaa583556db0f7fa72" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="e8d9d05b0141c580da1812a61151bd82bcc89e0e37f82ed08ead0633ede526c0" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-observability.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -85,7 +85,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — completion state, evidence dir.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Audited logging / metrics / alerts / tracing in `_testatlas/evidence/explore-observability/<ts>/`."
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-observability --actor agent --status completed --reindex`.

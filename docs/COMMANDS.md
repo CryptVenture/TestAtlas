@@ -42,7 +42,7 @@ Squash issue duplicates per triage groupings; inherit highest severity + lowest-
 
 ## /atlas:create-persona
 
-Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
+Author a new persona (system, generated, or project scope) by invoking node .testatlas/scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
 
 **Capabilities:** `shell`, `file-write`
 
@@ -54,7 +54,7 @@ Author a new persona (system, generated, or project scope) by invoking scripts/c
 
 Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 
 [Source](../.testatlas/commands/explore-accessibility.md)
 
@@ -104,7 +104,7 @@ Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and stor
 
 Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs.
 
-**Capabilities:** `file-write`
+**Capabilities:** `shell`, `file-write`
 
 [Source](../.testatlas/commands/explore-docs.md)
 
@@ -154,7 +154,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 
 [Source](../.testatlas/commands/explore-ui.md)
 
@@ -234,7 +234,7 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 
 Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings.
 
-**Capabilities:** `browser`, `MCP`, `file-write`
+**Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 
 [Source](../.testatlas/commands/test-accessibility.md)
 

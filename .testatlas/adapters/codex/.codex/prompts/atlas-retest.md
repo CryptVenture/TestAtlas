@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-retest. Invoke as /prompts:atlas-retest. Description: Re-execute the original repro for issues with status=fixed_pending_retest; transition to closed (recovered) or reopened (still failing); append append-only retest history; capture new evidence. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="1cb2768dbb5a19194c5d0dfa374e76250d32c5858ef722eac60dbd587c634c8b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="ab38cd36fd3402c89ac6c30d4446177ca46be7b8c304e6a108c6235e3158192d" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -49,7 +49,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record the retest run, target IDs processed, pass / fail counts, and any regression tags applied.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directories and refreshed index pages must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing every issue ID retested and the evidence directory paths.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Retested `<n>` issues; `<c>` closed, `<r>` reopened (`<g>` regressions tagged)."
 
 ## Stop Conditions

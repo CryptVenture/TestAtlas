@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="79ff3c926d618e06d5a8e0b9f24a5cdb96f54237f5fb7ba2eeb7e960bcd43d2e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="779b551c493c03617ba55403c6a99e7234332eedfa161c77a0000889be02e0c3" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ For each independent summarization area in `{issues-by-severity, issues-by-confi
   Spawn a sub-agent with this brief (markdown convention):
     - **objective:** "Summarize `<area>` across the workspace in the form ready to merge into `_testatlas/13_quality_scorecard.md`."
     - **scope:** "All artifacts under the named area (e.g., for `issues-by-severity` — every `_testatlas/to_fix/ISSUE-*.json` plus the per-severity indexes under `_testatlas/to_fix/by_severity/`)."
-    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
+    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/tests/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
     - **output-format:** "Markdown section ready to merge into `_testatlas/13_quality_scorecard.md` between the generated-section markers, plus a JSON fragment with the longitudinal counts the umbrella appends to the scorecard's history block."
     - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella merges all area summaries into `13_quality_scorecard.md` (preserving append-only history) and refreshes `coverage.md` + `regressions.md`.
     - **exit-criteria:** "Section is self-contained, accurate against on-disk records, and length-bounded; counts are derived from disk (never cached)."

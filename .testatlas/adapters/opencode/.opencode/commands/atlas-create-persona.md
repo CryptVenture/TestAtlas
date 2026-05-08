@@ -1,8 +1,8 @@
 ---
-description: Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
+description: Author a new persona (system, generated, or project scope) by invoking node .testatlas/scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/create-persona.md" hash="cae6e6ffa022e0c6cd2b6f8e0c2f941c9d148e28c1aaacbbbf78ef8892ce460b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/create-persona.md" hash="cdc10e94d6fe76cf55509a202c5cd5aaedbb996e3ed30d97c229eeb39db942c6" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-create-persona.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

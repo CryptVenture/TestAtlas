@@ -2,7 +2,7 @@
 description: Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="7aeab28151a9a1256590c917d78902f357f60a480ed2c5068a0b378f44362109" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="05d361342bd1fa82f22cbcbd8f9e678d84c9ea8d57c8e0d817f88926436632db" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-explore-state.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -77,7 +77,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — completion state, evidence dir path, surfaces / states / transitions counts.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` surfaces / `<m>` states / `<t>` transitions in `_testatlas/evidence/explore-state/<ts>/`."
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-state --actor agent --status completed --reindex` so the brain reflects the new evidence and map updates.

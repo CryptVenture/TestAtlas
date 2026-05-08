@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="32790ef427fef826bfc5e7730c84febfa79e142a960eb42f06df1510a7507665" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="53986232edd7dd51c726266fa27f6ff0d9d68a954c9d2fcde50a4761321f1789" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-explore-data.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -58,7 +58,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, counts of entities / queues / caches / storage objects discovered.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and updated `12_app_map.json` must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.models`, plus queue/cache/storage counts if the manifest tracks them.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Entity/queue/cache/storage counts live in `12_app_map.json`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
 
 ## Stop Conditions

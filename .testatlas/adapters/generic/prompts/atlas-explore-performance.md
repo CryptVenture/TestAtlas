@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-performance. Paste .testatlas/bootstrap.md first; description: Detect user-visible slowness, blocking interactions, retries, reliability per PRD §13.10 via mandatory Chrome DevTools MCP perf walkthrough (baseline + throttled traces, performance_analyze_insight); degrade to code-reading without MCP. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="d5fc5b8f4767bc38830e95e950d4a75ec966ce5d9d31f803c0663369a4ae9c2d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="6c219691b6319adaa4449a8a15e532b01a2cbf4316d9db54edb0bf6f37be4ebf" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -41,14 +41,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - `navigate_page(url)` — load a target route under instrumentation.
    - `wait_for(condition)` — wait for the route to settle.
    - `performance_start_trace(...)` / `performance_stop_trace()` — bracket a trace capture.
-   - `performance_analyze_insight(...)` — derive LCP, INP, CLS, long tasks, render-blocking, layout shifts.
+   - `performance_analyze_insight({insightName, insightSetId})` — derive LCP, INP, CLS, long tasks, render-blocking, layout shifts. Both params are required: `insightName` is one of the trace-emitted insight identifiers (e.g. `LCPBreakdown`, `INPBreakdown`, `LayoutShifts`, `RenderBlocking`, `DocumentLatency`, `NetworkDependencyTree`); `insightSetId` is the trace-set identifier returned by `performance_stop_trace` for the captured trace.
    - `emulate({cpuThrottlingRate, networkConditions})` — CPU + network throttling profiles.
    - `list_network_requests()` — XHR/fetch traffic with timing, status, retries, payload size.
    - `list_console_messages()` — surface runtime errors and warnings emitted during the trace window.
 7. Select a representative route set: the home/landing route plus the 2–3 most-trafficked routes from `_testatlas/12_app_map.json` (or, absent traffic hints, the routes most central to the dogfood-loop's primary user flow). Record the rationale in `route-selection.md`.
 8. For each selected route, capture a baseline trace: `navigate_page` → `wait_for` settle → `performance_start_trace` → exercise the primary user interaction (click, fill, submit) → `performance_stop_trace`. Persist the trace JSON under `_testatlas/evidence/explore-performance/<timestamp>/<route-slug>/baseline.trace.json`.
 9. For each selected route, capture a throttled trace: call `emulate({cpuThrottlingRate: 4, networkConditions: 'Slow 3G'})` (or the equivalent profile name supported by the MCP build), repeat the baseline interaction sequence, and persist as `throttled.trace.json`. This is the reliability surface — slow CPUs and bad networks reveal the failures real users hit.
-10. Run `performance_analyze_insight` against each captured trace. Persist insights (LCP, INP, CLS, total-blocking-time, long tasks, render-blocking resources, layout-shift sources) as `insights.md` per route, alongside the underlying machine-readable JSON when the tool returns one.
+10. Run `performance_analyze_insight({ insightName, insightSetId })` against each captured trace, iterating over the insights enumerated in the trace summary returned by `performance_stop_trace` (`insightSetId` is the same trace-set id; `insightName` cycles over the trace's emitted insight names — `LCPBreakdown`, `INPBreakdown`, `LayoutShifts`, `RenderBlocking`, `DocumentLatency`, `NetworkDependencyTree`, etc.). Both params are required by the MCP schema; calling with only the trace alone will reject. Persist insights (LCP, INP, CLS, total-blocking-time, long tasks, render-blocking resources, layout-shift sources) as `insights.md` per route, alongside the underlying machine-readable JSON when the tool returns one.
 11. Capture the network inventory via `list_network_requests` for each trace, recording: URL, method, status, duration, payload size, and retry count. Persist as `network.json` per route. Highlight retried/failed requests, slow third-party calls, and unbatched requests.
 12. Aggregate findings into `_testatlas/evidence/explore-performance/<timestamp>/findings.md` with severity per PRD §13.10 (critical / serious / moderate / minor), explicit threshold rationale (which budget the observed value violated), and confidence per `bootstrap.md` §8. Every finding cites at least one evidence path created in steps 8–11.
 13. (If a dev server was started) Stop it cleanly. Record exit status in `dev-server.log`.
@@ -71,8 +71,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, sampled route count, and findings count by severity.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Performance-traced `<n>` routes (baseline + throttled) — `<n>` critical / `<n>` serious / `<n>` moderate / `<n>` minor findings."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-performance --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-integrations. Invoke as /prompts:atlas-explore-integrations. Description: Map auth, payments, email, analytics, storage, webhooks, and feature-flag integrations; distinguish sandbox/test/prod endpoints; probe sandbox only when safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="6015bc607c97c880dc504dd8f3d9923315914fc76a6fc430ae3cebbeee832b98" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="578290b8d352eb43155557b480aba5e37cb93087193ae6a9f83574227349f984" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-integrations.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, and counts of integrations discovered / probed / skipped.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and updated `12_app_map.json` must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.integrations`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Integration counts live in `12_app_map.json` `integrations[]`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` integrations (`<n>` probed sandbox, `<n>` skipped prod)."
 
 ## Stop Conditions

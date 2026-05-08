@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="15e8987984062598c1e4b893790109d1089f1e37dc81222e34bd10498d2bb1ba" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="bb1ee891e190f4cb48af37274b4ed9d83adc8917f8af7c579bca6bf01c981654" -->
 First read `.testatlas/bootstrap.md`. Then read `.amazonq/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Amazon Q Developer. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -149,14 +149,14 @@ Umbrella router for V2 council commands. Selects a conversation mode + topic + p
 
 ## /atlas-create-persona
 
-Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json. Read `.testatlas/commands/create-persona.md` for full instructions.
+Author a new persona (system, generated, or project scope) by invoking node .testatlas/scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json. Read `.testatlas/commands/create-persona.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-accessibility
 
 Evaluate keyboard nav, focus, labels, semantics, contrast, dynamic feedback per PRD §13.9 via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); degrade to code-reading without MCP. Read `.testatlas/commands/explore-accessibility.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-api
@@ -186,7 +186,7 @@ Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and stor
 ## /atlas-explore-docs
 
 Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs. Read `.testatlas/commands/explore-docs.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-integrations
@@ -216,7 +216,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 ## /atlas-explore-ui
 
 Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore
@@ -360,7 +360,7 @@ Re-execute the original repro for issues with status=fixed_pending_retest; trans
 ## /atlas-test-accessibility
 
 Execute accessibility-typed scenarios via mandatory Chrome DevTools MCP a11y walkthrough (lighthouse_audit + ARIA introspection); assert against PRD §13.9 thresholds; emit RUN-<timestamp>.{md,json} with per-scenario a11y findings. Read `.testatlas/commands/test-accessibility.md` for full instructions.
-- Required capabilities: browser, MCP, file-write.
+- Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-test-all

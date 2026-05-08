@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="ac7b2f566ac5cdbc79017c9ee11565a486f9bcffdb1e5e7d59bcccdc68fa6382" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="7f78586faa10cf932756f584df9a49068ced183a9d330666ff09c2b20d5d4df7" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-report-domain.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -28,6 +28,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
+- `_testatlas/brain/domains.json` — domain-level brain index; required for domain resolution and cross-domain context.
 - `_testatlas/brain/quality_scores.json` (run `brain-score` first if missing or stale).
 - `_testatlas/brain/drift.json` (run `brain-drift` first if missing or stale).
 

@@ -3,7 +3,7 @@ mode: agent
 description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="67d4e0d02dec3e1786cc7b520544c2fa3ebbfea3e10489019378e6ef9955dc38" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="9da955540bf4e9e4f93919e286e2ec16eb909eccea3110402032a2927949d252" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-plan.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record scenario count, P0 count, and any `pending: capability-required` deferrals.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (matrix + plan + strategy + charters must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json`.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; update `counts.scenarios` and `counts.charters`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Scenario / charter counts live in `_testatlas/tests/matrix.json` and `_testatlas/tests/exploratory_charters.md` respectively; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Planned `<n>` scenarios across `<n>` domains; `<n>` P0, `<n>` deferred for missing capabilities."
 
 ## Stop Conditions
@@ -91,7 +91,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - All four plan artifacts exist: `02_test_strategy.md`, `plans/PLAN-master.md`, `tests/matrix.{md,json}`, `tests/exploratory_charters.md`.
 - `matrix.json` validates against `matrix.schema.json`; every per-scenario sidecar validates against `test-scenario.schema.json`.
 - Every scenario carries an explicit `confidence` per `bootstrap.md` §11.
-- Manifest `counts.scenarios` and `counts.charters` match on-disk counts.
+- `tests/matrix.json` scenario count and `tests/exploratory_charters.md` charter count match on-disk counts. (These are not workspace-manifest counts; the manifest's `counts` keys are limited to `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports`.)
 - The five lifecycle files listed above are updated.
 
 ## What's Next

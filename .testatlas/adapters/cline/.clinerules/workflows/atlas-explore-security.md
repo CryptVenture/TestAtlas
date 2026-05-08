@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-security. Invoke as /atlas-explore-security.md. Description: Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD §6.5 — read-only defensive audit; never attempts exploitation; never persists secret values. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="d54556d4ba4fa89444a80b36be615b050f7dc2484ceeb62a73bb8916a6e4573a" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-security.md" hash="9d3bc05a537344e8ec9310d74987cb432aa8ec4a23190afd6e55a8073dbbbe77" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-security.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -52,8 +52,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, and findings count by severity.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Catalogued security surface — `<n>` auth surfaces / `<n>` secret-handling sites / `<n>` redaction risks; `<n>` critical / `<n>` high / `<n>` medium / `<n>` low / `<n>` enhancement findings."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-security --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

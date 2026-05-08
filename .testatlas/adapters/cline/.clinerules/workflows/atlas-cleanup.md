@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-cleanup. Invoke as /atlas-cleanup.md. Description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="6567248362e043c1d825fcb1442440915046a523efe2d67001e1ef3d9489342b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="b7d813d8552283f48e4c4f486d9f5f0b52aa7ec14ade0c9512a920f81516ebfc" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-cleanup.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -12,7 +12,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 - `.testatlas/bootstrap.md` — the constitution; the two-tree invariant.
 - `_testatlas/11_workspace_manifest.json` — current counts to reconcile against disk.
 - `_testatlas/09_artifact_index.md` — current artifact list to re-derive.
-- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
+- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/tests/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
 
 ## Required Actions
 

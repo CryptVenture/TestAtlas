@@ -3,7 +3,7 @@ description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs i
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="af37b8daa198614b0a45a5e595f20756534d15db4265855523bc9258163ee37d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="697513d6a91e39c28891836f83db35002c37f35ca35fb59b628a7165a577da6f" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-docs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -66,6 +66,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/10_command_log.md` — append a row per `command-result.schema.json`.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the docs and stories counts.
 - `_testatlas/history/run_log.md` — narrative entry: "Inventoried `<n>` docs; normalized `<n>` stories; flagged `<n>` stale and `<n>` conflicting."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-docs --actor agent --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

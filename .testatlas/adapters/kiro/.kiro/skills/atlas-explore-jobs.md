@@ -4,7 +4,7 @@ description: Map background jobs, schedules, queues, retry policies, timeouts, a
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="ff9fff3e2bcabb62e1cf88c69b87ee5ae03a6742cc5fd8ce96521065174e7007" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="f3155420d9e3e7b3ff48e127d720d0bc161317a8adbe43a70a2a71484c331546" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-jobs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -80,7 +80,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — completion state, evidence dir, job count.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` jobs / `<m>` queues / `<k>` schedules in `_testatlas/evidence/explore-jobs/<ts>/`."
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-jobs --actor agent --status completed --reindex`.

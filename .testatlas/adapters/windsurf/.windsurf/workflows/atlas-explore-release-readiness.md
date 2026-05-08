@@ -3,7 +3,7 @@ description: Map release artifacts, blockers, readiness state, version tags, and
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="4231c90206865cf26f16f2afaf358d75b47231f7efaa9254935c677f3e073425" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="c23432a280ddfe27f27a243a6f36f17a7f1855478b89ce0416c78f7a41c8166f" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — completion state, report path, decision (go/conditional/no-go), blocker counts.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a `command-result.schema.json` row.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative: "Release readiness: `<state>` — `<n>` blockers / suggested bump `<bump>` — report at `_testatlas/reports/REPORT-release-readiness-<ts>.md`."
 
 Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-release-readiness --actor agent --status completed --reindex`.

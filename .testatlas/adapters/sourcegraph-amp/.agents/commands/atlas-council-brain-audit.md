@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-brain-audit. Invoke as /atlas-council-brain-audit. Description: Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="b4c14fa34f685acfd5541aea8b2151f252aa83a04416671fbb90ba6bc20598a2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="571b08883a8fc7a2e09196952d02089799f057dc15e678a20bd6790b196e41d2" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,7 @@ Run a Brain Audit Council (PRD §7.9) after large runs, before final reports, or
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/drift.json`
 - `_testatlas/09_artifact_index.md`, `_testatlas/00_overview.md`
-- Output of `node .testatlas/scripts/validate-brain.js` and `node .testatlas/scripts/sync-markdown-json.js --check`
+- Output of `node .testatlas/scripts/validate-brain.js` and `node .testatlas/scripts/sync-markdown-json.js --dry-run`
 
 ## Participant Selection
 

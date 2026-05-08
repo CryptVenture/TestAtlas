@@ -4,7 +4,7 @@ description: Design Critique — Product Strategist, User Advocate, and Accessib
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="ddba9f28679283d20aedccf3e22abb305187191e9414344c53b50954b5592bd6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="d3eaf2ad4f334206a22a73d2639d055ae03dabfbc12ae157e1ccf7cd4daf3074" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -17,7 +17,7 @@ Run a Design Critique (PRD §7.9) when UI flows are mapped, product copy or navi
 - `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/reference/chrome-devtools-mcp.md` — Tier-1 UI walkthrough toolset.
 - `.testatlas/agents/registry.md`
-- Target flow's `_testatlas/flows/<slug>/flow.{md,json}` plus the relevant entries in `_testatlas/maps/{routes,pages,components,states}.json`
+- Target flow's `_testatlas/flows/FLOW-<slug>.{md,json}` plus the relevant entries in `_testatlas/maps/{routes,pages,components,states}.json`
 - Existing UI evidence under `_testatlas/evidence/explore-ui/` and `_testatlas/evidence/explore-accessibility/`
 
 ## Participant Selection
