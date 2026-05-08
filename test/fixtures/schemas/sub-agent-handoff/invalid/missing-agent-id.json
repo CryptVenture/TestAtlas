@@ -1,0 +1,17 @@
+{
+  "id": "HANDOFF-billing-explorer",
+  "createdOn": "2026-05-03T12:00:00Z",
+  "createdBy": "main-agent",
+  "status": "pending",
+  "objective": "Map every interactive element on the billing dashboard.",
+  "scope": ["/billing", "/billing/invoices"],
+  "nonScope": ["payment provider internals"],
+  "filesToRead": ["_testatlas/00_overview.md", "_testatlas/domains/billing/overview.md"],
+  "filesMayUpdate": ["_testatlas/domains/billing/components.md"],
+  "requiredEvidence": ["screenshots of every state"],
+  "questions": ["Are there hidden admin actions?"],
+  "constraints": ["Do not run destructive operations"],
+  "outputLocation": "_testatlas/sub_agents/outputs/billing-explorer.md",
+  "outputStructure": ["summary", "findings", "evidence-table"],
+  "completionCriteria": ["≥1 screenshot per state", "All flows documented"]
+}
