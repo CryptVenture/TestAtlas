@@ -48,6 +48,8 @@ Produce the canonical machine-readable dashboard export — a pre-aggregated JSO
 
 The dashboard is a pure projection from existing brain JSON — re-running on the same brain produces byte-identical output (modulo `generated_at`). This contract is intentional: machine readers should be able to diff dashboards across CI runs without false signal.
 
+The accelerator accepts an optional `--format <json|html-preview>` flag (default: `json`). Use `html-preview` to emit an inline HTML preview alongside the canonical JSON for human review during report-prep; `json` is the canonical machine-readable shape consumed by downstream dashboards and CI.
+
 ## When to Run
 
 - After `/atlas:brain-score` and `/atlas:brain-drift` so quality + drift signals are fresh.
@@ -67,8 +69,9 @@ The dashboard is a pure projection from existing brain JSON — re-running on th
 
 1. Verify `quality_scores.json` and `drift.json` are present. If either is missing, log a warning and continue with degraded values (all scores default to 0; `stale_domains` is empty). The output is still a valid dashboard but consumers see the blanks.
 2. **Preferred path (if `shell` available):**
-   - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js`).
+   - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json [--format <json|html-preview>]` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js [--format <json|html-preview>]`).
    - The generator atomically writes the JSON, AJV-validates against `dashboard_data.schema.json` before write, and exits 0 on success.
+   - The optional `--format` flag selects the emitted shape: `json` (default — canonical machine-readable export) or `html-preview` (emits an inline HTML preview alongside the JSON for human review). Invalid values halt with `BAD_FORMAT`.
 3. **Fallback path (no `shell`):**
    - Hand-render the JSON using the field shape above. Validate against `.testatlas/schemas/dashboard_data.schema.json`. Mark the export as `confidence: needs-validation` in any consuming report because hand-rendered totals are not deterministic.
 4. Append a brain event with `command: report-dashboard-data` and the file path.
