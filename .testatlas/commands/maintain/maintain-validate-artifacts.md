@@ -159,10 +159,11 @@ scripts emit prose error messages and a non-zero exit only.
   load failures surface as generic errors and the script exits 1.
 - **`sync-markdown-json.js`** exits 1 on a failed run with the message
   `sync-markdown-json: FAIL — <reason>`, otherwise exits 0.
-- **`update-brain-after-command.js`** exits 1 on any error with the
-  message `update-brain-after-command: <code> — <message>` (the
-  `<code>` is the Node error code on the underlying I/O failure, not
-  a TestAtlas-defined enum), 2 on an unknown CLI flag.
+- The brain-update lifecycle hook (invoked from the `## Lifecycle`
+  section below) exits 1 on any error with the message
+  `update-brain-after-command: <code> — <message>` (the `<code>` is the
+  Node error code on the underlying I/O failure, not a TestAtlas-defined
+  enum), 2 on an unknown CLI flag.
 - Any of the four dimensions reporting issues → halt with non-zero
   exit so CI fails closed (the orchestrator does not support a
   `--report-only` bypass mode).

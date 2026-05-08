@@ -1,0 +1,5747 @@
+{
+  "version": 1,
+  "generated_at": "2026-05-08T21:18:46.330Z",
+  "summary": {
+    "commands_scanned": 73,
+    "claims_extracted": 907,
+    "claims_resolved": 539,
+    "claims_unresolved": 368,
+    "resolution_rate": "59.4%"
+  },
+  "commands": {
+    "bootstrap.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "sync-status.js",
+          "location": "L124",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L136",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "brain/brain-drift.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "detect-drift.js",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "drift_record.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L103",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L103",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "brain/brain-score.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "score-quality.js",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "quality_score.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L106",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L106",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L106",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L106",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "cleanup.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "update-indexes.js",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-indexes.js --only",
+          "location": "L50",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "normalize-slugs.js",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "normalize-slugs.js --apply",
+          "location": "L51",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "check-stale-docs.js",
+          "location": "L52",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "check-stale-docs.js --threshold-days",
+          "location": "L52",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "check-stale-docs.js --report",
+          "location": "L52",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L83",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "consolidate.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:triage",
+          "location": "L57",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "summarize-run.js",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-indexes.js",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L134",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:triage",
+          "location": "L140",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L145",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L153",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "core/bootstrap-refresh.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "check-token-budget.js",
+          "location": "L53",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L85",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L85",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/brain-compact.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L53",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L53",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L80",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L85",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --artifacts-written",
+          "location": "L85",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/brain-export.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L52",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L52",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L88",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --artifacts-written",
+          "location": "L88",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/brain-query.md": {
+      "claims": [
+        {
+          "type": "slash-command",
+          "value": "/atlas:core-init",
+          "location": "L74",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L85",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L85",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L85",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/brain-sync.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L55",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "index-artifacts.js",
+          "location": "L56",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-graph.js",
+          "location": "L57",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L58",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:core-init",
+          "location": "L82",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L87",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L93",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L93",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L93",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L93",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/brain-validate.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L48",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:core-init",
+          "location": "L79",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-graph.js",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "manifest.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L102",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L102",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "core/init.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "init-workspace.js",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-status.js",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L57",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "manifest.schema.json",
+          "location": "L57",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L107",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L123",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L127",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "manifest.schema.json",
+          "location": "L132",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "core/status.md": {
+      "claims": [
+        {
+          "type": "slash-command",
+          "value": "/atlas:core-init",
+          "location": "L50",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L88",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L88",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L88",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-brain-audit.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L45",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --dry-run",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L62",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L65",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L65",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L76",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L76",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L94",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-bug-triage.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-design-critique.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-domain-review.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-flow-review.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-product-review.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L45",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L64",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L69",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L75",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-red-team.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L45",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L65",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L65",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L76",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L76",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-release-readiness.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "explore-tests.js",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "explore-tests.js --refresh",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-report.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --kind",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --report-path",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "bump-version.js",
+          "location": "L109",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "council/council-retest.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "council/council-test-plan.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L45",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-coverage.js",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-coverage.js --category",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "consolidate-council.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "consolidate-council.js --session-id",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L71",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L77",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L95",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "extract-claims.js",
+          "location": "L96",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "extract-claims.js --session-id",
+          "location": "L96",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "council_session.schema.json",
+          "location": "L97",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "council/council.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L44",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-council-session.js",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-council-session.js --topic",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-council-session.js --mode",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-council-session.js --participants",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L78",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L102",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "create-persona.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "create-persona.js",
+          "location": "L4",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L27",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L39",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L44",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-persona.js",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L67",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L73",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L82",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "persona.schema.json",
+          "location": "L97",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-accessibility.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L57",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L104",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L104",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L104",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L104",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L104",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L104",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore-api.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "api-endpoint.schema.json",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "api-endpoint.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "api-endpoint.schema.json",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "api-endpoint.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/apis.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/apis.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "api-endpoint.schema.json",
+          "location": "L112",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L119",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-cli.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/cli-commands.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 5",
+          "location": "L81",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L82",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L88",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/cli-commands.json",
+          "location": "L89",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L103",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L103",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "cli-command.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L116",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-codebase.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 9",
+          "location": "L74",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L76",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 0",
+          "location": "L83",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 0",
+          "location": "L89",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L95",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-status.js",
+          "location": "L96",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L111",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-data.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L45",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/entities.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L78",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/entities.json",
+          "location": "L79",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L89",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L99",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-docs.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L95",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L99",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore-integrations.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L45",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L57",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L111",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L120",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore-performance.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L109",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L109",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L109",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L109",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L109",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore-runtime.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L86",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/runtime.json",
+          "location": "L107",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L115",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L123",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L127",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L127",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L127",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore-security.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L56",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L86",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L90",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L90",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L90",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L90",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L90",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore-ui.md": {
+      "claims": [
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L4",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L20",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "route.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "component.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L113",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L113",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore.md": {
+      "claims": [
+        {
+          "type": "step-cross-reference",
+          "value": "step 5",
+          "location": "L69",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 3",
+          "location": "L71",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 4",
+          "location": "L71",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L98",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L102",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L102",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L102",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-all.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "update-coverage.js",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-coverage.js --category",
+          "location": "L46",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "config-key",
+          "value": "idempotencyTtlMs",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-coverage.js",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-coverage.js --category",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L122",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L126",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L126",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L126",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L126",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L126",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L126",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-brain.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L60",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L62",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "validate-brain.js --suite-cwd",
+          "location": "L62",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L62",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:txt",
+          "location": "L62",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L62",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L78",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --dry-run",
+          "location": "L78",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L96",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --dry-run",
+          "location": "L96",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --cwd",
+          "location": "L96",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:core-brain-sync",
+          "location": "L98",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --cwd",
+          "location": "L99",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:txt",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L121",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L125",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L125",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L125",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L125",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L125",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-components.md": {
+      "claims": [
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L29",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "component.schema.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L80",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "component.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/components.json",
+          "location": "L106",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore/explore-errors.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "redact-evidence.js",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "redact-evidence.js --evidence-id",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-issue.js",
+          "location": "L79",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L97",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L116",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L120",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L120",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-jobs.md": {
+      "claims": [
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L28",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L80",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L82",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L114",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L114",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L114",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L114",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L114",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L114",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/jobs.json",
+          "location": "L124",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore/explore-observability.md": {
+      "claims": [
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/integrations.json",
+          "location": "L28",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/integrations.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "redact-evidence.js",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "redact-evidence.js --evidence-id",
+          "location": "L61",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/integrations.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/observability.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/integrations.json",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L107",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L116",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L120",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L120",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L120",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-release-readiness.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-report.js",
+          "location": "L83",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --kind",
+          "location": "L83",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --report-path",
+          "location": "L83",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L108",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L112",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "bump-version.js",
+          "location": "L132",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore/explore-routes.md": {
+      "claims": [
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L29",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "route.schema.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-issue.js",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "route.schema.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L80",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L90",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L94",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "route.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/routes.json",
+          "location": "L107",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore/explore-security-privacy.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "create-issue.js",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "redact-evidence.js",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "redact-evidence.js --evidence-id",
+          "location": "L75",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-issue.js",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L83",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L87",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/security.json",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L107",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L115",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L119",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L119",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "explore/explore-state.md": {
+      "claims": [
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L28",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L113",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/states.json",
+          "location": "L126",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "state.schema.json",
+          "location": "L138",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "state.schema.json",
+          "location": "L138",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L139",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "explore/explore-tests.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "explore-tests.js",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "explore-tests.js --out",
+          "location": "L59",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "app-map.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/tests.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 6",
+          "location": "L84",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "map-path",
+          "value": "_testatlas/maps/tests.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 9",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-coverage.js",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-coverage.js --category",
+          "location": "L105",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "handoff.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L4",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L39",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L44",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "summarize-run.js",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "summarize-run.js --since",
+          "location": "L51",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "normalize-slugs.js",
+          "location": "L52",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-handoff.js",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "validate-handoff.js --workspace",
+          "location": "L75",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "validate-handoff.js --cwd",
+          "location": "L75",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L83",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L98",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "sub-agent-handoff.schema.json",
+          "location": "L107",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "log-issue.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-issue.js",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --title",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --domain",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --severity",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --evidence",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --evidence",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --repro-steps",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --frequency",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --acceptance-criteria",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --workspace",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-issue.js --dry-run",
+          "location": "L54",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L68",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L86",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L96",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "maintain/maintain-migrate.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "manifest.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "v2-migrate.js",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "v2-migrate.js --workspace",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "v2-migrate.js --cwd",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "v2-migrate.js --force",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "manifest.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L131",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L131",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L131",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L131",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L131",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "maintain/maintain-validate-artifacts.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-brain.js",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L93",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 2",
+          "location": "L100",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-markdown-json.js",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-markdown-json.js --dry-run",
+          "location": "L106",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L144",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "mcp-tool",
+          "value": "brain:js",
+          "location": "L147",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L173",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L173",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L173",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L173",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L173",
+          "resolution": "unresolved"
+        }
+      ]
+    },
+    "map-domains.md": {
+      "claims": [
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L45",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L46",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L54",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L55",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-domain.js",
+          "location": "L56",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-domain.js --name",
+          "location": "L56",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-domain.js --purpose",
+          "location": "L56",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-domain.js --workspace",
+          "location": "L56",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L56",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L56",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-system-map.js",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-system-map.js --workspace",
+          "location": "L59",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L76",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:explore-codebase",
+          "location": "L82",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "domain.schema.json",
+          "location": "L90",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "plan.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "matrix.schema.json",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L52",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 8",
+          "location": "L53",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L59",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-flow.js",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --name",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --domain",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --persona",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --goal",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --priority",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --status",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --confidence",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-flow.js --workspace",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "flow.schema.json",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "matrix.schema.json",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "matrix.schema.json",
+          "location": "L67",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L67",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L80",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:map-domains",
+          "location": "L115",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "matrix.schema.json",
+          "location": "L117",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L117",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "matrix.schema.json",
+          "location": "L123",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L123",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "report.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L44",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L53",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-report.js",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --report-path",
+          "location": "L60",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --workspace",
+          "location": "L60",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --dry-run",
+          "location": "L60",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 14",
+          "location": "L60",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "sync-scorecard.js",
+          "location": "L74",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-scorecard.js --workspace",
+          "location": "L74",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "sync-scorecard.js --dry-run",
+          "location": "L74",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 14",
+          "location": "L93",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:test-flow",
+          "location": "L98",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L102",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "report.schema.json",
+          "location": "L107",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "report/report-dashboard-data.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L38",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-dashboard-data.js --output",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-dashboard-data.js --format",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-dashboard-data.js --format",
+          "location": "L72",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L73",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L76",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L95",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L111",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L118",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L125",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L128",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-dashboard-data.js --output",
+          "location": "L128",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-dashboard-data.js",
+          "location": "L131",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-dashboard-data.js --cwd",
+          "location": "L131",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L139",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "dashboard_data.schema.json",
+          "location": "L139",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L141",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "report/report-domain.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "generate-report.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --kind",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --domain",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L94",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L105",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L112",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "report/report-release.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "generate-report.js",
+          "location": "L69",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "generate-report.js --kind",
+          "location": "L69",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L116",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L132",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L132",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L132",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L132",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L132",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L139",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "retest.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L58",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 5",
+          "location": "L63",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 9",
+          "location": "L64",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L67",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L96",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L103",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-accessibility.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L79",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L93",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L97",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L97",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L97",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L97",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L97",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L97",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L107",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L113",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-all.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L42",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:plan",
+          "location": "L47",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 4",
+          "location": "L71",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L87",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L87",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L88",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L108",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L112",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:plan",
+          "location": "L116",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L121",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-domain.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L42",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L60",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L83",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L84",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L104",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L108",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L108",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L108",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L108",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L108",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L108",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:plan",
+          "location": "L112",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:test-flow",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:test-accessibility",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:test-performance",
+          "location": "L113",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L119",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L127",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-flow.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L42",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L52",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "create-evidence-record.js",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-evidence-record.js --file",
+          "location": "L70",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-evidence-record.js --redacted",
+          "location": "L70",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "create-evidence-record.js --workspace",
+          "location": "L70",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L92",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L115",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L119",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L119",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:plan",
+          "location": "L123",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L128",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L135",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-performance.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L41",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L77",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L95",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L95",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L95",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L95",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L95",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L95",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L112",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test-regression.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L42",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L50",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L51",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L72",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L87",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L91",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L91",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L100",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L106",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test/generate-automation.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L70",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-automation.js",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L124",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L136",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L136",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L136",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L136",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L136",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 1",
+          "location": "L140",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L141",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test/generate-retest-pack.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-retest-pack.js",
+          "location": "L69",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L73",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L99",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L109",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L121",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L121",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L121",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L121",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L121",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "retest_pack.schema.json",
+          "location": "L126",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test/generate-scenarios.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L61",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "generate-scenarios.js",
+          "location": "L67",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L73",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L78",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L101",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L122",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L122",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L122",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L122",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L122",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-scenario.schema.json",
+          "location": "L127",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "test/test-critical-flows.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L81",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "evidence.schema.json",
+          "location": "L82",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 3",
+          "location": "L82",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "append-event.js",
+          "location": "L106",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L110",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L148",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L158",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update-brain-after-command.js",
+          "location": "L162",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --command",
+          "location": "L162",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --actor",
+          "location": "L162",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --summary",
+          "location": "L162",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --status",
+          "location": "L162",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "update-brain-after-command.js --reindex",
+          "location": "L162",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 4",
+          "location": "L166",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L167",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "test-run.schema.json",
+          "location": "L167",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "workspace-manifest.schema.json",
+          "location": "L168",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "triage.md": {
+      "claims": [
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L47",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L48",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "triage.js",
+          "location": "L55",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "triage.js --workspace",
+          "location": "L55",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "triage.js --cwd",
+          "location": "L55",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "triage.js --dry-run",
+          "location": "L55",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "triage.js --severity-override",
+          "location": "L55",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "triage.js --severity-override",
+          "location": "L55",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L55",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L63",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "vocabulary.schema.json",
+          "location": "L75",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L80",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L97",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L105",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L113",
+          "resolution": "valid"
+        },
+        {
+          "type": "schema-file",
+          "value": "issue.schema.json",
+          "location": "L115",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "uninstall.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "uninstall.js",
+          "location": "L49",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "uninstall.js --target",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "uninstall.js --purge",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "uninstall.js --force-untracked",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-flag",
+          "value": "uninstall.js --dry-run",
+          "location": "L49",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L68",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "update.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "update.js",
+          "location": "L38",
+          "resolution": "valid"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 2",
+          "location": "L58",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "script-invocation",
+          "value": "update.js",
+          "location": "L64",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "update.js --latest-version",
+          "location": "L64",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "step-cross-reference",
+          "value": "step 6",
+          "location": "L64",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L80",
+          "resolution": "valid"
+        }
+      ]
+    },
+    "validate-workspace.md": {
+      "claims": [
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L40",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L53",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "check-org-placeholder.js",
+          "location": "L65",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "check-stale-docs.js",
+          "location": "L66",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-flag",
+          "value": "check-stale-docs.js --threshold-days",
+          "location": "L66",
+          "resolution": "unresolved"
+        },
+        {
+          "type": "schema-file",
+          "value": "command-result.schema.json",
+          "location": "L82",
+          "resolution": "valid"
+        },
+        {
+          "type": "script-invocation",
+          "value": "validate-workspace.js",
+          "location": "L88",
+          "resolution": "valid"
+        },
+        {
+          "type": "slash-command",
+          "value": "/atlas:init",
+          "location": "L90",
+          "resolution": "unresolved"
+        }
+      ]
+    }
+  }
+}
