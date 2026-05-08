@@ -64,7 +64,7 @@ Detect drift between when each domain/flow/route was last explored and what has 
    - Run `node .testatlas/scripts/detect-drift.js`. Optional flags: `--since <ref>` (git ref to diff against; defaults to brain's last-run timestamp), `--category {all|domains|flows|apis|routes}`, `--output <path>`.
    - The script computes git diff, watches the 7 input categories, maps changed files to affected domains/flows, assigns drift status per record (`fresh`, `possibly_stale`, `stale_requires_review`, `unknown`), and writes the JSON + report atomically.
 2. **Fallback path (no `shell`):**
-   - Read git history with `git log` if available; otherwise inspect file mtimes under each input category.
+   - Inspect file mtimes under each input category (no git history available without `shell` — record `confidence: needs_validation` per the Capability Degradation note below).
    - Build a drift record per affected domain/flow with the same status taxonomy.
    - Write the same `drift.json` shape via file-write.
 3. Append a brain event with `command: brain-drift` summarising the drift counts (fresh / possibly_stale / stale_requires_review / unknown).

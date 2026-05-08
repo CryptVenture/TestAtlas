@@ -1911,6 +1911,122 @@ export async function checkMissingCanonicalSection({ commandsDir }) {
   return violations;
 }
 
+// ─── INV-I: shell-required-in-fallback (Round-13 follow-up, Quick 260508-u72) ─
+
+/**
+ * "Manual fallback (no `shell`)" / "Fallback path (no shell)" / "Fallback
+ * (no shell)" prose blocks must NOT propose using shell-only tools. The
+ * block's whole purpose is to describe what the agent does when the
+ * shell capability is unavailable; proposing `git ls-files`, `find`,
+ * `node`, `pnpm`, etc. inside it is a logical contradiction.
+ *
+ * Block boundary: starts at a line matching the fallback header (case-
+ * insensitive), ends at the next H2/H3+ heading at the same level OR EOF.
+ *
+ * Allow opt-out via `<!-- shell-fallback-allowed: <reason> -->` placed on
+ * the same line as the offending token (rare — for documenting tooling
+ * that runs without subprocess invocation).
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkShellRequiredInFallback({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  // Header detection — two surface forms:
+  //   1. H2/H3/H4 heading whose visible text contains
+  //      "fallback" AND "(no shell)" / "(no `shell`)" / similar.
+  //   2. Numbered/bulleted prose label like
+  //      `2. **Fallback path (no \`shell\`):**`
+  //      `- **Manual fallback (no shell):**`
+  const FALLBACK_HEADER_RE =
+    /^#{2,4}\s+(?:.*\b)?(?:manual\s+fallback|fallback\s+path|fallback)\b.*\(\s*no\s+`?shell`?\s*\).*$/i;
+  const FALLBACK_BULLET_RE =
+    /^(\s*)(?:[0-9]+\.|[-*])\s+\*\*(?:.*?\b)?(?:manual\s+fallback|fallback\s+path|fallback)\b.*?\(\s*no\s+`?shell`?\s*\)\s*:\*\*/i;
+  // Shell-only tool tokens (boundaries chosen carefully — `node ` requires a
+  // trailing space so we don't match "Node.js" prose; `npm ` likewise).
+  // Use word boundaries; anchor each token. Scan in inline-code AND prose.
+  const SHELL_TOOLS = [
+    /\bgit\s+ls-files\b/,
+    /\bgit\s+ls-tree\b/,
+    /\bgit\s+log\b/,
+    /\bgit\s+diff\b/,
+    /\bgit\s+grep\b/,
+    /\bfind\s+[./]/,
+    /\bgrep\s+-/,
+    /\bgrep\s+["']/,
+    /\btar\s+-/,
+    /\bxargs\b/,
+    /\bawk\s+["']/,
+    /\bsed\s+-/,
+    /\b(?:bash|sh)\s+/,
+    /\bnode\s+/,
+    /\bnpx\s+/,
+    /\bpnpm\s+/,
+    /\bnpm\s+(?:run|test|install|exec|publish)\b/,
+  ];
+  const OPT_OUT_RE = /<!--\s*shell-fallback-allowed\s*:[^>]*-->/i;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const isHeader = FALLBACK_HEADER_RE.test(lines[i]);
+      const bulletMatch = lines[i].match(FALLBACK_BULLET_RE);
+      if (!isHeader && !bulletMatch) continue;
+      // Determine block boundary.
+      let endLine = lines.length;
+      if (isHeader) {
+        // Match heading depth so a sub-heading at the same level OR shallower closes the block.
+        const headMatch = lines[i].match(/^(#{2,4})\s+/);
+        const depth = headMatch ? headMatch[1].length : 3;
+        for (let j = i + 1; j < lines.length; j++) {
+          const nm = lines[j].match(/^(#{1,6})\s+\S/);
+          if (nm && nm[1].length <= depth) {
+            endLine = j;
+            break;
+          }
+        }
+      } else {
+        // Bullet form: block runs until the next sibling bullet at the
+        // same indent OR a heading at any level OR EOF.
+        const indent = bulletMatch[1].length;
+        const SIBLING_RE = new RegExp(`^\\s{${indent}}(?:[0-9]+\\.|[-*])\\s+`);
+        for (let j = i + 1; j < lines.length; j++) {
+          if (/^#{1,6}\s+\S/.test(lines[j])) {
+            endLine = j;
+            break;
+          }
+          if (SIBLING_RE.test(lines[j])) {
+            endLine = j;
+            break;
+          }
+        }
+      }
+      // Scan the block lines for shell-only tokens.
+      for (let j = i + 1; j < endLine; j++) {
+        const line = lines[j];
+        if (OPT_OUT_RE.test(line)) continue;
+        for (const re of SHELL_TOOLS) {
+          if (re.test(line)) {
+            violations.push({
+              invariant: 'shell-required-in-fallback',
+              file: path.relative(PROJECT_ROOT, file),
+              line: j + 1,
+              reason:
+                'no-shell fallback block proposes a shell-only tool (logical contradiction)',
+              detail: `block opened at L${i + 1} with header "${lines[i].trim()}"; offending line: "${line.trim()}" matches /${re.source}/`,
+              suggestion:
+                'replace with no-shell primitives (Read tool, file-write capability, MCP tool calls), OR annotate with <!-- shell-fallback-allowed: <reason> --> if the tooling truly runs without subprocess',
+            });
+            break; // one violation per line
+          }
+        }
+      }
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -2195,6 +2311,7 @@ export async function runLinter(opts = {}) {
     () => checkDuplicateSectionHeadings({ commandsDir }),
     // Round-13 follow-up (Quick 260508-u72) — 4 new invariants:
     () => checkMissingCanonicalSection({ commandsDir }),
+    () => checkShellRequiredInFallback({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2264,6 +2381,7 @@ Invariants:
   22  bare-script-path-everywhere (HARD) opt-out marker honors source-repo refs (u72)
         (extends invariant 11 with <!-- bare-script-path-allowed: <reason> --> support)
   23  missing-canonical-section (HARD) every command body has a \`## Lifecycle\` H2 (u72/Round-13)
+  24  shell-required-in-fallback (HARD) "no-shell" fallback blocks must not propose shell tools (u72/Round-13)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
