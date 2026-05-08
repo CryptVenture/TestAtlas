@@ -72,7 +72,7 @@ Map the security and privacy posture: authentication flows (login, signup, passw
    - Test IDOR: change a path or query ID to another user's resource → expect 403.
    - Capture matrix of role × resource × allowed-method into `evidence/permission-matrix.json`.
 
-8. **Sensitive-data handling.** Run `node .testatlas/scripts/redact-evidence.js --scan <evidence-dir>` on every captured request/response/log to detect PII, secrets, or PCI/PHI leakage. Record any leak as a critical issue.
+8. **Sensitive-data handling.** For each evidence record emitted under this run, invoke `node .testatlas/scripts/redact-evidence.js --evidence-id <EVIDENCE-XXX>` (per-record; loop over records under `_testatlas/evidence/explore-security-privacy/<timestamp>/`) to detect PII, secrets, or PCI/PHI leakage. The script's per-record `--evidence-id` model is the only supported invocation — there is no `--scan` flag. Record any leak as a critical issue.
 
 9. **Injection / abuse surfaces (static audit).** Use `shell` to grep for known antipatterns: raw SQL string concatenation (`SELECT ... + req.`), `dangerouslySetInnerHTML`, `eval(`, `Function(`, `child_process.exec(req.`, deserialization of untrusted input (`unpickle`, `Marshal.load`, `XMLDecoder`), unbounded regex on user input. Record matches with file:line + a one-line risk classification.
 
@@ -80,13 +80,31 @@ Map the security and privacy posture: authentication flows (login, signup, passw
 
 11. **File issues.** For every finding above (severity ≥ medium), call `node .testatlas/scripts/create-issue.js` with title, severity, evidence ref. Include `discoveredByPersona: explore-security-privacy` (V2 optional field).
 
-12. Close the lifecycle.
+12. **Schema-aligned securityFindings writes.** Write to `_testatlas/12_app_map.json` under the top-level `securityFindings` array property (added to `app-map.schema.json` in Phase 20-01). Each entry's shape is closed (`additionalProperties: false`):
+
+    - `surface` (string, required) — route/component/api/CLI surface
+    - `category` (string, required, enum: `authn` | `authz` | `secret` | `input-validation` | `output-encoding` | `transport` | `dependency` | `other`)
+    - `severity` (string, optional, references `vocabulary.schema.json#/$defs/severity` — `critical` | `high` | `medium` | `low` | `enhancement`)
+    - `evidence` (string, optional)
+
+    Example:
+    ```json
+    {
+      "securityFindings": [
+        { "surface": "POST /api/login", "category": "authn", "severity": "high", "evidence": "EVIDENCE-070-rate-limit-gap" }
+      ]
+    }
+    ```
+
+    DO NOT invent keys outside this shape. Off-schema findings → sidecar `_testatlas/maps/security.json` per bootstrap escape hatch.
+
+13. Close the lifecycle.
 
 ## Outputs
 
 - New issues filed via `create-issue.js` for confirmed findings.
 - `_testatlas/evidence/explore-security-privacy/<timestamp>/` — `auth-flows/`, `permission-matrix.json`, `redaction-scan.txt`, `static-audit.txt`, `privacy-controls.json`.
-- Updated `_testatlas/12_app_map.json` — `securityFindings[]` array (additive, schema-tolerant).
+- Updated `_testatlas/12_app_map.json` top-level `securityFindings` array (schema-aligned per `app-map.schema.json`; entries closed under `additionalProperties: false`).
 
 ## Lifecycle
 
