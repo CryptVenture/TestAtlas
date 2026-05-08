@@ -33,19 +33,12 @@ const ALLOWLIST = new Set([
   // safety.js itself defines assertCapability / requireCapability — the
   // helpers can't depend on themselves.
   'lib/safety.js',
-  // e2e/run-node-api-graph.js — test harness (NOT shipped in user installs;
-  // confined to scripts/e2e/ and only invoked by CI/dogfood E2E flows).
-  // Operates on tmpdir() it just created. Out of scope for Phase 18-01;
-  // deferred to a future safety sweep.
+  // e2e/run-node-api-graph.js — test-only harness; operates on a tmpdir() it
+  // creates and tears down. Not reachable from user-facing commands. Phase 19
+  // (this allowlist) made the exemption permanent and added an in-file
+  // SAFETY-EXEMPT annotation block at the top of the script for traceability.
+  // See scripts/e2e/run-node-api-graph.js header comment.
   'e2e/run-node-api-graph.js',
-  // normalize-slugs.js — pre-existing gap exposed by this invariant test.
-  // Reachable from /atlas:cleanup and /atlas:handoff. The rename targets
-  // user-workspace files (not .testatlas/). Operator-confirmation is
-  // required at the slash-command layer per command bodies, but a
-  // code-side gate is missing. Out of scope for Phase 18-01 (which
-  // closes ISSUE-010 + ISSUE-011 specifically); tracked in deferred-items
-  // under phase 18 for follow-up.
-  'normalize-slugs.js',
 ]);
 
 async function* walk(dir, base = dir) {
@@ -109,6 +102,12 @@ test('scripts/v2-migrate.js calls assertCapability (ISSUE-010 regression guard)'
 
 test('scripts/lib/update-core.js calls requireCapability (ISSUE-011 regression guard)', async () => {
   const src = await readFile(path.join(SCRIPTS_ROOT, 'lib', 'update-core.js'), 'utf8');
+  assert.match(src, /import\s*\{[^}]*\brequireCapability\b/);
+  assert.match(src, /requireCapability\s*\(\s*config\s*,\s*['"]destructive-fs['"]\s*\)/);
+});
+
+test('scripts/normalize-slugs.js calls requireCapability (Phase 19 B1 regression guard)', async () => {
+  const src = await readFile(path.join(SCRIPTS_ROOT, 'normalize-slugs.js'), 'utf8');
   assert.match(src, /import\s*\{[^}]*\brequireCapability\b/);
   assert.match(src, /requireCapability\s*\(\s*config\s*,\s*['"]destructive-fs['"]\s*\)/);
 });
