@@ -43,7 +43,7 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
 - `.testatlas/bootstrap.md` — the constitution; rules-of-engagement.
 - `.testatlas/schemas/sub-agent-handoff.schema.json` — required JSON shape this command must satisfy, including the `status` enum (`pending|in_progress|completed|blocked|abandoned`) and the 16 required fields.
 - `_testatlas/11_workspace_manifest.json` — current workspace state; any in-flight artifacts the receiving agent inherits.
-- The relevant `_testatlas/domains/<slug>/`, `_testatlas/flows/<slug>/`, `_testatlas/to_fix/`, `_testatlas/runs/`, and `_testatlas/evidence/` paths that bound the handoff scope.
+- The relevant `_testatlas/domains/<slug>/`, `_testatlas/flows/FLOW-*.{md,json}`, `_testatlas/to_fix/`, `_testatlas/tests/runs/`, and `_testatlas/evidence/` paths that bound the handoff scope.
 
 ## Required Actions
 
@@ -90,7 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record handoff issued + receiving role.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (handoff pair appears).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing the handoff ID.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.handoffs` if tracked.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Handoffs are not a counted artifact; `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only — no `counts.handoffs`.)
 - `_testatlas/history/run_log.md` — narrative entry: "Issued HANDOFF-`<ts>` to `<assignedRole>` covering `<scope summary>`."
 
 ## Stop Conditions
