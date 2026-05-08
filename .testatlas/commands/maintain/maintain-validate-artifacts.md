@@ -131,7 +131,7 @@ The four validation dimensions:
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-validate-artifacts --actor "atlas-agent" --summary "Validated workspace artifacts across brain consistency, schema compliance, evidence orphan detection, and markdown/JSON sync" --status completed` (or `--status aborted` with the error code).
 
 ## What's Next
 

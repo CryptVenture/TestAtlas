@@ -100,7 +100,7 @@ Detect drift between when each domain/flow/route was last explored and what has 
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift --actor agent --summary "Computed drift signals across workspace artifacts" --status completed` (or `--status aborted` with the error code).
 
 ## What's Next
 

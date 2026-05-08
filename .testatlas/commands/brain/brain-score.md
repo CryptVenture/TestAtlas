@@ -103,7 +103,7 @@ The output document carries a top-level `disclaimer` field. Re-render it verbati
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score --actor agent --summary "Scored workspace quality across drift signals" --status completed` (or `--status aborted` with the error code).
 
 ## What's Next
 

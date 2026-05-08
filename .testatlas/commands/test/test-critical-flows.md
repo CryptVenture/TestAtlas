@@ -150,7 +150,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

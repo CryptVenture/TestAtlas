@@ -133,7 +133,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --actor agent --summary "Generated automation skeletons and updated meta.json" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

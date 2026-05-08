@@ -129,7 +129,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --actor agent --summary "Published release report with readiness verdict" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

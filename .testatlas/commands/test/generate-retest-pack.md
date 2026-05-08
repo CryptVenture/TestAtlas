@@ -118,7 +118,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --actor agent --summary "Built retest pack from fixed-pending-retest issues" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 

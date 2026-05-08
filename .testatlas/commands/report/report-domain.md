@@ -102,7 +102,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## Update Brain After Command
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
+Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --actor agent --summary "Wrote domain report and updated quality signals" --status completed` (or `--status aborted` with the error code).
 
 ## Completion Criteria
 
