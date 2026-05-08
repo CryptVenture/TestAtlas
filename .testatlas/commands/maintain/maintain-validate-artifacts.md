@@ -38,8 +38,8 @@ If there is a conflict:
 
 `validate-workspace` proves the workspace tree is internally consistent.
 `maintain-validate-artifacts` goes further: it checks the *content* of every
-artifact for cross-reference integrity, schema compliance, and the
-markdown/JSON sync expected of round-trippable artifacts. It is the command
+artifact for presence + parseability + per-file AJV schema compliance, plus
+the markdown/JSON sync expected of round-trippable artifacts. It is the command
 an operator runs before a release gate, after a bulk merge from another
 agent, or when `validate-workspace` has been clean for weeks but suspicious
 behaviour suggests a deeper drift.
@@ -84,10 +84,15 @@ The four validation dimensions:
 1. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
-   - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON
-     consistency (cross-reference resolution). Supported flags are
-     `--cwd <dir>`, `--brain-dir <dir>`, `--suite-cwd <dir>` only;
-     `--strict` and `--report-only` are not recognized by the script.
+   - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON:
+     (a) every required brain file is present (22 total: 19 JSON + 3 JSONL),
+     (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
+     object, (d) each file's parsed value validates against its registered
+     V2 schema via AJV (per-file). The script does NOT perform cross-id
+     reference resolution between brain files — that pass lives in step 4
+     below. Supported flags are `--cwd <dir>`, `--brain-dir <dir>`,
+     `--suite-cwd <dir>` only; `--strict` and `--report-only` are not
+     recognized by the script.
    - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift
      between markdown frontmatter and JSON sidecars without writing.
    - Walk `_testatlas/evidence/` and cross-reference every file against
