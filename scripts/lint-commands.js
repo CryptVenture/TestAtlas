@@ -1003,11 +1003,16 @@ export async function checkBareScriptPath({ commandsDir, allowlist }) {
   const cmdFiles = await listMarkdownFiles(commandsDir);
   // Negative-lookbehind: bare `scripts/<x>.js` not preceded by `.testatlas/`.
   const RE = /(?<!\.testatlas\/)\bscripts\/([\w-]+)\.js\b/g;
+  // INV-G (Quick 260508-u72) — explicit opt-out marker for legitimate
+  // source-repo file-location references. Lines carrying this marker are
+  // exempt regardless of context (narrative / inline-code / fence).
+  const OPT_OUT_RE = /<!--\s*bare-script-path-allowed\s*:[^>]*-->/i;
   for (const file of cmdFiles) {
     const text = await readFile(file, 'utf8');
     const lines = text.split('\n');
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      if (OPT_OUT_RE.test(line)) continue;
       const re = new RegExp(RE.source, 'g');
       let m;
       while ((m = re.exec(line)) !== null) {
@@ -1022,7 +1027,7 @@ export async function checkBareScriptPath({ commandsDir, allowlist }) {
           line: i + 1,
           reason: `bare scripts/ form in body prose (Phase-17 violation)`,
           detail: `bare \`scripts/${scriptName}.js\` should be \`node .testatlas/scripts/${scriptName}.js\``,
-          suggestion: `prefix with node .testatlas/ — \`node .testatlas/scripts/${scriptName}.js\``,
+          suggestion: `prefix with node .testatlas/ — \`node .testatlas/scripts/${scriptName}.js\` (or annotate with <!-- bare-script-path-allowed: <reason> --> for legitimate source-repo references)`,
         });
       }
     }
@@ -2246,6 +2251,8 @@ Invariants:
   19  capability-stopcondition-contradiction (HARD) capability isn't both degraded+halted (u72)
   20  mcp-tool-param-invalid    (HARD) MCP tool params match curated catalog (u72)
   21  duplicate-section-heading (HARD) any H2 appearing more than once in a file (u72)
+  22  bare-script-path-everywhere (HARD) opt-out marker honors source-repo refs (u72)
+        (extends invariant 11 with <!-- bare-script-path-allowed: <reason> --> support)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
