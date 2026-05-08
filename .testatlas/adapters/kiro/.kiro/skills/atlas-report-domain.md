@@ -4,7 +4,7 @@ description: Render a domain-scoped report combining quality scores, issues, cov
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="63a490b87c3172160ae49d15f7e4c1bc368a03be1f84f8247a230cfa20ecb0ee" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="35d35810dd03e1ea7bac58736736fd709c84676c501950903e4d107531142a44" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -39,7 +39,7 @@ Produce a focused, human-readable report for a single domain. The report combine
    - Run `node .testatlas/scripts/generate-report.js --kind domain --domain <slug>` (existing V2 generator) which composes the report from `quality_scores.json` + domain-scoped slices of the other indexes.
 4. **Fallback path (no `shell`):**
    - Render `_testatlas/reports/domain-<slug>.md` by hand using `.testatlas/templates/reports/quality_scores.md` as the section skeleton.
-5. Mark every score `confidence: needs_validation` if `quality_scores.json` has not been refreshed in the current session.
+5. Mark every score `confidence: needs-validation` if `quality_scores.json` has not been refreshed in the current session.
 6. Always include the disclaimer string from `quality_scores.json` verbatim at the top of the rendered report.
 7. Close the lifecycle.
 
@@ -57,6 +57,16 @@ Produce a focused, human-readable report for a single domain. The report combine
 
 - `_testatlas/reports/domain-<slug>.md` (one file per invocation).
 - Brain event + lifecycle close.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record the rendered domain report path + slug + score summary.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new `reports/domain-<slug>.md` must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the report.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Domain reports are not counted in `counts.reports` (that count tracks the canonical `REPORT-*` aggregate from `/atlas:report`).
+- `_testatlas/history/run_log.md` — narrative entry: "Rendered domain report `<slug>` (score `<n>`; open issues `<n>`; drift `<status>`)."
 
 ## Stop Conditions
 

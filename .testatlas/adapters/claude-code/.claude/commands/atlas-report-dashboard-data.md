@@ -3,7 +3,7 @@ description: Render a machine-readable dashboard data export (PRD §16) at _test
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="b82589e8854bcdb778cb3d947fe7a1e03b167d903633fc34eef10c7c28e5e9c2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="7372a9ca31263ea5a604f5d3d70535b028e40935c73efff13426a32b9cd5b9ad" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-report-dashboard-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -43,7 +43,7 @@ The dashboard is a pure projection from existing brain JSON — re-running on th
    - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js`).
    - The generator atomically writes the JSON, AJV-validates against `dashboard_data.schema.json` before write, and exits 0 on success.
 3. **Fallback path (no `shell`):**
-   - Hand-render the JSON using the field shape above. Validate against `.testatlas/schemas/dashboard_data.schema.json`. Mark the export as `confidence: needs_validation` in any consuming report because hand-rendered totals are not deterministic.
+   - Hand-render the JSON using the field shape above. Validate against `.testatlas/schemas/dashboard_data.schema.json`. Mark the export as `confidence: needs-validation` in any consuming report because hand-rendered totals are not deterministic.
 4. Append a brain event with `command: report-dashboard-data` and the file path.
 5. Update `_testatlas/09_artifact_index.md` with the new file entry.
 6. Close the lifecycle.
@@ -71,6 +71,16 @@ Schema-validated against `.testatlas/schemas/dashboard_data.schema.json` (PRD §
 - **CI** can post the file to a status check or upload it as a build artifact for retention.
 
 The contract is: a downstream consumer can render the full quality state from this single JSON file with zero additional brain reads.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record the dashboard export path + projected counts (open critical / high / blocker).
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new `reports/dashboard-data.json` must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the export.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Dashboard exports are pure projections of brain state and are not counted in `counts.reports`.
+- `_testatlas/history/run_log.md` — narrative entry: "Dashboard data exported (`<n>` domains, `<n>` open issues, drift `<status>`)."
 
 ## Stop Conditions
 

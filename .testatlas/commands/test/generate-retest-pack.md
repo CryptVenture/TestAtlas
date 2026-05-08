@@ -100,6 +100,16 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 - `_testatlas/tests/retest_packs/RET-<issue-id>/RETEST-<NNNN>.md`
 - Brain event + lifecycle close.
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record retest pack ID + bound issue ID.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RETEST-* pair appears).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the issue + pack.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Retest packs are pre-execution scaffolds and are not counted as `testRuns` (the runner that consumes the pack increments `counts.testRuns` upon execution).
+- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (status: `pending`)."
+
 ## Stop Conditions
 
 - `_testatlas/to_fix/` missing → halt with `TO_FIX_MISSING`.

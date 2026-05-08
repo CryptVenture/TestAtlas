@@ -3,7 +3,7 @@ mode: agent
 description: Map error boundaries, fallback UI, error logging, retry patterns, and exception flows via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="fa2b1aae72f468b297c7618ee6451589685bafae22d44bf73c1f27577a429a10" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="4b9e83e302ba037dd6b136b2b31dc2d7a357af4f597d384d9c6d16a90fe9fff0" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-errors.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -27,13 +27,13 @@ Map the target product's error-handling surface: error boundaries (component-tre
 
 3. **Mandatory walkthrough when capabilities are available.** When `browser` AND `MCP` are both available, this command MUST drive the full walkthrough described in `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough* (error branch) and § *Interactive-surface walkthrough*. Skipping a walkthrough step when the underlying tool is reachable — because the result feels predictable, because training-data priors tell the agent what the page contains, or because exhaustive coverage feels excessive — is a contract violation equivalent to fabricating evidence. The walkthrough is the contract. If a step legitimately cannot run (the surface lacks an error path, the tool errors after retry), record the skip rationale on the entry. MUST NOT skip silently.
 
-4. **Tier-1 toolset (verbatim):** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Pre-register `handle_dialog({accept: false})` BEFORE any flow that may surface a confirm/alert.
+4. **Tier-1 toolset (verbatim):** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Pre-register `handle_dialog({action: "dismiss"})` BEFORE any flow that may surface a confirm/alert.
 
 5. **Error-injection sweep.** For each user-facing route + each interactive surface:
    - **Network failure:** `evaluate_script(() => { const o = window.fetch; window.fetch = () => Promise.reject(new Error("induced-network")); })` → trigger surface → `wait_for(error indicator)` → `take_screenshot` + `list_console_messages` + `list_network_requests`.
    - **HTTP 5xx:** `evaluate_script` to wrap fetch and resolve with `new Response("", {status: 500})` → trigger → capture.
    - **Timeout:** `emulate({networkConditions: 'Slow 3G'})` → trigger → wait past expected timeout → capture (does the UI show a timeout fallback?).
-   - **Form invalid input:** `fill_form(invalid)` + `click(submit)` + `wait_for("[role=alert], .error")` → capture inline error messages, accessibility (role=alert), and field highlighting.
+   - **Form invalid input:** `fill_form(invalid)` + `click(submit)` + `wait_for({text: ["<expected error text from the rendered alert>"]})` → capture inline error messages, accessibility (role=alert), and field highlighting. (`wait_for` is text-based per upstream `chrome-devtools-mcp`; for selector-presence polling use `evaluate_script(() => !!document.querySelector("[role=alert], .error"))`.)
    - **Component crash:** `evaluate_script(() => { throw new Error("induced-component"); })` from a known event handler entry point if the surface allows. Observe the error boundary's fallback UI; if the whole route crashes (white screen), record as a critical issue.
    - **Permission error:** strip session, refetch protected resource → capture 401/403 fallback.
 
@@ -47,7 +47,7 @@ Map the target product's error-handling surface: error boundaries (component-tre
    - Auto-retry (count + backoff timing).
    - Page reload prompt (modal / banner).
    - Silent fallback (cached data displayed with stale indicator).
-   - None (the user is stuck — file as an issue via `node .testatlas/scripts/create-issue.js` per `.testatlas/commands/log-issue.md`).
+   - None (the user is stuck — file as an issue via `node .testatlas/scripts/create-issue.js` or `/atlas:log-issue`).
 
 8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` route+component `errorBoundaries`, `errorLogging`, `retryPatterns` fields. If any cited evidence path does not exist on disk, halt.
 

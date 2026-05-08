@@ -3,7 +3,7 @@ description: Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="51dcb1f2467020002fd11d093f1eac6906c81df59dc594d2e906cf8f84e4f1f0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="90f5564d966edf8fa0ce56ffac7105bb23baaf2e102fedc602f20d8ffde9c253" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Full-coverage test replay across the entire test surface in one command. `/atlas
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §3 (precedence), §4 (capability degradation), §8 (no-evidence-no-finding).
-- `_testatlas/tests/matrix.md` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if every sidecar is missing, halt with `Run /atlas:plan first.`
+- `_testatlas/tests/matrix.json` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if `matrix.json` is missing AND every per-scenario sidecar is also missing, halt with `Run /atlas:plan first.`
 - `_testatlas/11_workspace_manifest.json` — initialization status, existing run counts.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` and `.testatlas/schemas/evidence.schema.json` — schemas for the merged sidecar and child evidence.

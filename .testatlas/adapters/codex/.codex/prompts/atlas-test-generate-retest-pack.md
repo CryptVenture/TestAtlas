@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-generate-retest-pack. Invoke as /prompts:atlas-test-generate-retest-pack. Description: Generate self-contained retest packs from open issue records under `_testatlas/to_fix/`. Each pack carries reproduction steps, pass/fail criteria, evidence refs, and fixtures so any agent can re-verify a fix. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="93299d05194061896e50ac749bb4e7145dde8e03fe04b920def021166d570924" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="95eb73cb13d6706715099799bfd3f4ed068a2cd621c56dfb806e7a6cd3da63b3" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-test-generate-retest-pack.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -66,6 +66,16 @@ The pack JSON's `status` enum (per the schema): `pending`, `passed`, `failed`, `
 - `_testatlas/tests/retest_packs/RET-<issue-id>/RETEST-<NNNN>.json` (validates against `retest_pack.schema.json`)
 - `_testatlas/tests/retest_packs/RET-<issue-id>/RETEST-<NNNN>.md`
 - Brain event + lifecycle close.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record retest pack ID + bound issue ID.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RETEST-* pair appears).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the issue + pack.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Retest packs are pre-execution scaffolds and are not counted as `testRuns` (the runner that consumes the pack increments `counts.testRuns` upon execution).
+- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (status: `pending`)."
 
 ## Stop Conditions
 

@@ -60,7 +60,7 @@ Build a complete component inventory with props, state dependencies (what state(
 4. **Tier-1 toolset (verbatim per `.testatlas/reference/chrome-devtools-mcp.md`):** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Pre-register `handle_dialog` BEFORE any flow that may open a confirm dialog.
 
 5. **Per-route component discovery loop.** For each user-facing route in `12_app_map.json`:
-   - `navigate_page(url)` → `wait_for("[data-route-ready], main, #root", 5000)`.
+   - `navigate_page(url)` → `wait_for({text: ["<expected text from the rendered route header / hero / known-content marker>"], timeout: 5000})`. (`wait_for` is text-based per upstream `chrome-devtools-mcp`; for selector-presence polling use `evaluate_script(() => !!document.querySelector("[data-route-ready], main, #root"))` after `take_snapshot`.)
    - `take_snapshot()` (accessibility tree) → save under `evidence/<route>/snapshot.json`.
    - `take_screenshot({fullPage: true})` → `evidence/<route>/initial.png`.
    - `evaluate_script` to enumerate components: walk DOM for `[data-testid]`, `[data-component]`, `[role]`, named React/Vue/Svelte component classes (when the framework dehydrates that into the DOM via `data-react-component` etc.). Capture `{ tag, role, testid, classList, accessibleName }`.

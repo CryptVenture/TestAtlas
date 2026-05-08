@@ -44,7 +44,7 @@ Full-coverage test replay across the entire test surface in one command. `/atlas
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §3 (precedence), §4 (capability degradation), §8 (no-evidence-no-finding).
-- `_testatlas/tests/matrix.md` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if every sidecar is missing, halt with `Run /atlas:plan first.`
+- `_testatlas/tests/matrix.json` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if `matrix.json` is missing AND every per-scenario sidecar is also missing, halt with `Run /atlas:plan first.`
 - `_testatlas/11_workspace_manifest.json` — initialization status, existing run counts.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` and `.testatlas/schemas/evidence.schema.json` — schemas for the merged sidecar and child evidence.

@@ -115,6 +115,16 @@ Downstream automation MUST inspect the companion meta to decide what is real cov
 - `_testatlas/tests/generated_automation/<framework>/<flow-slug>.meta.json` (status tracker)
 - Brain event + lifecycle close.
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record `<n>` automation skeletons emitted under `_testatlas/tests/generated_automation/<framework>/`.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new skeleton + meta files appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the framework + flows.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Generated automation skeletons are seed material, not counted artifacts.
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (status: `generated-not-yet-validated`)."
+
 ## Stop Conditions
 
 - `_testatlas/flows/` missing → halt with `FLOWS_MISSING`.

@@ -1,6 +1,6 @@
 description = "Generate exploratory charters and manual test scenarios from documented flows under `_testatlas/flows/`. Output marked `generated-not-yet-validated` until executed."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="5f0d0988e20863dec992abc7c0d2f18e9aa44b16ca1e6ded75996d049cdb061b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="68dcf0c7cbdcfe85b357a282be00f927b4e5a29f49e756f3336c4260a8c7016f" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -68,6 +68,16 @@ Every scenario this command produces carries `status: "generated-not-yet-validat
 - `_testatlas/tests/scenarios/TEST-<flow-slug>-generated.md`
 - `_testatlas/tests/scenarios/TEST-<flow-slug>-generated.json` (validates against `test-scenario.schema.json`)
 - Brain event + lifecycle close.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record `<n>` scenarios generated with status `generated-not-yet-validated`.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new TEST-* sidecars appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the source flows.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Scenarios are not counted as runs/issues; downstream `/atlas:test-flow` execution promotes them to `validated`.
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` scenarios from `<n>` flows (status: `generated-not-yet-validated`)."
 
 ## Stop Conditions
 

@@ -90,7 +90,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record report id, readiness assessment, blocker count.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new REPORT pair + timestamped copy + refreshed views).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this report.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`; update `counts.scorecard`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`. (`13_quality_scorecard.md` is a single canonical file refreshed in step 14, not a counted artifact — `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "REPORT-`<timestamp>` — readiness `<verdict>`; `<n>` blockers, `<n>` regressions, coverage `<pct>%`."
 
 ## Stop Conditions

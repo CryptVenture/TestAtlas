@@ -71,8 +71,8 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
    - **`state`** — exercise the PRD §13.1 5-state matrix per the state-coverage matrix in `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough*. The five canonical states are: **empty**, **loading**, **error**, **success**, **permission**. Trigger techniques (verbatim):
      - **empty** — fresh-user authentication, or `evaluate_script(() => localStorage.clear())` then reload.
      - **loading** — `emulate({networkConditions: 'Slow 3G'})` then `navigate_page`; `take_screenshot` BEFORE `wait_for` resolves.
-     - **error** — for forms: `fill_form` invalid + `click(submit)`; for fetches: monkey-patch `window.fetch` to reject. Pre-register `handle_dialog({accept: false})` if the surface may open dialogs.
-     - **success** — happy path `fill_form` valid + `click(submit)` + `wait_for("[data-success]")`.
+     - **error** — for forms: `fill_form` invalid + `click(submit)`; for fetches: monkey-patch `window.fetch` to reject. Pre-register `handle_dialog({action: "dismiss"})` if the surface may open dialogs.
+     - **success** — happy path `fill_form` valid + `click(submit)` + `wait_for({text: ["<expected success text>"]})` (or `evaluate_script` poll for `[data-success]`).
      - **permission** — strip session cookie via `evaluate_script` then `navigate_page`, OR sign in as a role lacking permission per scenario.
 
      Capture per-state evidence (one `take_screenshot` and one `take_snapshot` per state observed) under `_testatlas/evidence/runs/<run-id>/<scenario-id>/state/`. A scenario need not exercise every state, but every state it claims to cover MUST have its own evidence file. PRD §26.6 also recognizes long-list / partial-data / stale-cache extensions; capture as additional state evidence files when the scenario specifies them.

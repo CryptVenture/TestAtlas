@@ -68,7 +68,7 @@ Render the canonical release readiness report — a go / conditional / no-go ass
 3. **Preferred path (if `shell` available):**
    - Run `node .testatlas/scripts/generate-report.js --kind release-readiness` to render the file. The renderer fills the TESTATLAS:GENERATED markers in `_testatlas/reports/release_readiness.md`.
 4. **Fallback path (no `shell`):**
-   - Hand-render the file using `.testatlas/templates/reports/release_readiness.md` as the skeleton. Embed the disclaimer from `quality_scores.json` verbatim. Mark every score `confidence: needs_validation` because hand-rendered totals are not deterministic.
+   - Hand-render the file using `.testatlas/templates/reports/release_readiness.md` as the skeleton. Embed the disclaimer from `quality_scores.json` verbatim. Mark every score `confidence: needs-validation` because hand-rendered totals are not deterministic.
 5. Append a brain event with `command: report-release` and the verdict.
 6. Close the lifecycle.
 
@@ -80,12 +80,13 @@ Render the canonical release readiness report — a go / conditional / no-go ass
 
 ## Capability Degradation
 
-`shell` unavailable → hand-render via the template; the verdict block must explicitly state `Confidence: needs_validation — hand-rendered`. Do NOT publish a `go` verdict from the fallback path.
+`shell` unavailable → hand-render via the template; the verdict block must explicitly state `Confidence: needs-validation — hand-rendered`. Do NOT publish a `go` verdict from the fallback path.
 
 ## Verdict Calculation (locked formula)
 
 ```
 critical_issues = count(issues where severity == 'critical' AND status != 'closed')
+high_issues     = count(issues where severity == 'high' AND status != 'closed')
 stale_drift     = count(drift_records where drift_status == 'stale_requires_review')
 flow_score      = quality_scores.flow_coverage_score
 council_score   = quality_scores.council_consensus_score
@@ -96,6 +97,16 @@ else if high_issues > 3 OR flow_score < 60 OR council_score < 70: verdict = "con
 else: verdict = "go"
 ```
 
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record the readiness verdict (`go` / `conditional` / `no-go`) and the produced report path.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new `reports/release_readiness.md` must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the report.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`.
+- `_testatlas/history/run_log.md` — narrative entry: "Release readiness `<verdict>` — `<critical>` critical, `<high>` high, drift `<status>`, council consensus `<n>`."
+
 ## Outputs
 
 - `_testatlas/reports/release_readiness.md` (TESTATLAS:GENERATED markers re-rendered).
@@ -104,7 +115,7 @@ else: verdict = "go"
 ## Stop Conditions
 
 - `quality_scores.json` or `drift.json` missing → halt; the operator must run `brain-score` and `brain-drift` first.
-- Verdict computed without fresh inputs → publish report with `Confidence: needs_validation` banner; never publish a `go` verdict on stale inputs.
+- Verdict computed without fresh inputs → publish report with `Confidence: needs-validation` banner; never publish a `go` verdict on stale inputs.
 
 ## Update Brain After Command
 

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-generate-automation. Invoke as /prompts:atlas-test-generate-automation. Description: Generate framework-specific automation skeletons (Playwright, Cypress, API, CLI, contract, smoke) from documented flows. Output marked `generated-but-not-validated` until executed. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="378ae6b57941e9f42f05f3705c431c84d6bdabc079d5d317941474c045c1fc46" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="7c99596c60ee6a625b9f2bcc840632f8ecef274455e0a2469560c83067fc5137" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-test-generate-automation.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -81,6 +81,16 @@ Downstream automation MUST inspect the companion meta to decide what is real cov
 - `_testatlas/tests/generated_automation/<framework>/<flow-slug>.<ext>` (one per selected flow)
 - `_testatlas/tests/generated_automation/<framework>/<flow-slug>.meta.json` (status tracker)
 - Brain event + lifecycle close.
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record `<n>` automation skeletons emitted under `_testatlas/tests/generated_automation/<framework>/`.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new skeleton + meta files appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the framework + flows.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Generated automation skeletons are seed material, not counted artifacts.
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (status: `generated-not-yet-validated`)."
 
 ## Stop Conditions
 

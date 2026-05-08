@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-test-critical-flows. Invoke as /prompts:atlas-test-critical-flows. Description: Identify and execute the highest-value flows based on documented product risk (test strategy priority, scenario coverage, domain priority, issue severity), capturing per-state evidence and producing a RUN-<timestamp> report. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="eba7cdea42030f50f371ecf9757b2e5a9b6d78c03c9b6b772c6b2d0f9ea7dc96" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="1413d6b89e8f01a9f2c8ca6671d6355a56168bdb53e74fdb85dc1b4dd6824e3d" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -94,8 +94,17 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `.json` (schema-valid; carries `prioritisation` rationale)
 - `_testatlas/evidence/runs/<run-id>/<flow-id>/` directory of captured evidence
 - Updated `_testatlas/flows/<slug>/flow.json` confidence values
-- Updated `_testatlas/09_artifact_index.md`, `_testatlas/10_command_log.md`, `_testatlas/11_workspace_manifest.json`
 - Brain event + lifecycle close
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record run id, total / passed / failed / skipped / blocked counts, capabilities used.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
+- `_testatlas/history/run_log.md` — narrative entry: "Critical-flow run RUN-`<ts>` — `<n>` flows, `<n>` passed, `<n>` failed, prioritisation `<rationale>`."
 
 ## Stop Conditions
 

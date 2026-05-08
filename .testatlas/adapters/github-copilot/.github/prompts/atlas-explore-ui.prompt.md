@@ -3,7 +3,7 @@ mode: agent
 description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="4b650f93536b9d2b90bfb90cfcdc39036f25bf91a60f3dc957a908a0cf7ed3fe" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="67d159ffe0ffc0cbf43f817c3b68932d8deb3c5ec6fabb0409388bc8a762544b" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-ui.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -43,15 +43,15 @@ Runs as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standa
 5. Connect to Chrome DevTools MCP. Canonical toolset (verbatim names per `.testatlas/reference/chrome-devtools-mcp.md` §"Tool tiering"):
    - **Tier 1 — observation:** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Register `handle_dialog({accept, promptText?})` BEFORE any action that may open `alert` / `confirm` / `beforeunload`; without pre-registration, dialog flows hang or silently fabricate.
    - **Tier 2 — interactive:** `click`, `fill`, `fill_form`, `press_key`, `hover`, `type_text`, `upload_file`, `drag`. `hover` reveals tooltip / dropdown / hover-only state. `type_text` (real keyboard typing) surfaces autocomplete + IME bugs that `fill` skips. `press_key` for keyboard paths (`Tab` / `Shift+Tab` / `Enter` / `Escape`) — required for tab-trap and focus-cycle verification. `upload_file` covers file flows; `drag` covers drag-and-drop / kanban / file drop.
-   - **Aux:** `lighthouse_audit({categories: ["accessibility"]})` for an optional baseline a11y score (deep audits live in `explore-accessibility`); `resize_page({width, height})` for responsive breakpoints.
+   - **Aux:** `lighthouse_audit({mode: "navigation"})` for an optional baseline (read the `.accessibility` slice; deep a11y audits live in `explore-accessibility`); `resize_page({width, height})` for responsive breakpoints. The upstream `lighthouse_audit` has no `categories` parameter — it always returns Accessibility/SEO/Best-Practices/Agentic-browsing (Performance lives in `performance_start_trace`).
 
 6. For each user-facing route in `_testatlas/12_app_map.json`, run `navigate_page` → `wait_for` → `take_snapshot` → `take_screenshot` → `list_console_messages` + `list_network_requests`. Persist every artifact under `_testatlas/evidence/explore-ui/<timestamp>/<route-slug>/` BEFORE adding a route or component entry that cites it.
 
 7. For each interactive surface (forms, modals, menus, dialogs), exercise the PRD §13.1 5-state matrix per `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough*. The five states with their trigger techniques (verbatim):
    - **empty** — `navigate_page` as a fresh user, or `evaluate_script(() => localStorage.clear())` then reload.
    - **loading** — `emulate({networkConditions: 'Slow 3G'})` then `navigate_page`; `take_screenshot` BEFORE `wait_for` resolves.
-   - **error** — forms: `fill_form` invalid payload + `click(submit)` + `wait_for("[role=alert]")`; fetches: `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then refetch. Pre-register `handle_dialog({accept: false})` if the surface may open `alert` / `confirm`.
-   - **success** — happy path `fill_form` (valid) + `click(submit)` + `wait_for("[data-success]" or "[role=status]")`.
+   - **error** — forms: `fill_form` invalid payload + `click(submit)` + `wait_for({text: ["<expected error text from the rendered alert>"]})`; fetches: `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then refetch. Pre-register `handle_dialog({action: "dismiss"})` if the surface may open `alert` / `confirm`. (`wait_for` is text-based per upstream `chrome-devtools-mcp`; for selector-presence polling use `evaluate_script(() => !!document.querySelector("[role=alert]"))` after `take_snapshot`.)
+   - **success** — happy path `fill_form` (valid) + `click(submit)` + `wait_for({text: ["<expected success text>"]})` (or `evaluate_script` poll for `[data-success]` / `[role=status]`).
    - **permission** — strip session cookie via `evaluate_script` then `navigate_page`, OR sign in as a role lacking permission; record observed status (302 → login | 401 | 403 | render).
 
    Skip a state only when the surface legitimately lacks it (e.g., a static page has no submit); record the rationale on the component entry. Silent skip is a contract violation per Required Action 3.

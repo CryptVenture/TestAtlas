@@ -3,7 +3,7 @@ mode: agent
 description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="1199e0d6bdfb09b9b75a80bc8f70d4621558ed45c85228f03dcc4a9bc47de666" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="4a5f0ad3eab9eb7b557dd2c6fe215d8ee126d53c5b995039b208c1c128c7fe87" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-report.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -57,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record report id, readiness assessment, blocker count.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new REPORT pair + timestamped copy + refreshed views).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this report.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`; update `counts.scorecard`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`. (`13_quality_scorecard.md` is a single canonical file refreshed in step 14, not a counted artifact — `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "REPORT-`<timestamp>` — readiness `<verdict>`; `<n>` blockers, `<n>` regressions, coverage `<pct>%`."
 
 ## Stop Conditions

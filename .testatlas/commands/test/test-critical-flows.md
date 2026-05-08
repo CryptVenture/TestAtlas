@@ -129,8 +129,17 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `.json` (schema-valid; carries `prioritisation` rationale)
 - `_testatlas/evidence/runs/<run-id>/<flow-id>/` directory of captured evidence
 - Updated `_testatlas/flows/<slug>/flow.json` confidence values
-- Updated `_testatlas/09_artifact_index.md`, `_testatlas/10_command_log.md`, `_testatlas/11_workspace_manifest.json`
 - Brain event + lifecycle close
+
+## Lifecycle
+
+After completing this command, update these workspace artifacts in PRD §40 order:
+
+- `_testatlas/03_execution_status.md` — record run id, total / passed / failed / skipped / blocked counts, capabilities used.
+- `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RUN pair and evidence directory must appear).
+- `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run id.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
+- `_testatlas/history/run_log.md` — narrative entry: "Critical-flow run RUN-`<ts>` — `<n>` flows, `<n>` passed, `<n>` failed, prioritisation `<rationale>`."
 
 ## Stop Conditions
 

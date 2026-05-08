@@ -4,7 +4,7 @@ description: Map UI states (empty, loading, error, success, permission) plus sta
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="813516781f9b6bedfe9f4760f7b9d7cac9f2bbebbef92db7fdf4146374a7e7b6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="01cc214f59e68871f797d152fa2914b5fed500ddd28062442fdc5934bd25eb88" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-state.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -36,8 +36,8 @@ Map every interactive surface's state lifecycle: the PRD §13.1 5-state matrix (
    - **Default/initial state:** `navigate_page(url)` → `wait_for(settle)` → `take_snapshot` → `take_screenshot` → save under `evidence/explore-state/<ts>/<route>/<surface>/initial.{json,png}`. Record the surface's resting state on first entry.
    - **empty:** fresh load (no data) — `evaluate_script(() => localStorage.clear())` → reload → capture.
    - **loading:** induce via `emulate({networkConditions: 'Slow 3G'})` → `navigate_page` → screenshot BEFORE `wait_for` resolves. Restore `No throttling` after.
-   - **error:** for forms — `fill_form(invalid)` + `click(submit)` + `wait_for("[role=alert]")`. For fetches — `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then trigger. Pre-register `handle_dialog({accept: false})` if the surface may open `alert` / `confirm`.
-   - **success:** happy-path `fill_form(valid)` + `click(submit)` + `wait_for("[data-success], [role=status]")`.
+   - **error:** for forms — `fill_form(invalid)` + `click(submit)` + `wait_for({text: ["<expected error text from the rendered alert>"]})`. For fetches — `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then trigger. Pre-register `handle_dialog({action: "dismiss"})` if the surface may open `alert` / `confirm`. (`wait_for` is text-based per upstream `chrome-devtools-mcp`; for selector-presence polling use `evaluate_script(() => !!document.querySelector("[role=alert]"))` after `take_snapshot`.)
+   - **success:** happy-path `fill_form(valid)` + `click(submit)` + `wait_for({text: ["<expected success text>"]})` (or `evaluate_script` poll for `[data-success]` / `[role=status]`).
    - **permission:** strip session via `evaluate_script(() => document.cookie='...; expires=Thu, 01 Jan 1970')` then `navigate_page`, OR sign in as a role lacking permission. Record observed status (302 → login | 401 | 403 | render).
 
 7. **Transitions.** For each pair of observed states (initial→loading, loading→success, loading→error, error→success on retry, etc.) capture the trigger (event, click, route change, network event), the visual indicator that announces the transition, and the time-to-transition (use the timestamps on the screenshots). Record transitions as edges on the state entry.

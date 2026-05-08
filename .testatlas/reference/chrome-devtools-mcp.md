@@ -55,6 +55,14 @@ Tier 1 + `performance_start_trace` + `performance_stop_trace` + `performance_ana
 
 Pseudocode below uses Chrome DevTools MCP tool names verbatim. Each pattern is the canonical body that the named UI-touching command MUST drive when `browser` AND `MCP` are available.
 
+### Tool-API addenda (verbatim from upstream `chrome-devtools-mcp` schema)
+
+The walkthroughs below predate three upstream-tool clarifications. Translate while invoking, do NOT pass the legacy parameter names — the upstream tool will reject them.
+
+- **`wait_for`** — accepts `{ text: string[], timeout?: number }` only. There is no `selector` parameter. When pseudocode shows `wait_for({ selector: "X" })`, translate to `wait_for({ text: ["<expected visible text from element X>"] })`. When the wait targets a generic readiness signal (e.g. `[data-route-ready]`, `main`, `#root`), prefer `take_snapshot()` followed by `evaluate_script(() => !!document.querySelector("X"))` polling, since `wait_for` cannot wait on selectors.
+- **`lighthouse_audit`** — accepts `{ device?: "desktop"|"mobile", mode?: "navigation"|"snapshot", outputDirPath?: string }`. There is no `categories` parameter. The tool returns Accessibility, SEO, Best-Practices, and Agentic-browsing categories on every call (Performance is excluded; it lives in `performance_start_trace` / `performance_stop_trace`). When pseudocode shows `lighthouse_audit({ categories: ["accessibility"] })`, invoke `lighthouse_audit({ mode: "navigation" })` and read the `accessibility` slice of the result.
+- **`handle_dialog`** — accepts `{ action: "accept"|"dismiss", promptText?: string }`. There is no boolean `accept` parameter. Translate `handle_dialog({ accept: false })` → `handle_dialog({ action: "dismiss" })` and `handle_dialog({ accept: true })` → `handle_dialog({ action: "accept" })`.
+
 ### 3.1 Component-discovery walkthrough (explore-ui)
 
 Use this when mapping the UI surface route-by-route: routes, components, forms, modals, ARIA basics, responsive breakpoints. Output goes to `_testatlas/12_app_map.json` plus `_testatlas/evidence/explore-ui/<ts>/<route-slug>/`.
@@ -133,7 +141,7 @@ for each route:
     record observed status (302→login | 401 | 403 | render)
 
   # Dialog handling — covers alert/confirm/beforeunload
-  handle_dialog({ accept: false })   # register dismiss handler before any action that might open one
+  handle_dialog({ action: "dismiss" })   # register dismiss handler before any action that might open one
 ```
 
 **Skip rationale:** record on the route/component entry the rationale for any state legitimately absent (e.g., a static marketing page has no loading state because no fetch occurs). Skipping without rationale = contract violation.
@@ -199,7 +207,7 @@ Use this when running PRD §13.9 accessibility audits: Lighthouse a11y category,
 for each route:
   navigate_page(url)
   wait_for(settle)
-  audit = lighthouse_audit({ categories: ["accessibility"] })
+  audit = lighthouse_audit({ mode: "navigation" })   # tool returns Accessibility/SEO/Best-Practices/Agentic-browsing — read .accessibility slice
   persist audit -> evidence/<route>/lighthouse.json
   # PRD §13.9 thresholds
   assert audit.score >= 0.90
@@ -314,7 +322,7 @@ Five PRD §13.1 states × triggering technique × evidence to capture × pass cr
 |-------|--------------------------------------------|----------------------|----------------|
 | **empty** | `navigate_page(url)` while authenticated as a fresh user (no data) — OR script `evaluate_script(() => localStorage.clear())` then reload | `take_screenshot` (full page), `take_snapshot`, copy of any empty-state CTA / illustration, network requests confirming 0-row response | Empty-state copy is actionable (next-step CTA visible); not a vague "Nothing to show" |
 | **loading** | `emulate({ networkConditions: "Slow 3G" })` then `navigate_page(url)`; `take_screenshot` BEFORE `wait_for` resolves; OR `evaluate_script(() => { const f = window.fetch; window.fetch = (...a) => new Promise(r => setTimeout(() => r(f(...a)), 3000)); })` | Mid-flight screenshot, snapshot showing skeleton/spinner, network log showing pending requests | Loading indicator present (skeleton, spinner, progress bar); aria-busy="true" or role="progressbar" on a live region |
-| **error** | For forms: `fill_form` with invalid input + `click(submit)`. For data fetches: `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then trigger refetch. For 4xx/5xx: navigate to a non-existent resource. `handle_dialog({ accept: false })` if the app shows a confirm. | `take_screenshot` of error UI, `list_console_messages` (extract uncaught + warnings), error message text via `evaluate_script(() => document.querySelector('[role=alert]')?.textContent)`, `list_network_requests` showing the failing request | Error message is actionable (names what went wrong + recovery path); no stack trace in user-visible UI (PRD §17 critical rule); aria-live region announced the error |
+| **error** | For forms: `fill_form` with invalid input + `click(submit)`. For data fetches: `evaluate_script(() => { window.fetch = () => Promise.reject(new Error("induced")); })` then trigger refetch. For 4xx/5xx: navigate to a non-existent resource. `handle_dialog({ action: "dismiss" })` if the app shows a confirm. | `take_screenshot` of error UI, `list_console_messages` (extract uncaught + warnings), error message text via `evaluate_script(() => document.querySelector('[role=alert]')?.textContent)`, `list_network_requests` showing the failing request | Error message is actionable (names what went wrong + recovery path); no stack trace in user-visible UI (PRD §17 critical rule); aria-live region announced the error |
 | **success** | Happy path: `fill_form` valid + submit, OR `click(primaryAction)`, then `wait_for({ selector: "[data-success], .success, [role=status]" })` | `take_screenshot`, `take_snapshot`, success message text, network log confirming 2xx response | Success indicator is visible AND focus moved appropriately AND state persists across reload (test by reloading + re-checking) |
 | **permission** | `evaluate_script(() => document.cookie.split(';').forEach(c => document.cookie = c.split('=')[0]+'=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/'))` then `navigate_page(url)`. OR sign in as a role lacking permission (per scenario). | `take_screenshot`, observed status code from `list_network_requests` (302/401/403), redirect target URL, denied-message text | Either redirected to login OR 403/permission UI rendered with explicit reason; NOT a generic "something went wrong"; never leaks data partially before denying |
 
