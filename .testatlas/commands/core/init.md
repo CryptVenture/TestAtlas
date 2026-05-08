@@ -37,7 +37,7 @@ If there is a conflict:
 
 ## Purpose
 
-Bring a target repository to a clean V2 baseline — `_testatlas/` directory tree (canonical V1 files preserved) PLUS the V2 brain skeleton (`_testatlas/brain/` with 22 files: 19 JSON + 3 JSONL). On an existing V1 workspace, run in `--mode upgrade` to ADD the brain skeleton without removing V1 artifacts.
+Bring a target repository to a clean V2 baseline — `_testatlas/` directory tree (canonical V1 files preserved) PLUS the V2 brain skeleton (`_testatlas/brain/` with 23 files: 20 JSON + 3 JSONL). On an existing V1 workspace, run in `--mode upgrade` to ADD the brain skeleton without removing V1 artifacts.
 
 ## Required First Reads
 
@@ -70,9 +70,9 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 ## Outputs
 
 - `_testatlas/` directory tree (V1 23 subdirs + V2 brain).
-- 14 V1 canonical markdown files (already shipped); 22 V2 brain files (19 JSON + 3 JSONL).
+- 14 V1 canonical markdown files (already shipped); 23 V2 brain files (20 JSON + 3 JSONL).
 - `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
-- V2 brain files written by `init-workspace.js` (19 JSON + 3 JSONL = 22 total):
+- V2 brain files written by `init-workspace.js` (20 JSON + 3 JSONL = 23 total):
   - `_testatlas/brain/manifest.json`
   - `_testatlas/brain/state.json`
   - `_testatlas/brain/domains.json`

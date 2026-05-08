@@ -93,7 +93,7 @@ The 22 required brain files validated by this command:
 
 ## Completion Criteria
 
-- All 22 brain files (19 JSON + 3 JSONL) inspected.
+- All 23 brain files (20 JSON + 3 JSONL) inspected.
 - Every finding (if any) reported with code + path + remedy.
 - A `command_completed` (or `command_aborted` if findings) event recorded.
 

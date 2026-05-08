@@ -1519,6 +1519,167 @@ export async function checkOutputsVsRequiredActions({ commandsDir }) {
   return violations;
 }
 
+// ─── Invariant 18: numerical-claim-vs-script (Quick 260508-u72 INV-C) ───────
+
+// Pattern: `<n> JSON + <m> JSONL = <total>` (or " = <total>" omitted; or
+// "checks N artifacts/schemas/files"). High-confidence-only — we only flag
+// when at least one referenced script defines a static `[ ... ]` array
+// literal whose length we can extract.
+const NUM_CLAIM_RE_PAIR = /(\d+)\s*JSON\s*\+\s*(\d+)\s*JSONL(?:\s*=\s*(\d+))?/g;
+const NUM_CLAIM_RE_CHECKS = /\bchecks\s+(\d+)\s+(?:artifacts|schemas|files)\b/gi;
+
+/**
+ * Parse a script source for arrays of brain-file constants.
+ *
+ * Heuristic — find lines like `const REQUIRED_JSON_FILES = [ ... ]` (or
+ * `JSON_FILES`, `BRAIN_JSON_FILES`, etc.) and `..._JSONL_FILES = [...]`.
+ * Returns `{ jsonCount, jsonlCount }` only when both arrays are
+ * statically determinable (the regex captures a balanced literal). When
+ * indeterminate, returns `null` (caller silently skips — no flag).
+ *
+ * @param {string} src
+ * @returns {{ jsonCount:number, jsonlCount:number }|null}
+ */
+function staticBrainFileCounts(src) {
+  function arrayLen(name) {
+    const re = new RegExp(`\\b${name}\\s*=\\s*\\[([\\s\\S]*?)\\]`, 'm');
+    const m = re.exec(src);
+    if (!m) return null;
+    const body = m[1];
+    // Sanity — must look like a literal array of strings (no nested brackets,
+    // no `await`, no template literals; commas separate strings).
+    if (/[\[\]]|\bawait\b|\$\{/.test(body)) return null;
+    // Count single/double/backtick-quoted strings.
+    const items = [...body.matchAll(/['"`][^'"`]*['"`]/g)];
+    if (items.length === 0) return null;
+    return items.length;
+  }
+  const candidatesJson = ['REQUIRED_JSON_FILES', 'BRAIN_JSON_FILES', 'JSON_FILES'];
+  const candidatesJsonl = ['REQUIRED_JSONL_FILES', 'BRAIN_JSONL_FILES', 'JSONL_FILES'];
+  let jsonCount = null;
+  for (const c of candidatesJson) {
+    const n = arrayLen(c);
+    if (n !== null) {
+      jsonCount = n;
+      break;
+    }
+  }
+  let jsonlCount = null;
+  for (const c of candidatesJsonl) {
+    const n = arrayLen(c);
+    if (n !== null) {
+      jsonlCount = n;
+      break;
+    }
+  }
+  if (jsonCount === null || jsonlCount === null) return null;
+  return { jsonCount, jsonlCount };
+}
+
+/**
+ * High-confidence linter for numerical drift between command-body claims
+ * and the cited script's static array lengths. Specifically:
+ *   - "<n> JSON + <m> JSONL = <total>" must match the union of static
+ *     arrays in any referenced script.
+ *   - "checks <N> artifacts/schemas/files" must match the total of those
+ *     same arrays.
+ *
+ * Only fires when the script's array length is statically determinable.
+ * Lines carrying `<!-- count-not-verified: <reason> -->` are skipped.
+ *
+ * @param {{commandsDir:string, scriptsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkNumericalClaimVsScript({ commandsDir, scriptsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const SCRIPT_INVOKE_RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b/g;
+  // Cache: scriptName → static counts | null
+  const cache = new Map();
+  async function counts(name) {
+    if (cache.has(name)) return cache.get(name);
+    let result = null;
+    try {
+      const src = await readFile(path.join(scriptsDir, `${name}.js`), 'utf8');
+      result = staticBrainFileCounts(src);
+    } catch {
+      result = null;
+    }
+    cache.set(name, result);
+    return result;
+  }
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    // Collect referenced scripts (any section).
+    const refs = new Set();
+    {
+      const re = new RegExp(SCRIPT_INVOKE_RE.source, 'g');
+      let m;
+      while ((m = re.exec(text)) !== null) refs.add(m[1]);
+    }
+    if (refs.size === 0) continue;
+    // Resolve to first script with statically-known counts. If none, skip.
+    let truth = null;
+    let truthScript = null;
+    for (const name of refs) {
+      const c = await counts(name);
+      if (c) {
+        truth = c;
+        truthScript = name;
+        break;
+      }
+    }
+    if (!truth) continue;
+    // Walk lines for claim patterns.
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (/<!--\s*count-not-verified\s*:[^>]*-->/i.test(line)) continue;
+      // Pair pattern: "n JSON + m JSONL [ = total ]"
+      {
+        const re = new RegExp(NUM_CLAIM_RE_PAIR.source, 'g');
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          const j = parseInt(m[1], 10);
+          const jl = parseInt(m[2], 10);
+          const total = m[3] != null ? parseInt(m[3], 10) : null;
+          const okJ = j === truth.jsonCount;
+          const okJL = jl === truth.jsonlCount;
+          const okTotal = total == null || total === truth.jsonCount + truth.jsonlCount;
+          if (okJ && okJL && okTotal) continue;
+          violations.push({
+            invariant: 'numerical-claim-mismatch',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `numerical claim "${j} JSON + ${jl} JSONL${total != null ? ` = ${total}` : ''}" diverges from script truth (${truth.jsonCount} JSON + ${truth.jsonlCount} JSONL = ${truth.jsonCount + truth.jsonlCount})`,
+            detail: `script ${truthScript}.js defines ${truth.jsonCount} JSON + ${truth.jsonlCount} JSONL static array entries`,
+            suggestion: `align doc to ${truth.jsonCount} JSON + ${truth.jsonlCount} JSONL = ${truth.jsonCount + truth.jsonlCount}, OR mark with <!-- count-not-verified: <reason> -->`,
+          });
+        }
+      }
+      // Checks pattern: "checks N artifacts"
+      {
+        const re = new RegExp(NUM_CLAIM_RE_CHECKS.source, NUM_CLAIM_RE_CHECKS.flags);
+        let m;
+        while ((m = re.exec(line)) !== null) {
+          const n = parseInt(m[1], 10);
+          const expected = truth.jsonCount + truth.jsonlCount;
+          if (n === expected) continue;
+          violations.push({
+            invariant: 'numerical-claim-mismatch',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `claim "checks ${n} artifacts" diverges from script truth (${expected})`,
+            detail: `script ${truthScript}.js defines ${expected} static artifact entries`,
+            suggestion: `align doc to ${expected}, OR mark with <!-- count-not-verified: <reason> -->`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -1814,6 +1975,7 @@ export async function runLinter(opts = {}) {
     // Round-12 (Quick 260508-u72) — 7 new invariants:
     () => checkStopCodeExistence({ commandsDir, scriptsDir }),
     () => checkOutputsVsRequiredActions({ commandsDir }),
+    () => checkNumericalClaimVsScript({ commandsDir, scriptsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -1876,6 +2038,7 @@ Invariants:
   15  step-cross-reference      (HARD) "step N" references resolve (syv)
   16  stop-code-existence       (HARD) ## Stop Conditions codes exist in script (u72)
   17  outputs-vs-required-actions (HARD) Required Actions paths covered in Outputs (u72)
+  18  numerical-claim-vs-script (HARD) "<n> JSON + <m> JSONL" matches script arrays (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
