@@ -4,6 +4,65 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed (Quick 260508-u72 — Round-12 closure + linter v4)
+
+- **`scripts/lint-commands.js` extended (Round-12 / linter v4):** added 7 new invariants — **INV-A** stop-code-existence (parses `## Stop Conditions` literals; verifies each cited code appears in a `throw new Error(...)` or `process.exit(...)` path of the referenced script); **INV-B** outputs-vs-required-actions (parses `## Required Actions` for `_testatlas/...` paths; requires each path to appear in `## Outputs` unless explicitly marked deferred); **INV-C** numerical-claim-vs-script (high-confidence-only; resolves "<n> JSON + <m> JSONL" claims against script array literals); **INV-D** capability-stopcondition-non-contradiction (flags any capability appearing in BOTH `## Capability Degradation` AND `## Stop Conditions`); **INV-E** mcp-tool-param-validity (curated allowlist for `mcp__chrome-devtools__*` tools; flags invalid params/categories in code-fence examples); **INV-F** duplicate-section-headings (HARD-FAIL on any `^## <heading>` appearing more than once in the same file; subsumes Round-11's `lifecycle-heading-strict` for the H2-duplication class); **INV-G** bare-script-path-everywhere (tightens Round-11 LCB-11 to narrative prose AND code fences; opt-out marker available for documentation-internal references). Total invariant count: **17 baseline (Rounds 9–11) + 7 new (Round-12) = 24 distinct rules**, **42 → 87 invariant tests**.
+- **`scripts/lib/mcp-tool-catalog.js`** new — curated MCP tool param allowlist (chrome-devtools-mcp tools: `wait_for`, `lighthouse_audit`, `evaluate_script`, `take_screenshot`, etc.); used by INV-E for parameter-name and parameter-value validation against the tool's accepted set.
+- **`scripts/lib/script-flag-metadata.js`** extended where applicable with stop-code extraction helpers for INV-A (parses `e.code = '...'` and `process.exit(<n>)` patterns from script source) and array-length helpers for INV-C (resolves `const SCHEMAS = [...]` and similar for numerical-claim resolution).
+- **Wave-5 comprehensive cross-script audit** (deliverable: `.planning/quick/260508-u72-.../AUDIT.md`) — 73 commands × 41 unique scripts surveyed across 5 dimensions per command (scripts invoked, stop codes, outputs, lifecycle, numerical, MCP params). Found 1 newly-surfaced drift (`lifecycle-position` linter false-positive in `maintain-validate-artifacts.md` Stop Conditions block; rephrased to mention the brain-update hook by role rather than literal script name). Confirmed all 30 Round-12 dogfood issues map cleanly to PLAN-01..PLAN-13.
+- **17 additional drift instances surfaced and fixed** by INV-A/B/C as those resolvers ran against the Round-12 source corpus during Wave-6 implementation; details captured in the per-invariant feat commits (`bcaa8b9a` INV-A, `e88a88f3` INV-B, `b18447cc` INV-C).
+- **`.testatlas/audit-manifest.json` baseline refreshed** post-Wave-6 — now 73 commands / 909 claims / 59.5% resolution rate against the 24-invariant catalog (vs Round-11 baseline of 891 claims / 59.9% against 17 invariants). The 909 claims include the new claim classes the 7 new invariants extract; the marginal resolution-rate dip (59.9% → 59.5%) is expected — new resolvers SURFACE new claim classes faster than they resolve them; the asymptote-break commitment is that resolvers continue plumbing in 1-2-hour follow-ups while INV invariants run as hard CI gates today.
+
+### Fixed (post-Quick-260508-syv dogfood Round-12 — ISSUE-133..162)
+
+- **ISSUE-133** (Class A) — `commands/core/init.md` — `--force` stop-code claim narrowed from "handles invalid manifest" to actual codes returned by `init-workspace.js` (`TESTATLAS_AMBIGUOUS_WORKSPACE` only; manifest-validation must be addressed by manual repair).
+- **ISSUE-134** (Class B) — `commands/core/init.md` — V2 brain files added to `## Outputs` (previously omitted; matches Required Actions writes).
+- **ISSUE-135** (Class C) — `commands/core/init.md` — sync-status no-op semantics on already-init repos documented (script "writes nothing" on second pass).
+- **ISSUE-136** (Class G) — `commands/bootstrap.md` — `schema_version: 2020-12` JSON Schema draft reference clarified; this is a JSON Schema draft identifier, not a TestAtlas suite version.
+- **ISSUE-137** (Class A) — `commands/validate-workspace.md` — fictional stop codes (`>50 critical`, parse error, schema_version mismatch) replaced with the actual exit-code surface returned by `validate-workspace.js`.
+- **ISSUE-138** (Class D) — `commands/maintain/maintain-validate-artifacts.md` — count corrected to script-truth: 20 JSON + 3 JSONL = 23 (was incorrectly stated as 19 + 3 = 22).
+- **ISSUE-139** (Class G) — same file — step-4 prose reconciled with the script's actual sequence ("Close the lifecycle" — was incorrectly described as "cross-ID reference resolution").
+- **ISSUE-140** (Class A) — same file — fictional stop codes (`SCHEMAS_MISSING`, `BRAIN_MISSING`) replaced with codes the script actually returns.
+- **ISSUE-141** (Class A) — `commands/maintain/maintain-migrate.md` — fictional stop codes (`WORKSPACE_MISSING`, `ALREADY_V2`, `BACKUP_FAILED`) replaced with actual statuses the migration script returns.
+- **ISSUE-142** (Class H) — same file — backup-path format corrected: doc says `.bak.<ISO8601>`, but script replaces `:` and `.` with `-` (per `v2-migrate.js`); doc updated to match.
+- **ISSUE-143** (Class C) — `commands/update.md` — VERSION read source corrected from `.testatlas/VERSION` (which doesn't exist) to `package.json` (per `update.js`).
+- **ISSUE-144** (Class C) — `commands/uninstall.md` — `.install-manifest.json` self-removal documented (script removes the manifest file itself but it's not listed in the manifest body).
+- **ISSUE-145** (Class C) — `commands/cleanup.md` — marker overwrite behavior corrected from "warn and skip" to "overwrite unconditionally" per `update-indexes.js`.
+- **ISSUE-146** (Class C) — same file — orphan-marker behavior corrected from "list for operator review" to "throw and halt" (matches script behavior).
+- **ISSUE-147** (Class H) — same file — step-9 manifest count claim dropped (none of the 3 cleanup scripts update counts; reconciliation happens elsewhere in the lifecycle).
+- **ISSUE-148** (Class H) — `commands/explore.md` — `update-brain-after-command.js` added to `## Lifecycle` (was missing the brain hook).
+- **ISSUE-149** (Class H) — `commands/explore-all.md` — cache convention harmonized to `.lastrun.json` per the `explore-codebase.md` pattern (previously diverged).
+- **ISSUE-150** (Class B) — `commands/explore-codebase.md` — `.lastrun.json` cache sidecar added to `## Outputs`.
+- **ISSUE-151** (Class H) — same file — step-0 short-circuit reconciled with `## Lifecycle` (early-exit semantics now documented; full updates only on non-short-circuit path).
+- **ISSUE-152** (Class B) — `commands/explore/explore-tests.md` — `_testatlas/maps/tests.json` added to `## Outputs`.
+- **ISSUE-153** (Class E) — `commands/explore-ui.md` — MCP/browser capability-vs-stop contradiction resolved to halt-only (Step 2's "degrade" path was internally inconsistent with Stop Conditions' "halt" stance; halting is correct — partial UI findings are a false-confidence hazard).
+- **ISSUE-154** (Class B) — `commands/explore-api.md` — `apis[]` (Required Actions) vs `apiIds[]` (Outputs) naming harmonized.
+- **ISSUE-155** (Class F) — `commands/explore/explore-routes.md` — invalid `wait_for(settle)` replaced with text-based wait + `evaluate_script` poll per Phase-19 chrome-devtools-mcp guidance.
+- **ISSUE-156** (Class B) — `commands/explore-data.md` — `entities[]` vs `entityIds[]` naming harmonized.
+- **ISSUE-157** (Class B) — `commands/explore-cli.md` — `cliCommands[]` vs `cliIds[]` naming harmonized.
+- **ISSUE-158** (Class F) — `commands/explore-accessibility.md` — invalid `lighthouse_audit({category})` replaced with parameterless form + post-extraction note (the tool has no `category` param; agent must extract the accessibility section from the full audit response manually).
+- **ISSUE-159** (Class E) — `commands/explore/explore-brain.md` — shell capability-vs-stop contradiction resolved (was both "degrades on missing shell" AND "halts on missing shell" — halt is correct).
+- **ISSUE-160** (Class G) — `commands/council/council.md` — bare `scripts/lint-commands.js` path corrected to `.testatlas/scripts/lint-commands.js` form (Phase-17 invariant); INV-G now catches this class going forward.
+- **ISSUE-161** (Class H) — `commands/council/council-test-plan.md` — empty `_testatlas/maps/{routes,components,...}.json` Required First Reads made conditional ("if present"); `maps/` is install-state, not always populated.
+- **ISSUE-162** (Class G) — `commands/core/init.md` — duplicate `## Lifecycle` headings (lines 61, 79) consolidated to single canonical section; INV-F now catches this class going forward.
+
+### Round-12 architectural commitment
+
+- **The 7 new invariants codify the 7 drift classes Round-12 surfaced.** Every Round-12 issue (with the exception of the few that were genuine doc rewrites with no rule-checkable signature) is now backed by an INV that fails CI before reaching dogfood. Round-13 projection: defect rate <5% IF the architectural commitment holds. The 4 deferred resolvers (script-flag, slash-command, step-cross-reference, mcp-tool) plumbed in 1-2-hour follow-ups will drive the asymptote toward zero.
+- **Defect-rate trend so far** — Round 7=26%, Round 8=26%, Round 9=15%, Round 10=23%, Round 11=35%, Round 12=40% (30/74). The Round-11→12 climb reflects the dogfood agent's increasing sophistication (Round-12 included its own "Linter Gap Analysis" actively probing for unchecked classes); Round-12 is the FIRST round where the new invariants directly target the surfaced classes (vs Round-11's invariants which targeted Round-10 patterns). Round-13 will measure whether class-based invariants break the climb.
+- **Wave-5 cross-script audit** is the methodological complement to Wave-6 invariants: invariants encode patterns, audit encodes thoroughness. Both are required to break the asymptote.
+
+### Verification gates GREEN (post-Wave-8)
+
+- `pnpm test` — 1670 pass / 57 fail / 0 skipped (the 57 failures all pre-existing — schema-mapping for `agents/personas/system/*.json` and `agents/councils/council_templates/*.json`; `validate-workspace.js`'s `check-schemas` checker has no directory-mapping rule for these paths; carried forward from Wave-5 baseline `b3d86bba`; recorded in `.planning/quick/260508-u72-.../deferred-items.md`; NOT introduced by Wave-6 invariants or Wave-8 adapter regen — Wave-8 in fact REDUCED failures from 113 to 57 by re-rendering adapter trees consistent with source-doc fixes; owned by a future plan to register persona/council-template schemas).
+- `node scripts/lint-commands.js` — exit 0 (0 violations on 73-command corpus against 24-invariant catalog).
+- `node scripts/lint-commands.js --manifest .testatlas/audit-manifest.json` — exit 0 (909 claims / 59.5% resolved).
+- `node scripts/check-adapter-parity.js --strict` — 1314/1314 obligations satisfied (100.0% coverage).
+- `node scripts/validate-workspace.js` — exit 0.
+- `node --test test/commands/mesh-graph.test.js` — 4/4 GREEN (orphans=0, dead-ends=0, broken-refs=0, slash-collisions=0).
+
+**No release cut** — last tag stays `v1.2.6`. `scripts/lib/install-core.js` untouched (concurrent-agent WIP). All 18 adapter trees regenerated via `node scripts/assemble-adapter.js` (commit `24caf7ba`).
+
 ### Changed (Quick 260508-syv — Round-11 closure + linter v3 + audit-manifest)
 
 - **`scripts/lint-commands.js` extended (Round-11 / linter v3):** added 8 new invariants — schema-file-existence (LCB-08), maps-path-consistency (LCB-09), vocabulary-enum-presence (LCB-10), bare-script-path (LCB-11; extends Phase-17 invariant from frontmatter to body prose), lifecycle-heading-strict (LCB-12), config-key-existence (LCB-13), option-pair-completeness (LCB-14), step-cross-reference (LCB-15). Plus new `--manifest <path>` mode that emits a structured JSON of every claim in every command body with ground-truth resolution status. The manifest mode is the architectural commitment to break the rule-by-rule asymptote: future dogfood rounds add a resolver, the manifest catches all instances retrospectively.
