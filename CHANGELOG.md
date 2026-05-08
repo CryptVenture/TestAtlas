@@ -4,6 +4,64 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed (Quick 260508-syv — Round-11 closure + linter v3 + audit-manifest)
+
+- **`scripts/lint-commands.js` extended (Round-11 / linter v3):** added 8 new invariants — schema-file-existence (LCB-08), maps-path-consistency (LCB-09), vocabulary-enum-presence (LCB-10), bare-script-path (LCB-11; extends Phase-17 invariant from frontmatter to body prose), lifecycle-heading-strict (LCB-12), config-key-existence (LCB-13), option-pair-completeness (LCB-14), step-cross-reference (LCB-15). Plus new `--manifest <path>` mode that emits a structured JSON of every claim in every command body with ground-truth resolution status. The manifest mode is the architectural commitment to break the rule-by-rule asymptote: future dogfood rounds add a resolver, the manifest catches all instances retrospectively.
+- **`scripts/lib/script-flag-metadata.js`** extended with on-disk catalogs (`getSchemaFiles`, `getVocabEnums`, `getConfigKeys`) for invariants 8 / 10 / 13. Memoized at first call; pass an explicit `{schemasDir, vocabPath, configPath}` for hermetic tests.
+- **`.testatlas/schemas/vocabulary.schema.json`** — extended `issueStatus` enum to include `reopened` (semantically valid; was missing from enum). Closes Round-11 ISSUE-128a.
+- **`.testatlas/default.config.json`** + **`.testatlas/config.schema.json`** — added `idempotencyTtlMs: 86400000` (24h default; doc had been promising this key without backing config). config.schema.json declares the property (`additionalProperties:false` strictness requires an explicit declaration). Closes Round-11 ISSUE-117a.
+
+### Fixed (post-Quick-260508-rqx dogfood Round-11 — ISSUE-113..132)
+
+- **ISSUE-113** — `commands/core/init.md:80` narrowed `--force` doc claim to `TESTATLAS_AMBIGUOUS_WORKSPACE` only (per `.testatlas/scripts/init-workspace.js:189-194`); manifest-validation failures must be addressed by manual repair.
+- **ISSUE-114** — `commands/validate-workspace.md` rewrote `--auto-heal` doc to reflect mutating default (apply=true is auto-set when `--auto-heal` is present per `.testatlas/scripts/validate-workspace.js:340-346`); document `--dry-run` as the surface-only mode.
+- **ISSUE-115** — `commands/maintain/maintain-validate-artifacts.md:62-66` narrowed sync-markdown-json coverage to `domains/` only (per `ARTIFACT_DIRS` at `.testatlas/scripts/sync-markdown-json.js:33-34`); flagged `flows/` / `to_fix/` / `tests/` sync as future enhancement.
+- **ISSUE-116** — `commands/explore.md:61` renamed dangling `Fallback (Option B)` → `Fallback Path` (Option-A/B framing not used elsewhere in this file).
+- **ISSUE-117a** — closed by adding `idempotencyTtlMs` to `default.config.json` + `config.schema.json` (see Changed).
+- **ISSUE-117b** — `commands/explore/explore-all.md:91-94` replaced invalid `git ls-files mtime` cache signal with HEAD-comparison via `.lastrun.json` sidecar (mtimes are not git-tracked across clones; HEAD-rev is the canonical drift signal).
+- **ISSUE-118** — `commands/explore-codebase.md:64` same cache-strategy fix (HEAD comparison via `.lastrun.json`; mtime claim removed).
+- **ISSUE-119a** — `commands/explore/explore-tests.md` step xref already correct against current numbering (no edit needed; verified at lint time).
+- **ISSUE-119b** — `commands/explore/explore-state.md:138` reworded UI state-machine sidecar reference to avoid implying `ui-state-machine.schema.json` exists today (the linter's Inv-8 caught this on a different file but the same defect class).
+- **ISSUE-120** — `commands/explore-ui.md` step 2 + Stop Conditions reconciled to halt on EITHER `MCP` or `browser` unavailable; partial UI findings are a false-confidence hazard (defer to `/atlas:explore-codebase` for code-only mapping).
+- **ISSUE-121** — `commands/explore-api.md:91` unified `maps/api.json` → `maps/apis.json` (plural; matches sibling convention).
+- **ISSUE-122** — `commands/explore/explore-routes.md:67` rewrote invalid `wait_for(settle)` to text-based wait + `evaluate_script` poll per Phase-19 chrome-devtools-mcp.md addenda.
+- **ISSUE-123a** — closed analogously to 119b: `commands/test/generate-automation.md:141` reworded `test-scenario-meta.schema.json` reference to avoid implying file exists today.
+- **ISSUE-123b** — `commands/explore-data.md:79` unified `maps/data.json` → `maps/entities.json` (matches Required Actions write).
+- **ISSUE-124a** — `commands/explore-cli.md:89` unified `maps/cli.json` → `maps/cli-commands.json` (matches schema-named convention from explore-cli writes).
+- **ISSUE-124b** — re-read `commands/explore-cli.md` Stop Conditions vs Required Actions; current text is internally consistent post-Round-11. No structural contradiction surfaced; documented as inspected and aligned.
+- **ISSUE-125** — `commands/test/test-critical-flows.md`: (a) added Stop Condition for AJV failure on `RUN-*.json` (`RUN_SCHEMA_INVALID`); (b) `--reindex` flag is valid per `.testatlas/scripts/update-brain-after-command.js:138` — added to brain-update invocation; (c) clarified `<flow-id>` evidence path semantics (per-flow aggregator); (d) clarified RUN-count semantics (one RUN sidecar pair per command invocation, aggregating all critical flows; reruns emit a NEW RUN-`<timestamp>` pair; existing runs are immutable history).
+- **ISSUE-128a** — extended `vocabulary.schema.json` to include `reopened` in `issueStatus` enum.
+- **ISSUE-128c** — rewrote bare `scripts/create-flow.js` references → `node .testatlas/scripts/create-flow.js` (and `scripts/create-domain.js`) across `log-issue.md`, `retest.md`, `validate-workspace.md`, `report.md`, `update.md`, `council/council-test-plan.md`. test-design.md (named in CONTEXT.md) does not exist in current corpus; the equivalent fix landed across the actually-present command bodies.
+- **ISSUE-129** — `commands/council/council.md:106` was already canonical (`scripts/lint-commands.js LIFECYCLE_ALLOWLIST` reference is documentation-internal, allowlisted by the new Inv-11 fixture). Collateral bare-script-path violations swept across the corpus (16 violations fixed across `log-issue.md`, `retest.md`, `validate-workspace.md`, `report.md`, `update.md`, `council/council-test-plan.md`). The Inv-11 walker now also excludes `README.md` (mirrors `scripts/lib/list-command-files.js` convention; suite documentation is not a canonical command body).
+- **ISSUE-131** — `commands/core/status.md:86` renamed `## Post-Operation Brain Update` → `## Lifecycle`.
+- **ISSUE-132** — `commands/core/brain-query.md:83` same rename.
+- **Collateral 130b** — `commands/council/council-test-plan.md:50` unified `cli_commands.json` (underscore) → `cli-commands.json` (kebab-case; consistent with sibling map names).
+- **Collateral lifecycle-heading rename** — `commands/core/init.md:102` renamed `## Post-Operation Brain Update` → `## Lifecycle` (Inv-12 caught the third instance after fixes to status.md and brain-query.md landed).
+
+### Round-11 NOT-REAL claims (recorded for traceability)
+
+- **ISSUE-126 (REJECTED)** — `commands/plan.md:63` `--domain domain-<slug>` is the correct full-ID form per `.testatlas/scripts/create-domain.js:41` (id format is `domain-${slug}`). Dogfood agent misread `--domain <full-id>` as a slug-only requirement.
+- **ISSUE-127 (REJECTED)** — `commands/log-issue.md:54` `--domain domain-<slug>` is the same correct full-ID form. Same misread as 126.
+- **ISSUE-128b (workspace-state, not source defect)** — `_testatlas/to_fix/by_flow/<flow-id>.md` index is built by `commands/log-issue.md` step 9.5 when issues reference flows; the source doc reference is correct per Quick 260508-oi8 plan. The empty index in installed workspaces is install-state, not a source-doc bug.
+- **ISSUE-130 (MISFRAMED)** — empty `_testatlas/maps/` directory is install-state (workspace not yet exercised), not a doc defect. Sub-finding 130b (`cli_commands.json` vs `cli-commands.json` consistency) IS real and was fixed (see Fixed list above).
+
+### Architectural diagnosis — why this keeps happening
+
+- **Rule-based linting has diminishing returns.** Each round encodes invariants for the patterns the previous round exposed, but new pattern classes keep emerging. After 3 linter iterations (Rounds 9, 10, 11) we have **15 invariants total** (LCB-01..15); empirical defect rates rose Round 7=26%, Round 8=26%, Round 9=15%, Round 10=23%, Round 11=35%.
+- **The dogfood agent is increasingly sophisticated** — Round-11's report includes its own "Linter Gap Analysis" actively probing for what is unchecked.
+- **The honest fix isn't more rules; it's a comprehensive claim-extraction model** where every reference in every command body is explicitly resolved against ground truth. The new `--manifest` mode is step one. Future rounds add resolvers (1–2 hours each), not invariants (1–2 days each).
+- **Empirical resolution-rate (post-Round-11):** see `tmp/syv-audit.json` (also recorded in `.planning/quick/260508-syv-.../SPOT_CHECK.md`). Headline 59.9% (534/891 claims resolved); active-resolver rate is 100% (the 357 unresolved are explicit deferred-resolver classes: script-flag, slash-command, step-cross-reference, mcp-tool — all flagged for future-round 1-2-hour resolver additions per CONTEXT.md `<specifics>`).
+- **Round-12 projection:** <10% defect rate IF the architectural commitment holds. Plumbing the four deferred resolvers (script-flag against `script-flag-metadata.js`, slash-command against the commands tree, step-cross-reference against numbered list parser, mcp-tool against MCP introspection) closes ~85% of remaining unresolved claims retroactively in a single sweep.
+
+### Future work (deferred from Quick 260508-syv)
+
+- **force-flag-coverage** (113-style): contract test exercising every `--<flag>` documented in command bodies against the actual script. Requires script-runner harness; a step beyond the static catalogs in `script-flag-metadata.js`.
+- **mcp-tool-signature** (122-style): introspect MCP tool schemas; verify referenced tool params match. The `--manifest` mode already records `mcp-tool` claims as `unresolved` so this resolver can be plugged in to retroactively close all instances.
+- **Auto-generation of factual claim blocks** (Option-C architectural answer): tool-tables, path-tables, count-key tables generated at build time from authoritative sources; only narrative prose hand-written. Bigger refactor; consider after Round-12 measures the asymptote-break.
+- **Within-command logical-contradiction detection** (120, 124b, 125-style): may need LLM-assisted review; pattern-based detection produces too many false positives at the cue-pattern boundary.
+
+**Verification gates (Round-11):** `pnpm test` GREEN (1685 pass / 0 fail / 2 skipped); `node scripts/lint-commands.js` exits 0 against post-fix corpus; `node scripts/lint-commands.js --manifest tmp/syv-audit.json` produces the structured JSON manifest with 100% active-resolver closure; `node scripts/check-adapter-parity.js --strict` reports 1314/1314 GREEN; `mesh-graph.test.js` 4/4 GREEN; `validate-workspace.js` exit code unchanged from baseline (pre-existing `TESTATLAS_UNKNOWN_SCHEMA` warnings on `maps/*.json` only). No release cut — `v1.2.6` remains the latest tag. `scripts/lib/install-core.js` untouched. All 18 adapter trees regenerated.
+
 ### Changed
 
 - **`scripts/lint-commands.js` extended (Quick 260508-rqx)** — Round-9's linter caught flag-existence drift but Round-10 surfaced 17 issues by exploiting 3 unchecked invariant categories. Extensions added (with recurrence-prevention rationale):
