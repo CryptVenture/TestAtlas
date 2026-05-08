@@ -3,8 +3,8 @@ description: Map the target product across languages, frameworks, monorepo layou
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="b7e5b8a5091326c2db4869537aa1f9ba836e9b18230f55b17bf03bef72b9466d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="b165841873c7043ed8c9065fd476154deb003f8796f19ceadd6dbc8830e3d661" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-codebase.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -31,9 +31,9 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Required Actions
 
-0. **Short-circuit on already-mapped state.** If `_testatlas/12_app_map.json` is non-stub (any one of its 11 surface arrays — `domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships` — is non-empty) AND its most recent evidence directory at `_testatlas/evidence/explore-codebase/<timestamp>/` exists AND no source files in `git ls-files` have a modification time newer than the evidence directory's mtime, exit with `status: already-mapped` and update `10_command_log.md` only — do NOT regenerate the app-map or capture new evidence. The operator can force a refresh by deleting the most recent evidence directory.
+0. **Short-circuit on already-mapped state.** If `_testatlas/12_app_map.json` is non-stub (any one of its 11 surface arrays — `domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships` — is non-empty) AND its most recent evidence directory at `_testatlas/evidence/explore-codebase/<timestamp>/` exists AND a per-run cache sidecar at `_testatlas/evidence/explore-codebase/<timestamp>/.lastrun.json` records a `head` matching the current `git rev-parse HEAD` (i.e., source has not advanced past the last run), exit with `status: already-mapped` and update `10_command_log.md` only — do NOT regenerate the app-map or capture new evidence. (Note: git tracks blob content, not file-system mtimes, so mtime checks are unreliable across clones — HEAD comparison is the canonical drift signal.) The operator can force a refresh by deleting the most recent evidence directory or passing `--refresh`.
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
-2. Detect language(s), frameworks, build tools, test runners, linters, monorepo layout (workspaces / apps / packages / services). If `shell` is available, run `git ls-files`, parse package manifests, and run framework introspection commands (e.g. `next routes`, `rails routes`, `php artisan route:list`) where the toolchain ships them. **If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read package files manually instead — never invent routes, handlers, or integrations from training-data priors.**
+2. Detect language(s), frameworks, build tools, test runners, linters, monorepo layout (workspaces / apps / packages / services). If `shell` is available, run `git ls-files` and parse package manifests, then derive routing surfaces from real signals: search `app/**/page.tsx`, `app/**/route.ts`, and `pages/**/*.tsx` for Next.js; run `rails routes` for Rails; run `php artisan route:list` for Laravel; parse `Express` / `Fastify` / `Koa` route registrations for Node frameworks; etc. **If `shell` is unavailable, mark findings `confidence: needs-validation` per `bootstrap.md` §4 and read package + route files manually instead — never invent routes, handlers, or integrations from training-data priors.**
 3. Enumerate apps / services / workers: frontends (web, mobile, desktop), HTTP APIs, RPC services, background workers, schedulers, queue consumers, cron jobs, edge functions, lambdas. Record entry-point file paths and runtime metadata for each.
 4. Enumerate routes: HTTP routes (REST, GraphQL endpoints, server actions), RPC handlers, WebSocket / SSE handlers, page routes, server-side rendered routes, static routes. Capture method, path, source-file path, and handler symbol.
 5. Enumerate handlers and the modules they call into. Record handler-to-module edges so coverage and ownership reasoning can use them later.
@@ -62,6 +62,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (This command does not write to `counts.*` — those track per-domain/flow/issue/evidence/run artifacts that explore-codebase does not produce. Run `node .testatlas/scripts/sync-status.js` if downstream commands have populated counts that need reconciling against on-disk reality.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` apps, `<n>` routes, `<n>` integrations into `12_app_map.json`."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`.
 
 ## Stop Conditions
 

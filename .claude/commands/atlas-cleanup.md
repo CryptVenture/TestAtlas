@@ -1,10 +1,10 @@
 ---
 description: Workspace housekeeping confined to _testatlas/ — orphan removal, broken-link triage, stale-marker resolution, index re-derivation. Never deletes user content.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="709abfbe8aef29a02f168339daea384e6e61757f7f8ad92836265c194e1b38d0" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/cleanup.md" hash="b7d813d8552283f48e4c4f486d9f5f0b52aa7ec14ade0c9512a920f81516ebfc" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-cleanup.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -15,7 +15,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 - `.testatlas/bootstrap.md` — the constitution; the two-tree invariant.
 - `_testatlas/11_workspace_manifest.json` — current counts to reconcile against disk.
 - `_testatlas/09_artifact_index.md` — current artifact list to re-derive.
-- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
+- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/tests/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
 
 ## Required Actions
 
@@ -79,4 +79,6 @@ Now that the workspace is tidy:
 
 - **`/atlas:update`** — pull the latest suite version on a clean tree
 - **`/atlas:validate-workspace`** — confirm cleanup did not introduce new schema drift
+- **`/atlas:core-brain-sync`** — re-index brain state after cleanup so brain reflects the cleaned workspace.
+- **`/atlas:maintain-validate-artifacts`** — V2 cleanup completion check; validates remaining artifacts are coherent.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

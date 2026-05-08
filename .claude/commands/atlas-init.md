@@ -1,56 +1,35 @@
 ---
-description: Bootstrap or upgrade a TestAtlas V2 workspace — creates `_testatlas/brain/` skeleton, registers adapters, and writes a v2 manifest.
+description: Bootstrap the _testatlas/ workspace tree in a target repository — 23 subdirs, 14 canonical files, and a project manifest — idempotently.
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/init.md" hash="0470e30796791feacdc833273f1c970ba065fc2ed98ad6c483a5c3e469935270" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/init.md" hash="a43e845ea810e84285e896905d2551418bacf65517236297e238da033581dadb" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-init.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Bring a target repository to a clean V2 baseline — `_testatlas/` directory tree (canonical V1 files preserved) PLUS the V2 brain skeleton (`_testatlas/brain/` with 22 files: 19 JSON + 3 JSONL). On an existing V1 workspace, run in `--mode upgrade` to ADD the brain skeleton without removing V1 artifacts.
+Bootstrap the `_testatlas/` workspace tree in the target repository: 23 top-level + nested subdirs, 14 canonical files, and a manifest that records project metadata, ISO-8601 timestamps, and `status: initialized`. The result is a durable quality-intelligence layer the next agent (or engineer) can pick up without prior knowledge of the application stack.
 
 ## Required First Reads
 
-- `.testatlas/bootstrap.md`
-- `.testatlas/default.config.json`
-- The target repository's `package.json` / `pyproject.toml` / `Cargo.toml` for runtime detection.
+- `.testatlas/bootstrap.md` — the constitution; rules-of-engagement.
+- `.testatlas/default.config.json` — workspace defaults (`workspaceDir`, `safeMode`).
+- The target repository's `package.json` / `pyproject.toml` / `Cargo.toml` (whichever is present) for runtime detection metadata that lands in `app_map.json`.
 
 ## Required Actions
 
-1. **Preferred path (if `shell`):** run `node .testatlas/scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-V1 repos run additive V2 upgrade with `status: partial-fill`. After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
-2. **V2 upgrade specifics:**
-   - Ensure `_testatlas/brain/` exists with all 22 required files (delegated to `init-workspace.js` Wave 0/1 helpers).
-   - Mirror schemas to `_testatlas/brain/schema/` for offline validation.
-   - Update `_testatlas/brain/manifest.json` with `schema_version: "2.0.0"`, `suite_version`, `initialized_at`, `last_updated`, `project_name`.
-3. **Adapter registration:** detect any agent-specific adapter directories (`.claude/`, `.cursor/`, `.opencode/`, etc.) and record them in `manifest.adapters`.
-4. **Fallback (no `shell`):** layout files manually per PRD §8 plus the V2 brain. Mark run `confidence: needs-validation` because runtime detection is unavailable.
-5. Validate the resulting manifest against `workspace-manifest.schema.json` AND `manifest.schema.json` (V2). If validation fails, halt and surface AJV errors verbatim.
-6. Close the lifecycle.
-
-## Allowed Tools
-
-- shell (preferred path)
-- file-write (atomic writes to `_testatlas/`; never to `.testatlas/`)
-- filesystem (read on suite tree + target repo's package metadata files)
-
-## Capability Degradation
-
-`shell` unavailable → manual fallback path. Mark `confidence: needs-validation`.
+1. **Preferred path (if `shell` is available):** run `node scripts/init-workspace.js` from the target repo root. The script is idempotent — fresh repos report `status: initialized`; previously-initialized repos report `status: already-initialized` and write nothing; partial workspaces are filled in non-destructively (`status: partial-fill`). After init, `node .testatlas/scripts/sync-status.js` reconciles `_testatlas/03_execution_status.md` AND `_testatlas/00_overview.md` generated sections from manifest counts in one call.
+2. **Fallback path (if `shell` is unavailable):** mark the run `confidence: needs-validation` per `bootstrap.md` §4 because shell-derived runtime detection is unavailable. Then perform the layout manually: create `_testatlas/` plus the 23 top-level subdirectories per PRD §8. Copy each `.testatlas/templates/canonical/<file>` to `_testatlas/<file>` (14 canonical files). Render `_testatlas/11_workspace_manifest.json` with `initializedAt` and `lastUpdatedAt` set to the current ISO-8601 timestamp, `status: initialized`, project name from the target repo, and zeroed `counts` for domains/flows/issues/evidence/runs/reports.
+3. Validate the resulting manifest against `.testatlas/schemas/workspace-manifest.schema.json`. If validation fails, halt and surface the AJV errors verbatim.
+4. Append the run record (command, started/finished timestamps, status, capability set used) to `_testatlas/history/run_log.md`.
+5. Close the lifecycle (next section).
 
 ## Outputs
 
-- `_testatlas/` directory tree (V1 23 subdirs + V2 brain).
-- 14 V1 canonical markdown files (already shipped); 22 V2 brain files (19 JSON + 3 JSONL).
-- `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
-- Lifecycle close + brain event.
-
-## Stop Conditions
-
-- `.testatlas/` suite tree missing → halt with `Run testatlas install first.`
-- Existing `_testatlas/` whose V1 manifest does not validate → halt; refuse to recreate without `--force`.
-- Target repo path is not writable → halt; never proceed silently.
-- `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable.
+- `_testatlas/` directory tree: 23 top-level subdirs (`domains/`, `flows/`, `evidence/`, `to_fix/`, `reports/`, `history/`, `tests/`, `runs/`, ...).
+- 14 canonical markdown files: `00_overview.md`, `01_product_understanding.md`, `02_personas.md`, `03_execution_status.md`, ..., `13_quality_scorecard.md`.
+- `_testatlas/11_workspace_manifest.json` — schema-valid manifest with project metadata + counts + `generatedSections` hash map.
+- A seeded `_testatlas/app_map.json` placeholder (filled in by `explore-codebase`).
 
 ## Lifecycle
 
@@ -62,24 +41,25 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute counts.
 - `_testatlas/history/run_log.md` — narrative log entry for this run.
 
+## Stop Conditions
+
+- `.testatlas/` suite tree missing → halt with `Run testatlas install first.`
+- Existing `_testatlas/` whose manifest does not validate against `workspace-manifest.schema.json` → halt; refuse to recreate without explicit `--force`.
+- Target repo path is not writable → halt; refuse to proceed silently.
+- `safeMode: true` and any required step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
+
 ## Completion Criteria
 
-- `_testatlas/11_workspace_manifest.json` validates and records `status: initialized` (or `partial-fill` for upgrade).
-- `_testatlas/brain/manifest.json` validates against `manifest.schema.json` (V2).
-- All 22 V2 brain files present.
-- Lifecycle artifacts updated.
-- A `command_completed` event recorded.
-
-## Post-Operation Brain Update
-
-Run `node .testatlas/scripts/update-brain-after-command.js --command init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
+- `_testatlas/11_workspace_manifest.json` exists, validates, records `status: initialized` (or `already-initialized` / `partial-fill`).
+- All 14 canonical files exist on disk.
+- A subsequent `validate-workspace` run reports zero errors.
+- The five lifecycle files listed above are updated.
 
 ## What's Next
 
-- `/atlas:status` — confirm the new workspace state.
-- `/atlas:validate-workspace` — confirm V1 schemas + manifest are clean before any exploration.
-- `/atlas:brain-validate` — confirm V2 brain integrity.
-- `/atlas:explore` — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available).
-- `/atlas:bootstrap` — re-load the constitution if you suspect context drift.
-- `/atlas:create-persona` — author new system or project personas for V2 council protocols.
+Now that the workspace is bootstrapped:
+
+- **`/atlas:validate-workspace`** — confirm schemas + manifest are clean before any exploration
+- **`/atlas:explore`** — start mapping the product (umbrella router; spawns sub-explorers in parallel when `subagent-spawn` is available)
+- **`/atlas:bootstrap`** — re-load the constitution if you suspect context drift
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

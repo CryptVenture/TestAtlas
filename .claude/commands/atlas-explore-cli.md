@@ -3,8 +3,8 @@ description: Map package scripts, binaries, and task runners for the target prod
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="6b7ef74be192a057d578da9fb9168644d4b24631cfd1a0fd59f5f3c4a6d0e8a0" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="cf6c068424d4ff087325edef6b5777a37085ec14fb6f419435f91e53e04dc70a" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-cli.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -48,14 +48,15 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - `destructive` — verbs `deploy`, `publish`, `push`, `release`, `drop`, `reset`, `purge`, `clean` (when it deletes), `migrate`, `seed`, `install` (modifies `node_modules` / lockfile), `prune`, `force`, `delete`, `truncate`, `restore`
    When `allowDestructiveActions=false` and a command is destructive, record the entry with `safety: destructive` and `executed: false`; do NOT invoke it. Surface refusal in `10_command_log.md`.
 5. For each `safe` command, run `<cmd> --help` (fall back to `-h`) and `<cmd> --version` if applicable. Use a short timeout (≤15s). Capture stdout, stderr, exit code, and the exact invocation under `_testatlas/evidence/explore-cli/<timestamp>/<cmd-slug>/help.txt`, `version.txt`, `meta.json`.
-6. Update `_testatlas/12_app_map.json` `cli-command` entries with: `name`, `source` (file path + line number), `runner` (npm / make / just / cargo / poe / etc.), `safety`, `executed`, `evidence` (array of paths from step 5), and any extracted subcommand list parsed from `--help`.
+6. Write the rich cli-command shape (`name`, `source` (file path + line number), `runner` (npm / make / just / cargo / poe / etc.), `safety`, `executed`, `evidence` (array of paths from step 5), and any extracted subcommand list parsed from `--help`) to `_testatlas/maps/cli-commands.json` (atomic, AJV-validated against `cli-command.schema.json`). Append only the cli-command **ID strings** (e.g. `CLI-<slug>`) to `_testatlas/12_app_map.json.cliCommands[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`).
 7. Validate the produced cli-command entries against `cli-command.schema.json`. Halt on validation failure; surface AJV errors verbatim.
 8. Append a CLI section to `_testatlas/01_system_map.md` listing the discovered runners, total command counts (safe / destructive), and pointers to the evidence directory.
 9. Close the lifecycle (next section).
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` — cli-command entries each citing at least one evidence path under `_testatlas/evidence/explore-cli/<timestamp>/`.
+- `_testatlas/12_app_map.json` `cliIds[]` — closed string array of CLI command IDs (e.g. `CLI-deploy-staging`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich command payloads do NOT live in this file.
+- `_testatlas/maps/cli-commands.json` — rich CLI command entries (invocation surface, safe/destructive classification, env requirements, evidence paths). This sidecar is the source of truth for the CLI contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-cli/<timestamp>/` — per-command subdirectories containing `help.txt`, `version.txt`, `meta.json` (invocation, exit code, duration).
 - Updated `_testatlas/01_system_map.md` — CLI section with runner inventory and safe/destructive counts.
 
@@ -69,6 +70,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the cli-command count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` CLI commands (`<safe>` safe, `<destructive>` destructive) into `12_app_map.json`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --summary "Mapped CLI commands into 12_app_map.json" --status completed --reindex`.
+
 ## Stop Conditions
 
 - Target repo ships no recognizable CLI surface (no scripts, no `bin/`, no Make/Just) → record an empty inventory citing the absence and close. Do not fabricate commands.
@@ -80,7 +83,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 - Every cli-command entry cites at least one evidence path that exists on disk under `_testatlas/evidence/explore-cli/<timestamp>/`.
-- Manifest `counts.cli-commands` (or analogous) is updated to match the on-disk map.
+- `_testatlas/12_app_map.json` `cliCommands[]` reflects every command with the canonical fields populated; the workspace manifest (`workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports`) tracks no per-explorer CLI count.
 - All safe commands have a captured `--help` and (when applicable) `--version` evidence file.
 - Every destructive command has `safety: destructive` and `executed: false` recorded.
 - The five lifecycle files above are updated.

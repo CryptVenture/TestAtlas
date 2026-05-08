@@ -1,10 +1,10 @@
 ---
 description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="ce24d72780f1cee2c7fa74ec817b0a7596499c2f8f378f654b137ed32a0764af" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="84fe6de83b473f2d4f6eec2dfcdf8b8a3a79d702417e7076c4bcdf300b667405" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -13,11 +13,12 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue layer structure) and §28 (severity + confidence vocabulary).
-- `.testatlas/vocabulary.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs`.
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — the severity + confidence vocabulary the agent must conform to during normalization.
+- `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs`.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every mutated issue must continue to satisfy.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The current `_testatlas/to_fix/by_severity/`, `_testatlas/to_fix/by_status/`, `_testatlas/to_fix/by_domain/` indexes.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most recent council session consolidations (filter to bug-triage mode); read to honor severity verdicts ratified by council.
 
 ## Required Actions
 
@@ -29,12 +30,22 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
    - same `domain` AND same `flow` AND repro-step similarity above a Levenshtein ratio of 0.8
    - any pair that references the same evidence file path under `_testatlas/evidence/`
    Two issues land in the same group if any heuristic links them. Record the heuristic that grouped them; the agent MUST be able to cite which rule fired.
-5. For each group, pick the lowest-numbered ID as the canonical. Mark every other member with status `triaged` and append `triagedAs: duplicate_of=ISSUE-NNNN` plus a history entry. The canonical itself is also marked `triaged` (history entry: "canonical for group `<group-id>`"). History entries are append-only; never rewrite prior entries.
+5. For each group, pick the lowest-numbered ID as the canonical. Mark every other member with status `triaged` and set the issue's optional `triagedAs` field to `duplicate_of=ISSUE-<canonical-id>` (per `issue.schema.json#/properties/triagedAs`, schema-pattern `^duplicate_of=ISSUE-\d+(-[a-z0-9]+(-[a-z0-9]+)*)?$` — closes ISSUE-060). Example sidecar fragment:
+
+   ```json
+   {
+     "id": "ISSUE-099-orphan-finding",
+     "status": "triaged",
+     "triagedAs": "duplicate_of=ISSUE-042-canonical-finding"
+   }
+   ```
+
+   The `triagedAs` field is optional and ONLY set when status transitions to `triaged` AND the triage verdict is "duplicate". For other triage verdicts (defer, reproduce, escalate), do not set `triagedAs`. Append a history entry capturing the canonical id and the heuristic that linked them. The canonical itself is also marked `triaged` (history entry: "canonical for group `<group-id>`"); the canonical does NOT carry `triagedAs`. History entries are append-only; never rewrite prior entries.
 6. **Normalize severity** against PRD §28 criteria — user impact, reach, reversibility — not technical effort. Re-evaluate every issue and write the chosen value as exactly one of: `critical`, `high`, `medium`, `low`, `enhancement`. Append a history entry with the old value, the new value, and the citation supporting the change. Never inflate severity to attract attention.
-7. **Normalize confidence** against `vocabulary.json` enum values: `confirmed`, `strong-suspect`, `needs-validation`. For each issue, walk every path in its `evidence` array and stat it on disk. Any issue with one or more missing evidence files is downgraded to `confidence: needs-validation` AND tagged for retest in the triage report. An issue whose evidence is all present and reproduces the failure first-hand is `confirmed`; partial / indirect evidence is `strong-suspect`.
+7. **Normalize confidence** against `vocabulary.schema.json` enum values: `confirmed`, `strong-suspect`, `needs-validation`. For each issue, walk every path in its `evidence` array and stat it on disk. Any issue with one or more missing evidence files is downgraded to `confidence: needs-validation` AND tagged for retest in the triage report. An issue whose evidence is all present and reproduces the failure first-hand is `confirmed`; partial / indirect evidence is `strong-suspect`.
 8. **Flag blockers.** Any issue satisfying (`severity == "critical"` AND `confidence ∈ {"confirmed", "strong-suspect"}`) MUST be appended to `_testatlas/to_fix/blockers.md` with its ID, title, domain, flow, evidence count, and the rationale that earned the blocker flag. Issues that no longer meet the rule (e.g. severity was downgraded this run) MUST be removed from `blockers.md` with a removal entry — `blockers.md` is regenerated as a snapshot.
 9. **Identify groups.** Beyond duplicate groups, cluster issues by `(domain, type, severity)` and write `_testatlas/to_fix/groups.md` listing every cluster with member counts, lowest-numbered exemplar, and a one-line description. This is the index `consolidate` consumes.
-10. **Re-derive indexes from disk** — never trust cached counts. Rebuild `_testatlas/to_fix/by_domain/<domain>.md`, `_testatlas/to_fix/by_severity/<severity>.md`, `_testatlas/to_fix/by_status/<status>.md` by walking every JSON sidecar.
+10. **Re-derive indexes from disk** — never trust cached counts. Rebuild `_testatlas/to_fix/by_domain/<domain>.md`, `_testatlas/to_fix/by_severity/<severity>.md`, `_testatlas/to_fix/by_status/<status>.md`, `_testatlas/to_fix/by_type/<type>.md` by walking every JSON sidecar.
 11. Write `_testatlas/to_fix/triage-report-<ts>.md` summarizing: total issues triaged, duplicate groups detected (per heuristic), severity changes (up + down with citations), confidence changes, blocker count delta, missing-evidence count, and the list of issues now flagged for retest. The report MUST be reproducible from the issue files alone.
 12. Validate every modified issue JSON against `.testatlas/schemas/issue.schema.json` before commit; halt on any AJV failure with the error verbatim.
 13. Close the lifecycle (next section).
@@ -69,7 +80,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 - Every issue in `_testatlas/to_fix/` has been re-evaluated; `severity` and `confidence` reflect on-disk evidence.
-- Every duplicate-candidate group has a canonical and the non-canonicals carry `triagedAs: duplicate_of=ISSUE-NNNN`.
+- Every duplicate-candidate group has a canonical and the non-canonicals carry the `triagedAs` field set to `duplicate_of=ISSUE-NNNN` (matching `issue.schema.json#/properties/triagedAs` pattern).
 - `triage-report-<ts>.md`, `blockers.md`, `groups.md`, and the per-domain / per-severity / per-status indexes are written and on disk.
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.
@@ -82,4 +93,5 @@ Now that the triage pass has run:
 - **`/atlas:retest`** — rerun fixed-pending-retest issues to confirm or regress
 - **`/atlas:consolidate`** — merge duplicate groups into canonical issues
 - **`/atlas:report`** — fold blockers + severity tallies into the next report
+- **`/atlas:council-bug-triage`** — escalate to a multi-persona council when severity is contested or the triage queue is large.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

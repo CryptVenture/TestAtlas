@@ -3,8 +3,8 @@ description: Re-execute the original repro for issues with status=fixed_pending_
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="dd3e535526bf20bf89e6a0652ef599a63c715d8a795c6d2d315ea097b1cb882d" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="3e5d0f1fe3248eef5080a02c09c4c8f33ca95bfd0c0307ad8c738859cc0873d5" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -13,8 +13,8 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue lifecycle) and §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — severity + confidence vocabulary the agent must conform to.
+- `.testatlas/schemas/vocabulary.schema.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every retested issue must continue to satisfy.
 - The target issue file pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}`.
 - `.testatlas/default.config.json` — adapter capability profile (whether `shell` is available).
@@ -31,7 +31,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
    - new behavior matches `actualBehavior` (still failing) → status transition: `fixed_pending_retest → reopened`
    - new behavior is ambiguous → keep status `fixed_pending_retest` and append a history entry asking the operator for a tiebreaker; do not guess.
 7. Append a retest entry to the issue's `history` array (**append-only — never delete prior entries, never edit prior entries**). The entry MUST include: `ts` (ISO-8601 UTC), `retester` (agent identifier), `status_before`, `status_after`, `evidence_paths` (the files captured in step 5), and a one-line `note`. The pre-existing `history` array is appended to in place, never rewritten.
-8. Update flow confidence on the issue's referenced flow: a passing retest pushes `flowStatus` toward `retested`; a failing retest pushes it toward `blocked` and feeds back into the flow's confidence count. Update `_testatlas/flows/<flow-id>/issues.md` accordingly.
+8. Update flow confidence on the issue's referenced flow: a passing retest pushes `flowStatus` toward `retested`; a failing retest pushes it toward `blocked` and feeds back into the flow's confidence count. Update `_testatlas/to_fix/by_flow/<flow-id>.md` accordingly (the canonical existing per-flow issue index, maintained by `log-issue.md` Required Actions step 9.5). Note: flows are file pairs (`flows/FLOW-<domain>-<slug>.{md,json}`) per `.testatlas/scripts/create-flow.js`, NOT directories — issue back-references for a flow live in the existing `_testatlas/to_fix/by_flow/<flow-id>.md` index, never in a directory under `flows/`.
 9. **Regression-tag rule.** If the retest fails (the issue moves to `reopened`), set `type: regression` on the issue (overwriting the prior type only if the prior type was not already `regression`) AND verify `severity ≥ original` — a regression may only escalate severity, never downgrade. Record the type change as a history entry with the prior type cited.
 10. Update per-status indexes: remove the issue from `_testatlas/to_fix/by_status/fixed_pending_retest.md` and add it to `by_status/closed.md` or `by_status/reopened.md` as applicable. Refresh the `by_severity/` index if severity changed.
 11. Validate every modified issue JSON against `.testatlas/schemas/issue.schema.json` before commit; halt on any AJV failure with the error verbatim.
@@ -42,7 +42,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 - Updated `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}` files: status transitioned, history entry appended, type promoted to `regression` if reopened.
 - New evidence directory `_testatlas/evidence/retest/<issue-id>/<ts>/` containing the freshly captured artifacts.
 - Refreshed per-status indexes under `_testatlas/to_fix/by_status/` (`fixed_pending_retest`, `closed`, `reopened`).
-- Updated per-flow `_testatlas/flows/<flow-id>/issues.md` reflecting the new flow confidence.
+- Updated per-flow index `_testatlas/to_fix/by_flow/<flow-id>.md` reflecting the new flow confidence (the canonical index path; flows themselves are file pairs `flows/FLOW-*.{md,json}`, not directories).
 - A run-log line summarizing pass / fail counts for the batch.
 
 ## Lifecycle
@@ -52,7 +52,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record the retest run, target IDs processed, pass / fail counts, and any regression tags applied.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new evidence directories and refreshed index pages must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` citing every issue ID retested and the evidence directory paths.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; refresh `counts.issues` per status; reflect new evidence under `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Retested `<n>` issues; `<c>` closed, `<r>` reopened (`<g>` regressions tagged)."
 
 ## Stop Conditions
@@ -81,4 +81,5 @@ Now that the retest pass has run:
 - **`/atlas:triage`** — re-classify any reopened regressions back into the queue
 - **`/atlas:report`** — fold retest outcomes into the next aggregate report
 - **`/atlas:log-issue`** — file new issues if retest surfaced fresh symptoms
+- **`/atlas:council-retest`** — formalize retest verdicts when outcomes are contested or coverage is unclear.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

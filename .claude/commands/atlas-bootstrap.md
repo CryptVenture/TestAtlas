@@ -1,10 +1,10 @@
 ---
 description: Refresh the agent's understanding of the TestAtlas constitution and reaffirm the rules in effect for this session per PRD §12.2.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="cb6b814404554b3e6eeeb914e1b1c96f97920650f88fe44d0415c377643836c5" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/bootstrap.md" hash="3c568acfae15c5bdaf23ef5d377173a2f51afc3c2c614970c91bf033a5e4fd28" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-bootstrap.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -69,13 +69,21 @@ marked `sequential` or `no` always take the sequential-fallback path; hosts
 marked `runtime-probe` default to false until the host's runtime confirms
 subagent capability is present.
 
+Note: sub-agents are a host-runtime concept (Claude sub-agents, KiloCode
+workflow steps, OpenCode subagent files, Codex `@subagent-name` invocations,
+etc.); the suite no longer ships a `templates/sub_agents/` directory because
+there is no workspace artifact for them. The sub-agent handoff template
+(`templates/handoffs/HANDOFF.md`) writes to `_testatlas/handoffs/` per
+`/atlas:handoff` — the workspace owns the contract record, not the runtime
+spawn primitive.
+
 ## Acceleration Scripts
 
 When `shell` is available, the suite ships idempotent, schema-validating accelerators under `.testatlas/scripts/`. Each named command below MAY invoke its accelerator instead of hand-rolling the artifact emission; manual fallback steps in every command remain intact for shell-less hosts (PRD §22).
 
 | Command | Accelerator | Effect |
 |---------|-------------|--------|
-| `/atlas:init` | `init-workspace.js` | Bootstrap `_testatlas/` tree + manifest |
+| `/atlas:core-init` | `init-workspace.js` | Bootstrap `_testatlas/` tree + manifest |
 | `/atlas:log-issue` | `create-issue.js` | Emit `to_fix/ISSUE-*.{md,json}` (refuses empty evidence) |
 | `/atlas:plan` | `create-flow.js` | Emit `flows/FLOW-*.{md,json}` |
 | `/atlas:test-flow` | `create-evidence-record.js` | Emit `evidence/EVIDENCE-*/evidence.{md,json}` |
@@ -118,6 +126,9 @@ The agent emits a one-sentence confirmation that all 24 PRD §9 sections of `.te
 
 Now that the constitution is reloaded:
 
-- **`/atlas:init`** — bootstrap the workspace if `_testatlas/` is missing or partial
+- **`/atlas:core-init`** — bootstrap the workspace if `_testatlas/` is missing or partial
 - **`/atlas:validate-workspace`** — confirm capability profile + degradation rules align with on-disk artifacts
+- **`/atlas:core-brain-validate`** — on V2 workspaces, validate the brain layer immediately after bootstrap.
+- **`/atlas:core-status`** — V2 status snapshot of the freshly bootstrapped workspace.
+- **`/atlas:core-bootstrap-refresh`** — long-running session shard refresh (V2 token-budget audit + bootstrap-shard regeneration).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

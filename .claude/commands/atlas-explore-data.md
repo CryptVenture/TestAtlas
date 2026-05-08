@@ -3,8 +3,8 @@ description: Map schemas, entities, lifecycle states, seed fixtures, queues, cac
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="2617317f4b1b1989d0bf5f3cbfd5214ed501dedefe984cdf35428a423921e9ee" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="b54dc3fb9ac4e7191687053120e3709e674f38cf1b87173b9009daf03d85fdb7" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -40,13 +40,14 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. Capture lifecycle states per entity: valid states (`status` enums, state-machine declarations like `aasm`/`xstate`, ActiveRecord `enum :status`, Prisma enum types), valid transitions (from state-machine declarations or explicit guard clauses), and terminal states. Cite source file and line range.
 6. Capture seed-fixture inventory: which scenarios bootstrap which records (e.g. `seed:demo`, `seed:test-fixtures`); cite seed file paths. Record only fixture identifiers and counts — never row payloads.
 7. Save raw evidence to `_testatlas/evidence/explore-data/<timestamp>/`: schema dumps (structure only), migration listings, seed paths, queue topic enumerations, cache prefix tables, bucket inventories.
-8. Update `_testatlas/12_app_map.json` data entries with discovered shape + lifecycle metadata + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
+8. Write the rich entity/data shape (lifecycle metadata, evidence references, schema dumps) to `_testatlas/maps/entities.json` (atomic, AJV-validated against the entity schema fragment). Append only the entity **ID strings** to `_testatlas/12_app_map.json.entities[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). Validate the resulting `12_app_map.json` against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
 9. Append a data-inventory section to `_testatlas/01_system_map.md` listing entities and lifecycle state machines.
 10. Close the lifecycle (next section).
 
 ## Outputs
 
-- Data entries in `_testatlas/12_app_map.json` — schema-valid models / queues / caches / storage entries, each citing evidence paths.
+- `_testatlas/12_app_map.json` `entityIds[]` (and related ID arrays) — closed string arrays of data-surface IDs; the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich data-surface payloads do NOT live in this file.
+- `_testatlas/maps/entities.json` — rich entity / queue / cache / storage entries with model definitions, migration paths, lifecycle state machines, and evidence paths. This sidecar is the source of truth for the data contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-data/<timestamp>/` — schema dumps (structure only), migration listings, seed paths, queue/cache/storage inventories.
 - Updated `_testatlas/01_system_map.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
 
@@ -57,7 +58,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, counts of entities / queues / caches / storage objects discovered.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and updated `12_app_map.json` must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.models`, plus queue/cache/storage counts if the manifest tracks them.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Entity/queue/cache/storage counts live in `12_app_map.json`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
 
 ## Stop Conditions

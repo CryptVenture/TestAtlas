@@ -3,8 +3,8 @@ description: Invoke the suite self-update flow — checks GitHub Releases per UP
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="b53bbcfc58bab7e8040647f4c8fddd27bea4d021d5a57a64efcec75018ad9968" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/update.md" hash="25f65d92df8207ca81459ff82f3ac88f7a2211eefdf45ca519236f95151332af" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-update.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -25,13 +25,16 @@ Invoke the suite self-update flow per UPDATE-01..07: check GitHub Releases for a
 3. **Honor disable flags (UPDATE-03).** Read `disableUpdateCheck` from `.testatlas/default.config.json` and check for the `--no-update-check` flag. If either is set, exit cleanly with the message `Update check disabled.` This is a clean exit, not a failure.
 4. **Workspace lockfile check (UPDATE-06).** If `_testatlas/.lock` exists, halt immediately with `In-flight test run detected; cannot update.` Updates while a test run is in progress can corrupt run output paths and break atomicity guarantees.
 5. **Read current version.** Load `.testatlas/VERSION`.
-6. **Fetch latest release (UPDATE-01).** Issue `GET https://api.github.com/repos/<owner>/<repo>/releases/latest` with a 5-second timeout via `web-fetch`. Parse the `tag_name` and `body` (release notes). Cache the result per `updateCheckTtlHours`.
+6. **Resolve latest release (UPDATE-01) — two-step contract.** `.testatlas/scripts/update.js` does NOT call GitHub Releases on its own (per the script header at `.testatlas/scripts/update.js:8-11` and the `--latest-version` flag at line 35). The caller (this command) is responsible for resolving the latest version and passing it via `--latest-version <ver>`. Resolution paths, in priority order:
+   - **`gh` CLI (preferred when authenticated):** `gh release view --repo <owner>/<repo> --json tagName -q .tagName` (parse the `vX.Y.Z` tag, strip the `v` prefix).
+   - **`web-fetch` capability:** `GET https://api.github.com/repos/<owner>/<repo>/releases/latest` with a 5-second timeout; parse `tag_name` and `body` (release notes). Cache the result per `updateCheckTtlHours`.
+   - If neither path is available: surface the offline state and exit cleanly per step 2's contract.
 7. **Compute semver delta.** Compare the current version against the latest release.
    - Equal versions → no-op; emit `Up to date.` and exit cleanly.
    - Pinned via `pinnedVersion`: apply `semver.satisfies(latest, pinnedRange)`. If the pin is satisfied by the current version and a newer release exists outside the pin, emit a stale-pin warning but do NOT prompt for update. If the pin range admits the latest release, proceed.
    - Latest is newer and admissible → continue to operator confirmation.
 8. **Operator confirmation (UPDATE-02).** Present the version delta, an excerpt of the release notes, and the migration notice (if `update.js` reports a schema migration is required). Require explicit operator confirmation before proceeding. **NEVER auto-apply.** A non-interactive run that cannot prompt MUST exit cleanly with `Update available; operator confirmation required; rerun interactively.`
-9. **Delegate to update.js (UPDATE-02).** On confirmation, shell-invoke `node .testatlas/scripts/update.js`. The runtime is responsible for: writing a `.testatlas.backup-<ts>/` directory, replacing the suite tree atomically, running schema migrations (UPDATE-05), and rolling back on any failure. This command captures stdout/stderr from that invocation.
+9. **Delegate to update.js (UPDATE-02).** On confirmation, shell-invoke `node .testatlas/scripts/update.js --latest-version <resolved-version>` passing the version resolved in step 6. The runtime is responsible for: writing a `.testatlas.backup-<ts>/` directory, replacing the suite tree atomically, running schema migrations (UPDATE-05), and rolling back on any failure. This command captures stdout/stderr from that invocation.
 10. **Surface failures.** If `update.js` exits non-zero, surface the error verbatim and instruct the operator to inspect the `.testatlas.backup-<ts>/` directory. Do NOT attempt rollback from this command — `update.js` owns atomicity. Never speculate about cause; report what `update.js` reported.
 11. Close the lifecycle (next section).
 
@@ -74,4 +77,5 @@ Now that the suite is on the latest version:
 
 - **`/atlas:validate-workspace`** — confirm schemas + manifest still validate after the swap
 - **`/atlas:bootstrap`** — reload the constitution if §-numbering or rules changed
+- **`/atlas:maintain-migrate`** — after a major-version suite update, run migration to align workspace artifacts with the new schema layout.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

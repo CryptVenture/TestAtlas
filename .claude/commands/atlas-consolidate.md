@@ -1,10 +1,10 @@
 ---
 description: Squash issue duplicates per triage groupings; inherit highest severity + lowest-bound confidence; refresh _testatlas/13_quality_scorecard.md longitudinal series.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="81e20de746d43b6d44d13da28362495c01753d28599df6821a7be68c07d00311" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="779b551c493c03617ba55403c6a99e7234332eedfa161c77a0000889be02e0c3" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -13,8 +13,8 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue layer), §20 (report sections), §28 (severity / confidence vocabulary).
-- `.testatlas/vocabulary.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — severity + confidence vocabulary the agent must conform to during merge.
+- `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The most-recent `_testatlas/to_fix/triage-report-*.md` and `_testatlas/to_fix/groups.md`.
 - `_testatlas/13_quality_scorecard.md` (append-only longitudinal target).
@@ -30,8 +30,27 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
    3. **Confidence lowest-bound rule.** Walk every group member's `confidence` and set the canonical's `confidence` to the minimum (`needs-validation < strong-suspect < confirmed`). If any member is `needs-validation`, the canonical becomes `needs-validation` until a subsequent retest re-confirms.
    4. **Merge evidence (uniq).** Concatenate every member's `evidence` array onto the canonical's, then deduplicate by absolute path string. Never drop an evidence reference on merge — losing a path on consolidation is the loudest possible audit failure.
    5. **Append repro alternates.** Add every duplicate's `reproductionSteps` as an alternate-repro block in the canonical's markdown body, prefixed with the source ID. The canonical's primary repro is unchanged.
-   6. **Close the duplicates.** Set non-canonical members to `status: closed` with `closedAs: consolidated_into=ISSUE-NNNN` and append a history entry citing the canonical. The duplicate's content is preserved on disk; only its status flips.
-4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- testatlas:generated:start --> ... <!-- testatlas:generated:end -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).
+   6. **Close the duplicates.** Set non-canonical members to `status: closed` and set the issue's optional `closedAs` field to `consolidated_into=ISSUE-NNNN` (per `issue.schema.json#/properties/closedAs` — closes ISSUE-062). Append a history entry citing the canonical. The duplicate's content is preserved on disk; only its status + closedAs flip.
+
+   **`closedAs` recommended values** (per `issue.schema.json#/properties/closedAs`, free-form short reason — string literals, written without quotes when stored as the field value, shown quoted here as JSON-string examples):
+   - `"fixed"` — the underlying defect was repaired and verified by retest
+   - `"wont_fix"` — accepted as a known limitation
+   - `"duplicate"` — supersedes `triagedAs=duplicate_of=...` upon closure when no canonical merge happened
+   - `"consolidated_into=ISSUE-NNNN"` — used by THIS command to mark a non-canonical that was merged into a canonical; preserves the audit trail back to the canonical
+   - `"not_real"` — the dogfood/audit claim was reviewed and rejected
+   - (free-form short reason) — for cases that don't fit the above
+
+   Example sidecar fragment for a consolidated duplicate:
+
+   ```json
+   {
+     "id": "ISSUE-042-finding",
+     "status": "closed",
+     "closedAs": "consolidated_into=ISSUE-040-canonical-finding",
+     "lastUpdatedAt": "<ISO-8601 timestamp>"
+   }
+   ```
+4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- TESTATLAS:GENERATED:START --> ... <!-- TESTATLAS:GENERATED:END -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).
    - **severity-weighted issue load over time** — sum (`critical`×8 + `high`×4 + `medium`×2 + `low`×1 + `enhancement`×0.5) per period.
    - **confidence distribution over time** — counts of `confirmed` / `strong-suspect` / `needs-validation` per period.
    - **resolution velocity** — issues opened per period vs. issues moved to `closed` per period (the slope is the velocity).
@@ -51,7 +70,7 @@ For each independent summarization area in `{issues-by-severity, issues-by-confi
   Spawn a sub-agent with this brief (markdown convention):
     - **objective:** "Summarize `<area>` across the workspace in the form ready to merge into `_testatlas/13_quality_scorecard.md`."
     - **scope:** "All artifacts under the named area (e.g., for `issues-by-severity` — every `_testatlas/to_fix/ISSUE-*.json` plus the per-severity indexes under `_testatlas/to_fix/by_severity/`)."
-    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
+    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/tests/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
     - **output-format:** "Markdown section ready to merge into `_testatlas/13_quality_scorecard.md` between the generated-section markers, plus a JSON fragment with the longitudinal counts the umbrella appends to the scorecard's history block."
     - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella merges all area summaries into `13_quality_scorecard.md` (preserving append-only history) and refreshes `coverage.md` + `regressions.md`.
     - **exit-criteria:** "Section is self-contained, accurate against on-disk records, and length-bounded; counts are derived from disk (never cached)."
@@ -108,4 +127,6 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - **`/atlas:report`** — fold the consolidated set into the next REPORT
 - **`/atlas:handoff`** — package the workspace for another operator
+- **`/atlas:core-brain-sync`** — re-index brain state after consolidation to reflect new artifacts.
+- **`/atlas:core-brain-validate`** — confirm the brain layer remains coherent after consolidation.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

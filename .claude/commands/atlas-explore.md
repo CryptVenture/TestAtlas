@@ -3,8 +3,8 @@ description: Umbrella explorer orchestrator — classifies sub-explorers, spawns
 allowed-tools: Read, Write, Edit, Glob, Grep
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b3a9f9d5624aae1a5026c58e5ffa73c6b945b8c8711e397f1eda1ffcd5c083f3" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="ff31675db52f260ec4017e163fe76f72785a2c79b0e5c98cc6c73debba40c0a5" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -30,7 +30,7 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
    - `subagent-spawn` unavailable + no sequential mode → `classify-only` (degraded — record on the run, surface as a coverage-gap).
    - 0 non-cached recommended children (all cached or all skip) → `no-op`.
 6. **Spawn children** per the selected mode using the host's invocation pattern from `bootstrap.md` Capability Degradation. Pass each child the 6-slot brief defined in the Sub-Agent Orchestration section below.
-   - **Fallback (Option B):** empty child evidence dir → umbrella materializes inline text to `inline-findings.md` (bootstrap §8).
+   - **Fallback Path:** empty child evidence dir → umbrella materializes inline text to `inline-findings.md` (bootstrap §8).
 7. **Aggregate** child findings into `_testatlas/02_product_overview.md` with 5 generated sections, each wrapped in `<!-- TESTATLAS:GENERATED:START section="..." -->` / `<!-- TESTATLAS:GENERATED:END section="..." -->` markers per the `00_overview.md` / `01_system_map.md` convention: `executive-summary`, `surface-matrix`, `child-results-table`, `coverage-gaps`, `last-updated`. If a child's evidence dir is empty, materialize inline text to `inline-findings.md` (bootstrap §8).
 8. Write the routing record `_testatlas/explore-plan.md` with the classification, recommended invocation order (suggested baseline: codebase → docs → runtime → data → api → ui → integrations → cli → accessibility → performance → security), per-skip rationale, and time-budget estimates (small / medium / large) per recommended sub-explorer.
 9. **Failure handling.** If a spawned child halts, record the halt in the child-results-table with `status:halted` plus the child's error code; surface the child's coverage as a gap under `coverage-gaps`. The umbrella halts ONLY if every spawned child halts. Run `status:ok` when ≥1 child completed; `status:partial` when ≥1 halt + ≥1 ok; `status:failed` only when every child halted.
@@ -40,7 +40,7 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
 
 This umbrella is a spawn-and-aggregate orchestrator. When the host declares the `subagent-spawn` capability (per `bootstrap.md` Capability Degradation), the umbrella spawns each recommended non-cached child in parallel via the Agent tool and aggregates their structured findings into `_testatlas/02_product_overview.md`. See Required Actions step 5 for the full `executionMode` selection logic; the 5 enum values are `parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, and `no-op`.
 
-The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
+The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security, explore-tests}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
 
 **Per-child brief contract** (the placeholder `[child]` stands for the chosen sub-explorer name like `codebase`, `ui`, `api`, etc.):
 
@@ -88,6 +88,41 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `10_command_log.md` row records `executionMode` matching the selected mode.
 - Zero stop conditions triggered.
 
+## Explorer Classification
+
+Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps the concern to its slash command; invoke directly or via `/atlas:explore-all`.
+
+### V1
+
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-codebase` | Repository structure, package signals, app map |
+| `/atlas:explore-ui` | User-facing routes, pages, components |
+| `/atlas:explore-cli` | Binaries, scripts, CLI entry points |
+| `/atlas:explore-api` | HTTP/RPC/GraphQL endpoints, contracts |
+| `/atlas:explore-docs` | Project docs, READMEs, guides |
+| `/atlas:explore-runtime` | Runtime tooling, CI, package managers |
+| `/atlas:explore-data` | Models, migrations, persistent stores |
+| `/atlas:explore-integrations` | External services (auth, payment, analytics) |
+| `/atlas:explore-accessibility` | A11y compliance, ARIA, keyboard surfaces |
+| `/atlas:explore-performance` | Budgets, slow-path heuristics, bundle cost |
+| `/atlas:explore-security` | Auth surfaces, credentials, secret handling |
+
+### V2
+
+| Slash | Concern |
+|---|---|
+| `/atlas:explore-state` | UI state machines, hydration (PRD §13.1) |
+| `/atlas:explore-errors` | Error boundaries, fallback UI, retry |
+| `/atlas:explore-components` | Component inventory, prop contracts |
+| `/atlas:explore-routes` | Route table, guards, redirects |
+| `/atlas:explore-jobs` | Workers, queues, schedulers |
+| `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
+| `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates (bridges V1 surfaces and V2 brain — its outputs feed the V1-style `tests/matrix.json` index even when invoked via the V2 classification pass) |
+| `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
+| `/atlas:explore-release-readiness` | Release-readiness signals |
+
 ## What's Next
 
 Now that the explore-plan is routed and the product overview aggregated:
@@ -95,4 +130,7 @@ Now that the explore-plan is routed and the product overview aggregated:
 - **`/atlas:map-domains`** — group explorer findings into testable domains
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
 - **`/atlas:test-flow`** — start executing flows immediately if scope is already clear
+- **`/atlas:council-domain-review`** — escalate exploration findings into a council quality gate per domain.
+- **`/atlas:council-flow-review`** — escalate flow-related findings into a council quality gate.
+- **`/atlas:explore-all`** — V2 router covering V2 explorers (state, errors, components, routes, jobs, security-privacy, observability, tests, brain, release-readiness).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

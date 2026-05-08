@@ -1,10 +1,10 @@
 ---
 description: Inventory README, PRDs, stories, ADRs, specs, and supporting docs in the target repo; normalize substantial requirements into _testatlas/stories/; flag stale or conflicting docs.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="9bf4da2b2e49b2588e9f8e0b0bb97c4101433c368f123153c0a229c4c1eecf0b" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-docs.md" hash="aadcf9d6bb98a5319dd33ad756a13379335d99dd3a090b1e45a99a58d0eeef4f" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-docs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -31,7 +31,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 ## Required Actions
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8, every doc-inventory entry, stale flag, and conflict report this command produces MUST cite an evidence file path under `_testatlas/evidence/explore-docs/<timestamp>/`. Fabricated paths and invented document content fail `validate-workspace`.
-2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. No shell / browser / MCP fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
+2. Capability check. This command requires only `file-write` (the workspace tree); it is read-only against the target repo. Pure-reasoning command — no accelerator-tool fallback applies. If filesystem read access to the target tree is unexpectedly denied, halt — never invent doc content.
 3. Enumerate doc sources, in this order:
    - `README.md` (root) and any nested READMEs
    - `CHANGELOG.md`, `HISTORY.md`, release notes
@@ -66,6 +66,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/10_command_log.md` — append a row per `command-result.schema.json`.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the docs and stories counts.
 - `_testatlas/history/run_log.md` — narrative entry: "Inventoried `<n>` docs; normalized `<n>` stories; flagged `<n>` stale and `<n>` conflicting."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-docs --actor agent --summary "Inventoried docs and normalized user stories" --status completed --reindex`. If `shell` is unavailable, the brain-update hook cannot run; record `tool_unavailable: shell` in the command-log entry and rely on the next run with `shell` available to refresh brain state.
 
 ## Stop Conditions
 

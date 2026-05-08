@@ -3,8 +3,8 @@ description: Umbrella test orchestrator — runs `/atlas:test-flow --all` AND `/
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, mcp__*
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="51dcb1f2467020002fd11d093f1eac6906c81df59dc594d2e906cf8f84e4f1f0" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-all.md" hash="49fab5e12b0ceca2784cc40b3558bc85114cd0b908ce17c55b2207c8fd5408ee" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-test-all.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -13,7 +13,7 @@ Full-coverage test replay across the entire test surface in one command. `/atlas
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §3 (precedence), §4 (capability degradation), §8 (no-evidence-no-finding).
-- `_testatlas/tests/matrix.md` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if every sidecar is missing, halt with `Run /atlas:plan first.`
+- `_testatlas/tests/matrix.json` and `_testatlas/tests/scenarios/TEST-*.{md,json}` — the planned scenarios; if `matrix.json` is missing AND every per-scenario sidecar is also missing, halt with `Run /atlas:plan first.`
 - `_testatlas/11_workspace_manifest.json` — initialization status, existing run counts.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` and `.testatlas/schemas/evidence.schema.json` — schemas for the merged sidecar and child evidence.
@@ -53,7 +53,7 @@ Spawn-and-aggregate orchestrator. When the host declares `subagent-spawn`, the u
 
 - **objective:** "Execute every in-scope scenario for `<child>` against the target product per the `--all` mode contract."
 - **scope:** "Scenarios partitioned to `<child>` by the umbrella, plus the PRD §13/§26 procedure the child documents."
-- **files-to-read:** "`.testatlas/commands/<child>.md`; the per-scenario sidecars partitioned to this child; relevant `_testatlas/flows/<slug>/flow.{md,json}`; `test-run.schema.json` and `evidence.schema.json`."
+- **files-to-read:** "`.testatlas/commands/<child>.md`; the per-scenario sidecars partitioned to this child; relevant `_testatlas/flows/FLOW-<slug>.{md,json}`; `test-run.schema.json` and `evidence.schema.json`."
 - **output-format:** "RUN sidecar pair per `test-run.schema.json` with per-state evidence under `_testatlas/evidence/runs/<run-id>/`. Capability-blocked scenarios appear as `status: 'skipped'` with `skipReason`."
 - **may-write:** "child writes only to `_testatlas/evidence/runs/<run-id>/` and per-child run record. Child MUST NOT write `_testatlas/to_fix/` — umbrella aggregates suggestions."
 - **exit-criteria:** "Run record persisted; status recorded; evidence redacted; RUN JSON validates. Capability-blocked skips do NOT count as halts."
@@ -63,7 +63,7 @@ Spawn-and-aggregate orchestrator. When the host declares `subagent-spawn`, the u
 ## Outputs
 
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `_testatlas/tests/runs/RUN-<timestamp>.json` — merged run record with per-scenario results from BOTH children, executionMode metadata, and a `children:` sub-object.
-- Per-child RUN pairs survive at their authored locations (test-flow → `_testatlas/tests/runs/`; test-domain → `_testatlas/runs/`).
+- Per-child RUN pairs survive at their authored locations under `_testatlas/tests/runs/`. All test-* runners write to `_testatlas/tests/runs/RUN-<ts>` — there is no per-runner output-path split.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/` — owned by the executing child.
 - Optional `_testatlas/tests/runs/RUN-<timestamp>.suggestions.md` — aggregate issue candidates, deduped.
 - Updated flow + domain confidence for every flow/domain touched.
@@ -75,8 +75,10 @@ Update these workspace artifacts in PRD §40 order:
 - `_testatlas/03_execution_status.md` — merged run id, executionMode, aggregated counts, capabilities used + unavailable, references to per-child run ids.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json`; record `executionMode`.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs` by ONE (per-child runs accounted for via `children:`); recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by ONE (per-child runs accounted for via `children:`); recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "RUN-`<timestamp>` (test-all, executionMode `<mode>`) executed `<n>` scenarios — `<n>` passed / `<n>` failed / `<n>` skipped / `<n>` blocked."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-all --actor agent --summary "Executed all scenarios across the matrix" --status completed --reindex`.
 
 ## Stop Conditions
 
@@ -93,7 +95,7 @@ Update these workspace artifacts in PRD §40 order:
 - The merged record's `children:` sub-object lists both per-child run ids (when both ran); a no-op child appears as `status: 'no-op'` with rationale.
 - Every recorded result cites evidence paths that exist on disk.
 - `10_command_log.md` row records `executionMode` matching the selected mode.
-- Manifest `counts.runs` is incremented by exactly 1; `counts.evidence` matches disk.
+- Manifest `counts.testRuns` is incremented by exactly 1; `counts.evidenceRecords` matches disk.
 - Flow + domain confidence updated for every flow/domain touched.
 - The five lifecycle files updated.
 - Zero stop conditions triggered.

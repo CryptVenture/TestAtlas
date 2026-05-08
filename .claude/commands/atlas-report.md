@@ -1,10 +1,10 @@
 ---
 description: Aggregate runs, issues, evidence, and coverage into reports/REPORT-latest.md (and a timestamped copy) with all 17 PRD §20 sections; refresh per-area views and the quality scorecard.
-allowed-tools: Read, Write, Edit, Glob, Grep
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="c5dd3fee74a0529bc441be6e0f9e8f95407e5bad3af4312e47c924ef81739390" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report.md" hash="95930579b6c85c1be2fdc330662e364671f49052a9009624f1bfaef431c078a1" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-report.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -18,10 +18,13 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 - `_testatlas/12_app_map.json` and `_testatlas/domains/*/domain.json` — coverage denominators (apps / routes / domains / flows).
 - The previous `_testatlas/reports/REPORT-*.md` if any — for the trend-vs-prior section (last section).
 - `.testatlas/schemas/report.schema.json` — required JSON shape and section list.
+- `_testatlas/brain/quality_scores.json` — brain layer quality score signals; readiness verdict must reflect current scores.
+- `_testatlas/brain/drift.json` — brain layer drift signals; readiness verdict must flag stale or contested artifacts.
+- `_testatlas/agents/councils/sessions/*/consolidation.json` — most-recent council consolidation per mode (release-readiness primarily); read to honor council verdicts.
 
 ## Required Actions
 
-1. **Preferred path (if `shell` is available):** run `node .testatlas/scripts/generate-report.js [--report-path=<custom>] [--workspace <p>] [--dry-run]`. The script aggregates every `tests/runs/RUN-*.json` and `to_fix/ISSUE-*.json` on disk, computes coverage denominators from `12_app_map.json` and `domains/*/domain.json`, AJV-validates the produced JSON against `report.schema.json` BEFORE write, and halts with `TESTATLAS_MISSING_EVIDENCE_REF` if any cited evidence path does not resolve on disk (no-evidence-no-finding enforced at report-generation time). On success, the script writes both `REPORT-latest.{md,json}` and a timestamped historical copy. The four per-area views (`regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md`) and `13_quality_scorecard.md` are still refreshed by the manual steps below — skip step 13 only. **Manual path (no `shell`):** items 2–16 below describe each step the runtime performs.
+1. **Preferred path (if `shell` is available):** run `node .testatlas/scripts/generate-report.js [--report-path=<custom>] [--workspace <p>] [--dry-run]`. The script aggregates every `tests/runs/RUN-*.json` and `to_fix/ISSUE-*.json` on disk, computes coverage denominators from `12_app_map.json` and `domains/*/domain.json`, AJV-validates the produced JSON against `report.schema.json` BEFORE write, and halts with `TESTATLAS_MISSING_EVIDENCE_REF` if any cited evidence path does not resolve on disk (no-evidence-no-finding enforced at report-generation time). On success, the script writes both `REPORT-latest.{md,json}` and a timestamped historical copy. The four per-area views (`regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md`) and `13_quality_scorecard.md` are still refreshed by the manual steps below — skip steps 2-13 (the script covers steps 2-13 of the manual path; continue at step 14 to refresh per-area views and the scorecard). **Manual path (no `shell`):** items 2–16 below describe each step the runtime performs.
 2. **No evidence, no finding.** Per `bootstrap.md` §8, every claim this command produces MUST cite an evidence file path under `_testatlas/evidence/`. Fabricated paths fail `validate-workspace`.
 3. Aggregate runs: counts by type (smoke / user-flow / exploratory / regression / negative / state / accessibility / performance / security / data-integrity per PRD §26), pass/fail/skipped/blocked tallies, capabilities used, capabilities unavailable, environment fingerprints. Cite each contributing `RUN-<timestamp>.json` by path.
 4. Aggregate issues: by severity (critical / high / medium / low / enhancement) and by confidence (confirmed / strong-suspect / needs-validation) per PRD §28. Cite each contributing issue id and its evidence chain.
@@ -41,7 +44,7 @@ Aggregate runs, issues, evidence, and coverage into `_testatlas/reports/REPORT-l
 
 ## Outputs
 
-- `_testatlas/reports/REPORT-latest.md` — narrative report with all 17 PRD §20 sections in order: (1) Run summary; (2) Coverage; (3) Domains explored; (4) Flows tested; (5) Tests run by type; (6) Key findings; (7) Severity breakdown; (8) Confidence breakdown; (9) Blockers; (10) Regressions; (11) Gaps; (12) Assumptions; (13) Risks; (14) Capabilities used / unavailable; (15) Next actions; (16) Readiness assessment; (17) Trend (vs prior REPORT).
+- `_testatlas/reports/REPORT-latest.md` — narrative report with all 17 PRD §20 sections in order, verbatim per `.testatlas/scripts/generate-report.js` `REPORT_SECTIONS` (lines 34-52): (1) Run Summary; (2) Coverage; (3) Key Findings; (4) Severity Breakdown; (5) Confidence Breakdown; (6) Blockers; (7) Gaps; (8) Assumptions; (9) Next Actions; (10) Readiness Assessment; (11) Regressions; (12) Quality Risks; (13) Test Pyramid Health; (14) Evidence Catalog Summary; (15) Capability Degradation Notes; (16) Scorecard Snapshot; (17) Run Log Tail.
 - `_testatlas/reports/REPORT-latest.json` — schema-valid sidecar matching `report.schema.json`.
 - `_testatlas/reports/REPORT-<timestamp>.md` — historical immutable copy.
 - Refreshed `_testatlas/reports/regressions.md`, `readiness.md`, `coverage.md`, `quality_risks.md`.
@@ -54,7 +57,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record report id, readiness assessment, blocker count.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new REPORT pair + timestamped copy + refreshed views).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this report.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`; update `counts.scorecard`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.reports`. (`13_quality_scorecard.md` is a single canonical file refreshed in step 14, not a counted artifact — `workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "REPORT-`<timestamp>` — readiness `<verdict>`; `<n>` blockers, `<n>` regressions, coverage `<pct>%`."
 
 ## Stop Conditions
@@ -83,5 +86,8 @@ Now that the report is generated:
 
 - **`/atlas:consolidate`** — merge with prior reports for trend analysis
 - **`/atlas:handoff`** — package the workspace for another agent or engineer
-- **`/atlas:cleanup`** — archive resolved evidence to keep the workspace lean
+- **`/atlas:council-release-readiness`** — formalize the readiness verdict via council when the report flags contested risks.
+- **`/atlas:report-release`** — V2 release report incorporating quality scores and brain signals; pair with `/atlas:report-domain` to drill into a single domain's quality score, drift, issues, and coverage.
+- **`/atlas:report-domain`** — domain-scoped quality report (drift, issues, coverage) when one domain needs targeted attention.
+- **`/atlas:brain-score`** — re-score the workspace using the report's findings as input.
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

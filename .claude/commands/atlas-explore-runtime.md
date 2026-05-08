@@ -3,8 +3,8 @@ description: Map how to run the target product safely — package scripts, Docke
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="c8e80c40a2254699597f3856f714974e8aaccdab62072ed963e7bbaccfdb1ed2" -->
-First read `.testatlas/bootstrap.md`. Then read this command file. Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="30ce066f94e9727738c13868c6f23c53dbde75b282d8fd15bb04fa7e36df6aa6" -->
+First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
@@ -54,13 +54,36 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - Migration / seed inventory (paths + tooling identified).
 7. Update `_testatlas/00_overview.md` runtime-detection metadata. Preserve human content using generated-section markers (`<!-- testatlas:runtime-start -->` ... `<!-- testatlas:runtime-end -->`); only the content between markers is rewritten. If markers are missing, append a new managed section at the end of the file.
 8. Append a Runtime section to `_testatlas/01_system_map.md` summarizing services, ports, ENV-key counts, migration tooling.
-9. Close the lifecycle (next section).
+9. **Schema-aligned runtime metadata.** Write runtime-metadata enrichment to `_testatlas/12_app_map.json` under the top-level `runtimeMetadata` object property (added to `app-map.schema.json` in Phase 20-01). The shape is closed (`additionalProperties: false`):
+
+   - `node` (string, optional) — Node version target/observed
+   - `platform` (string, optional) — OS or runtime platform
+   - `envVars` (string[], optional) — env-var KEYS referenced by the app (KEYS only, never values)
+   - `featureFlags` (string[], optional) — feature-flag identifiers
+   - `evidence` (string, optional) — pointer to evidence record id
+
+   Example:
+   ```json
+   {
+     "runtimeMetadata": {
+       "node": "20.11.0",
+       "platform": "linux",
+       "envVars": ["DATABASE_URL", "REDIS_URL"],
+       "featureFlags": ["NEW_CHECKOUT_FLOW"],
+       "evidence": "EVIDENCE-090-runtime"
+     }
+   }
+   ```
+
+   DO NOT invent keys outside this shape. Off-schema findings → sidecar `_testatlas/maps/runtime.json` per bootstrap escape hatch. If this command invokes `redact-evidence.js`, only the `--evidence-id <id>` per-record form is supported (no `--scan`, no positional path). Universal `node .testatlas/scripts/<name>.js` form preserved.
+10. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/evidence/explore-runtime/<timestamp>/` — env-keys.json, compose-config.json, image-inspect.json, port-bindings.json, migration-inventory.json.
 - Updated `_testatlas/00_overview.md` — runtime metadata between generated-section markers.
 - Updated `_testatlas/01_system_map.md` — Runtime section.
+- Updated `_testatlas/12_app_map.json` top-level `runtimeMetadata` object (schema-aligned per `app-map.schema.json`).
 
 ## Lifecycle
 
@@ -69,8 +92,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence directory path, service / port / ENV-key counts.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (new evidence directory must appear).
 - `_testatlas/10_command_log.md` — append a row per `command-result.schema.json`. Note any halts or refusals (live-secrets detection, host-volume mounts, missing flags).
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute runtime-related counts.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` services across `<n>` ports with `<n>` ENV keys; flagged `<n>` safety stops."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-runtime --actor agent --summary "Captured runtime metadata for services, ports, and ENV keys" --status completed --reindex`.
 
 ## Stop Conditions
 
