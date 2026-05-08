@@ -55,7 +55,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `.testatlas/reference/chrome-devtools-mcp.md` § *State-coverage walkthrough* and § *Interactive-surface walkthrough* — canonical UI walkthroughs invoked by the `state` branch when scenarios target UI surfaces. The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — the planned scenarios; if missing, halt.
-- `_testatlas/flows/<slug>/flow.{md,json}` for any flow referenced by a scenario — preconditions, oracle.
+- `_testatlas/flows/FLOW-<slug>.{md,json}` for any flow referenced by a scenario — preconditions, oracle.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting` flags.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the RUN sidecar (`type` enum includes all PRD §26 values).
 - `.testatlas/schemas/evidence.schema.json` — required shape for evidence sidecars (TEST-03 redaction discipline).
@@ -93,7 +93,7 @@ Execute domain-scoped test scenarios from `_testatlas/tests/matrix.json` against
 
 - `_testatlas/tests/runs/RUN-<timestamp>.{md,json}` — schema-valid run record with per-scenario results, mode tags, evidence paths.
 - `_testatlas/evidence/runs/<run-id>/<scenario-id>/<mode>/` — captured request/response/state/before-after evidence.
-- Updated flow confidence in `_testatlas/flows/<slug>/flow.json` for every flow touched.
+- Updated flow confidence in `_testatlas/flows/FLOW-<slug>.json` for every flow touched.
 
 ## Lifecycle
 
@@ -104,6 +104,8 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/10_command_log.md` — append row per `command-result.schema.json` referencing this run id.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
+
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-domain --actor agent --status completed --reindex`.
 
 ## Stop Conditions
 

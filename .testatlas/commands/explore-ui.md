@@ -110,6 +110,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.{routes,components,evidence}`.
 - `_testatlas/history/run_log.md` — narrative: "Mapped `<n>` routes / `<n>` components / `<n>` breakpoints / `<n>` evidence files in `_testatlas/evidence/explore-ui/<ts>/`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-ui --actor agent --status completed --reindex`.
+
 ## Stop Conditions
 
 - `_testatlas/12_app_map.json` empty of UI routes → halt: "Run `/atlas:explore-codebase` first." Do not invent routes.

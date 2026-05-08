@@ -96,6 +96,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the docs and stories counts.
 - `_testatlas/history/run_log.md` — narrative entry: "Inventoried `<n>` docs; normalized `<n>` stories; flagged `<n>` stale and `<n>` conflicting."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-docs --actor agent --status completed --reindex`.
+
 ## Stop Conditions
 
 - No docs found anywhere in the target tree → record an empty doc inventory citing the absence and close (this is not a halt; many small repos legitimately ship without docs).
