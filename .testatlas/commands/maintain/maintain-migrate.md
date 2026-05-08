@@ -62,7 +62,7 @@ produces a no-op success. Always safe to retry.
 1. **Backup first (always).**
    - Before any V2 write, the migration script ALWAYS creates a directory-copy
      backup at `_testatlas.bak.<ISO8601-fs-safe>` via `cp(wsDir, backupPath, { recursive: true, force: true })`
-     (`scripts/v2-migrate.js:166-167`). The backup is unconditional once the
+     (`.testatlas/scripts/v2-migrate.js:166-167`). The backup is unconditional once the
      script proceeds past the no-op early-exits (no-workspace / already-v2);
      it is NOT skippable, NOT optional, and NOT user-elidable.
    - The backup format is **directory copy only** — no tarball is produced by
@@ -107,7 +107,7 @@ produces a no-op success. Always safe to retry.
 
 ## Backup + Rollback
 
-- **Backup** — always taken before mutation by `scripts/v2-migrate.js` (unconditional once the script proceeds past the no-op early-exits). Path is `_testatlas.bak.<ISO8601-fs-safe>` — a directory copy only (no tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`). The migration run record cites the backup path so it can be located later.
+- **Backup** — always taken before mutation by `.testatlas/scripts/v2-migrate.js` (unconditional once the script proceeds past the no-op early-exits). Path is `_testatlas.bak.<ISO8601-fs-safe>` — a directory copy only (no tarball), where `<ISO8601-fs-safe>` is the ISO-8601 timestamp with `:` and `.` replaced by `-` (e.g. `2026-05-08T12-34-56-789Z`). The migration run record cites the backup path so it can be located later.
 - **Rollback** — to revert: stop any running TestAtlas commands, remove the migrated `_testatlas/` directory, and restore from the backup directory (`mv _testatlas.bak.<ISO8601-fs-safe> _testatlas`). After rollback, `validate-workspace` should report a clean V1 state.
 - **Re-running** the migration after rollback is safe — the script is idempotent.
 

@@ -69,7 +69,7 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Outputs
 
-- `_testatlas/` directory tree — 23 V1 top-level subdirectories + 23 V1 nested subdirectories + 16 V2 nested subdirectories (`bootstrap/`, `brain/schema/`, `agents/personas/{system,generated,project}/`, `agents/councils/{council_templates,sessions,transcripts,outputs,consolidations}/`, `agents/{handoffs,outputs,scorecards}/`, `maps/`, `tests/{generated_automation,retest_packs}/`) created by `scripts/init-workspace.js` (`TOP_LEVEL_SUBDIRS`, `NESTED_DIRS`, `V2_NESTED_DIRS`).
+- `_testatlas/` directory tree — 23 V1 top-level subdirectories + 23 V1 nested subdirectories + 16 V2 nested subdirectories (`bootstrap/`, `brain/schema/`, `agents/personas/{system,generated,project}/`, `agents/councils/{council_templates,sessions,transcripts,outputs,consolidations}/`, `agents/{handoffs,outputs,scorecards}/`, `maps/`, `tests/{generated_automation,retest_packs}/`) created by `.testatlas/scripts/init-workspace.js` (`TOP_LEVEL_SUBDIRS`, `NESTED_DIRS`, `V2_NESTED_DIRS`).
 - 14 V1 canonical markdown files (already shipped); 23 V2 brain files (20 JSON + 3 JSONL).
 - `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
 - V2 brain files written by `init-workspace.js` (20 JSON + 3 JSONL = 23 total):
