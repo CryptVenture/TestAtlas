@@ -6,7 +6,7 @@
 // from existing workspace state, and updates the manifest — all without losing
 // existing content.
 
-import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { now } from './lib/determinism.js';
@@ -276,6 +276,20 @@ export async function migrateV2({
       'utf8',
     );
     created.push('history/changelog.md');
+  }
+
+  // Defensive cleanup: remove legacy `brain/events.json` if present.
+  // Older migration code emitted `events.json` (top-level `{events: [...]}`
+  // array shape); V2 only uses `events.jsonl` (single-line JSONL append per
+  // event). Keeping both ⇒ silently divergent audit trail. Surfaced post-
+  // Phase-19 dogfood round 2 as NEW-002. ENOENT is the common case — swallow.
+  // SAFETY: destructive-fs gate already enforced via `assertCapability(cfg, 'destructive-fs')` at function entry above.
+  const legacyEventsJson = path.join(wsDir, 'brain', 'events.json');
+  try {
+    await unlink(legacyEventsJson);
+    created.push('brain/events.json (removed: legacy artifact)');
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
   }
 
   // Update manifest schema_version (additive, backward-compatible)

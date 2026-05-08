@@ -18,13 +18,16 @@ const SUITE_ROOT = path.resolve(import.meta.dirname, '..');
 async function seedConfig(tmp, override) {
   const dst = path.join(tmp, '.testatlas');
   await mkdir(dst, { recursive: true });
-  await cp(path.join(SUITE_ROOT, '.testatlas', 'default.config.json'),
-           path.join(dst, 'default.config.json'));
-  await cp(path.join(SUITE_ROOT, '.testatlas', 'config.schema.json'),
-           path.join(dst, 'config.schema.json'));
+  await cp(
+    path.join(SUITE_ROOT, '.testatlas', 'default.config.json'),
+    path.join(dst, 'default.config.json'),
+  );
+  await cp(
+    path.join(SUITE_ROOT, '.testatlas', 'config.schema.json'),
+    path.join(dst, 'config.schema.json'),
+  );
   if (override) {
-    await writeFile(path.join(tmp, 'testatlas.config.json'),
-                    JSON.stringify(override, null, 2));
+    await writeFile(path.join(tmp, 'testatlas.config.json'), JSON.stringify(override, null, 2));
   }
 }
 
@@ -255,6 +258,54 @@ test('migrateV2 halts under safeMode:true with no FS mutation', async () => {
 
   const post = await snapshot(wsRoot);
   assert.deepStrictEqual(post, pre, 'workspace must be byte-identical after denied call');
+});
+
+// post-Phase-19 dogfood NEW-002 — legacy `brain/events.json` cleanup.
+// Older migration code emitted `events.json` (top-level array shape) alongside
+// `events.jsonl`; current code only writes `.jsonl`, leaving any pre-existing
+// `events.json` as an orphan. Migration must remove it so the audit trail is
+// single-source.
+test('migrate removes legacy brain/events.json orphan if present', async () => {
+  await cleanup();
+  await createMockV1Workspace();
+  await seedConfig(TMP_DIR, { safeMode: false, allowDestructiveActions: true });
+
+  // Pre-seed the legacy artifact in the V1 brain dir before migration.
+  // mkdir recursive so we don't depend on V2 dir creation order.
+  const brainDir = path.join(TMP_DIR, '_testatlas', 'brain');
+  await mkdir(brainDir, { recursive: true });
+  const legacyJson = path.join(brainDir, 'events.json');
+  await writeFile(
+    legacyJson,
+    JSON.stringify({
+      events: [
+        {
+          timestamp: '2026-05-07T11:43:41.000Z',
+          command: 'maintain-migrate',
+          from_schema_version: '1.x',
+          to_schema_version: '2.0.0',
+        },
+      ],
+    }),
+  );
+
+  const r = await migrateV2({ cwd: TMP_DIR });
+  assert.equal(r.status, 'migrated');
+
+  // events.json (legacy) must be GONE.
+  await assert.rejects(
+    stat(legacyJson),
+    (e) => e.code === 'ENOENT',
+    'legacy brain/events.json must be removed by migration',
+  );
+
+  // events.jsonl (canonical) must EXIST and carry at least the migration event.
+  const eventsJsonl = path.join(brainDir, 'events.jsonl');
+  const jsonlContent = await readFile(eventsJsonl, 'utf8');
+  assert.ok(
+    jsonlContent.includes('"command":"/atlas:migrate"'),
+    'events.jsonl must contain the migration event',
+  );
 });
 
 // Cleanup after all tests
