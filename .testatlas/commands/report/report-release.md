@@ -85,15 +85,25 @@ Render the canonical release readiness report — a go / conditional / no-go ass
 ## Verdict Calculation (locked formula)
 
 ```
-critical_issues = count(issues where severity == 'critical' AND status != 'closed')
-high_issues     = count(issues where severity == 'high' AND status != 'closed')
-stale_drift     = count(drift_records where drift_status == 'stale_requires_review')
-flow_score      = quality_scores.flow_coverage_score
-council_score   = quality_scores.council_consensus_score
-security_score  = quality_scores.security_privacy_confidence_score
+critical_issues             = count(issues where severity == 'critical' AND status != 'closed')
+high_issues                 = count(issues where severity == 'high' AND status != 'closed')
+high_issues_with_mitigation = count(issues where severity == 'high' AND status != 'closed' AND mitigation_documented == true)
+stale_drift                 = count(drift_records where drift_status == 'stale_requires_review')
+flow_score                  = quality_scores.flow_coverage_score
+council_score               = quality_scores.council_consensus_score
+security_score              = quality_scores.security_privacy_confidence_score
 
+# Hard no-go gates (any one trips the verdict).
 if critical_issues > 0 OR stale_drift > 0 OR security_score < 50: verdict = "no-go"
-else if high_issues > 3 OR flow_score < 60 OR council_score < 70: verdict = "conditional"
+
+# Conditional gate codifies the prose contract: "at most 3 high issues
+# with documented mitigations". A high-issue count above 3 OR any
+# unmitigated high issue forces conditional. Score-floor thresholds
+# (flow / council) also trip conditional.
+else if (high_issues > 3) OR (high_issues > 0 AND high_issues_with_mitigation < high_issues) OR flow_score < 60 OR council_score < 70: verdict = "conditional"
+
+# Go iff zero unresolved escalation risks, every high issue is
+# mitigated, and all score-floors are met.
 else: verdict = "go"
 ```
 

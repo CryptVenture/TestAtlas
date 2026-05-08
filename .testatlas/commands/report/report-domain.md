@@ -54,6 +54,7 @@ Produce a focused, human-readable report for a single domain. The report combine
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
+- `_testatlas/brain/domains.json` — domain-level brain index; required for domain resolution and cross-domain context.
 - `_testatlas/brain/quality_scores.json` (run `brain-score` first if missing or stale).
 - `_testatlas/brain/drift.json` (run `brain-drift` first if missing or stale).
 
