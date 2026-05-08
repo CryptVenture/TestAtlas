@@ -68,7 +68,7 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
 
 This umbrella is a spawn-and-aggregate orchestrator. When the host declares the `subagent-spawn` capability (per `bootstrap.md` Capability Degradation), the umbrella spawns each recommended non-cached child in parallel via the Agent tool and aggregates their structured findings into `_testatlas/02_product_overview.md`. See Required Actions step 5 for the full `executionMode` selection logic; the 5 enum values are `parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, and `no-op`.
 
-The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
+The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security, explore-tests}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
 
 **Per-child brief contract** (the placeholder `[child]` stands for the chosen sub-explorer name like `codebase`, `ui`, `api`, etc.):
 
