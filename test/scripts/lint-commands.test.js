@@ -19,15 +19,24 @@ import path from 'node:path';
 import { test } from 'node:test';
 
 import {
+  checkBareScriptPath,
+  checkConfigKeyExistence,
   checkEnumValueValidity,
   checkFlagExistence,
   checkFrontmatterScriptForm,
+  checkLifecycleHeadingStrict,
   checkLifecyclePosition,
   checkLifecycleCompleteness,
+  checkMapsPathConsistency,
+  checkOptionPairCompleteness,
   checkPathCanonicity,
   checkRequiredFlags,
+  checkSchemaFileExistence,
   checkSchemaKeyExistence,
+  checkStepCrossReference,
   checkVocabEnumDrift,
+  checkVocabularyEnumPresence,
+  emitManifest,
   runLinter,
 } from '../../scripts/lint-commands.js';
 import {
@@ -675,6 +684,402 @@ test('script-flag-metadata: ENUM_FLAGS update-brain-after-command.js --status en
 });
 
 // ─── runLinter smoke ────────────────────────────────────────────────────────
+
+// ─── Invariant 8: schema-file-existence (Quick 260508-syv) ──────────────────
+
+test('checkSchemaFileExistence: POSITIVE — referenced schema files that exist pass', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv8-pos');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', { $defs: {} });
+  await writeSchema(schemasDir, 'flow.schema.json', {});
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Validates against `vocabulary.schema.json` and `flow.schema.json`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkSchemaFileExistence({ commandsDir, schemasDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkSchemaFileExistence: NEGATIVE — non-existent schema file flags violation', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv8-neg');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', { $defs: {} });
+  // entity.schema.json deliberately not created
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Validates against `entity.schema.json` (does not exist).',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkSchemaFileExistence({ commandsDir, schemasDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'schema-file-existence');
+  assert.match(violations[0].detail || violations[0].reason, /entity\.schema\.json/);
+});
+
+// ─── Invariant 9: maps-path-consistency (Quick 260508-syv) ──────────────────
+
+test('checkMapsPathConsistency: POSITIVE — uniform maps/apis.json passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv9-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Required Actions: write to `_testatlas/maps/apis.json`.',
+      'Outputs: `_testatlas/maps/apis.json`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkMapsPathConsistency({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkMapsPathConsistency: NEGATIVE — apis.json vs api.json mismatch flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv9-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Required Actions: write to `_testatlas/maps/apis.json`.',
+      'Outputs: `_testatlas/maps/api.json`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkMapsPathConsistency({ commandsDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'maps-path-consistency');
+});
+
+// ─── Invariant 10: vocabulary-enum-presence (Quick 260508-syv) ──────────────
+
+const FIXTURE_VOCAB_ISSUE_STATUS = {
+  $defs: {
+    issueStatus: {
+      enum: ['new', 'triaged', 'in_progress', 'closed'],
+    },
+  },
+};
+
+test('checkVocabularyEnumPresence: POSITIVE — closed status literal in known enum passes', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv10-pos');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB_ISSUE_STATUS);
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    ['# Cmd', '', 'Set status: `closed`.', ''].join('\n'),
+  );
+  const violations = await checkVocabularyEnumPresence({ commandsDir, schemasDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkVocabularyEnumPresence: NEGATIVE — reopened literal not in fixture enum flags violation', async () => {
+  const { commandsDir, schemasDir } = await makeFixtureRoot('inv10-neg');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB_ISSUE_STATUS);
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    ['# Cmd', '', 'Set status: `reopened`.', ''].join('\n'),
+  );
+  const violations = await checkVocabularyEnumPresence({ commandsDir, schemasDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'vocabulary-enum-presence');
+  assert.match(violations[0].detail || violations[0].reason, /reopened/);
+});
+
+// ─── Invariant 11: bare-script-path (Quick 260508-syv) ──────────────────────
+
+test('checkBareScriptPath: POSITIVE — node .testatlas/scripts/X.js form passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv11-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Run `node .testatlas/scripts/create-flow.js --domain foo`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkBareScriptPath({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkBareScriptPath: NEGATIVE — bare scripts/X.js in body flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv11-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Run `scripts/create-flow.js --domain foo`.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkBareScriptPath({ commandsDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'bare-script-path');
+  assert.match(violations[0].detail || violations[0].reason, /create-flow\.js/);
+});
+
+// ─── Invariant 12: lifecycle-heading-strict (Quick 260508-syv) ──────────────
+
+test('checkLifecycleHeadingStrict: POSITIVE — exact `## Lifecycle` heading passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv12-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      '## Lifecycle',
+      '',
+      '- step',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecycleHeadingStrict({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkLifecycleHeadingStrict: NEGATIVE — `## Post-Operation Brain Update` flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv12-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      '## Post-Operation Brain Update',
+      '',
+      '- step',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecycleHeadingStrict({ commandsDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'lifecycle-heading-strict');
+  assert.match(violations[0].detail || violations[0].reason, /Post-Operation Brain Update/);
+});
+
+// ─── Invariant 13: config-key-existence (Quick 260508-syv) ──────────────────
+
+const FIXTURE_CONFIG_KEYS = new Set([
+  'suiteName',
+  'workspaceDir',
+  'idempotencyTtlMs',
+]);
+
+test('checkConfigKeyExistence: POSITIVE — known config key passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv13-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Configurable via `.testatlas/default.config.json` `idempotencyTtlMs` setting.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkConfigKeyExistence({
+    commandsDir,
+    configKeys: FIXTURE_CONFIG_KEYS,
+  });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkConfigKeyExistence: NEGATIVE — unknownKnobMs config key flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv13-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Configurable via `.testatlas/default.config.json` `unknownKnobMs` setting.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkConfigKeyExistence({
+    commandsDir,
+    configKeys: FIXTURE_CONFIG_KEYS,
+  });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'config-key-existence');
+  assert.match(violations[0].detail || violations[0].reason, /unknownKnobMs/);
+});
+
+// ─── Invariant 14: option-pair-completeness (Quick 260508-syv) ──────────────
+
+test('checkOptionPairCompleteness: POSITIVE — Option A then Option B passes', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv14-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      '**Option A:** preferred path — emit findings inline.',
+      '**Option B:** fallback — emit findings to file.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkOptionPairCompleteness({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkOptionPairCompleteness: NEGATIVE — dangling Fallback (Option B) flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv14-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      'Outputs go straight to file.',
+      '',
+      '**Fallback (Option B):** emit findings to inline-findings.md.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkOptionPairCompleteness({ commandsDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'option-pair-completeness');
+  assert.match(violations[0].detail || violations[0].reason, /Option B/);
+});
+
+// ─── Invariant 15: step-cross-reference (Quick 260508-syv) ──────────────────
+
+test('checkStepCrossReference: POSITIVE — step 4 reference resolves', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv15-pos');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      '## Required Actions',
+      '',
+      '1. First step.',
+      '2. Second step.',
+      '3. Third step.',
+      '4. Fourth step — `--refresh` enters here.',
+      '5. Fifth step.',
+      '',
+      'Note: when invoked with `--refresh` (per step 4\'s preferred path), behavior X.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkStepCrossReference({ commandsDir });
+  assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
+});
+
+test('checkStepCrossReference: NEGATIVE — step 9 reference but only 5 steps flags violation', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv15-neg');
+  await writeCmd(
+    commandsDir,
+    'cmd.md',
+    [
+      '# Cmd',
+      '',
+      '## Required Actions',
+      '',
+      '1. First step.',
+      '2. Second step.',
+      '3. Third step.',
+      '4. Fourth step.',
+      '5. Fifth step.',
+      '',
+      'Note: when invoked with `--refresh` (per step 9\'s preferred path), behavior X.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkStepCrossReference({ commandsDir });
+  assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
+  assert.equal(violations[0].invariant, 'step-cross-reference');
+  assert.match(violations[0].detail || violations[0].reason, /step\s*9/i);
+});
+
+// ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
+
+test('emitManifest: writes structured JSON with documented shape', async () => {
+  const { commandsDir, scriptsDir, schemasDir, root } = await makeFixtureRoot('manifest-shape');
+  await writeScript(scriptsDir, 'create-flow.js', '/* fixture */');
+  await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB_ISSUE_STATUS);
+  await writeSchema(schemasDir, 'flow.schema.json', {});
+  await writeCmd(
+    commandsDir,
+    'cmd-a.md',
+    [
+      '# A',
+      '',
+      'Validates against `flow.schema.json`.',
+      'Run `node .testatlas/scripts/create-flow.js --domain foo`.',
+      '',
+    ].join('\n'),
+  );
+  await writeCmd(
+    commandsDir,
+    'cmd-b.md',
+    [
+      '# B',
+      '',
+      'Validates against `entity.schema.json`.',
+      '',
+    ].join('\n'),
+  );
+  const outPath = path.join(root, 'audit.json');
+  await emitManifest({
+    commandsDir,
+    scriptsDir,
+    schemasDir,
+    configKeys: FIXTURE_CONFIG_KEYS,
+    outPath,
+  });
+  const { readFile } = await import('node:fs/promises');
+  const raw = await readFile(outPath, 'utf8');
+  const m = JSON.parse(raw);
+  assert.equal(m.version, 1);
+  assert.equal(typeof m.generated_at, 'string');
+  assert.ok(m.summary, 'summary present');
+  assert.equal(typeof m.summary.commands_scanned, 'number');
+  assert.equal(typeof m.summary.claims_extracted, 'number');
+  assert.equal(typeof m.summary.claims_resolved, 'number');
+  assert.equal(typeof m.summary.claims_unresolved, 'number');
+  assert.ok(
+    typeof m.summary.resolution_rate === 'string' || typeof m.summary.resolution_rate === 'number',
+  );
+  assert.ok(m.commands && typeof m.commands === 'object');
+  // Each command entry has a claims array.
+  const cmdKeys = Object.keys(m.commands);
+  assert.ok(cmdKeys.length >= 2, `expected >=2 command entries, got ${cmdKeys.length}`);
+  const firstCmd = m.commands[cmdKeys[0]];
+  assert.ok(Array.isArray(firstCmd.claims));
+  // At least one claim should be missing (entity.schema.json) and one valid.
+  const allClaims = cmdKeys.flatMap((k) => m.commands[k].claims);
+  const resolutions = new Set(allClaims.map((c) => c.resolution));
+  assert.ok(resolutions.has('valid') || resolutions.has('missing'));
+  // Each claim has type/value/location/resolution.
+  for (const c of allClaims.slice(0, 5)) {
+    assert.equal(typeof c.type, 'string');
+    assert.equal(typeof c.value, 'string');
+    assert.equal(typeof c.location, 'string');
+    assert.equal(typeof c.resolution, 'string');
+  }
+});
 
 test('runLinter: returns { violations, exitCode } shape', async () => {
   const { commandsDir, scriptsDir, schemasDir } = await makeFixtureRoot('runlint');
