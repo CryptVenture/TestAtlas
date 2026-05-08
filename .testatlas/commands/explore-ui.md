@@ -41,8 +41,6 @@ If there is a conflict:
 
 Map the target product's user-facing UI surface using Chrome DevTools MCP as the first-class observation layer, degrading to code reading when runtime capabilities are unavailable. Capture routes, components, forms, modals, every PRD §13.1 state (empty / loading / error / success / permission), responsive breakpoints, and accessibility basics. Update `_testatlas/12_app_map.json` and persist evidence under `_testatlas/evidence/explore-ui/<timestamp>/`. Every claim MUST cite an on-disk evidence path.
 
-→ See `prd/prd.md` §13.1 for the full must-discover set; this command does not re-enumerate it.
-
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).

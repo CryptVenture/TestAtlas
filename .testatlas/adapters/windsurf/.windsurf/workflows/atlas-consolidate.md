@@ -3,7 +3,7 @@ description: Squash issue duplicates per triage groupings; inherit highest sever
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="d14fd5bc0df5591c96e677e97576d6e6edccec72fb100216033448e317169d6f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="9724f8f8a530cbe9b794afa2568eba28d5620141934639f84599fb5d98bda2e5" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue layer), §20 (report sections), §28 (severity / confidence vocabulary).
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — severity + confidence vocabulary the agent must conform to during merge.
 - `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, `issueType` `$defs`.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.
 - The most-recent `_testatlas/to_fix/triage-report-*.md` and `_testatlas/to_fix/groups.md`.

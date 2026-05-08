@@ -43,7 +43,7 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue layer structure) and §28 (severity + confidence vocabulary).
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — the severity + confidence vocabulary the agent must conform to during normalization.
 - `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs`.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every mutated issue must continue to satisfy.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.

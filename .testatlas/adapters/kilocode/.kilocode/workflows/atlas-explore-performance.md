@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="3620aaca27bc35e88a949503f8f8abd3fa22ef7a1dbf03ce548456bcc593d862" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-performance.md" hash="d5fc5b8f4767bc38830e95e950d4a75ec966ce5d9d31f803c0663369a4ae9c2d" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-explore-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -23,7 +23,6 @@ Detect user-visible performance issues per PRD §13.10: slow first paint, long t
 - `_testatlas/11_workspace_manifest.json` — confirm initialization and counts.
 - `_testatlas/12_app_map.json` — route entries (with traffic hints if present) to sample.
 - `_testatlas/00_overview.md` — runtime metadata: how to start the local dev server (command, port, health endpoint).
-- `prd/prd.md` §13.10 — must-discover items the audit must address.
 - `.testatlas/default.config.json` — `safeMode`, `allowDestructiveActions`, `allowProductionTesting`, performance thresholds if defined.
 - `.testatlas/schemas/evidence.schema.json` — evidence sidecar shape.
 
@@ -33,7 +32,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 - **objective:** Audit performance — page weight, bundle size, Core Web Vitals (LCP / INP / CLS), runtime bottlenecks — against declared performance budgets for the target product.
 - **scope:** A representative sample of routes from `_testatlas/12_app_map.json` (defaults: top traffic-hint routes if present, otherwise the index route plus highest-fan-in templates). Excludes load-testing of production hosts.
-- **files-to-read:** `_testatlas/12_app_map.json`; `_testatlas/00_overview.md` (local dev server start command + port + health endpoint); `prd/prd.md` §13.10 (performance must-discover items); `.testatlas/default.config.json` (`safeMode`, `allowDestructiveActions`, `allowProductionTesting`, declared performance thresholds); `.testatlas/schemas/evidence.schema.json`.
+- **files-to-read:** `_testatlas/12_app_map.json`; `_testatlas/00_overview.md` (local dev server start command + port + health endpoint); `.testatlas/reference/chrome-devtools-mcp.md` § *Performance walkthrough* (must-discover items, walkthrough patterns); `.testatlas/default.config.json` (`safeMode`, `allowDestructiveActions`, `allowProductionTesting`, declared performance thresholds); `.testatlas/schemas/evidence.schema.json`.
 - **output-format:** Markdown findings list with budget-pass/fail per measurement and one entry per measurable performance budget. Evidence (Lighthouse JSON, network HARs, bundle-size reports, profile traces) under `_testatlas/evidence/explore-performance/<timestamp>/`.
 - **may-write:** When called as a sub-agent the umbrella's brief controls write permissions (default: NO direct `_testatlas/` writes — the umbrella aggregates findings). When called standalone, this command MAY write the artifacts listed under `## Outputs`.
 - **exit-criteria:** All measurable performance budgets evaluated against captured evidence; gaps in measurement coverage explicitly listed; no synthetic findings without backing evidence; production hosts skipped when `allowProductionTesting=false`.

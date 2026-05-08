@@ -4,14 +4,12 @@ description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="48fb18212611ff947a5c41c14666466346cf5c4e5cd674be149f36f9ba1490bc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="4b650f93536b9d2b90bfb90cfcdc39036f25bf91a60f3dc957a908a0cf7ed3fe" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
 Map the target product's user-facing UI surface using Chrome DevTools MCP as the first-class observation layer, degrading to code reading when runtime capabilities are unavailable. Capture routes, components, forms, modals, every PRD §13.1 state (empty / loading / error / success / permission), responsive breakpoints, and accessibility basics. Update `_testatlas/12_app_map.json` and persist evidence under `_testatlas/evidence/explore-ui/<timestamp>/`. Every claim MUST cite an on-disk evidence path.
-
-→ See `prd/prd.md` §13.1 for the full must-discover set; this command does not re-enumerate it.
 
 ## Required First Reads
 

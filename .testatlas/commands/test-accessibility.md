@@ -45,7 +45,6 @@ Execute scenarios with `type === "accessibility"` from `_testatlas/tests/matrix.
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `.testatlas/reference/chrome-devtools-mcp.md` § *A11y walkthrough* — canonical accessibility walkthrough (lighthouse audit, ARIA inventory, focus-order traversal, contrast samples). The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — accessibility-typed scenarios; if none, halt.
-- `prd/prd.md` §13.9 + §26.7 — the assertable a11y items and the test-type contract.
 - `.testatlas/default.config.json` — `allowProductionTesting`, `safeMode` flags; default a11y thresholds.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the RUN sidecar.
 - `.testatlas/schemas/evidence.schema.json` — required shape for evidence sidecars.

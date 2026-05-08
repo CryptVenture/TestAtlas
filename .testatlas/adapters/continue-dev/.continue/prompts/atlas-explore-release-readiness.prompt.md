@@ -4,7 +4,7 @@ description: Map release artifacts, blockers, readiness state, version tags, and
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="6511aa367ad69a7c5e69c9d3ac57923bb5806ea01f018a1bcc5f0379ff72fdd7" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-release-readiness.md" hash="4231c90206865cf26f16f2afaf358d75b47231f7efaa9254935c677f3e073425" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-explore-release-readiness.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -51,7 +51,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - **no-go:** ≥1 blocker.
    Record the decision + reasoning into `evidence/decision.json` with `{state, reasons, blockers, evaluatedAt}`.
 
-6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --kind release-readiness --report-path=_testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders sections per PRD §16.1: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --kind release-readiness` is not yet wired, hand-render using the `release_readiness.md` template at `.testatlas/templates/`.
+6. **Report generation.** Invoke `node .testatlas/scripts/generate-report.js --kind release-readiness --report-path=_testatlas/reports/REPORT-release-readiness-<ts>.md`. The report renders these sections: Run Summary, Blockers, Gates, Coverage, Drift, Open Issues, Decision, Next Steps. If `generate-report.js --kind release-readiness` is not yet wired, hand-render using `.testatlas/templates/reports/release_readiness.md` as the skeleton.
 
 7. **Cross-reference Council decisions.** Read `_testatlas/agents/sessions/council_*/consolidation.md` for any `release-blocking` consensus claims. Surface those in the report's Blockers section.
 

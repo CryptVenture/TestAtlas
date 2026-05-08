@@ -343,7 +343,6 @@ Per the Phase 13 planner's locked decision (**Strategy A — no schema change**)
 
 ## 6. Sources
 
-- `prd/prd.md` §13.1 (UI states), §13.9 (a11y), §13.10 (perf), §17 (no stack traces), §18 (evidence), §26 (test-type catalog), §40 (lifecycle)
 - upstream `chrome-devtools-mcp` `tool-reference.md` (44 tools / 9 categories — verified 2026-05-06)
 - `.testatlas/bootstrap.md` §4 (capability degradation), §8 (no-evidence-no-finding), §12 (explorer standards), §14
 - `.testatlas/reference/capabilities.md` (per-capability action matrix)

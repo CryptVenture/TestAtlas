@@ -2,7 +2,7 @@
 description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="dce62fecfee8a3751cd7662d5dbf069f30433005f0cd2a8714e136470684ca15" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="ab2c9c0043526fa15ff179cbc3a405b7497771408ce5097a6988eb95ddc98666" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -12,7 +12,7 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue layer structure) and §28 (severity + confidence vocabulary).
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — the severity + confidence vocabulary the agent must conform to during normalization.
 - `.testatlas/schemas/vocabulary.schema.json` — `severity`, `confidence`, `issueStatus`, and `issueType` `$defs`.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every mutated issue must continue to satisfy.
 - Every `_testatlas/to_fix/ISSUE-*.json` sidecar currently on disk.

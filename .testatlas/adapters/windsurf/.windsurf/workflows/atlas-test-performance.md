@@ -3,7 +3,7 @@ description: Execute performance-typed scenarios via mandatory Chrome DevTools M
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="1e15c387ae1f405f499845e01f29a8e85f8c28bbe0e3cf2a672da0f477064929" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test-performance.md" hash="c7a719e3e9cc46f4ff32a768d7d3bf99ff2be4cc83f18c4bb7e733f64f49807d" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-performance.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -15,7 +15,6 @@ Execute scenarios with `type === "performance"` from `_testatlas/tests/matrix.js
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `.testatlas/reference/chrome-devtools-mcp.md` § *Performance walkthrough* — canonical perf walkthrough (baseline + throttled trace per scenario, Web Vitals threshold assertions). The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — performance-typed scenarios; if none, halt.
-- `prd/prd.md` §13.10 + §26.8 — the assertable perf metrics and the test-type contract.
 - `_testatlas/00_overview.md` — runtime metadata (how to start the local dev server, ports, health-check endpoint).
 - `.testatlas/default.config.json` — `allowProductionTesting`, `safeMode` flags; default perf thresholds.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the RUN sidecar.

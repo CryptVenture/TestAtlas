@@ -4,7 +4,7 @@ description: Re-execute the original repro for issues with status=fixed_pending_
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="d811493df3e9624ddbc54e7d519577d6adc95a8018471e933588ceab74655469" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="bd9ffd4ce72d560e52a1f415974c452b41e6e2487504222e11554a444b71ac53" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -14,7 +14,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 ## Required First Reads
 
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
-- `prd/prd.md` §17 (issue lifecycle) and §28 (severity / confidence vocabulary).
+- `.testatlas/reference/severity.md` and `.testatlas/reference/confidence.md` — severity + confidence vocabulary the agent must conform to.
 - `.testatlas/schemas/vocabulary.schema.json` — `issueStatus` enum (`fixed_pending_retest`, `retested`, `closed`, `reopened`) and `issueType` enum.
 - `.testatlas/schemas/issue.schema.json` — required JSON shape every retested issue must continue to satisfy.
 - The target issue file pair: `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}`.

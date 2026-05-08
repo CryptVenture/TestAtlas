@@ -45,7 +45,6 @@ Execute scenarios with `type === "performance"` from `_testatlas/tests/matrix.js
 - `.testatlas/bootstrap.md` — especially §4 (capability degradation) and §8 (no-evidence-no-finding).
 - `.testatlas/reference/chrome-devtools-mcp.md` § *Performance walkthrough* — canonical perf walkthrough (baseline + throttled trace per scenario, Web Vitals threshold assertions). The mandatory-when-available contract lives there.
 - `_testatlas/tests/matrix.json` — performance-typed scenarios; if none, halt.
-- `prd/prd.md` §13.10 + §26.8 — the assertable perf metrics and the test-type contract.
 - `_testatlas/00_overview.md` — runtime metadata (how to start the local dev server, ports, health-check endpoint).
 - `.testatlas/default.config.json` — `allowProductionTesting`, `safeMode` flags; default perf thresholds.
 - `.testatlas/schemas/test-run.schema.json` — required JSON shape for the RUN sidecar.
