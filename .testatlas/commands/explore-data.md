@@ -76,7 +76,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 ## Outputs
 
 - `_testatlas/12_app_map.json` `entityIds[]` (and related ID arrays) — closed string arrays of data-surface IDs; the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich data-surface payloads do NOT live in this file.
-- `_testatlas/maps/data.json` — rich entity / queue / cache / storage entries with model definitions, migration paths, lifecycle state machines, and evidence paths. This sidecar is the source of truth for the data contract; the app-map only carries the ID strings used to cross-reference into it.
+- `_testatlas/maps/entities.json` — rich entity / queue / cache / storage entries with model definitions, migration paths, lifecycle state machines, and evidence paths. This sidecar is the source of truth for the data contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-data/<timestamp>/` — schema dumps (structure only), migration listings, seed paths, queue/cache/storage inventories.
 - Updated `_testatlas/01_system_map.md` — data inventory with entities, lifecycle state machines, queues, caches, storage objects.
 

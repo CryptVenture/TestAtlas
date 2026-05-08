@@ -47,7 +47,7 @@ Run a Test Plan Council (PRD §7.9) when planning a major test run, onboarding a
 - `_testatlas/brain/state.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/flows.json`
 - `_testatlas/02_test_strategy.md` (if present)
 - `_testatlas/explorers/tests/tests_explorer.json` (if present)
-- `_testatlas/maps/{routes,components,endpoints,jobs,cli_commands,integrations}.json`
+- `_testatlas/maps/{routes,components,endpoints,jobs,cli-commands,integrations}.json`
 
 ## Participant Selection
 
