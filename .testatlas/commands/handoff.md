@@ -72,7 +72,7 @@ Write a structured sub-agent handoff record per `sub-agent-handoff.schema.json` 
    - `outputLocation` — where the receiving agent's output lands.
    - `outputStructure` — the artifact layout expected of the receiving agent.
    - `completionCriteria` — explicit, verifiable acceptance signals.
-6. Write the JSON sidecar to `_testatlas/handoffs/HANDOFF-<ts>.json`. Validate it against `sub-agent-handoff.schema.json` using AJV before commit; halt on validation failure and surface AJV errors verbatim.
+6. **Preferred path (if `shell` is available):** after writing the JSON sidecar, validate it by running `node .testatlas/scripts/validate-handoff.js _testatlas/handoffs/HANDOFF-<ts>.json [--workspace <path>] [--cwd <path>]`. The accelerator uses the suite-canonical Ajv2020 + ajv-formats singleton + the schema-loader registry, looks up `https://testatlas.dev/schemas/v1/sub-agent-handoff.schema.json`, and exits 0 on valid / non-zero on invalid with AJV errors surfaced verbatim. On non-zero exit, halt; do not commit a partial / malformed handoff. **Manual path (no `shell`):** write the JSON sidecar to `_testatlas/handoffs/HANDOFF-<ts>.json`, then validate it against `sub-agent-handoff.schema.json` using AJV before commit; halt on validation failure and surface AJV errors verbatim.
 7. Write the human-readable narrative to `_testatlas/handoffs/HANDOFF-<ts>.md`. The narrative restates the JSON in prose, includes the cross-references to flows/domains/issues, and ends with a checklist matching `completionCriteria`.
 8. Add a back-reference entry in `_testatlas/handoffs/index.md` (create the index file if absent).
 9. Close the lifecycle (next section).
