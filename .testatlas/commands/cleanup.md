@@ -42,7 +42,7 @@ Perform workspace housekeeping confined to `_testatlas/` per the WORK-06 two-tre
 - `.testatlas/bootstrap.md` — the constitution; the two-tree invariant.
 - `_testatlas/11_workspace_manifest.json` — current counts to reconcile against disk.
 - `_testatlas/09_artifact_index.md` — current artifact list to re-derive.
-- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
+- The relevant `_testatlas/to_fix/`, `_testatlas/evidence/`, `_testatlas/tests/runs/`, `_testatlas/domains/`, `_testatlas/flows/`, and `_testatlas/handoffs/` directories — the artifact populations subject to housekeeping.
 
 ## Required Actions
 

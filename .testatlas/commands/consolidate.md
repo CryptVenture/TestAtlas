@@ -101,7 +101,7 @@ For each independent summarization area in `{issues-by-severity, issues-by-confi
   Spawn a sub-agent with this brief (markdown convention):
     - **objective:** "Summarize `<area>` across the workspace in the form ready to merge into `_testatlas/13_quality_scorecard.md`."
     - **scope:** "All artifacts under the named area (e.g., for `issues-by-severity` — every `_testatlas/to_fix/ISSUE-*.json` plus the per-severity indexes under `_testatlas/to_fix/by_severity/`)."
-    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
+    - **files-to-read:** "The relevant indexes (e.g., `_testatlas/to_fix/INDEX.md`, `_testatlas/tests/runs/RUN-*.json`, `_testatlas/reports/coverage.md`, `_testatlas/reports/regressions.md`) and the underlying records they index."
     - **output-format:** "Markdown section ready to merge into `_testatlas/13_quality_scorecard.md` between the generated-section markers, plus a JSON fragment with the longitudinal counts the umbrella appends to the scorecard's history block."
     - **may-write:** sub-agent MUST NOT write to `_testatlas/` directly; the umbrella merges all area summaries into `13_quality_scorecard.md` (preserving append-only history) and refreshes `coverage.md` + `regressions.md`.
     - **exit-criteria:** "Section is self-contained, accurate against on-disk records, and length-bounded; counts are derived from disk (never cached)."

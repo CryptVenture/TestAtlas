@@ -46,7 +46,7 @@ Run a Roundtable Review (PRD §7.9) on a single user flow. Personas examine the 
 - `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/flows.json`
-- The target flow's `_testatlas/flows/<slug>/flow.{md,json}`
+- The target flow's `_testatlas/flows/FLOW-<slug>.{md,json}`
 - The flow's evidence directory under `_testatlas/evidence/`
 
 ## Participant Selection

@@ -46,7 +46,7 @@ Run a Design Critique (PRD §7.9) when UI flows are mapped, product copy or navi
 - `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/reference/chrome-devtools-mcp.md` — Tier-1 UI walkthrough toolset.
 - `.testatlas/agents/registry.md`
-- Target flow's `_testatlas/flows/<slug>/flow.{md,json}` plus the relevant entries in `_testatlas/maps/{routes,pages,components,states}.json`
+- Target flow's `_testatlas/flows/FLOW-<slug>.{md,json}` plus the relevant entries in `_testatlas/maps/{routes,pages,components,states}.json`
 - Existing UI evidence under `_testatlas/evidence/explore-ui/` and `_testatlas/evidence/explore-accessibility/`
 
 ## Participant Selection

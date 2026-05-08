@@ -98,7 +98,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
      loading, error, success, permission). Persist evidence under
      `_testatlas/evidence/runs/<run-id>/<flow-id>/` BEFORE any pass/fail
      claim.
-3. Update **flow docs** (`_testatlas/flows/<slug>/flow.json` confidence,
+3. Update **flow docs** (`_testatlas/flows/FLOW-<slug>.json` confidence,
    `last_updated`), the **evidence index**
    (`_testatlas/09_artifact_index.md`), **issues**
    (`_testatlas/to_fix/<ISSUE-id>.json` `retestNotes`/`history`), and
@@ -128,7 +128,7 @@ PLUS at least one of (matrix coverage ≥ 2 high-priority scenarios) OR
 
 - `_testatlas/tests/runs/RUN-<timestamp>.md` and `.json` (schema-valid; carries `prioritisation` rationale)
 - `_testatlas/evidence/runs/<run-id>/<flow-id>/` directory of captured evidence
-- Updated `_testatlas/flows/<slug>/flow.json` confidence values
+- Updated `_testatlas/flows/FLOW-<slug>.json` confidence values
 - Brain event + lifecycle close
 
 ## Lifecycle
