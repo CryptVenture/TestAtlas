@@ -48,6 +48,10 @@
       "type": "array",
       "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
     },
+    "confidence": {
+      "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/confidence",
+      "description": "Per-scenario confidence per bootstrap.md §11; optional for backward compatibility, but plan.md Required Actions step 3 asks authors to record it whenever the underlying domain evidence supports the scenario's premise."
+    },
     "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
   }
 }

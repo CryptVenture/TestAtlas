@@ -1,0 +1,18 @@
+{
+  "id": "TEST-billing-confidence-2",
+  "name": "Checkout smoke with confidence claim",
+  "domain": "domain-billing",
+  "flow": "FLOW-billing-checkout",
+  "priority": "high",
+  "type": "smoke",
+  "status": "ready",
+  "userGoal": "Verify customer can complete a purchase; planner has captured per-scenario confidence per bootstrap.md §11.",
+  "preconditions": ["seeded user", "test card"],
+  "testData": { "card": "4242424242424242" },
+  "steps": ["log in", "add item", "checkout"],
+  "expectedResults": ["order succeeds", "confirmation email"],
+  "evidence": [],
+  "issues": [],
+  "confidence": "strong-suspect",
+  "lastUpdatedAt": "2026-05-09T00:35:00Z"
+}
