@@ -85,7 +85,8 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 
 ## Outputs
 
-- `_testatlas/12_app_map.json` — cli-command entries each citing at least one evidence path under `_testatlas/evidence/explore-cli/<timestamp>/`.
+- `_testatlas/12_app_map.json` `cliIds[]` — closed string array of CLI command IDs (e.g. `CLI-deploy-staging`); the schema (`app-map.schema.json`) declares `additionalProperties:false`, so rich command payloads do NOT live in this file.
+- `_testatlas/maps/cli.json` — rich CLI command entries (invocation surface, safe/destructive classification, env requirements, evidence paths). This sidecar is the source of truth for the CLI contract; the app-map only carries the ID strings used to cross-reference into it.
 - `_testatlas/evidence/explore-cli/<timestamp>/` — per-command subdirectories containing `help.txt`, `version.txt`, `meta.json` (invocation, exit code, duration).
 - Updated `_testatlas/01_system_map.md` — CLI section with runner inventory and safe/destructive counts.
 

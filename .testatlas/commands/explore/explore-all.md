@@ -89,8 +89,8 @@ V2 additions (10, in `.testatlas/commands/explore/`):
    - `explore-security-privacy` → `recommended` (every product). When running V2, prefer this over V1 `explore-security`. V1 `explore-security` → `optional` (retained for back-compat).
    - `explore-tests` → `recommended` (every product).
 4. **Idempotency filter.** For each `recommended` child, check `_testatlas/evidence/<child-name>/<latest-timestamp>/`. Apply the cache-skip rule:
-   - The evidence dir exists AND is < 1 hour old AND no source files in `git ls-files` have an mtime newer than the evidence dir → mark child `cached`.
-   - The evidence dir exists AND has no `git ls-files` mtime drift since BUT is between 1 hour and 24 hours old → mark child `cached` (configurable via `.testatlas/default.config.json.idempotencyTtlMs`).
+   - The evidence dir exists AND is < 1 hour (`3600000` ms) old AND no source files in `git ls-files` have an mtime newer than the evidence dir → mark child `cached`.
+   - The evidence dir exists AND has no `git ls-files` mtime drift since BUT is between 1 hour (`3600000` ms) and 24 hours (`86400000` ms) old → mark child `cached` (configurable via `.testatlas/default.config.json.idempotencyTtlMs`; the config key is named with the `Ms` suffix because its value is milliseconds).
    - Otherwise → child remains `recommended`.
    - Items the child has already mapped (e.g. routes already in `maps/routes.json` whose source files haven't drifted) are also skipped at the **per-item** level inside the child; the umbrella flags this with `idempotency: skip-already-mapped` in the brief.
    - Cached children appear in the child-results-table with `status:cached` linking to the existing evidence dir.

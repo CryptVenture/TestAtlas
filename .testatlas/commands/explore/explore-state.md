@@ -135,8 +135,8 @@ For each distinct UI/process state surfaced during exploration, materialize a st
 1. Choose a slug for the state (kebab-case, e.g. `cart-checkout`, `user-onboarding-step-2`).
 2. Create directory `_testatlas/states/<slug>/`.
 3. Write `_testatlas/states/<slug>/state.md` (human-readable narrative — preconditions, transitions, postconditions, recovery paths, evidence references).
-4. Write `_testatlas/states/<slug>/state.json` (machine-readable record conforming to `.testatlas/schemas/state.schema.json` — name, slug, transitions[], persistence, recovery[]).
-5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm `state.json` matches schema.
+4. Write `_testatlas/states/<slug>/state.json` (machine-readable UI-state-machine record — name, slug, transitions[], persistence, recovery[]). **Note on schema:** `.testatlas/schemas/state.schema.json` is the V2 **brain-state** schema (`project.name`, `status.phase`, etc per `state.schema.json:1-25`); UI state-machine records do NOT validate against it. Use the per-flow sidecar shape under `_testatlas/states/<slug>/state.{md,json}`; if your platform requires schema-validation for these UI sidecars, file a follow-up to add a dedicated `ui-state-machine.schema.json` — the brain-state schema is not a substitute.
+5. Validate via `node .testatlas/scripts/validate-workspace.js` to confirm artifact placement; the workspace validator does NOT enforce schema-validation on UI state sidecars (no schema is registered for them yet).
 
 State coverage was previously aspirational — `_testatlas/states/` had a schema but no writer. PRD §13 mandates explore-state materializes the schema; this writer block closes that gap.
 

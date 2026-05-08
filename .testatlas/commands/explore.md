@@ -147,7 +147,7 @@ Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps th
 | `/atlas:explore-jobs` | Workers, queues, schedulers |
 | `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
 | `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
-| `/atlas:explore-tests` | Test coverage, frameworks, CI gates |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates (bridges V1 surfaces and V2 brain — its outputs feed the V1-style `tests/matrix.json` index even when invoked via the V2 classification pass) |
 | `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
 | `/atlas:explore-release-readiness` | Release-readiness signals |
 
