@@ -558,7 +558,7 @@ test('checkVocabEnumDrift: NEGATIVE — security and data-integrity flagged as n
     [
       '# Cmd',
       '',
-      'Test types: smoke, security, data-integrity.',
+      'Test types: smoke, regression, exploratory, security, data-integrity, user-flow.',
       '',
     ].join('\n'),
   );

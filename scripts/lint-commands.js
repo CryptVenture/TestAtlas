@@ -580,21 +580,18 @@ export async function checkVocabEnumDrift({ commandsDir, schemasDir, vocabPatter
   }
   if (enumSets.size === 0) return violations;
   const cmdFiles = await listMarkdownFiles(commandsDir);
-  // Tokens must be at word boundary AND begin with a lowercase letter to be
-  // enum-eligible. This avoids matching the latter part of a capitalized
-  // word like "Test" → "est".
+  // Token shape that "looks like" an enum member: starts with lowercase
+  // letter, kebab- or snake-case slug. Word-boundary anchored so we don't
+  // grab parts of CamelCase identifiers.
   const tokenRe = /\b[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*\b/g;
-  // Words to ignore (common prose) — never enum members
-  const STOPWORDS = new Set([
-    'and', 'or', 'the', 'a', 'an', 'for', 'in', 'of', 'to', 'tests', 'test',
-    'types', 'type', 'severity', 'severities', 'confidence', 'levels', 'level',
-    'values', 'value', 'votes', 'vote', 'disagreement', 'disagreements',
-    'with', 'see', 'use', 'are', 'is', 'be', 'as', 'at', 'by', 'from', 'on',
-    'one', 'all', 'any', 'each', 'this', 'that', 'these', 'those',
-    'enum', 'list', 'lists', 'set', 'sets', 'item', 'items',
-    // Schema names & doc terms
-    'vocabulary', 'schema', 'json', 'md', 'js', 'e.g', 'ie', 'eg',
-  ]);
+  // Helper: extract contiguous comma-separated token RUNS from text.
+  // A run is a sequence like "a, b, c, d" (commas with possible quotes/
+  // backticks/whitespace between tokens). Returns each run's enum-eligible
+  // tokens as a string[]. This tightly localizes drift detection to actual
+  // CSV lists, eliminating false positives from technical prose that
+  // happens to mention an enum word.
+  const csvRunRe =
+    /(?:`?[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*`?\s*,\s*)+`?[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*`?/g;
   for (const file of cmdFiles) {
     const text = await readFile(file, 'utf8');
     const lines = text.split('\n');
@@ -603,46 +600,46 @@ export async function checkVocabEnumDrift({ commandsDir, schemasDir, vocabPatter
       for (const p of patterns) {
         const set = enumSets.get(p.enum);
         if (!set) continue;
-        // Match the cue and advance past it so the token scan ignores the
-        // cue word itself (e.g. "Test" in "Test types: ..." would otherwise
-        // contribute spurious tokens).
+        // Cue must appear on the line.
         const cueRe = new RegExp(p.cuePattern.source, p.cuePattern.flags.replace('g', ''));
-        const cueMatch = cueRe.exec(line);
-        if (!cueMatch) continue;
-        const cueEnd = cueMatch.index + cueMatch[0].length;
-        const tail = line.slice(cueEnd);
-        const candidates = [...tail.matchAll(tokenRe)].map((m) => m[0]);
-        for (const tok of candidates) {
-          if (STOPWORDS.has(tok)) continue;
-          // Heuristic: only consider tokens after a colon or in a CSV list.
-          // (Crude but limits false positives in long sentences.)
-          if (set.has(tok)) continue;
-          // Token must "look like" an enum member: kebab-case slug, snake_case,
-          // or single lowercase word.
-          if (!/^[a-z][a-z0-9]*([-_][a-z0-9]+)*$/.test(tok)) continue;
-          // Skip pure cue-related words (testType, severity etc.)
-          if (tok === p.enum || tok === p.enum.toLowerCase()) continue;
-          // Skip if token is the cue word itself
-          if (p.cuePattern.test(tok)) continue;
-          // Skip if token is a member of any other enum we know about
-          // (avoids cross-cue false positives).
-          let inOther = false;
-          for (const [otherName, otherSet] of enumSets) {
-            if (otherName === p.enum) continue;
-            if (otherSet.has(tok)) {
-              inOther = true;
-              break;
+        if (!cueRe.test(line)) continue;
+        // Find comma-separated token runs on this line. For each run, count
+        // how many tokens are in this enum's set; if 2+, treat the run as
+        // "the author was writing this enum's list" and flag any
+        // non-members in that SAME RUN.
+        const runs = [...line.matchAll(csvRunRe)].map((m) => m[0]);
+        for (const run of runs) {
+          const tokensInRun = [...run.matchAll(tokenRe)].map((m) => m[0]);
+          const enumLike = tokensInRun.filter((t) =>
+            /^[a-z][a-z0-9]*([-_][a-z0-9]+)*$/.test(t),
+          );
+          if (enumLike.length < 3) continue;
+          const inSetCount = enumLike.filter((t) => set.has(t)).length;
+          if (inSetCount < 2) continue;
+          for (const tok of enumLike) {
+            if (set.has(tok)) continue;
+            // Skip if member of any other enum (cross-cue false positive).
+            let inOther = false;
+            for (const [otherName, otherSet] of enumSets) {
+              if (otherName === p.enum) continue;
+              if (otherSet.has(tok)) {
+                inOther = true;
+                break;
+              }
             }
+            if (inOther) continue;
+            // Skip pure CSV-list connectives that occasionally squeak in
+            // via the inclusive run regex.
+            if (['and', 'or'].includes(tok)) continue;
+            violations.push({
+              invariant: 'vocab-enum-drift',
+              file: path.relative(PROJECT_ROOT, file),
+              line: i + 1,
+              reason: `token '${tok}' not in vocabulary.schema.json $defs.${p.enum}.enum`,
+              detail: `'${tok}' in CSV list "${run.slice(0, 80)}" is not a member of ${p.enum} enum (allowed: ${[...set].join(', ')})`,
+              suggestion: `use one of: ${[...set].join(', ')} — or extend vocabulary.schema.json $defs.${p.enum}.enum`,
+            });
           }
-          if (inOther) continue;
-          violations.push({
-            invariant: 'vocab-enum-drift',
-            file: path.relative(PROJECT_ROOT, file),
-            line: i + 1,
-            reason: `token '${tok}' not in vocabulary.schema.json $defs.${p.enum}.enum`,
-            detail: `'${tok}' near "${line.trim().slice(0, 80)}" is not a member of ${p.enum} enum (allowed: ${[...set].join(', ')})`,
-            suggestion: `use one of: ${[...set].join(', ')} — or extend vocabulary.schema.json $defs.${p.enum}.enum`,
-          });
         }
       }
     }
