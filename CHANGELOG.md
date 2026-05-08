@@ -4,6 +4,59 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed
+
+- **`scripts/lint-commands.js` extended (Quick 260508-rqx)** — Round-9's linter caught flag-existence drift but Round-10 surfaced 17 issues by exploiting 3 unchecked invariant categories. Extensions added (with recurrence-prevention rationale):
+  - **1.1 flag-completeness** — required flags (e.g. `--summary` for `update-brain-after-command.js`) must appear in every invocation. Catches the systemic Round-10 `--summary` drift across 19 explore + 4 test + 2 brain commands.
+  - **1.2 enum-value-validity** — literal values after enum-flags must be in the script's enum (e.g. `--status` ∈ `{completed, aborted, in_progress}`). Catches Round-10's `--status success` / `--status failure` invasive drift.
+  - **6 vocab-enum-drift** — command-body lists referencing `vocabulary.schema.json` enums (testType, severity, confidence, disagreement_type, vote_value) must be a subset. Catches Round-10's `commands/plan.md` test-type drift (`security`, `data-integrity` not in enum). Heuristic uses contiguous CSV-runs with majority-in-set signal to avoid prose false positives.
+  - **7 lifecycle-position** — non-allowlisted commands must have `## Lifecycle` heading AND the brain-update hook must follow it (not appear before, not appear in absence of the heading). Catches structural drift like Round-10's `commands/council/council.md` missing-heading defect.
+- **`scripts/lib/script-flag-metadata.js`** — explicit per-script catalog (`REQUIRED_FLAGS`, `ENUM_FLAGS`) consulted by sub-invariants 1.1 and 1.2. Single source of truth — adding a required flag or new enum is a one-line change here, not a re-parse-the-script game.
+
+### Fixed (post-Quick-260508-pc0 dogfood round 10 — ISSUE-096..112)
+
+**Linter-caught fixes (closed by extended lint-commands sweep):**
+
+- **ISSUE-100a** — `commands/explore-codebase.md` Lifecycle now ends with `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`. (Not in `LIFECYCLE_ALLOWLIST`; was missing the hook entirely.) Linter caught (invariant 4 + new invariant 7).
+- **ISSUE-103** — `--summary "<one-line>"` injected into every `update-brain-after-command.js` invocation across the corpus (19 explore + 4 test + 2 brain commands plus report and maintain). Linter caught (new sub-invariant 1.1 flag-completeness).
+- **ISSUE-106a partial** — `commands/test/test-critical-flows.md` `--status success` → `--status completed` (and `--status failure` → `--status aborted`); `--actor agent --summary "Executed critical-flow tests and recorded outcomes"` added. Linter caught (new sub-invariants 1.1 + 1.2).
+- **ISSUE-107a partial** — `commands/test/generate-automation.md` `--status success` → `--status completed`; `--actor agent --summary "Generated automation skeletons and updated meta.json"` added. Linter caught (1.1 + 1.2).
+- **ISSUE-108** — `commands/test/generate-scenarios.md` + `commands/test/generate-retest-pack.md` `--status success` → `--status completed`; missing `--actor` and `--summary` added. Linter caught (1.1 + 1.2).
+- **ISSUE-110** — `commands/plan.md:59` test-type list aligned to `vocabulary.schema.json $defs.testType.enum` exactly: `smoke, user-flow, exploratory, regression, negative, state, accessibility, performance, integration, setup`. Dropped `security` and `data-integrity` (not in enum; schema extension deferred). Linter caught (new invariant 6).
+- **ISSUE-111** — `commands/council/council.md` gained an explicit `## Lifecycle` section mirroring `commands/report.md`'s structure (5 standard artifacts + PRD §40 council narrative). Council remains umbrella-allowlisted for the brain hook. Linter caught (new invariant 7).
+- **ISSUE-112** — `commands/brain/brain-drift.md` + `commands/brain/brain-score.md` `--status success` → `--status completed`; missing `--actor` and `--summary` added. Linter caught (1.1 + 1.2).
+
+**Manual fixes (outside linter reach):**
+
+- **ISSUE-096** — `commands/maintain/maintain-validate-artifacts.md` Purpose + Required Action #1 downgraded the `validate-brain.js` claim from "cross-reference resolution" to "presence + parseability + per-file AJV validation" (matching `scripts/validate-brain.js:7-12` actual scope). Adding cross-reference resolution to the script would be feature work; the doc now reflects script truth.
+- **ISSUE-097** — `commands/update.md` Required Action #6 rewritten to reflect the actual two-step contract: (1) caller resolves latest version (e.g. via `gh release view --repo <owner>/<repo> --json tagName -q .tagName` or `web-fetch`), (2) passes via `--latest-version` per `scripts/update.js:9,35`. Required Action #9 updated to invoke `update.js --latest-version <resolved-version>`. Removed the misleading "fetch GitHub Releases" prose since `update.js` itself does not call GitHub.
+- **ISSUE-098** — `commands/explore.md` classification step 4 (V2 explorer table) gained a one-line clarification on `/atlas:explore-tests`: "bridges V1 surfaces and V2 brain — its outputs feed the V1-style `tests/matrix.json` index even when invoked via the V2 classification pass". No brain hook added — explore.md is correctly umbrella-allowlisted.
+- **ISSUE-099** — `commands/explore/explore-all.md:93` cache-window prose now shows `Ms` units in parentheses: "1 hour (`3600000` ms) ... 24 hours (`86400000` ms) — config key `idempotencyTtlMs` (named with the Ms suffix because its value is milliseconds)".
+- **ISSUE-100b** — `commands/explore-codebase.md:66` `next routes` claim (no such CLI exists) replaced with file-glob signal: "search `app/**/page.tsx`, `app/**/route.ts`, and `pages/**/*.tsx` for Next.js" plus per-framework signals for Rails, Laravel, Express/Fastify/Koa.
+- **ISSUE-101** — `commands/explore/explore-tests.md` step 9 gained a `--refresh`-vs-step-9 reconciliation note: refresh emits a slice and bypasses step 9; non-refresh appends to `12_app_map.json`.
+- **ISSUE-102** — `commands/explore-api.md`, `commands/explore-cli.md`, `commands/explore-data.md` Outputs sections rewritten to match step truth: `12_app_map.json` receives ID-string arrays (`apiIds[]`, `cliIds[]`, `entityIds[]`); rich entries live in `_testatlas/maps/<surface>.json` sidecars per the `app-map.schema.json additionalProperties:false` contract.
+- **ISSUE-104** — `commands/explore/explore-state.md:138` clarified that `state.schema.json` is the V2 **brain-state** schema (`project.name`, `status.phase`, etc per `state.schema.json:1-25`); UI state-machine records do NOT validate against it. UI state sidecars live at `_testatlas/states/<slug>/state.{md,json}` without schema-validation until a dedicated `ui-state-machine.schema.json` is added (deferred follow-up).
+- **ISSUE-106b** — `commands/test/test-critical-flows.md` Required First Reads now includes `.testatlas/schemas/evidence.schema.json` with rationale: "every recorded outcome MUST cite evidence sidecars conforming to this schema; without it, evidence emission is undefined."
+- **ISSUE-107b** — `commands/test/generate-automation.md` Completion Criteria meta.json claim rewritten to describe its actual shape (`{ status, status_history }`) without claiming `test-scenario.schema.json` validation. Notes that until a dedicated `test-scenario-meta.schema.json` is added, the command writes the documented shape without external schema validation.
+
+**Collateral lifecycle-heading rename (linter-caught invariant 7):**
+
+- `commands/brain/brain-drift.md`, `commands/brain/brain-score.md`, `commands/core/bootstrap-refresh.md`, `commands/core/brain-compact.md`, `commands/core/brain-export.md`, `commands/core/brain-sync.md`, `commands/core/brain-validate.md`, `commands/maintain/maintain-migrate.md`, `commands/maintain/maintain-validate-artifacts.md` — renamed `## Update Brain After Command` / `## Post-Operation Brain Update` headings to `## Lifecycle` to satisfy invariant 7 (structural lifecycle heading required for non-allowlisted brain-writer commands). Content unchanged; same brain-update hook + standard 5 lifecycle artifacts (referenced via the hook).
+
+### Round-10 NOT-REAL claims (recorded for traceability)
+
+- **ISSUE-105 NOT-REAL** — `commands/test-all.md:51,87` references `.testatlas/commands/test-flow.md` (correct Phase-17 source-tree form). Dogfood agent confused source-tree path with adapter-rendered path. No edit applied.
+- **ISSUE-109 NOT-REAL** — `commands/report/report-release.md:127-128` halt-vs-banner is intentional branching: missing files HALT; stale inputs publish with `needs-validation` banner. Two distinct conditions, not a contradiction. No edit applied.
+
+### Future work (deferred from Quick 260508-rqx)
+
+- **Invariant 6 extension — schema-name semantic check** — when a doc says "validates against X.schema.json", verify the schema's structural fit against the artifact shape described in the doc. Defer; needs a domain map.
+- **Invariant 6 extension — Outputs-vs-Required-Actions consistency** — heuristic-based check that Outputs sections match what Required Actions actually emit (Round-10 ISSUE-102's class). Defer until heuristic is hardened.
+- **`ui-state-machine.schema.json`** — currently UI state sidecars under `_testatlas/states/<slug>/state.{md,json}` are not schema-validated; ISSUE-104 documents the gap. Add a dedicated UI-state schema in a future plan and register it with `validate-workspace.js`.
+- **`test-scenario-meta.schema.json`** — `generate-automation.md`'s `<flow-slug>.meta.json` companion is currently a status-tracker shape `{ status, status_history }` without schema-validation. Add a dedicated meta-schema in a future plan.
+
+**Verification gates:** `pnpm test` GREEN (1668 pass / 0 fail / 2 skipped); extended `lint-commands` 0 violations on post-fix corpus; `check-adapter-parity --strict` 1314/1314; `mesh-graph.test.js` 4/4 GREEN; `validate-workspace.js` exit code unchanged from baseline (pre-existing `TESTATLAS_UNKNOWN_SCHEMA` warnings on `maps/*.json` only). No release cut; last tag remains `v1.2.6`. `scripts/lib/install-core.js` untouched. All 18 adapter trees regenerated via `node scripts/assemble-adapter.js`.
+
 ### Added
 
 - **`scripts/lint-commands.js`** — new doc-vs-truth invariant linter that runs as part of `pnpm test` (chained before `node --test`) and inside `validate-workspace.js` (folded into the workspace exit code). Catches 5 classes of drift between command bodies and the scripts/schemas/paths they reference, preventing the recurring dogfood-round defect pattern (Rounds 7-9 surfaced 50+ doc-truth drift issues). Invariants:
