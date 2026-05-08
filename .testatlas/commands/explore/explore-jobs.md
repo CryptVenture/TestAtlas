@@ -51,7 +51,7 @@ Map every background job, scheduled task, queue worker, cron, and serverless tri
 
 1. **No evidence, no finding.** Per `bootstrap.md` §8.
 
-2. **Capability check.** Requires `shell` (for invoking job runners, reading queue tooling like `bullmq`, `sidekiq`, `celery`, `pg-boss`, `cloud Scheduler`, etc.). If `shell` unavailable, degrade to code reading: parse job-definition source files referenced by `12_app_map.json.jobs[].source`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`. Never invent retry counts, queue depths, or timing data.
+2. **Capability check.** Requires `shell` (for invoking job runners, reading queue tooling like `bullmq`, `sidekiq`, `celery`, `pg-boss`, `Cloud Scheduler`, etc.). If `shell` unavailable, degrade to code reading: parse job-definition source files referenced by `12_app_map.json.jobs[].source`. Mark every degraded finding `confidence: needs-validation` with `tool_unavailable: shell`. Never invent retry counts, queue depths, or timing data.
 
 3. **Source enumeration.** For each job in `12_app_map.json.jobs[]`:
    - Open the source file referenced by `source.file`.
