@@ -57,6 +57,7 @@ import {
   getSchemaFiles,
   getVocabEnums,
 } from './lib/script-flag-metadata.js';
+import { MCP_TOOL_CATALOG } from './lib/mcp-tool-catalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1761,6 +1762,81 @@ export async function checkCapabilityStopNonContradiction({ commandsDir, schemas
   return violations;
 }
 
+// ─── Invariant 20: mcp-tool-param-validity (Quick 260508-u72 INV-E) ─────────
+
+// Map bare tool name → namespaced catalog key. Real-world command bodies
+// cite the bare form (e.g., `wait_for({text:[...]})`); the catalog uses the
+// canonical namespaced form (`mcp__chrome-devtools__wait_for`).
+const MCP_BARE_TO_NAMESPACED = (() => {
+  const out = new Map();
+  for (const k of Object.keys(MCP_TOOL_CATALOG)) {
+    const bare = k.replace(/^mcp__chrome-devtools__/, '');
+    out.set(bare, k);
+  }
+  return out;
+})();
+
+// Tool-call pattern: `<tool>({<param>: ..., <param2>: ..., ...})`
+//   - tool name must be a known bare form (we restrict to catalogued tools
+//     to keep the matcher cheap; uncatalogued tools are lenient anyway)
+//   - object literal body captured non-greedily; param keys parsed by a
+//     follow-up regex
+const MCP_CALL_RE = /\b([a-z][a-z0-9_]*)\s*\(\s*\{([^}]*)\}/g;
+const MCP_PARAM_KEY_RE = /(?:^|[\s,{])([a-zA-Z_][a-zA-Z0-9_-]*)\s*:/g;
+
+/**
+ * Scan command bodies for `<tool>({...})` invocations of catalogued
+ * mcp__chrome-devtools__* tools; flag invalid params (params not in the
+ * catalog's allowlist for that tool). Tools NOT in the catalog are silently
+ * passed.
+ *
+ * Both inline backtick and code-fence contexts are scanned.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkMcpToolParamValidity({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const re = new RegExp(MCP_CALL_RE.source, 'g');
+      let m;
+      while ((m = re.exec(line)) !== null) {
+        const tool = m[1];
+        const body = m[2];
+        const namespaced = MCP_BARE_TO_NAMESPACED.get(tool);
+        if (!namespaced) continue; // uncatalogued — lenient skip
+        const entry = MCP_TOOL_CATALOG[namespaced];
+        const allowed = new Set(entry.params);
+        // Extract param keys from the object literal.
+        const keys = new Set();
+        const kre = new RegExp(MCP_PARAM_KEY_RE.source, 'g');
+        let km;
+        while ((km = kre.exec(body)) !== null) keys.add(km[1]);
+        const invalid = [...keys].filter((k) => !allowed.has(k));
+        if (invalid.length === 0) continue;
+        violations.push({
+          invariant: 'mcp-tool-param-invalid',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `${tool} does not accept params: ${invalid.join(', ')}`,
+          detail: `${namespaced} catalog: { ${entry.params.join(', ')} }`,
+          suggestion: `valid params are ${entry.params.join(', ')}; remove ${invalid.join(', ')} or update scripts/lib/mcp-tool-catalog.js if upstream added them`,
+        });
+      }
+      // Note: bare-token form `tool(<arg>)` (e.g. `click(submit)`) is
+      // intentionally NOT linted — corpus convention uses these as
+      // pseudocode placeholders, not literal param-value claims. Only the
+      // object-literal form `tool({<param>: ...})` is checked.
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -2058,6 +2134,7 @@ export async function runLinter(opts = {}) {
     () => checkOutputsVsRequiredActions({ commandsDir }),
     () => checkNumericalClaimVsScript({ commandsDir, scriptsDir }),
     () => checkCapabilityStopNonContradiction({ commandsDir, schemasDir }),
+    () => checkMcpToolParamValidity({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2122,6 +2199,7 @@ Invariants:
   17  outputs-vs-required-actions (HARD) Required Actions paths covered in Outputs (u72)
   18  numerical-claim-vs-script (HARD) "<n> JSON + <m> JSONL" matches script arrays (u72)
   19  capability-stopcondition-contradiction (HARD) capability isn't both degraded+halted (u72)
+  20  mcp-tool-param-invalid    (HARD) MCP tool params match curated catalog (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
