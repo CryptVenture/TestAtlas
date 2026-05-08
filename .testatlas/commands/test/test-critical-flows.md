@@ -149,6 +149,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns` by one; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — narrative entry: "Critical-flow run RUN-`<ts>` — `<n>` flows, `<n>` passed, `<n>` failed, prioritisation `<rationale>`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed --reindex` (or `--status aborted` with the error code; the `--reindex` flag is valid per `.testatlas/scripts/update-brain-after-command.js:138` and triggers a brain-index rebuild so `counts.testRuns` and `counts.evidenceRecords` reflect the just-written RUN sidecar + evidence files).
+
 ## Stop Conditions
 
 - `_testatlas/02_test_strategy.md` missing → agent halts before invoking any script; recommend running `/atlas:plan` first. (No enumerated error code — this is an agent-side precondition.)
@@ -156,10 +158,6 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - Critical flow set empty → agent halts and recommends a strategy review. (Agent-side precondition; no script halt code.)
 - Evidence directory cannot be written → the underlying `node:fs` `EACCES`/`EROFS` errno surfaces from the run script; the orchestrator aborts the run before recording any partial RUN sidecar.
 - AJV validation of any produced `RUN-*.json` against `test-run.schema.json` fails → halt with the AJV error path; do not commit a malformed run sidecar. (Validation runs through `validate-workspace.js` — see its typed findings for the precise path.)
-
-## Update Brain After Command
-
-Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --actor agent --summary "Executed critical-flow tests and recorded outcomes" --status completed --reindex` (or `--status aborted` with the error code; the `--reindex` flag is valid per `.testatlas/scripts/update-brain-after-command.js:138` and triggers a brain-index rebuild so `counts.testRuns` and `counts.evidenceRecords` reflect the just-written RUN sidecar + evidence files).
 
 ## Completion Criteria
 
