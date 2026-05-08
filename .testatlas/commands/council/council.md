@@ -103,7 +103,7 @@ The umbrella `/atlas:council` command itself is a dispatcher; per-mode council s
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (`counts.*` adjustments belong to the sub-command's lifecycle, not this dispatcher.)
 - `_testatlas/history/run_log.md` — narrative entry: "COUNCIL-`<session-id>` (`<mode>`) — `<n>` personas / `<n>` rounds / verdict `<verdict>`."
 
-This command is umbrella-allowlisted in `scripts/lint-commands.js` `LIFECYCLE_ALLOWLIST`; the brain-update hook is owned by the dispatched sub-command, NOT this dispatcher.
+This command is umbrella-allowlisted in `.testatlas/scripts/lint-commands.js` `LIFECYCLE_ALLOWLIST`; the brain-update hook is owned by the dispatched sub-command, NOT this dispatcher.
 
 ## Stop Conditions
 

@@ -112,6 +112,10 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 
 ## Lifecycle
 
+<!-- ISSUE-162 (Quick 260508-u72): merged the previously-duplicated ## Lifecycle -->
+<!-- sections into a single canonical section. PRD §40 artifact list + brain-update -->
+<!-- hook now live together; INV-F (PLAN-20 duplicate-section-headings) clean. -->
+
 After completing this command, update these workspace artifacts in PRD §40 order:
 
 - `_testatlas/03_execution_status.md` — record current command + completion state.
@@ -120,6 +124,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute counts.
 - `_testatlas/history/run_log.md` — narrative log entry for this run.
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command core-init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
+
 ## Completion Criteria
 
 - `_testatlas/11_workspace_manifest.json` validates and records `status: initialized` (or `partial-fill` for upgrade).
@@ -127,10 +133,6 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - All 22 V2 brain files present.
 - Lifecycle artifacts updated.
 - A `command_completed` event recorded.
-
-## Lifecycle
-
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-init --actor agent --summary "Workspace initialized (V2)" --reindex`. The `--reindex` flag triggers `index-artifacts.js` so brain counts reflect the on-disk state from the very first command.
 
 ## What's Next
 

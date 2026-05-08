@@ -95,8 +95,12 @@ The four validation dimensions:
      (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
      object, (d) each file's parsed value validates against its registered
      V2 schema via AJV (per-file). The script does NOT perform cross-id
-     reference resolution between brain files — that pass lives in step 4
-     below. Supported flags are `--cwd <dir>`, `--brain-dir <dir>`,
+     reference resolution between brain files — that pass is performed by
+     the orchestrator in the `Walk _testatlas/evidence/` bullet of this
+     step (preferred path) or the equivalent fallback bullets in step 2;
+     it covers validation dimensions 1 and 3 (Brain JSON consistency +
+     Orphaned evidence / dangling references). Supported flags are
+     `--cwd <dir>`, `--brain-dir <dir>`,
      `--suite-cwd <dir>` only; `--strict` and `--report-only` are not
      recognized by the script.
    - Run `node .testatlas/scripts/sync-markdown-json.js --dry-run` — reports drift

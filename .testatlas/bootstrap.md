@@ -1,9 +1,15 @@
 ---
 project: TestAtlas
 bootstrap_version: 1
-schema_version: 2020-12
+suite_version: 1.2.6
+json_schema_draft: 2020-12
 last_updated: 2026-05-03
 ---
+<!-- ISSUE-136 (Quick 260508-u72): split the misleading `schema_version: 2020-12` -->
+<!-- field — `2020-12` is the JSON Schema draft identifier (now `json_schema_draft`), -->
+<!-- not the TestAtlas suite version. Suite version now lives in `suite_version` -->
+<!-- (mirrors package.json:version). -->
+
 
 # TestAtlas Constitution
 
