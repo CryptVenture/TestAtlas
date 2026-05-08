@@ -74,6 +74,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 ## Outputs
 
 - Updated `_testatlas/brain/<index>.json` files (only when content changed).
+- `_testatlas/brain/graph.json` — refreshed by `update-graph.js` (PRD §11 16-relationship knowledge graph).
 - Updated `<!-- TESTATLAS:GENERATED:START ... -->` sections in markdown (only when content changed).
 - Lifecycle close + brain event.
 

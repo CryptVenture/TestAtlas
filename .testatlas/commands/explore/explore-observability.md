@@ -105,6 +105,7 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
 
 - Updated `_testatlas/maps/integrations.json` (observability rows enriched).
 - Updated `_testatlas/12_app_map.json` top-level `observability` object (schema-aligned per `app-map.schema.json`).
+- `_testatlas/maps/observability.json` — escape-hatch sidecar emitted only when a finding doesn't fit the schema-aligned `observability` shape.
 - `_testatlas/evidence/explore-observability/<timestamp>/` — `log-sample.txt`, `metrics-snapshot.json`, `alerts.yml-extracted.json`, `traces/<traceId>.json`, `redaction-scan.txt`.
 
 ## Lifecycle

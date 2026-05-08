@@ -71,7 +71,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 
 - Updated `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}` files: status transitioned, history entry appended, type promoted to `regression` if reopened.
 - New evidence directory `_testatlas/evidence/retest/<issue-id>/<ts>/` containing the freshly captured artifacts.
-- Refreshed per-status indexes under `_testatlas/to_fix/by_status/` (`fixed_pending_retest`, `closed`, `reopened`).
+- Refreshed per-status indexes — `_testatlas/to_fix/by_status/fixed_pending_retest.md`, `_testatlas/to_fix/by_status/closed.md`, `_testatlas/to_fix/by_status/reopened.md` — and the `_testatlas/to_fix/by_severity/` index when severity changed.
 - Updated per-flow index `_testatlas/to_fix/by_flow/<flow-id>.md` reflecting the new flow confidence (the canonical index path; flows themselves are file pairs `flows/FLOW-*.{md,json}`, not directories).
 - A run-log line summarizing pass / fail counts for the batch.
 

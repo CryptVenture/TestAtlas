@@ -1374,6 +1374,151 @@ export async function checkStopCodeExistence({ commandsDir, scriptsDir }) {
   return violations;
 }
 
+// ─── Invariant 17: outputs-vs-required-actions (Quick 260508-u72 INV-B) ─────
+
+// Capture `_testatlas/<path>` references with backtick or bare form. The
+// regex stops at whitespace, backtick, paren, or quote — capturing the path
+// portion. We allow a trailing punctuation strip via a post-process.
+const TESTATLAS_PATH_RE = /_testatlas\/[\w./_-]+/g;
+
+/**
+ * Extract a section's body lines by H2 heading name (case-insensitive,
+ * exact match on the heading text). Returns `null` if not found.
+ *
+ * @param {string} text full file contents
+ * @param {string} heading e.g. "Required Actions"
+ * @returns {{startLine:number,endLine:number,body:string,lines:string[]}|null}
+ */
+function extractH2Section(text, heading) {
+  const lines = text.split('\n');
+  const headRe = new RegExp(`^#{1,2}\\s+${heading}\\s*$`, 'i');
+  let startLine = -1;
+  for (let i = 0; i < lines.length; i++) {
+    if (headRe.test(lines[i])) {
+      startLine = i;
+      break;
+    }
+  }
+  if (startLine === -1) return null;
+  let endLine = lines.length;
+  for (let i = startLine + 1; i < lines.length; i++) {
+    if (/^#{1,2}\s+\S/.test(lines[i])) {
+      endLine = i;
+      break;
+    }
+  }
+  return {
+    startLine,
+    endLine,
+    body: lines.slice(startLine + 1, endLine).join('\n'),
+    lines: lines.slice(startLine + 1, endLine),
+  };
+}
+
+// Write-verb cues that signal a line is asserting a write of the cited
+// path. Conservative gate — only paths in a write-verb context count as
+// "Required Actions wrote X". Anything else is treated as a read/reference.
+const WRITE_VERB_RE =
+  /\b(write|writes|written|append|appends|appended|emit|emits|emitted|update|updates|updated|create|creates|created|produce|produces|produced|generate|generates|generated|render|renders|rendered|persist|persists|persisted|save|saves|saved|output|outputs|store|stores|stored|bump|bumps|recompute|recomputes|increment|increments|publish|publishes)\b/i;
+
+// Read-verb cues that mark a line as input-only (Read / Open / See / Load /
+// for-each-loop). Even if a write-verb appears nearby, a read-verb cue on the
+// same line takes precedence — these are inputs, not outputs.
+const READ_VERB_RE =
+  /\b(read|reads|open|opens|see|load|loads|for\s+each|input|consume|consumes|cross-?reference|consult|reference|inspect|verify|check)\b/i;
+
+/**
+ * Collect every `_testatlas/...` path in a section that is in a clear
+ * write-verb context. Returns each occurrence with its file-line and a
+ * deferred flag.
+ *
+ * Conservative — skips
+ *   - directory references (path ends in `/`)
+ *   - JSON-property paths (strips to the file portion)
+ *   - lines without a write-verb cue OR with a read-verb cue
+ *   - non-content extensions (only .json/.jsonl/.md/.txt/.yml/.yaml count)
+ *
+ * @param {{startLine:number, lines:string[]}} section as returned by extractH2Section
+ * @param {{writeOnly:boolean}} [opts] — if true, only return paths in write-verb context
+ * @returns {Array<{path:string,line:number,deferred:boolean}>}
+ */
+function collectTestatlasPaths(section, { writeOnly = false } = {}) {
+  if (!section) return [];
+  const out = [];
+  for (let i = 0; i < section.lines.length; i++) {
+    const line = section.lines[i];
+    const deferred = /<!--\s*output-deferred\s*:[^>]*-->/i.test(line);
+    if (writeOnly) {
+      const isRead = READ_VERB_RE.test(line);
+      const isWrite = WRITE_VERB_RE.test(line);
+      // If line is read-only or has no write verb, skip.
+      if (isRead || !isWrite) continue;
+    }
+    const re = new RegExp(TESTATLAS_PATH_RE.source, 'g');
+    let m;
+    while ((m = re.exec(line)) !== null) {
+      let p = m[0];
+      p = p.replace(/[.,;:)\]]+$/, '');
+      const fileSuffixMatch = p.match(/^(_testatlas\/[\w./_-]+?\.(?:json|jsonl|md|txt|yml|yaml))(?:\.[\w_-]+)?$/);
+      if (fileSuffixMatch) p = fileSuffixMatch[1];
+      if (p.endsWith('/')) continue;
+      if (!/\.(?:json|jsonl|md|txt|yml|yaml)$/.test(p)) continue;
+      out.push({
+        path: p,
+        line: section.startLine + 1 + i + 1,
+        deferred,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Within each command body, every `_testatlas/...` path that appears in
+ * `## Required Actions` MUST also appear in `## Outputs` (or carry an
+ * `<!-- output-deferred: <reason> -->` marker on the same line).
+ *
+ * Skipped when either section is absent — structural-section presence is
+ * out-of-scope for INV-B (other invariants own that).
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkOutputsVsRequiredActions({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const requiredSection = extractH2Section(text, 'Required Actions');
+    const outputsSection = extractH2Section(text, 'Outputs');
+    if (!requiredSection || !outputsSection) continue;
+    // Required Actions: only paths in write-verb context count as outputs.
+    // Outputs section: any path is an output (it's a list, not prose).
+    const requiredPaths = collectTestatlasPaths(requiredSection, { writeOnly: true });
+    const outputPaths = collectTestatlasPaths(outputsSection, { writeOnly: false });
+    if (requiredPaths.length === 0) continue;
+    const outputSet = new Set(outputPaths.map((o) => o.path));
+    // De-duplicate by path within Required Actions — only emit one
+    // violation per missing path even if it's mentioned multiple times.
+    const seen = new Set();
+    for (const r of requiredPaths) {
+      if (r.deferred) continue;
+      if (outputSet.has(r.path)) continue;
+      if (seen.has(r.path)) continue;
+      seen.add(r.path);
+      violations.push({
+        invariant: 'outputs-missing-path',
+        file: path.relative(PROJECT_ROOT, file),
+        line: r.line,
+        reason: `Required Actions writes ${r.path} but Outputs section omits it`,
+        detail: `${r.path} cited in ## Required Actions; not present in ## Outputs (and no <!-- output-deferred: ... --> marker)`,
+        suggestion: `append ${r.path} to ## Outputs (or annotate with <!-- output-deferred: <reason> -->)`,
+      });
+    }
+  }
+  return violations;
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -1668,6 +1813,7 @@ export async function runLinter(opts = {}) {
     () => checkStepCrossReference({ commandsDir }),
     // Round-12 (Quick 260508-u72) — 7 new invariants:
     () => checkStopCodeExistence({ commandsDir, scriptsDir }),
+    () => checkOutputsVsRequiredActions({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -1729,6 +1875,7 @@ Invariants:
   14  option-pair-completeness  (HARD) Option B implies Option A precedes (syv)
   15  step-cross-reference      (HARD) "step N" references resolve (syv)
   16  stop-code-existence       (HARD) ## Stop Conditions codes exist in script (u72)
+  17  outputs-vs-required-actions (HARD) Required Actions paths covered in Outputs (u72)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)

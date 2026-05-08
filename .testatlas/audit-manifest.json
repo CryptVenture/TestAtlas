@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "generated_at": "2026-05-08T21:26:29.718Z",
+  "generated_at": "2026-05-08T21:30:52.133Z",
   "summary": {
     "commands_scanned": 73,
-    "claims_extracted": 908,
-    "claims_resolved": 540,
+    "claims_extracted": 909,
+    "claims_resolved": 541,
     "claims_unresolved": 368,
     "resolution_rate": "59.5%"
   },
@@ -452,43 +452,43 @@
         {
           "type": "slash-command",
           "value": "/atlas:core-init",
-          "location": "L82",
+          "location": "L83",
           "resolution": "unresolved"
         },
         {
           "type": "mcp-tool",
           "value": "brain:js",
-          "location": "L87",
+          "location": "L88",
           "resolution": "unresolved"
         },
         {
           "type": "script-invocation",
           "value": "update-brain-after-command.js",
-          "location": "L93",
+          "location": "L94",
           "resolution": "valid"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --command",
-          "location": "L93",
+          "location": "L94",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --actor",
-          "location": "L93",
+          "location": "L94",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --summary",
-          "location": "L93",
+          "location": "L94",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --reindex",
-          "location": "L93",
+          "location": "L94",
           "resolution": "unresolved"
         }
       ]
@@ -2880,45 +2880,51 @@
           "resolution": "valid"
         },
         {
+          "type": "map-path",
+          "value": "_testatlas/maps/observability.json",
+          "location": "L108",
+          "resolution": "valid"
+        },
+        {
           "type": "schema-file",
           "value": "command-result.schema.json",
-          "location": "L116",
+          "location": "L117",
           "resolution": "valid"
         },
         {
           "type": "script-invocation",
           "value": "update-brain-after-command.js",
-          "location": "L120",
+          "location": "L121",
           "resolution": "valid"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --command",
-          "location": "L120",
+          "location": "L121",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --actor",
-          "location": "L120",
+          "location": "L121",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --summary",
-          "location": "L120",
+          "location": "L121",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --status",
-          "location": "L120",
+          "location": "L121",
           "resolution": "unresolved"
         },
         {
           "type": "script-flag",
           "value": "update-brain-after-command.js --reindex",
-          "location": "L120",
+          "location": "L121",
           "resolution": "unresolved"
         }
       ]

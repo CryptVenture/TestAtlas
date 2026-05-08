@@ -51,8 +51,8 @@ Produce a portable export of the brain so it can be handed to another agent, fed
 
 1. Validate the brain first via `node .testatlas/scripts/validate-brain.js` — never export an invalid brain.
 2. Based on `--mode`:
-   - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`).
-   - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`).
+   - `json`: aggregate `state.json` + `issues.json` + `coverage.json` + `quality_scores.json` into a `dashboard_data.json` shape; AJV-validate against `dashboard_data.schema.json`; atomic-write to `_testatlas/exports/dashboard-data.json` (or `--output`). <!-- output-deferred: per-mode export covered by `_testatlas/exports/` umbrella in Outputs -->
+   - `graph`: copy `brain/graph.json` to the output path (default `_testatlas/exports/graph-<timestamp>.json`). <!-- output-deferred: per-mode export covered by `_testatlas/exports/` umbrella in Outputs -->
    - `archive`: copy every file under `_testatlas/brain/` plus canonical artifacts into `_testatlas/exports/<timestamp>/`.
 3. Close the lifecycle.
 
