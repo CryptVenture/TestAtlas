@@ -44,5 +44,6 @@
   "disableUpdateCheck": false,
   "updateCheckTtlHours": 24,
   "pinnedSince": null,
-  "pinAlertThresholdDays": 90
+  "pinAlertThresholdDays": 90,
+  "idempotencyTtlMs": 86400000
 }

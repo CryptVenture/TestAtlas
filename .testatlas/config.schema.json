@@ -127,6 +127,12 @@
       "minimum": 1,
       "default": 90,
       "description": "Days after which an out-of-range pinnedVersion emits a stale-pin warning"
+    },
+    "idempotencyTtlMs": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 86400000,
+      "description": "Cache TTL in milliseconds for explorer idempotency (default 24h); referenced by explore-all/explore-codebase cache-strategy semantics. Quick 260508-syv (Round-11 closure)."
     }
   }
 }

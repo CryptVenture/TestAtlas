@@ -37,6 +37,7 @@
         "fixed_pending_retest",
         "retested",
         "closed",
+        "reopened",
         "wont_fix"
       ]
     },
