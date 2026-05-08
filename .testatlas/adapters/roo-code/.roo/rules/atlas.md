@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="d18971c18b55dad2b55e090754e446a134def76c3cb6eff7c1e7bdd918e6d54c" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="53a904b1ab088db55d200f23ca4bfea55d974b2702aa6f842493f138e15e9b72" -->
 First read `.testatlas/bootstrap.md`. Then read `.roo/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -222,7 +222,7 @@ Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error
 ## /atlas-explore
 
 Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md. Read `.testatlas/commands/explore.md` for full instructions.
-- Required capabilities: file-write.
+- Required capabilities: file-write, shell.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-explore-all

@@ -2,7 +2,7 @@
 command: explore
 version: 1.1.0
 description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.
-capabilities: [file-write]
+capabilities: [file-write, shell]
 produces:
   - command-result
 consumes:
