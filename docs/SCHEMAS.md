@@ -48,7 +48,7 @@ Schema for _testatlas/12_app_map.json — graph of every artifact in the workspa
 
 **`$id`:** `https://testatlas.dev/schemas/v1/app-map.schema.json`
 
-**Top-level properties:** `domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships`
+**Top-level properties:** `domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships`, `errorHandling`, `integrationEnvironments`, `runtimeMetadata`, `observability`, `securityFindings`, `states`
 
 [Source](../.testatlas/schemas/app-map.schema.json)
 
@@ -252,7 +252,7 @@ Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/issue.schema.json`
 
-**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`, `discoveredByPersona`, `brainClaimIds`, `driftSensitivity`, `automationCandidate`, `councilConsensusLevel`, `evidenceStrength`, `retestPackPath`
+**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`, `discoveredByPersona`, `brainClaimIds`, `driftSensitivity`, `automationCandidate`, `councilConsensusLevel`, `evidenceStrength`, `retestPackPath`, `triagedAs`, `closedAs`
 
 [Source](../.testatlas/schemas/issue.schema.json)
 

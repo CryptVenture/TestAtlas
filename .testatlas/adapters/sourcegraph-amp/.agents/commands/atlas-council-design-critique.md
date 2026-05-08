@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-design-critique. Invoke as /atlas-council-design-critique. Description: Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="de9334eeecc3ddc5600eb09ff5590596f81f3b68f476c89fa8fcb895befe47a2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="ddba9f28679283d20aedccf3e22abb305187191e9414344c53b50954b5592bd6" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Run a Design Critique (PRD §7.9) when UI flows are mapped, product copy or navi
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/reference/chrome-devtools-mcp.md` — Tier-1 UI walkthrough toolset.
 - `.testatlas/agents/registry.md`
 - Target flow's `_testatlas/flows/<slug>/flow.{md,json}` plus the relevant entries in `_testatlas/maps/{routes,pages,components,states}.json`
@@ -26,7 +26,7 @@ Recommended slate: Product Strategist, User Advocate, Accessibility Reviewer. Op
 2. **Independent review.** Each persona drives a UI walkthrough per `chrome-devtools-mcp.md` (when browser+MCP capabilities present) and captures findings.
 3. **Initial findings.** Personas emit `message_type: "finding"` referencing screenshots / DOM snapshots.
 4. **Cross-questioning.** Personas challenge each other's interpretation (e.g., "is this confusing copy or appropriately concise?").
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas may request additional walkthrough captures.
 7. **Vote.** Per critique motion (e.g., "this copy needs revision", "this flow needs a clearer success state"), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts the critique narrative in `consolidation.{md,json}`.

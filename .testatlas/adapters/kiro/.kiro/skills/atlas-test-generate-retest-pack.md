@@ -4,7 +4,7 @@ description: Generate self-contained retest packs from open issue records under 
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="95eb73cb13d6706715099799bfd3f4ed068a2cd621c56dfb806e7a6cd3da63b3" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-retest-pack.md" hash="b8e6ebcea8e83da1966a31b9990b72f79e78e406c790b6fd60c781219d844b29" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-test-generate-retest-pack.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -90,6 +90,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-retest-pack --status success` (or `--status failure` with the error code).
+
+## Completion Criteria
+
+- All `_testatlas/tests/retest_packs/RET-<issue-id>/RETEST-<NNNN>.{md,json}` pairs for in-scope issues exist on disk (per Required Actions).
+- Every produced pack JSON validates against `retest_pack.schema.json` (`additionalProperties: false`) and carries `status: "pending"`.
+- Every issue ID referenced by an emitted pack resolves to a valid `_testatlas/to_fix/<ISSUE-id>.json` artifact.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`TO_FIX_MISSING`, `ISSUE_NOT_FOUND`, AJV schema-validation failure all clear; capability gaps require fallback path with explicit acceptance-criterion coverage).
 
 ## What's Next
 

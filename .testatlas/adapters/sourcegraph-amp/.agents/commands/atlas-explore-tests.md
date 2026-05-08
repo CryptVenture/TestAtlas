@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-tests. Invoke as /atlas-explore-tests. Description: Inventory existing tests, measure coverage, identify gaps, surface flaky tests. Static audit + live test-runner probe when shell available. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="c1207b7ee941fcd92e38e0f45ae576302bb1511c0fe02016bacf209eee42c605" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="e6bfe85724825e0804ddc969402ad57be78db5a9687fee13d76973c0228d2f3c" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-explore-tests.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -49,7 +49,7 @@ Inventory the existing test suite: which test runners are configured (Jest, Vite
 
 8. **Gap analysis.** For each uncovered or thinly covered file (≥ 50 LOC, < 30% line coverage), produce a gap entry: `{file, percent, complexity_estimate, suggested_test_type, owning_domain}`. Write all gaps to `_testatlas/maps/coverage-gaps.md`.
 
-9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json`. Update `_testatlas/12_app_map.json.tests[]` with run + coverage metadata. If any cited evidence path fails to materialize on disk, halt.
+9. **Persist + write.** Validate any `test-run` artifacts against `test-run.schema.json` and write rich test-run + coverage metadata to `_testatlas/maps/tests.json` (atomic). Append only the test **ID strings** (e.g. `TEST-<slug>`) to `_testatlas/12_app_map.json.tests[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). If any cited evidence path fails to materialize on disk, halt.
 
 10. Close the lifecycle.
 

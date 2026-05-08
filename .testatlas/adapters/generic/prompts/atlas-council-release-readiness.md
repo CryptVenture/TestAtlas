@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-release-readiness. Paste .testatlas/bootstrap.md first; description: Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="c96b97fb6daea388b0124cbed66f307638fb15b88aa61bb75f85d5bff142e6a9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="0fc9ae16061e4da6f95209d345b5225f7dcb4c0c2cbdd183f5078624b5438ff5" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Run a Release Readiness council (PRD §7.9) to weigh blockers, coverage, drift, 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/issues.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/drift.json`, `_testatlas/brain/quality_scores.json`
 - The latest `_testatlas/reports/REPORT-release-readiness-*.md` if present
@@ -26,7 +26,7 @@ Recommended slate: Release Readiness Judge, QA Lead, Security and Privacy Review
 2. **Independent review.** Personas evaluate gates against the project's release criteria.
 3. **Initial findings.** Personas emit `message_type: "finding"` with their gate-by-gate verdict.
 4. **Cross-questioning.** Personas challenge gate evaluations.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas may request `node .testatlas/scripts/explore-tests.js --refresh` (deterministic runner-detection + test-inventory accelerator) or run `/atlas:explore-tests` (full agent-driven coverage + flake + gap analysis) to refresh test coverage signals before voting.
 7. **Vote.** Per gate motion AND on the final go / conditional / no-go, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** The Release Readiness Judge drafts the final decision in `consolidation.{md,json}` with explicit blockers, conditional concerns, and rollback plan.

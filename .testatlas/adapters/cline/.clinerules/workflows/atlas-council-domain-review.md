@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-domain-review. Invoke as /atlas-council-domain-review.md. Description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="284aba05f38dad00095df0aba1cb96ae13f4999512c8c78a65aad2d45902f555" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="490b7f3d4ceb936f27cc4c22b026647d08e9d8f16e40b1298ac46e2a2efcdd57" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Run a Roundtable Review (PRD §7.9) on a single domain. Every selected persona r
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9 rounds, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9 rounds, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/domains.json`
 - The target domain's `_testatlas/domains/<slug>/domain.{md,json}`
@@ -26,7 +26,7 @@ Recommended slate (per `council-protocol.md` §5): all available personas, weigh
 2. **Independent review.** Each persona inspects domain artifacts without seeing other personas' findings.
 3. **Initial findings.** Each persona writes to `outputs/<persona-id>-output.{md,json}` and emits `message_type: "finding"` transcript lines.
 4. **Cross-questioning.** Personas pose questions via `message_type: "question"`.
-5. **Disagreement capture.** Persistent conflicts recorded in `disagreements.md` with one of the 8 PRD §12.5 types: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Persistent conflicts recorded in `disagreements.md` with one of the 8 PRD §12.5 types (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** For each motion, each persona casts a vote on the +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.

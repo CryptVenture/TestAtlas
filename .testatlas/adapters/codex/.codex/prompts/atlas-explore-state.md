@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-state. Invoke as /prompts:atlas-explore-state. Description: Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="01cc214f59e68871f797d152fa2914b5fed500ddd28062442fdc5934bd25eb88" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="7aeab28151a9a1256590c917d78902f357f60a480ed2c5068a0b378f44362109" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-state.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -26,7 +26,7 @@ Map every interactive surface's state lifecycle: the PRD §13.1 5-state matrix (
 
 4. **Safety flags.** Refuse production hosts when `allowProductionTesting=false`. Refuse destructive controls when `allowDestructiveActions=false`.
 
-5. **Tier-1 toolset (verbatim per `.testatlas/reference/chrome-devtools-mcp.md` §"Tool tiering"):** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Pre-register `handle_dialog({accept, promptText?})` BEFORE any action that may open `alert` / `confirm` / `beforeunload`.
+5. **Tier-1 toolset (verbatim per `.testatlas/reference/chrome-devtools-mcp.md` §"Tool tiering"):** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Pre-register `handle_dialog({ action: "dismiss" })` (or `{ action: "accept" }` when accepting) BEFORE any action that may open `alert` / `confirm` / `beforeunload`. The `handle_dialog` API takes `{ action: "accept" | "dismiss", promptText?: string }` per `.testatlas/reference/chrome-devtools-mcp.md` Tool-API addenda — NOT the legacy `{ accept: bool }` shape.
 
 6. **State enumeration per surface.** For each interactive surface (form, modal, menu, list, search, filter, dialog) on each user-facing route:
    - **Default/initial state:** `navigate_page(url)` → `wait_for(settle)` → `take_snapshot` → `take_screenshot` → save under `evidence/explore-state/<ts>/<route>/<surface>/initial.{json,png}`. Record the surface's resting state on first entry.
@@ -40,14 +40,32 @@ Map every interactive surface's state lifecycle: the PRD §13.1 5-state matrix (
 
 8. **Error recovery paths.** From `error`, document the recovery action (retry button, reload, navigate-away, dismiss-and-edit). Drive each recovery path with the appropriate Tier-2 tool (`click`, `press_key`) and capture the resulting state. If a surface has no recovery path, record that as a finding (likely a UX gap).
 
-9. **Persist + write.** Validate each state entry against `app-map.schema.json` / `evidence.schema.json` before writing. Update `_testatlas/maps/states.md` (human-readable catalog) and `_testatlas/maps/states.json` (machine-readable index, validates against the states-map schema fragment). Append affected route+component entries in `_testatlas/12_app_map.json`. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
+9. **Persist + write.** Validate each state entry against `app-map.schema.json` / `evidence.schema.json` before writing. Update `_testatlas/maps/states.md` (human-readable catalog) and `_testatlas/maps/states.json` (machine-readable index, validates against the states-map schema fragment).
+
+   Write per-surface state findings to `_testatlas/12_app_map.json` under the top-level `states` array property (added to `app-map.schema.json` in Phase 20-01). Each entry's shape is closed (`additionalProperties: false`):
+
+   - `surface` (string, required) — route/component/page surface
+   - `state` (string, required, enum: `empty` | `loading` | `error` | `success` | `permission` | `offline`)
+   - `evidence` (string, optional)
+   - `notes` (string, optional)
+
+   Example:
+   ```json
+   {
+     "states": [
+       { "surface": "/dashboard", "state": "empty", "evidence": "EVIDENCE-080-empty-state", "notes": "First-run onboarding shown" }
+     ]
+   }
+   ```
+
+   DO NOT invent keys outside this shape. Off-schema findings → sidecar `_testatlas/maps/states.json` per bootstrap escape hatch. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
 
 10. Close the lifecycle.
 
 ## Outputs
 
 - Updated `_testatlas/maps/states.md` and `_testatlas/maps/states.json` — state catalog with default state, observed states (5-state matrix), transitions, recovery paths, evidence refs.
-- Updated `_testatlas/12_app_map.json` route + component entries — new `states[]` array entries.
+- Updated `_testatlas/12_app_map.json` top-level `states` array (schema-aligned per `app-map.schema.json`; entries closed under `additionalProperties: false`).
 - `_testatlas/evidence/explore-state/<timestamp>/<route-slug>/<surface>/` — `initial.{png,json}`, `empty.{png,json}`, `loading.{png,json}`, `error.{png,json}`, `success.{png,json}`, `permission.{png,json}`, `transitions.json`, `recovery.json`, `console.log.txt`, `network.json`.
 
 ## Lifecycle

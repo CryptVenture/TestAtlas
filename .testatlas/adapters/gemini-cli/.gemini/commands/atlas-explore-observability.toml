@@ -1,6 +1,6 @@
 description = "Map logging setup, metrics, alerts, and tracing — verify log generation, metric collection, alert triggers, and distributed-trace propagation. Static audit + live probe when shell available."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="7dfef71d92f57d4225ab96b8bfd3b5ff2b4704320c40a7efddcef858b2adeea6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-observability.md" hash="5c9ce850ea014b8308d4e0fe2338aae3d6c6827f2d77beaaa583556db0f7fa72" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -26,7 +26,7 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
    - **Sink enumeration:** stdout-only, file rotation, syslog, vendor (Datadog, Sumo, Splunk, ELK, Loki). Capture credentials only by reference (path / env var name); NEVER copy credentials into evidence.
    - **Level distribution:** generate a sample run (`shell` invocation that exercises a representative endpoint) → capture stdout/stderr to `evidence/log-sample.txt` → count log lines per level (debug/info/warn/error/fatal).
    - **Structured-log fields:** confirm each line is JSON or key-value structured. Record the standard fields (`timestamp`, `level`, `service`, `traceId`, `spanId`, `userId`, `requestId`).
-   - **Redaction:** run `node .testatlas/scripts/redact-evidence.js --scan <evidence-path>` on captured logs to flag any secret / PII leak.
+   - **Redaction:** for each evidence record emitted under this run, invoke `node .testatlas/scripts/redact-evidence.js --evidence-id <EVIDENCE-XXX>` (per-record; loop over records in `_testatlas/evidence/explore-observability/<timestamp>/`) to flag any secret / PII leak. The script's per-record `--evidence-id` model is the only supported invocation — there is no `--scan` flag.
 
 4. **Metrics audit.**
    - **Library detection:** identify the metrics surface (`prom-client`, `@opentelemetry/sdk-metrics`, `statsd-client`, `micrometer`, `dropwizard`).
@@ -46,14 +46,33 @@ Map the observability surface: logging setup (logger libraries, sinks, log level
    - **Sample rate:** read config; flag 100% sampling in production as a perf concern.
    - **Span attributes:** confirm `service.name`, `db.statement` (with PII redacted), `http.route`, `error.type` are set.
 
-7. **Persist + write.** Update `_testatlas/maps/integrations.json` observability rows. Append to `_testatlas/12_app_map.json.observability` (additive). If any cited evidence path fails to materialize on disk, halt.
+7. **Persist + write.** Update `_testatlas/maps/integrations.json` observability rows. Write to `_testatlas/12_app_map.json` under the top-level `observability` object property (added to `app-map.schema.json` in Phase 20-01). The shape is closed (`additionalProperties: false`):
+
+   - `logging` (string[], optional) — surfaces with logging
+   - `metrics` (string[], optional) — surfaces emitting metrics
+   - `tracing` (string[], optional) — surfaces emitting traces
+   - `alerts` (string[], optional) — alert wiring identifiers
+   - `evidence` (string, optional) — pointer to evidence record id
+
+   Example:
+   ```json
+   {
+     "observability": {
+       "logging": ["src/lib/logger.ts", "POST /api/checkout"],
+       "metrics": ["GET /api/health"],
+       "evidence": "EVIDENCE-058-observability"
+     }
+   }
+   ```
+
+   DO NOT invent keys outside this shape. If a finding doesn't fit, write it to a sidecar at `_testatlas/maps/observability.json` per the bootstrap escape-hatch rule. If any cited evidence path fails to materialize on disk, halt.
 
 8. Close the lifecycle.
 
 ## Outputs
 
 - Updated `_testatlas/maps/integrations.json` (observability rows enriched).
-- Updated `_testatlas/12_app_map.json.observability`.
+- Updated `_testatlas/12_app_map.json` top-level `observability` object (schema-aligned per `app-map.schema.json`).
 - `_testatlas/evidence/explore-observability/<timestamp>/` — `log-sample.txt`, `metrics-snapshot.json`, `alerts.yml-extracted.json`, `traces/<traceId>.json`, `redaction-scan.txt`.
 
 ## Lifecycle

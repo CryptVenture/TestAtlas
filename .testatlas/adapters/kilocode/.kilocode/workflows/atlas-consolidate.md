@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="aa68f50a708e619953f4fc207122b45a1cfe00e8ff11eb2f5d226607a5153cda" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/consolidate.md" hash="32d8bf30e03918840f11cd4057d54c6f10e10599e4ac6eeaae6900f85d38f6b4" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-consolidate.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -36,7 +36,26 @@ Apply the consolidation pass that follows triage (PRD §17, RPT-03). Squash dupl
    3. **Confidence lowest-bound rule.** Walk every group member's `confidence` and set the canonical's `confidence` to the minimum (`needs-validation < strong-suspect < confirmed`). If any member is `needs-validation`, the canonical becomes `needs-validation` until a subsequent retest re-confirms.
    4. **Merge evidence (uniq).** Concatenate every member's `evidence` array onto the canonical's, then deduplicate by absolute path string. Never drop an evidence reference on merge — losing a path on consolidation is the loudest possible audit failure.
    5. **Append repro alternates.** Add every duplicate's `reproductionSteps` as an alternate-repro block in the canonical's markdown body, prefixed with the source ID. The canonical's primary repro is unchanged.
-   6. **Close the duplicates.** Set non-canonical members to `status: closed` with `closedAs: consolidated_into=ISSUE-NNNN` and append a history entry citing the canonical. The duplicate's content is preserved on disk; only its status flips.
+   6. **Close the duplicates.** Set non-canonical members to `status: closed` and set the issue's optional `closedAs` field to `consolidated_into=ISSUE-NNNN` (per `issue.schema.json#/properties/closedAs` — closes ISSUE-062). Append a history entry citing the canonical. The duplicate's content is preserved on disk; only its status + closedAs flip.
+
+   **`closedAs` recommended values** (per `issue.schema.json#/properties/closedAs`, free-form short reason — string literals, written without quotes when stored as the field value, shown quoted here as JSON-string examples):
+   - `"fixed"` — the underlying defect was repaired and verified by retest
+   - `"wont_fix"` — accepted as a known limitation
+   - `"duplicate"` — supersedes `triagedAs=duplicate_of=...` upon closure when no canonical merge happened
+   - `"consolidated_into=ISSUE-NNNN"` — used by THIS command to mark a non-canonical that was merged into a canonical; preserves the audit trail back to the canonical
+   - `"not_real"` — the dogfood/audit claim was reviewed and rejected
+   - (free-form short reason) — for cases that don't fit the above
+
+   Example sidecar fragment for a consolidated duplicate:
+
+   ```json
+   {
+     "id": "ISSUE-042-finding",
+     "status": "closed",
+     "closedAs": "consolidated_into=ISSUE-040-canonical-finding",
+     "lastUpdatedAt": "2026-05-08T14:00:00Z"
+   }
+   ```
 4. **Refresh `_testatlas/13_quality_scorecard.md`** with these four longitudinal series, each preserved across runs via generated-section markers (Phase 2 contract — `<!-- TESTATLAS:GENERATED:START --> ... <!-- TESTATLAS:GENERATED:END -->`; human content outside markers stays intact). **Preferred accelerators (if `shell`):** run `node .testatlas/scripts/summarize-run.js` (distills RUN-*.md into `SESSION-SUMMARY-<ts>.md`) then `node .testatlas/scripts/update-indexes.js` (regenerates `09_artifact_index.md` sections).
    - **severity-weighted issue load over time** — sum (`critical`×8 + `high`×4 + `medium`×2 + `low`×1 + `enhancement`×0.5) per period.
    - **confidence distribution over time** — counts of `confirmed` / `strong-suspect` / `needs-validation` per period.

@@ -3,7 +3,7 @@ description: Render a release readiness report with go/no-go assessment combinin
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="baa40f65e64cc5864987e6063f94d3b00b0ef9cfc874617c842a1e5622068c92" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="0847bc558b9392f88e8961e32a64f1c9ab9899399c530fb7f7672e6f2c394b5b" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-report-release.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -93,6 +93,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-release --status success`.
+
+## Completion Criteria
+
+- `_testatlas/reports/release_readiness.md` exists on disk after the run with the `TESTATLAS:GENERATED` markers re-rendered.
+- The rendered report carries one of the three verdicts (`go` / `conditional` / `no-go`) and the verdict matches the deterministic computation rule in the Required Actions section.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section, with `counts.reports` incremented and `lastUpdatedAt` bumped.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the published report.
+- Zero stop conditions triggered (`quality_scores.json missing`, `drift.json missing`, stale-input `go`-verdict block all clear; stale inputs surface a `Confidence: needs-validation` banner instead of fabricating freshness).
 
 ## What's Next
 

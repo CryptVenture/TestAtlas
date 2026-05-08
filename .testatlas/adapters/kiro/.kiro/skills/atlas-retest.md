@@ -4,7 +4,7 @@ description: Re-execute the original repro for issues with status=fixed_pending_
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="bd9ffd4ce72d560e52a1f415974c452b41e6e2487504222e11554a444b71ac53" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/retest.md" hash="1cb2768dbb5a19194c5d0dfa374e76250d32c5858ef722eac60dbd587c634c8b" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -32,7 +32,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
    - new behavior matches `actualBehavior` (still failing) → status transition: `fixed_pending_retest → reopened`
    - new behavior is ambiguous → keep status `fixed_pending_retest` and append a history entry asking the operator for a tiebreaker; do not guess.
 7. Append a retest entry to the issue's `history` array (**append-only — never delete prior entries, never edit prior entries**). The entry MUST include: `ts` (ISO-8601 UTC), `retester` (agent identifier), `status_before`, `status_after`, `evidence_paths` (the files captured in step 5), and a one-line `note`. The pre-existing `history` array is appended to in place, never rewritten.
-8. Update flow confidence on the issue's referenced flow: a passing retest pushes `flowStatus` toward `retested`; a failing retest pushes it toward `blocked` and feeds back into the flow's confidence count. Update `_testatlas/flows/<flow-id>/issues.md` accordingly.
+8. Update flow confidence on the issue's referenced flow: a passing retest pushes `flowStatus` toward `retested`; a failing retest pushes it toward `blocked` and feeds back into the flow's confidence count. Update `_testatlas/to_fix/by_flow/<flow-id>.md` accordingly (the canonical existing per-flow issue index, maintained by `log-issue.md` Required Actions step 9.5). Note: flows are file pairs (`flows/FLOW-<domain>-<slug>.{md,json}`) per `scripts/create-flow.js`, NOT directories — issue back-references for a flow live in the existing `_testatlas/to_fix/by_flow/<flow-id>.md` index, never in a directory under `flows/`.
 9. **Regression-tag rule.** If the retest fails (the issue moves to `reopened`), set `type: regression` on the issue (overwriting the prior type only if the prior type was not already `regression`) AND verify `severity ≥ original` — a regression may only escalate severity, never downgrade. Record the type change as a history entry with the prior type cited.
 10. Update per-status indexes: remove the issue from `_testatlas/to_fix/by_status/fixed_pending_retest.md` and add it to `by_status/closed.md` or `by_status/reopened.md` as applicable. Refresh the `by_severity/` index if severity changed.
 11. Validate every modified issue JSON against `.testatlas/schemas/issue.schema.json` before commit; halt on any AJV failure with the error verbatim.
@@ -43,7 +43,7 @@ Close the loop on issues marked `fixed_pending_retest` (PRD §17, ISSUE-04). For
 - Updated `_testatlas/to_fix/ISSUE-<id>-<slug>.{md,json}` files: status transitioned, history entry appended, type promoted to `regression` if reopened.
 - New evidence directory `_testatlas/evidence/retest/<issue-id>/<ts>/` containing the freshly captured artifacts.
 - Refreshed per-status indexes under `_testatlas/to_fix/by_status/` (`fixed_pending_retest`, `closed`, `reopened`).
-- Updated per-flow `_testatlas/flows/<flow-id>/issues.md` reflecting the new flow confidence.
+- Updated per-flow index `_testatlas/to_fix/by_flow/<flow-id>.md` reflecting the new flow confidence (the canonical index path; flows themselves are file pairs `flows/FLOW-*.{md,json}`, not directories).
 - A run-log line summarizing pass / fail counts for the batch.
 
 ## Lifecycle

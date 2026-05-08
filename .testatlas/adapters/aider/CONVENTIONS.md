@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="ae705f7605a1636ada034b17e1101b5acf64c64254364827aaef36ffb51aa3dd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="e3b3b05c1a0b2257c9b2270d09c3ad67aaa211e242fe85526d4ee2e3f7587882" -->
 First read `.testatlas/bootstrap.md`. Then read `CONVENTIONS.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Aider. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -233,7 +233,7 @@ Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommen
 
 ## /atlas-explore-all
 
-V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings. Read `.testatlas/commands/explore/explore-all.md` for full instructions.
+V2 umbrella explorer that classifies and routes all 21 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings. Read `.testatlas/commands/explore/explore-all.md` for full instructions.
 - Required capabilities: shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

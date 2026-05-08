@@ -9,12 +9,12 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="4b9e83e302ba037dd6b136b2b31dc2d7a357af4f597d384d9c6d16a90fe9fff0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-errors.md" hash="b9de4ad6402c67cf2f84a894c4290eaaa84be0d0581e78f95d30e503ac1fb1d4" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-explore-errors.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
 
-Map the target product's error-handling surface: error boundaries (component-tree-level), fallback UIs (what the user sees when a child crashes or a fetch fails), error logging targets (console, telemetry sink, server log), retry patterns (manual retry button, exponential backoff, timeout fallback), and exception propagation (caught vs uncaught). Persist evidence under `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/`. Update `_testatlas/maps/states.json` (the `error` state row) and append findings to `_testatlas/12_app_map.json` route+component entries. Every claim MUST cite an on-disk evidence path.
+Map the target product's error-handling surface: error boundaries (component-tree-level), fallback UIs (what the user sees when a child crashes or a fetch fails), error logging targets (console, telemetry sink, server log), retry patterns (manual retry button, exponential backoff, timeout fallback), and exception propagation (caught vs uncaught). Persist evidence under `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/`. Update `_testatlas/maps/states.json` (the `error` state row) and append findings to `_testatlas/12_app_map.json` under the top-level `errorHandling` array (per `app-map.schema.json`). Every claim MUST cite an on-disk evidence path.
 
 ## Required First Reads
 
@@ -46,7 +46,7 @@ Map the target product's error-handling surface: error boundaries (component-tre
 6. **Logging audit.** After each injection, capture `list_console_messages` and `list_network_requests` to detect:
    - Does `console.error` fire? Is the message human-readable or a stack-trace dump?
    - Are errors POSTed to a telemetry sink (Sentry, Rollbar, custom `/api/log`)? Capture the request payload.
-   - Are PII / secrets leaked into log lines? Run `node .testatlas/scripts/redact-evidence.js <evidence-path>` on each captured log file.
+   - Are PII / secrets leaked into log lines? For each emitted EVIDENCE-* record from this run, run `node .testatlas/scripts/redact-evidence.js --evidence-id <EVIDENCE-XXX>` (the script's only supported arg shape — no `--scan`, no positional path; one redact pass per evidence id).
 
 7. **Retry-pattern catalog.** For each error captured, document the recovery primitive:
    - Manual retry button (label + selector).
@@ -55,14 +55,32 @@ Map the target product's error-handling surface: error boundaries (component-tre
    - Silent fallback (cached data displayed with stale indicator).
    - None (the user is stuck — file as an issue via `node .testatlas/scripts/create-issue.js` or `/atlas:log-issue`).
 
-8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` route+component `errorBoundaries`, `errorLogging`, `retryPatterns` fields. If any cited evidence path does not exist on disk, halt.
+8. **Persist + write.** Validate findings against `evidence.schema.json` before writing. Update `_testatlas/maps/states.json` `error` rows. Append to `_testatlas/12_app_map.json` under the top-level `errorHandling` array (per `app-map.schema.json`). Each entry:
+   - `surface` (string, required) — route / component / api / CLI surface.
+   - `kind` (string, required, enum: `boundary` | `logging` | `retry` | `fallback` | `timeout`).
+   - `evidence` (string, optional) — evidence record id.
+   - `notes` (string, optional).
+
+   Example entry:
+   ```json
+   {
+     "surface": "POST /api/checkout",
+     "kind": "retry",
+     "evidence": "EVIDENCE-042-checkout-retry",
+     "notes": "Backoff up to 3 attempts on 5xx"
+   }
+   ```
+
+   DO NOT write any per-feature ad-hoc keys (e.g. boundary-only arrays, logging-only arrays, retry-only arrays) — every error-handling fact collapses into a single `errorHandling[]` entry whose `kind` field carries the variant. The `app-map.schema.json` is closed under `additionalProperties:false`; ad-hoc top-level keys fail validation.
+
+   If any cited evidence path does not exist on disk, halt.
 
 9. Close the lifecycle.
 
 ## Outputs
 
 - Updated `_testatlas/maps/states.json` (error rows).
-- Updated `_testatlas/12_app_map.json` (route + component error metadata).
+- Updated `_testatlas/12_app_map.json` top-level `errorHandling` array (schema-aligned per `app-map.schema.json`; entries closed under `additionalProperties: false`).
 - `_testatlas/evidence/explore-errors/<timestamp>/<route-slug>/<surface>/` — `network.png`, `http-5xx.png`, `timeout.png`, `invalid-form.png`, `component-crash.png`, `permission.png`, `console.log.txt`, `network.json`, `retry.json`.
 - New issues filed via `create-issue.js` for unrecovered errors.
 

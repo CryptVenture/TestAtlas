@@ -194,7 +194,7 @@
     },
     {
       "name": "atlas-explore-all",
-      "description": "V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.",
+      "description": "V2 umbrella explorer that classifies and routes all 21 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.",
       "arguments": []
     },
     {

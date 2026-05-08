@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-report-domain. Paste .testatlas/bootstrap.md first; description: Render a domain-scoped report combining quality scores, issues, coverage, drift, and recommendations into _testatlas/reports/domain-<slug>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="35d35810dd03e1ea7bac58736736fd709c84676c501950903e4d107531142a44" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-domain.md" hash="ac7b2f566ac5cdbc79017c9ee11565a486f9bcffdb1e5e7d59bcccdc68fa6382" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-report-domain.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -72,6 +72,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command report-domain --status success`.
+
+## Completion Criteria
+
+- `_testatlas/reports/domain-<slug>.md` exists on disk after the run (one file per invocation, slug matching the domain id).
+- The rendered report references the canonical `_testatlas/brain/domains.json` and `_testatlas/brain/quality_scores.json` inputs (no fabricated scores; every figure traceable back to brain JSON).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the rendered domain report.
+- Zero stop conditions triggered (`quality_scores.json missing`, `DOMAIN_NOT_FOUND` all clear; capability degradation flagged `confidence: needs-validation` per the Capability Degradation section, no fabrication).
 
 ## What's Next
 

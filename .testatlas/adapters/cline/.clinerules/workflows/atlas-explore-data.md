@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-data. Invoke as /atlas-explore-data.md. Description: Map schemas, entities, lifecycle states, seed fixtures, queues, caches, and storage objects from local schema introspection; never read or persist production rows. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="2617317f4b1b1989d0bf5f3cbfd5214ed501dedefe984cdf35428a423921e9ee" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-data.md" hash="32790ef427fef826bfc5e7730c84febfa79e142a960eb42f06df1510a7507665" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-data.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -37,7 +37,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. Capture lifecycle states per entity: valid states (`status` enums, state-machine declarations like `aasm`/`xstate`, ActiveRecord `enum :status`, Prisma enum types), valid transitions (from state-machine declarations or explicit guard clauses), and terminal states. Cite source file and line range.
 6. Capture seed-fixture inventory: which scenarios bootstrap which records (e.g. `seed:demo`, `seed:test-fixtures`); cite seed file paths. Record only fixture identifiers and counts — never row payloads.
 7. Save raw evidence to `_testatlas/evidence/explore-data/<timestamp>/`: schema dumps (structure only), migration listings, seed paths, queue topic enumerations, cache prefix tables, bucket inventories.
-8. Update `_testatlas/12_app_map.json` data entries with discovered shape + lifecycle metadata + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
+8. Write the rich entity/data shape (lifecycle metadata, evidence references, schema dumps) to `_testatlas/maps/entities.json` (atomic, AJV-validated against the entity schema fragment). Append only the entity **ID strings** to `_testatlas/12_app_map.json.entities[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). Validate the resulting `12_app_map.json` against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
 9. Append a data-inventory section to `_testatlas/01_system_map.md` listing entities and lifecycle state machines.
 10. Close the lifecycle (next section).
 

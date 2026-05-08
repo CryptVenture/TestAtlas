@@ -3,7 +3,7 @@ description: Retest council — personas evaluate whether a claimed fix satisfie
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="d1ffa66460f0858d5c0141f42fb8cc64d3510ea23ea64a673f5f29ed900c0094" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="599fb3fb2e7ab6f3d69c6b4ec40de51d3ff5e4671a58426b1dec1c1003b0f33f" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-retest.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Run a Retest Council (PRD §7.9) when an issue is marked `fixed_pending_retest` 
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - The target `_testatlas/to_fix/<issue-id>/issue.{md,json}`
 - The retest pack at `_testatlas/tests/retest_packs/<issue-id>/`
@@ -29,7 +29,7 @@ Recommended slate: QA Lead (lead), Automation Engineer, Adversarial Red Team Tes
 2. **Independent review.** Each persona evaluates: does the new evidence demonstrate the fix? does it cover all acceptance criteria? are there regressions?
 3. **Initial findings.** Personas emit `message_type: "finding"` with verdict per acceptance criterion.
 4. **Cross-questioning.** Personas challenge each other's interpretation of the evidence.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, evidence-sufficiency, expected-behavior, severity, priority, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, evidence_sufficiency, expected_behavior, risk_assessment, priority, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas may request additional retest runs (`/atlas:retest issue <id>`).
 7. **Vote.** On the overall verdict (passed / failed / needs-more-evidence), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the verdict in `consolidation.{md,json}`.

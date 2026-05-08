@@ -3,7 +3,7 @@ description: Generate exploratory charters and manual test scenarios from docume
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="68dcf0c7cbdcfe85b357a282be00f927b4e5a29f49e756f3336c4260a8c7016f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-scenarios.md" hash="690c011c176fe4a95c6736a9ac48ee54b8199d0be51b59c42f1b957addd92cd7" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-test-generate-scenarios.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -91,6 +91,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-scenarios --status success` (or `--status failure` with the error code).
+
+## Completion Criteria
+
+- All `_testatlas/tests/scenarios/TEST-<flow-slug>-generated.{md,json}` pairs for in-scope flows exist on disk (per Required Actions).
+- Every produced JSON sidecar validates against `test-scenario.schema.json` and carries `status: "generated-not-yet-validated"`.
+- `_testatlas/09_artifact_index.md` lists every newly emitted scenario pair.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`FLOWS_MISSING`, flow JSON parse failure, AJV schema-validation failure all clear; capability gaps logged with `confidence: needs_validation`, no fabrication).
 
 ## What's Next
 

@@ -2,7 +2,7 @@
 description: Map background jobs, schedules, queues, retry policies, timeouts, and failure scenarios; observable via shell + log inspection; degrade to code-reading when shell unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="da400d4a17f41e0d0878fea638ac1db0bc874d70487ddba61a6df5524fa096c9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="ff9fff3e2bcabb62e1cf88c69b87ee5ae03a6742cc5fd8ce96521065174e7007" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-explore-jobs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -47,7 +47,19 @@ Map every background job, scheduled task, queue worker, cron, and serverless tri
 
 6. **Schedule sanity check.** For cron jobs, parse the cron expression (5-field or 6-field) into "next 5 fire times" using a deterministic library or by hand. Flag schedules that are obviously wrong (e.g. `0 0 31 2 *` — Feb 31 never fires).
 
-7. **Persist + write.** Validate each job entry against the jobs-map schema fragment before writing. Write `_testatlas/maps/jobs.json` (atomic) and regenerate `_testatlas/maps/jobs.md`. Update `_testatlas/12_app_map.json.jobs[]` with retry/timeout/dependency fields. If any cited evidence path is missing on disk, halt.
+7. **Persist + write.** Validate each job entry against the jobs-map schema fragment before writing. Write `_testatlas/maps/jobs.json` (atomic) and regenerate `_testatlas/maps/jobs.md`. Update `_testatlas/12_app_map.json.jobs[]`.
+
+   > Note: `jobs[]` items are validated as `oneOf: [string, object{name, schedule?, retry?, timeout?, dependencies?}]` per `.testatlas/schemas/app-map.schema.json`. Either the bare-string form or the object form is accepted; mixing within a single file is allowed. The object form's allowed keys are exactly:
+   >
+   > - `"name"` (string, required)
+   > - `"schedule"` (string, optional — e.g. cron expression)
+   > - `"retry"` (object, optional)
+   > - `"timeout"` (number or string, optional)
+   > - `"dependencies"` (string[], optional)
+   >
+   > Any other per-job metadata (e.g. observed failure modes, DLQ stats, last-run timestamps, owner) MUST go to the sidecar at `_testatlas/maps/jobs.json` — NOT into `12_app_map.json.jobs[]`. The app-map item-object is closed under `additionalProperties:false` and any other key fails AJV validation. This sidecar-escape-hatch rule is documented in `.testatlas/bootstrap.md`.
+
+   If any cited evidence path is missing on disk, halt.
 
 8. **Safety constraints.** With `allowDestructiveActions=false`, MUST NOT trigger jobs whose handler mutates production data (purge, billing, email-send). Inspect handler bodies before any "test fire"; default to `--dry-run` flags when the runner exposes them; otherwise stick to read-only inspection.
 

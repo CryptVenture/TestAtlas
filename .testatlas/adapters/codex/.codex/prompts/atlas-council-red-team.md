@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-red-team. Invoke as /prompts:atlas-council-red-team. Description: Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="a6629653f341189b8321324029424ac725a1579657a63e678ac2d1a4bf5936d6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="a19619e0c25c8479d39d98d4b50a9b8582d7a28f3067c52013ecbf5ae4f766f1" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council-red-team.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Run a Red Team Challenge (PRD §7.9) to attack the brain's most confident claims
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/claims.jsonl`, `_testatlas/brain/quality_scores.json`
 - The scope artifacts under attack (domain, flow, issue, or feature)
@@ -26,7 +26,7 @@ Recommended slate: Adversarial Red Team Tester (lead), Security and Privacy Revi
 2. **Independent review.** Each persona identifies the 3 claims it most distrusts and what would invalidate each.
 3. **Initial findings.** Personas emit `message_type: "finding"` listing the targeted claims and proposed invalidation paths.
 4. **Cross-questioning.** Personas challenge each other's invalidation logic via `message_type: "question"`.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type — most commonly: factual, evidence-sufficiency, expected-behavior, severity, priority, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`) — most commonly: factual, evidence_sufficiency, expected_behavior, risk_assessment, priority, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per claim under attack, vote on whether it should be re-classified (stay accepted, downgrade to disputed, mark invalidated). +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}`; Red Team Tester writes the recalibration narrative.

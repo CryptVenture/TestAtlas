@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-api. Invoke as /atlas-explore-api.md. Description: Map REST/GraphQL/RPC/server-action/webhook/event-consumer surfaces; capture contracts, auth, errors, pagination; safely probe sandbox endpoints. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="c51bef120262d571f274bdd0b9f48e09a61ce47e37192b37aac684e8d92fbaee" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-api.md" hash="3f4b098c9137c245bc80b7795ac44508bc2ddfb9b44168153f94e9b3b586bd34" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-api.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -48,7 +48,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 5. **Sandbox-vs-production discipline.** Read `allowProductionTesting`. If `false`, refuse to send any request to a host that resolves to production: production hostnames, `prod`/`live`/`production` env names, live API key prefixes (`pk_live_*`, `sk_live_*`, etc.). Probe ONLY sandbox/staging/local URLs (`localhost`, `127.0.0.1`, `*.test`, `*.local`, sandbox hostnames declared in env files / config). Record refusals in `10_command_log.md`.
 6. **Destructive-endpoint discipline.** When `allowDestructiveActions=false`, do NOT probe endpoints whose method is `DELETE`, `PUT`, `PATCH`, or whose path contains delete-like verbs (`/delete`, `/drop`, `/reset`, `/purge`); record them as `executed: false` with `safety: destructive`. Probe only `GET`/`HEAD`/`OPTIONS` plus explicitly idempotent introspection endpoints (`/health`, `/version`, GraphQL `__schema`).
 7. For each safe sandbox probe, send a minimal request (with appropriate auth headers from `.env.example` placeholders if needed; never with live secrets). Save request/response under `_testatlas/evidence/explore-api/<timestamp>/<endpoint-slug>/request.txt`, `response.txt`, `headers.json`. Redact any token-like values per `bootstrap.md` redaction guidance.
-8. Update `_testatlas/12_app_map.json` api-endpoint entries with discovered shape + evidence references. Validate against `api-endpoint.schema.json`. Halt on validation failure; surface AJV errors verbatim.
+8. Write the rich api-endpoint shape (method, path, auth, request/response, errors, pagination, evidence references) to `_testatlas/maps/apis.json` (atomic, AJV-validated against `api-endpoint.schema.json`). Append only the api-endpoint **ID strings** (e.g. `API-<METHOD>-<slug>`) to `_testatlas/12_app_map.json.apis[]` — that field is a closed string array per `app-map.schema.json` (`additionalProperties:false`). Halt on validation failure; surface AJV errors verbatim.
 9. Append an API section to `_testatlas/01_system_map.md` listing endpoint counts by surface (REST / GraphQL / RPC / webhook / event-consumer) and total probed vs unprobed.
 10. Close the lifecycle (next section).
 

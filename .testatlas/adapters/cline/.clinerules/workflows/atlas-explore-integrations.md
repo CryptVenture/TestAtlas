@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-integrations. Invoke as /atlas-explore-integrations.md. Description: Map auth, payments, email, analytics, storage, webhooks, and feature-flag integrations; distinguish sandbox/test/prod endpoints; probe sandbox only when safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="97cf7802fd369d7fff374e68de380d997198f1c781a4e2a638e13f23f039c37b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-integrations.md" hash="6015bc607c97c880dc504dd8f3d9923315914fc76a6fc430ae3cebbeee832b98" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-integrations.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -42,7 +42,24 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 4. **Sandbox-vs-prod discrimination — load-bearing.** For each integration, identify the base URL pattern, env-key prefix, or config flag that distinguishes sandbox / test / prod (e.g. `sk_test_*` vs `sk_live_*` for Stripe, `*.dev.auth0.com` vs `*.auth0.com`, `STRIPE_SECRET_KEY` vs `STRIPE_LIVE_SECRET_KEY`). If `allowProductionTesting=false` (the default), refuse to probe any production endpoint and list each skipped endpoint in `_testatlas/evidence/explore-integrations/<timestamp>/skipped-prod.md` with the reason.
 5. For each safe sandbox integration with a discoverable read-only endpoint, send a minimal probe (auth status check, sandbox `me` endpoint, public health check) and capture the request envelope + response under `_testatlas/evidence/explore-integrations/<timestamp>/<integration-slug>/`. **NEVER trigger real charges, real emails, real SMS, real OAuth grants, real webhooks, or any side effect** — only read-only metadata calls. Probes that would have side effects must be skipped and logged as `probe: not-attempted` with reasoning.
 6. Document per-integration: SDK name + version (from `package.json` lockfile), env keys used (KEY NAMES only — never values), base URLs (sandbox vs prod), webhook receive endpoints in the target product (route + handler symbol), webhook send endpoints out of the target product (caller file + line).
-7. Update `_testatlas/12_app_map.json` integration entries with discovered shape + sandbox/prod classification + evidence references. Validate against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
+7. Update `_testatlas/12_app_map.json` integration entries with discovered shape + evidence references, and write the sandbox/prod classification to the top-level `integrationEnvironments` array (per `app-map.schema.json`). Each `integrationEnvironments` entry:
+   - `name` (string, required) — MUST match an `integrations[].name` entry already on the map.
+   - `environment` (string, required, enum: `sandbox` | `prod` | `mixed` | `unknown`).
+   - `evidence` (string, optional) — evidence record id citing the discriminator (URL pattern, env-key prefix, config flag).
+
+   Example shape:
+   ```json
+   {
+     "integrations": [
+       { "name": "stripe", "type": "service", "direction": "consumer-outbound", "source": "src/payments.ts", "evidence": "EVIDENCE-001" }
+     ],
+     "integrationEnvironments": [
+       { "name": "stripe", "environment": "sandbox", "evidence": "EVIDENCE-002-sandbox-config" }
+     ]
+   }
+   ```
+
+   DO NOT add classification keys (e.g. an inline `environment`, `sandbox`, or `prod` field) directly onto `integrations[]` items — those item objects are closed under `additionalProperties:false` and only `name`, `type`, `direction`, `source`, and `evidence` are allowed. Validate the map against `app-map.schema.json` before commit. If validation fails, halt and surface AJV errors verbatim.
 8. Append an integration inventory to `_testatlas/01_system_map.md` listing each integration with category, sandbox/prod boundary, and probe outcome.
 9. Close the lifecycle (next section).
 

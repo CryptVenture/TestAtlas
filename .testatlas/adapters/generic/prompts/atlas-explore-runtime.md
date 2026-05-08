@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-runtime. Paste .testatlas/bootstrap.md first; description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="c8e80c40a2254699597f3856f714974e8aaccdab62072ed963e7bbaccfdb1ed2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="baa104c2704a01d0774c066ce14fd26859df3682b4d7b6ec745e7e4708e7a7e1" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -51,13 +51,36 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
    - Migration / seed inventory (paths + tooling identified).
 7. Update `_testatlas/00_overview.md` runtime-detection metadata. Preserve human content using generated-section markers (`<!-- testatlas:runtime-start -->` ... `<!-- testatlas:runtime-end -->`); only the content between markers is rewritten. If markers are missing, append a new managed section at the end of the file.
 8. Append a Runtime section to `_testatlas/01_system_map.md` summarizing services, ports, ENV-key counts, migration tooling.
-9. Close the lifecycle (next section).
+9. **Schema-aligned runtime metadata.** Write runtime-metadata enrichment to `_testatlas/12_app_map.json` under the top-level `runtimeMetadata` object property (added to `app-map.schema.json` in Phase 20-01). The shape is closed (`additionalProperties: false`):
+
+   - `node` (string, optional) — Node version target/observed
+   - `platform` (string, optional) — OS or runtime platform
+   - `envVars` (string[], optional) — env-var KEYS referenced by the app (KEYS only, never values)
+   - `featureFlags` (string[], optional) — feature-flag identifiers
+   - `evidence` (string, optional) — pointer to evidence record id
+
+   Example:
+   ```json
+   {
+     "runtimeMetadata": {
+       "node": "20.11.0",
+       "platform": "linux",
+       "envVars": ["DATABASE_URL", "REDIS_URL"],
+       "featureFlags": ["NEW_CHECKOUT_FLOW"],
+       "evidence": "EVIDENCE-090-runtime"
+     }
+   }
+   ```
+
+   DO NOT invent keys outside this shape. Off-schema findings → sidecar `_testatlas/maps/runtime.json` per bootstrap escape hatch. If this command invokes `redact-evidence.js`, only the `--evidence-id <id>` per-record form is supported (no `--scan`, no positional path). Universal `node .testatlas/scripts/<name>.js` form preserved.
+10. Close the lifecycle (next section).
 
 ## Outputs
 
 - `_testatlas/evidence/explore-runtime/<timestamp>/` — env-keys.json, compose-config.json, image-inspect.json, port-bindings.json, migration-inventory.json.
 - Updated `_testatlas/00_overview.md` — runtime metadata between generated-section markers.
 - Updated `_testatlas/01_system_map.md` — Runtime section.
+- Updated `_testatlas/12_app_map.json` top-level `runtimeMetadata` object (schema-aligned per `app-map.schema.json`).
 
 ## Lifecycle
 

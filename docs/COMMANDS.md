@@ -544,7 +544,7 @@ Umbrella router for V2 council commands.
 
 ## /atlas:explore-all
 
-V2 umbrella explorer that classifies and routes all 20 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
+V2 umbrella explorer that classifies and routes all 21 V1+V2 explorers, applies idempotency filtering, selects an execution mode (parallel-subagents / sequential-fallback / classify-only), and aggregates findings.
 
 **Capabilities:** `shell`, `file-write`
 

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore. Invoke as /atlas-explore.md. Description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="e86a7eeffbc58409bcb96fb717242c3bd149d302d024fd7ecc8e1f15cff9d7f0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="b44ad5337d36601c54427289861376ac212a8a47b70666a8433c11a0a5ff3acc" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -37,7 +37,7 @@ Route the agent to the right subset of sub-explorers AND orchestrate their paral
 
 This umbrella is a spawn-and-aggregate orchestrator. When the host declares the `subagent-spawn` capability (per `bootstrap.md` Capability Degradation), the umbrella spawns each recommended non-cached child in parallel via the Agent tool and aggregates their structured findings into `_testatlas/02_product_overview.md`. See Required Actions step 5 for the full `executionMode` selection logic; the 5 enum values are `parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, and `no-op`.
 
-The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
+The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security, explore-tests}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
 
 **Per-child brief contract** (the placeholder `[child]` stands for the chosen sub-explorer name like `codebase`, `ui`, `api`, etc.):
 

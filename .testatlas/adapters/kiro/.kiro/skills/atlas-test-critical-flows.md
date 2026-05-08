@@ -4,7 +4,7 @@ description: Identify and execute the highest-value flows based on documented pr
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="1413d6b89e8f01a9f2c8ca6671d6355a56168bdb53e74fdb85dc1b4dd6824e3d" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/test-critical-flows.md" hash="254297ff951636f6c9f40ed6f9e4e3c4c226298a49b0935377642782f9e87313" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-test-critical-flows.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -120,6 +120,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command test-critical-flows --status success` (or `--status failure` with the error code).
+
+## Completion Criteria
+
+- All `RUN-<timestamp>.md` and matching `RUN-<timestamp>.json` files for every critical flow exercised exist under `_testatlas/tests/runs/` (per Required Actions step 4).
+- Every produced `RUN-*.json` validates against `test-run.schema.json` (run `node .testatlas/scripts/validate-workspace.js` and confirm zero schema-validation findings under `tests/runs/`).
+- `_testatlas/11_workspace_manifest.json` reflects updated `counts.testRuns` and `counts.evidenceRecords` (these ARE the schema's canonical keys per `workspace-manifest.schema.json` — do not rename).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`TEST_STRATEGY_MISSING`, `MATRIX_MISSING`, `NO_CRITICAL_FLOWS`, `EVIDENCE_DIR_UNWRITABLE` all clear; capability gaps logged with `confidence: needs-validation`, no fabrication).
 
 ## What's Next
 

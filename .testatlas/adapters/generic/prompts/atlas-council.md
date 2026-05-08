@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council. Paste .testatlas/bootstrap.md first; description: Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="d985a2ac0355665ab3fb2e68edaa9201d3d93f1d4d1c819401b0d7aa109ad0a4" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council.md" hash="5ae4c56fdb8c288939a3879f3807ac2de898b0f8005d7a25c4d28b070dfb199b" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-council.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy — snake_case union per `.testatlas/schemas/vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md` — list of system personas + recommended slates per mode.
 - `_testatlas/brain/state.json` — current phase, counts, last-command.
 
@@ -44,7 +44,7 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
 
 ## 9-Round Protocol (Reminder)
 
-Every dispatched sub-command follows the PRD §12.4 9-round protocol: context-read → independent-review → initial findings → cross-question → disagreement capture → rebuttal or evidence-request → vote / confidence-rating → consolidation → canonical-update. Disagreements are classified per PRD §12.5 (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation). Full protocol: `.testatlas/reference/council-protocol.md`.
+Every dispatched sub-command follows the PRD §12.4 9-round protocol: context-read → independent-review → initial findings → cross-question → disagreement capture → rebuttal or evidence-request → vote / confidence-rating → consolidation → canonical-update. Disagreements are classified per PRD §12.5 using the snake_case union from `vocabulary.schema.json#/$defs/disagreement_type` (factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy). Full protocol: `.testatlas/reference/council-protocol.md`.
 
 ## Voting Scale Reminder
 

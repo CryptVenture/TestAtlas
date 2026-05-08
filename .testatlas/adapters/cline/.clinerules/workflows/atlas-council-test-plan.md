@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-test-plan. Invoke as /atlas-council-test-plan.md. Description: Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="2eec97690f9a44aba743324fb8ca05f104a325ea3bf2aa772bd0fbdbd2fa79cc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="8148fee03974800d8dc0a8ae6960ea40bdb989ab13552baa69e8097bcc83d530" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -10,7 +10,7 @@ Run a Test Plan Council (PRD §7.9) when planning a major test run, onboarding a
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy — snake_case union per `.testatlas/schemas/vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/coverage.json`, `_testatlas/brain/flows.json`
 - `_testatlas/02_test_strategy.md` (if present)
@@ -27,7 +27,7 @@ Recommended slate: QA Lead (lead), Automation Engineer, Codebase Mapper, Data St
 2. **Independent review.** Each persona drafts its layer's coverage proposal: unit (Codebase Mapper), contract (API Contract Analyst if present), integration (Runtime Investigator + Data Steward), E2E (Automation Engineer + QA Lead).
 3. **Initial findings.** Personas emit `message_type: "finding"` with their layer plan.
 4. **Cross-questioning.** Personas challenge layer boundaries (e.g., "this should be unit, not E2E") via `message_type: "question"`.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type from `vocabulary.schema.json#/$defs/disagreement_type`: factual, interpretation, priority, scope, evidence_sufficiency, risk_assessment, safety, implementation_interpretation, expected_behavior, product_strategy.
 6. **Rebuttal or evidence request.** Personas may request a fresh `node .testatlas/scripts/update-coverage.js --category all` run before voting.
 7. **Vote.** Per scenario motion (include / exclude / move-to-different-layer), +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** QA Lead drafts the test plan in `consolidation.{md,json}`. Automation Engineer drafts the automation candidates list.
@@ -44,18 +44,25 @@ node .testatlas/scripts/create-council-session.js \
 
 Run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3.
 
-## Outputs (PRD §12.7)
+## Outputs (PRD §7.8 / §12.7)
 
-1. Final summary (test plan narrative)
-2. Accepted scenarios (per layer)
-3. Rejected scenarios
-4. Disputed scenarios
-5. Issue candidates (gaps surfaced during planning)
-6. Test candidates (the plan itself)
-7. Open questions (e.g., fixture realism unknowns)
-8. Required evidence (e.g., production-shape data samples)
-9. Updates made (`_testatlas/02_test_strategy.md` proposed updates)
-10. Next recommended command
+The Test Plan Council produces all 15 PRD §7.8 council-session artifacts inside `_testatlas/agents/councils/sessions/<session-id>/`:
+
+1. `summary.md` — final summary (test plan narrative)
+2. `accepted.md` — accepted scenarios (per layer)
+3. `rejected.md` — rejected scenarios
+4. `disputed.md` — disputed scenarios
+5. `generated_issues.md` — issue candidates (gaps surfaced during planning)
+6. `test_candidates.md` — test candidates (the plan itself, layered: unit / contract / integration / E2E)
+7. `generated_questions.md` — open questions (e.g., fixture realism unknowns)
+8. `followups.md` — required evidence (e.g., production-shape data samples)
+9. `consolidation.md` + `consolidation.json` — consolidated test plan (QA Lead draft) with `canonical_updates` block targeting `_testatlas/02_test_strategy.md`
+10. `next_command.md` — next recommended command line
+11. `transcript.md` (or `transcript-<persona-id>.md` per persona) — per-persona round-by-round messages emitted during the 9-round protocol (`finding`, `critique`, `rebuttal`, `vote`, `consolidation`, `question`, `evidence_request`)
+12. `disagreements.md` — disagreements captured in round 5 with PRD §12.5 disagreement_type from `vocabulary.schema.json#/$defs/disagreement_type`
+13. `votes.json` — round-7 votes per motion on the +2 / -2 scale (per `vocabulary.schema.json#/$defs/vote_value`)
+14. `claims.json` — extracted claims index produced by `node .testatlas/scripts/extract-claims.js --session-id <id>`
+15. `session.json` — schema-validated council session sidecar (validates against `council-session.schema.json`); brain delta also written under `_testatlas/brain/council-deltas/<session-id>.json` and the dispatch-log row appended at `_testatlas/agents/councils/sessions/dispatch-log.md`
 
 ## Stop Conditions
 

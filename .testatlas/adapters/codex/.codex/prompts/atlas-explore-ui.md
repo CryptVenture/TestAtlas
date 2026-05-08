@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-ui. Invoke as /prompts:atlas-explore-ui. Description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="67d159ffe0ffc0cbf43f817c3b68932d8deb3c5ec6fabb0409388bc8a762544b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="c09b2922ae8b2b663624df7713a0f6f3fbb39a84630ba38c7c9eca16dbccaae9" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -38,7 +38,7 @@ Runs as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standa
 4. Verify safety flags. If `allowProductionTesting=false`, refuse hosts whose resolved URL maps to production (prod hostnames, live API keys, real payment processors); inspect resolved URLs, not scenario-author claims. If `allowDestructiveActions=false`, refuse UI controls whose label or handler indicates irreversible mutation (delete confirmation, payment capture, account closure).
 
 5. Connect to Chrome DevTools MCP. Canonical toolset (verbatim names per `.testatlas/reference/chrome-devtools-mcp.md` §"Tool tiering"):
-   - **Tier 1 — observation:** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Register `handle_dialog({accept, promptText?})` BEFORE any action that may open `alert` / `confirm` / `beforeunload`; without pre-registration, dialog flows hang or silently fabricate.
+   - **Tier 1 — observation:** `navigate_page`, `wait_for`, `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`, `evaluate_script`, `handle_dialog`. Register `handle_dialog({action: "accept", promptText?})` (or `{action: "dismiss"}`) BEFORE any action that may open `alert` / `confirm` / `beforeunload`; without pre-registration, dialog flows hang or silently fabricate. The Chrome DevTools MCP `handle_dialog` accepts `{action: "accept"|"dismiss", promptText?}` — there is no boolean `accept` parameter (see `.testatlas/reference/chrome-devtools-mcp.md` for the canonical surface).
    - **Tier 2 — interactive:** `click`, `fill`, `fill_form`, `press_key`, `hover`, `type_text`, `upload_file`, `drag`. `hover` reveals tooltip / dropdown / hover-only state. `type_text` (real keyboard typing) surfaces autocomplete + IME bugs that `fill` skips. `press_key` for keyboard paths (`Tab` / `Shift+Tab` / `Enter` / `Escape`) — required for tab-trap and focus-cycle verification. `upload_file` covers file flows; `drag` covers drag-and-drop / kanban / file drop.
    - **Aux:** `lighthouse_audit({mode: "navigation"})` for an optional baseline (read the `.accessibility` slice; deep a11y audits live in `explore-accessibility`); `resize_page({width, height})` for responsive breakpoints. The upstream `lighthouse_audit` has no `categories` parameter — it always returns Accessibility/SEO/Best-Practices/Agentic-browsing (Performance lives in `performance_start_trace`).
 
@@ -57,13 +57,13 @@ Runs as both a parallel sub-agent (when `/atlas:explore` spawns it) and a standa
 
 9. A11y basics: call `evaluate_script` to read ARIA roles, labels, focus order, and visible-text-vs-accessible-name diffs. Defer keyboard traversal, contrast, and full WCAG checks to `explore-accessibility`. Optionally call `lighthouse_audit` for a baseline score.
 
-10. Update `_testatlas/12_app_map.json` route + component entries with discovered states, breakpoints, and evidence paths. Validate against `app-map.schema.json`, `route.schema.json`, `component.schema.json` before writing. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
+10. Write rich route + component shape (discovered states, breakpoints, evidence paths) to `_testatlas/maps/routes.json` and `_testatlas/maps/components.json` (atomic, AJV-validated against `route.schema.json` and `component.schema.json` respectively). Append only the route/component **ID strings** to `_testatlas/12_app_map.json.routes[]` and `_testatlas/12_app_map.json.components[]` — those top-level keys are closed string arrays per `app-map.schema.json` (`additionalProperties:false`). State enrichment per surface goes to the top-level `states` array on `12_app_map.json` (which IS schema-allowed). Validate the resulting `12_app_map.json` against `app-map.schema.json` before writing. If any cited evidence path does not exist on disk, halt — do not record fabricated paths.
 
 11. Close the lifecycle.
 
 ## Outputs
 
-- Updated `_testatlas/12_app_map.json` — route + component entries with state coverage, breakpoints, ARIA snapshots, evidence refs.
+- Updated `_testatlas/12_app_map.json` — route + component **ID strings** appended to the schema-allowed `routes[]` and `components[]` arrays; per-surface state findings appended to the top-level `states[]` array. Rich shape (breakpoints, ARIA snapshots, evidence refs) lives in `_testatlas/maps/routes.json` and `_testatlas/maps/components.json`.
 - `_testatlas/evidence/explore-ui/<timestamp>/<route-slug>/` — DOM snapshots, screenshots, console + network captures, optional Lighthouse JSON; `responsive/` subdir for breakpoint screenshots.
 
 ## Lifecycle

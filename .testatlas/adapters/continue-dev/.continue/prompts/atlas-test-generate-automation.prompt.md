@@ -4,7 +4,7 @@ description: Generate framework-specific automation skeletons (Playwright, Cypre
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="7c99596c60ee6a625b9f2bcc840632f8ecef274455e0a2469560c83067fc5137" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/test/generate-automation.md" hash="6b4a8046eb4d127dfb0e17a8c291fe9bd9b43035d4703f3e4b19765294e3f6a3" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-test-generate-automation.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -94,7 +94,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new skeleton + meta files appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the framework + flows.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Generated automation skeletons are seed material, not counted artifacts.
-- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (status: `generated-not-yet-validated`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (status: `generated-but-not-validated`)."
 
 ## Stop Conditions
 
@@ -105,6 +105,14 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Update Brain After Command
 
 Run `node .testatlas/scripts/update-brain-after-command.js --command generate-automation --status success` (or `--status failure` with the error code).
+
+## Completion Criteria
+
+- All `_testatlas/tests/generated_automation/<framework>/<flow-slug>.<ext>` skeleton files for in-scope flows exist on disk (per Required Actions step 1/2).
+- Every produced companion `<flow-slug>.meta.json` validates against `test-scenario.schema.json` and carries `status: "generated-but-not-validated"` until first execution.
+- `_testatlas/03_execution_status.md` and `_testatlas/09_artifact_index.md` reflect the new skeleton + meta artifacts.
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated.
+- Zero stop conditions triggered (`FLOWS_MISSING`, unknown `--framework`, missing `--flow`/`--issue`/`--all` all clear; capability gaps logged with `confidence: needs_validation`, no fabrication).
 
 ## What's Next
 

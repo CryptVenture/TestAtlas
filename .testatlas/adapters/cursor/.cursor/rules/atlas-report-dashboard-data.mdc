@@ -4,7 +4,7 @@ globs:
 alwaysApply: false
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="7372a9ca31263ea5a604f5d3d70535b028e40935c73efff13426a32b9cd5b9ad" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-dashboard-data.md" hash="446d9083eca49e43336097b050f8f26884364a3c3876ec6f5d27c21c75d06a74" -->
 First read `.testatlas/bootstrap.md`. Then read `.cursor/rules/atlas-report-dashboard-data.mdc` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -21,6 +21,8 @@ Produce the canonical machine-readable dashboard export — a pre-aggregated JSO
 - `drift` — stale_domains[] (domains with `stale_requires_review`), drift_records_7_days.
 
 The dashboard is a pure projection from existing brain JSON — re-running on the same brain produces byte-identical output (modulo `generated_at`). This contract is intentional: machine readers should be able to diff dashboards across CI runs without false signal.
+
+The accelerator accepts an optional `--format <json|html-preview>` flag (default: `json`). Use `html-preview` to emit an inline HTML preview alongside the canonical JSON for human review during report-prep; `json` is the canonical machine-readable shape consumed by downstream dashboards and CI.
 
 ## When to Run
 
@@ -41,8 +43,9 @@ The dashboard is a pure projection from existing brain JSON — re-running on th
 
 1. Verify `quality_scores.json` and `drift.json` are present. If either is missing, log a warning and continue with degraded values (all scores default to 0; `stale_domains` is empty). The output is still a valid dashboard but consumers see the blanks.
 2. **Preferred path (if `shell` available):**
-   - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js`).
+   - Run `node .testatlas/scripts/generate-dashboard-data.js --output _testatlas/reports/dashboard-data.json [--format <json|html-preview>]` (or in target repos `node .testatlas/scripts/generate-dashboard-data.js [--format <json|html-preview>]`).
    - The generator atomically writes the JSON, AJV-validates against `dashboard_data.schema.json` before write, and exits 0 on success.
+   - The optional `--format` flag selects the emitted shape: `json` (default — canonical machine-readable export) or `html-preview` (emits an inline HTML preview alongside the JSON for human review). Invalid values halt with `BAD_FORMAT`.
 3. **Fallback path (no `shell`):**
    - Hand-render the JSON using the field shape above. Validate against `.testatlas/schemas/dashboard_data.schema.json`. Mark the export as `confidence: needs-validation` in any consuming report because hand-rendered totals are not deterministic.
 4. Append a brain event with `command: report-dashboard-data` and the file path.
@@ -103,6 +106,14 @@ node .testatlas/scripts/generate-dashboard-data.js --cwd /path/to/target-repo
 ```
 
 The dashboard data export is the V2 brain machine-readable face — JSON remains canonical; everything downstream is derived.
+
+## Completion Criteria
+
+- `_testatlas/reports/dashboard-data.json` (or the path given to `--output`) exists on disk after the run.
+- The produced file validates against `dashboard_data.schema.json` (run `node .testatlas/scripts/validate-workspace.js` and confirm zero schema-validation findings under `reports/`).
+- The five lifecycle files (`03_execution_status.md`, `09_artifact_index.md`, `10_command_log.md`, `11_workspace_manifest.json`, `history/run_log.md`) are updated per the Lifecycle section.
+- A `command-result.schema.json`-shaped row is appended to `_testatlas/10_command_log.md` referencing the export path.
+- Zero stop conditions triggered (`BRAIN_DIR_MISSING`, `DASHBOARD_SCHEMA_VIOLATION`, `BAD_FORMAT` all clear).
 
 ## What's Next
 

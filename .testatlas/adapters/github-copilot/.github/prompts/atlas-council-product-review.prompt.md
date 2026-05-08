@@ -3,7 +3,7 @@ mode: agent
 description: Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="1d8e198a379ea1b13f9f58bec210df9bce9cf05161537c822079bbc6ffdafb7f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="e0d4fa4b1d1918d18b061fafacbe4fafe1916c0e8abf6876dc48f7fba5a61d94" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-council-product-review.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Run a Debate (PRD §7.9) on a product question — feature priority, expected be
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/01_product_intent.md`
 - Any artifact directly under debate (issue, flow, domain, RFC)
@@ -28,7 +28,7 @@ Recommended slate: Product Strategist, QA Lead, User Advocate, Adversarial Red T
 2. **Independent review.** Personas form initial positions without seeing others.
 3. **Initial findings.** Personas emit `message_type: "finding"` transcript lines stating their position with evidence.
 4. **Cross-questioning.** Personas pose `message_type: "question"` to challenge each other.
-5. **Disagreement capture.** Persistent conflicts recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Persistent conflicts recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas post `message_type: "rebuttal"` or `message_type: "evidence_request"`.
 7. **Vote.** Per motion, +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with accepted / rejected / disputed claims.

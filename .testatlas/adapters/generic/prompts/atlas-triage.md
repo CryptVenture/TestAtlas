@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-triage. Paste .testatlas/bootstrap.md first; description: Deduplicate, normalize, group, and flag-as-blocker the issues under _testatlas/to_fix/; identify missing evidence; emit triage-report-<timestamp>.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="ab2c9c0043526fa15ff179cbc3a405b7497771408ce5097a6988eb95ddc98666" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/triage.md" hash="8c5292982cf6834cad44846cce48d468a28411c816e0f0787944147f69dc6b37" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-triage.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -27,7 +27,17 @@ Apply triage discipline (PRD §17, ISSUE-03) across every issue currently parked
    - same `domain` AND same `flow` AND repro-step similarity above a Levenshtein ratio of 0.8
    - any pair that references the same evidence file path under `_testatlas/evidence/`
    Two issues land in the same group if any heuristic links them. Record the heuristic that grouped them; the agent MUST be able to cite which rule fired.
-5. For each group, pick the lowest-numbered ID as the canonical. Mark every other member with status `triaged` and append `triagedAs: duplicate_of=ISSUE-NNNN` plus a history entry. The canonical itself is also marked `triaged` (history entry: "canonical for group `<group-id>`"). History entries are append-only; never rewrite prior entries.
+5. For each group, pick the lowest-numbered ID as the canonical. Mark every other member with status `triaged` and set the issue's optional `triagedAs` field to `duplicate_of=ISSUE-<canonical-id>` (per `issue.schema.json#/properties/triagedAs`, schema-pattern `^duplicate_of=ISSUE-\d+(-[a-z0-9]+(-[a-z0-9]+)*)?$` — closes ISSUE-060). Example sidecar fragment:
+
+   ```json
+   {
+     "id": "ISSUE-099-orphan-finding",
+     "status": "triaged",
+     "triagedAs": "duplicate_of=ISSUE-042-canonical-finding"
+   }
+   ```
+
+   The `triagedAs` field is optional and ONLY set when status transitions to `triaged` AND the triage verdict is "duplicate". For other triage verdicts (defer, reproduce, escalate), do not set `triagedAs`. Append a history entry capturing the canonical id and the heuristic that linked them. The canonical itself is also marked `triaged` (history entry: "canonical for group `<group-id>`"); the canonical does NOT carry `triagedAs`. History entries are append-only; never rewrite prior entries.
 6. **Normalize severity** against PRD §28 criteria — user impact, reach, reversibility — not technical effort. Re-evaluate every issue and write the chosen value as exactly one of: `critical`, `high`, `medium`, `low`, `enhancement`. Append a history entry with the old value, the new value, and the citation supporting the change. Never inflate severity to attract attention.
 7. **Normalize confidence** against `vocabulary.schema.json` enum values: `confirmed`, `strong-suspect`, `needs-validation`. For each issue, walk every path in its `evidence` array and stat it on disk. Any issue with one or more missing evidence files is downgraded to `confidence: needs-validation` AND tagged for retest in the triage report. An issue whose evidence is all present and reproduces the failure first-hand is `confirmed`; partial / indirect evidence is `strong-suspect`.
 8. **Flag blockers.** Any issue satisfying (`severity == "critical"` AND `confidence ∈ {"confirmed", "strong-suspect"}`) MUST be appended to `_testatlas/to_fix/blockers.md` with its ID, title, domain, flow, evidence count, and the rationale that earned the blocker flag. Issues that no longer meet the rule (e.g. severity was downgraded this run) MUST be removed from `blockers.md` with a removal entry — `blockers.md` is regenerated as a snapshot.
@@ -67,7 +77,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 - Every issue in `_testatlas/to_fix/` has been re-evaluated; `severity` and `confidence` reflect on-disk evidence.
-- Every duplicate-candidate group has a canonical and the non-canonicals carry `triagedAs: duplicate_of=ISSUE-NNNN`.
+- Every duplicate-candidate group has a canonical and the non-canonicals carry the `triagedAs` field set to `duplicate_of=ISSUE-NNNN` (matching `issue.schema.json#/properties/triagedAs` pattern).
 - `triage-report-<ts>.md`, `blockers.md`, `groups.md`, and the per-domain / per-severity / per-status indexes are written and on disk.
 - Every mutated JSON sidecar validates against `issue.schema.json`.
 - The five lifecycle files listed above are updated.

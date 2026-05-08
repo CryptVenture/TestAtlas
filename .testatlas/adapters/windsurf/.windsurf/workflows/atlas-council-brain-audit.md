@@ -3,7 +3,7 @@ description: Brain Audit Council — personas inspect the _testatlas workspace f
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="699210a5d308f00b20687d6e1e0b37139c631a1cc2d804f16c4ec9c4dec96b09" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="b4c14fa34f685acfd5541aea8b2151f252aa83a04416671fbb90ba6bc20598a2" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -13,7 +13,7 @@ Run a Brain Audit Council (PRD §7.9) after large runs, before final reports, or
 ## Required First Reads
 
 - `.testatlas/bootstrap.md`
-- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation), voting scale, council outputs.
+- `.testatlas/reference/council-protocol.md` — 9-round protocol, disagreement classification (factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation — snake_case per `vocabulary.schema.json#/$defs/disagreement_type`), voting scale, council outputs.
 - `.testatlas/agents/registry.md`
 - `_testatlas/brain/state.json`, `_testatlas/brain/manifest.json`, `_testatlas/brain/drift.json`
 - `_testatlas/09_artifact_index.md`, `_testatlas/00_overview.md`
@@ -29,7 +29,7 @@ Recommended slate: Documentation Curator (lead), Codebase Mapper, Adversarial Re
 2. **Independent review.** Each persona surfaces 3-5 audit findings (drift, contradictions, missing artifacts, broken references).
 3. **Initial findings.** Personas emit `message_type: "finding"` per audit observation.
 4. **Cross-questioning.** Personas challenge each other's audit interpretations.
-5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type: factual, expected-behavior, severity, priority, evidence-sufficiency, product-strategy, safety, implementation-interpretation.
+5. **Disagreement capture.** Recorded in `disagreements.md` with the PRD §12.5 type (snake_case per `vocabulary.schema.json#/$defs/disagreement_type`): factual, expected_behavior, risk_assessment, priority, evidence_sufficiency, product_strategy, safety, implementation_interpretation.
 6. **Rebuttal or evidence request.** Personas may request a fresh `validate-brain.js` run before voting.
 7. **Vote.** Per finding, vote on severity (drift, contradiction, missing) and proposed fix. +2 / -2 scale: `+2 strongly agree`, `+1 agree`, `0 abstain`, `-1 disagree`, `-2 strongly disagree`. Final consolidation MUST NOT follow majority if evidence contradicts.
 8. **Consolidation.** Documentation Curator drafts `consolidation.{md,json}` with the audit narrative + canonical-update proposals.
