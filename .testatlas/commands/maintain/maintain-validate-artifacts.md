@@ -136,9 +136,32 @@ The four validation dimensions:
 
 ## Stop Conditions
 
-- Schemas directory missing → halt with `SCHEMAS_MISSING`.
-- Brain directory missing → halt with `BRAIN_MISSING`; the workspace is V1 — recommend `maintain-migrate` first.
-- Any dimension reports issues → halt with non-zero exit so CI fails closed (the orchestrator does not support a `--report-only` bypass mode).
+The orchestrator halts on any non-zero exit from the four scripts it
+invokes. Only `validate-brain.js` returns typed codes; the other three
+scripts emit prose error messages and a non-zero exit only.
+
+- **`validate-brain.js`** emits typed `code` fields on each finding and
+  exits 1 if any finding is present. The codes that exist in the script
+  source are: `BRAIN_DIR_MISSING` (workspace is V1 — recommend
+  `maintain-migrate` first), `BRAIN_FILE_MISSING`,
+  `BRAIN_FILE_UNREADABLE`, `BRAIN_JSON_PARSE_ERROR`,
+  `BRAIN_JSONL_PARSE_ERROR`, `BRAIN_JSONL_LINE_NOT_OBJECT`,
+  `BRAIN_SCHEMA_VIOLATION`, `BRAIN_REQUIRED_FIELD_MISSING`. Any other
+  code mentioned in older revisions of this doc is not present in the
+  script.
+- **`validate-workspace.js`** exits 1 on any validation issue, 2 on an
+  unknown CLI flag. It does not emit a typed code for "schemas
+  directory missing"; if the schemas directory is unavailable, AJV
+  load failures surface as generic errors and the script exits 1.
+- **`sync-markdown-json.js`** exits 1 on a failed run with the message
+  `sync-markdown-json: FAIL — <reason>`, otherwise exits 0.
+- **`update-brain-after-command.js`** exits 1 on any error with the
+  message `update-brain-after-command: <code> — <message>` (the
+  `<code>` is the Node error code on the underlying I/O failure, not
+  a TestAtlas-defined enum), 2 on an unknown CLI flag.
+- Any of the four dimensions reporting issues → halt with non-zero
+  exit so CI fails closed (the orchestrator does not support a
+  `--report-only` bypass mode).
 
 ## Lifecycle
 
