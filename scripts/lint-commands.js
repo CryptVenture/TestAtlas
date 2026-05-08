@@ -879,18 +879,23 @@ const VOCAB_LITERAL_PATTERNS = [
   // (enum-value-validity), which checks against the per-script enum (e.g.
   // update-brain-after-command.js uses {completed, aborted, in_progress},
   // NOT issueStatus). VOCAB_LITERAL_PATTERNS only inspects prose-form
-  // status / severity / confidence claims via `status: \`<lit>\``.
+  // issue/severity/confidence claims via `<cue>: \`<lit>\``.
+  //
+  // The leading `\b(?<![\w-])` ensures the cue word is the START of an
+  // identifier, not the tail (so `skeleton-status:`, `pack-status:`, and
+  // `scenario-status:` do NOT trigger the issueStatus check — those are
+  // domain-specific status taxonomies, not the workspace issue lifecycle).
   {
     enum: 'issueStatus',
-    re: /(?:status\s*[=:]\s*|set\s+status\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+    re: /(?<![\w-])(?:status\s*[=:]\s*|set\s+status\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
   },
   {
     enum: 'severity',
-    re: /(?:severity\s*[=:]\s*|set\s+severity\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+    re: /(?<![\w-])(?:severity\s*[=:]\s*|set\s+severity\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
   },
   {
     enum: 'confidence',
-    re: /(?:confidence\s*[=:]\s*|set\s+confidence\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+    re: /(?<![\w-])(?:confidence\s*[=:]\s*|set\s+confidence\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
   },
 ];
 

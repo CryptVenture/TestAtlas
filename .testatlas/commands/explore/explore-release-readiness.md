@@ -66,7 +66,7 @@ Synthesize release readiness from every prior explorer + the brain coverage ledg
    - Capture all of the above into `evidence/artifacts.json`.
 
 4. **Blocker enumeration.**
-   - **Open critical/high issues:** filter `brain/issues.json` for `severity in [critical, high]` AND `status != closed`. Count. ≥1 critical = blocker; ≥3 high = blocker (configurable via `.testatlas/default.config.json.releaseGates`).
+   - **Open critical/high issues:** filter `brain/issues.json` for `severity in [critical, high]` AND `status != closed`. Count. ≥1 critical = blocker; ≥3 high = blocker (threshold defaults; future enhancement: surface as a top-level config key under `.testatlas/default.config.json` once the release-gates feature is GA).
    - **Test status:** if `evidence/explore-tests/<latest>/run.txt` exists, parse for failures. Any failure = blocker.
    - **Coverage:** if `coverage.json` shows aggregate coverage < release threshold (default 60%, configurable), flag as blocker.
    - **Drift:** if `brain/drift.json` shows `state in [stale_requires_review]` for any release-blocking artifact, flag as blocker.

@@ -108,7 +108,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (the new RETEST-* pair appears).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the issue + pack.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Retest packs are pre-execution scaffolds and are not counted as `testRuns` (the runner that consumes the pack increments `counts.testRuns` upon execution).
-- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (status: `pending`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Emitted RETEST-`<NNNN>` for ISSUE-`<id>` (pack-status: `pending`)."
 
 ## Stop Conditions
 

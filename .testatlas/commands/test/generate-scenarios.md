@@ -109,7 +109,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new TEST-* sidecars appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the source flows.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Scenarios are not counted as runs/issues; downstream `/atlas:test-flow` execution promotes them to `validated`.
-- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` scenarios from `<n>` flows (status: `generated-not-yet-validated`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` scenarios from `<n>` flows (scenario-status: `generated-not-yet-validated`)."
 
 ## Stop Conditions
 

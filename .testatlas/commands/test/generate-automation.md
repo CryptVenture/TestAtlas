@@ -123,7 +123,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list (new skeleton + meta files appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing the framework + flows.
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. Generated automation skeletons are seed material, not counted artifacts.
-- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (status: `generated-but-not-validated`)."
+- `_testatlas/history/run_log.md` — narrative entry: "Generated `<n>` `<framework>` automation skeletons (skeleton-status: `generated-but-not-validated`)."
 
 ## Stop Conditions
 
