@@ -2027,6 +2027,182 @@ export async function checkShellRequiredInFallback({ commandsDir }) {
   return violations;
 }
 
+// ─── INV-J: undefined-cross-reference (Round-13 follow-up, Quick 260508-u72) ─
+
+/**
+ * Cross-reference tokens like `F-\d+`, `INV-[A-Z]`, `LCB-\d+`, `§\d+`
+ * in command bodies must resolve to:
+ *   1. an anchor in the same file (`<a id="F-10">`, `**F-10**`,
+ *      `### F-10`, `**F-10** —`), OR
+ *   2. an explicit doc reference (followed by `(<doc>)`, `in <doc>.md`,
+ *      `(<doc>.md)`, etc.), OR
+ *   3. a cue word — `see`, `per`, `following`, `cf.`, `→` — immediately
+ *      preceding (within ~6 chars).
+ *
+ * INTENTIONALLY LENIENT — false positives here cause more harm than missed
+ * catches. We only flag when the token is unambiguously dangling.
+ *
+ * Allow opt-out via `<!-- xref-allowed: <reason> -->` per-line.
+ *
+ * @param {{commandsDir:string}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkUndefinedCrossReference({ commandsDir }) {
+  const violations = [];
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  // Token classes — each yields a captured token.
+  // NOTE: `§\d+` is intentionally OMITTED. In the TestAtlas corpus,
+  // every `§N` reference is by convention a PRD section reference; the
+  // PRD document is the only authority using `§` numbering. Flagging
+  // bare `§N` produces ~375 false positives across the corpus. If a
+  // future doc introduces non-PRD `§` references, add an explicit token
+  // class with stricter resolution rules.
+  const TOKEN_RES = [
+    /\bF-\d+\b/g,
+    /\bINV-[A-Z]\b/g,
+    /\bLCB-\d+\b/g,
+  ];
+  // Cue words that, when immediately preceding the token (within ~6 chars
+  // of leading whitespace), establish an upstream reference. Intentionally
+  // generous to avoid false positives.
+  const CUE_RE = /\b(?:see|per|following|cf\.?|recall|step\s+\d+\W+)\s*$/i;
+  const ARROW_CUE_RE = /(?:→|->)\s*$/;
+  // Trailing-context patterns: token followed by an explicit doc reference.
+  const TRAILING_DOC_RE =
+    /^\s*(?:\(|—|-|in\s+)?\s*(?:[\w./-]+\.md|[\w./-]+\.js|PRD|RFC|spec|specification)\b/i;
+  const OPT_OUT_RE = /<!--\s*xref-allowed\s*:[^>]*-->/i;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    // Build per-file anchor set: capture explicit anchors, bold/italic
+    // mentions, and heading-style mentions.
+    const anchors = new Set();
+    const ANCHOR_PATTERNS = [
+      /<a\s+id=["']([\w§.-]+)["']/g,
+      /\*\*(F-\d+|INV-[A-Z]|LCB-\d+|§\d+(?:\.\d+)?)\*\*/g,
+      /^#{1,6}\s+.*?\b(F-\d+|INV-[A-Z]|LCB-\d+)\b/gm,
+    ];
+    for (const ap of ANCHOR_PATTERNS) {
+      for (const m of text.matchAll(ap)) {
+        anchors.add(m[1]);
+      }
+    }
+    // Track HTML-comment open/close state across lines so multi-line
+    // comments don't produce false positives.
+    let inHtmlComment = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (OPT_OUT_RE.test(line)) continue;
+      // HTML-comment region detection. Multi-line comments are common in
+      // command bodies (e.g., ISSUE-* footers) and INV-J's tokens often
+      // appear in those notes referring back to the linter itself.
+      let scanLine = line;
+      if (inHtmlComment) {
+        const closeIdx = scanLine.indexOf('-->');
+        if (closeIdx === -1) continue;
+        inHtmlComment = false;
+        scanLine = scanLine.slice(closeIdx + 3);
+      }
+      // Strip in-line HTML comments before scanning.
+      scanLine = scanLine.replace(/<!--[^]*?-->/g, '');
+      // Detect any unclosed HTML comment that opens on this line and
+      // continues — set the flag and drop everything after the `<!--`.
+      const openIdx = scanLine.indexOf('<!--');
+      if (openIdx !== -1) {
+        inHtmlComment = true;
+        scanLine = scanLine.slice(0, openIdx);
+      }
+      if (!scanLine.trim()) continue;
+      for (const tre of TOKEN_RES) {
+        const re = new RegExp(tre.source, 'g');
+        for (const m of scanLine.matchAll(re)) {
+          const token = m[0];
+          if (anchors.has(token)) continue;
+          const start = m.index ?? 0;
+          const end = start + token.length;
+          // Look at preceding ~12 chars on the SAME line for a cue word.
+          const preceding = scanLine.slice(Math.max(0, start - 12), start);
+          if (CUE_RE.test(preceding) || ARROW_CUE_RE.test(preceding)) continue;
+          // Also accept simple cues spanning prior end-of-line: scan the
+          // last word on the previous non-empty line.
+          if (i > 0) {
+            const prev = lines[i - 1].trimEnd();
+            if (/\b(?:see|per|following|recall|cf\.?)\s*$/i.test(prev)) continue;
+          }
+          // Look at trailing ~30 chars for a doc-reference pattern.
+          const trailing = scanLine.slice(end, end + 60);
+          if (TRAILING_DOC_RE.test(trailing)) continue;
+          // Heuristic: token enclosed in a wider parenthetical that names
+          // a source (`(per F-10 in explore-codebase.md)`) — accept if the
+          // line contains both the token AND a `.md` / `.js` / `PRD` /
+          // `RFC` / `spec` / `PLAN-` / `LCB-` reference within the same
+          // parenthetical scope.
+          const parenScope = extractEnclosingParen(scanLine, start);
+          if (
+            parenScope &&
+            /(?:[\w./-]+\.md|[\w./-]+\.js|\bPRD\b|\bRFC\b|\bspec\b|\bPLAN-\d+\b|\bLCB-\d+\b)/i.test(
+              parenScope,
+            )
+          ) {
+            continue;
+          }
+          // Heuristic: token followed by ` in <doc>.md` ANY-distance on the
+          // same line (already covered by trailing-doc-re, but we double
+          // up for `in `-prefix forms with leading whitespace).
+          if (/\s+in\s+[\w./-]+\.(?:md|js)\b/i.test(scanLine.slice(end))) continue;
+          violations.push({
+            invariant: 'undefined-cross-reference',
+            file: path.relative(PROJECT_ROOT, file),
+            line: i + 1,
+            reason: `cross-reference \`${token}\` does not resolve to an anchor or doc-reference`,
+            detail: `token \`${token}\` on line ${i + 1} has no in-file anchor and no surrounding doc-reference (cue words: see/per/following/cf./recall/→; doc-refs: \`(<doc>.md)\`, \`in <doc>.md\`, \`(PRD)\`, etc.)`,
+            suggestion: `add an in-file anchor, a parenthetical doc-reference, or annotate with <!-- xref-allowed: <reason> --> if intentionally loose`,
+          });
+        }
+      }
+    }
+  }
+  return violations;
+}
+
+/**
+ * Given a 0-based char offset inside `line`, return the contents of the
+ * enclosing parenthetical group `(...)` if any, or null. Used by INV-J to
+ * accept patterns like `(per F-10 in explore-codebase.md)` where the
+ * enclosing parenthetical names the doc.
+ */
+function extractEnclosingParen(line, offset) {
+  let openIdx = -1;
+  let depth = 0;
+  for (let i = offset; i >= 0; i--) {
+    const c = line[i];
+    if (c === ')') depth += 1;
+    else if (c === '(') {
+      if (depth === 0) {
+        openIdx = i;
+        break;
+      }
+      depth -= 1;
+    }
+  }
+  if (openIdx === -1) return null;
+  let closeIdx = -1;
+  depth = 0;
+  for (let i = offset; i < line.length; i++) {
+    const c = line[i];
+    if (c === '(') depth += 1;
+    else if (c === ')') {
+      if (depth === 0) {
+        closeIdx = i;
+        break;
+      }
+      depth -= 1;
+    }
+  }
+  if (closeIdx === -1) return null;
+  return line.slice(openIdx + 1, closeIdx);
+}
+
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
 
 /**
@@ -2312,6 +2488,7 @@ export async function runLinter(opts = {}) {
     // Round-13 follow-up (Quick 260508-u72) — 4 new invariants:
     () => checkMissingCanonicalSection({ commandsDir }),
     () => checkShellRequiredInFallback({ commandsDir }),
+    () => checkUndefinedCrossReference({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2382,6 +2559,8 @@ Invariants:
         (extends invariant 11 with <!-- bare-script-path-allowed: <reason> --> support)
   23  missing-canonical-section (HARD) every command body has a \`## Lifecycle\` H2 (u72/Round-13)
   24  shell-required-in-fallback (HARD) "no-shell" fallback blocks must not propose shell tools (u72/Round-13)
+  25  undefined-cross-reference (LENIENT) F-N / INV-X / LCB-N tokens must resolve (u72/Round-13)
+        (§N references are convention-resolved as PRD section refs and not flagged)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
