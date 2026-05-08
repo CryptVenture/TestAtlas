@@ -1,7 +1,7 @@
 ---
 command: create-persona
 version: 2.0.0
-description: Author a new persona (system, generated, or project scope) by invoking scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
+description: Author a new persona (system, generated, or project scope) by invoking node .testatlas/scripts/create-persona.js — emits persona.{md,json} pair under _testatlas/agents/personas/<type>/<id>.{md,json} and updates brain/personas.json.
 capabilities: [shell, file-write]
 produces:
   - persona

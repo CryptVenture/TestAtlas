@@ -102,7 +102,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - `_testatlas/03_execution_status.md` — record run id, total/passed/failed/skipped/blocked counts, per-mode counts, capabilities used.
 - `_testatlas/09_artifact_index.md` — re-derive on-disk artifact list.
 - `_testatlas/10_command_log.md` — append row per `command-result.schema.json` referencing this run id.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.runs`; recompute `counts.evidence`.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; increment `counts.testRuns`; recompute `counts.evidenceRecords`.
 - `_testatlas/history/run_log.md` — entry: "RUN-`<timestamp>` (test-domain) `<n>` scenarios / `<m>` modes — passed/failed/skipped/blocked counts."
 
 ## Stop Conditions
@@ -123,7 +123,7 @@ After completing, update these workspace artifacts in PRD §40 order:
 - Every result cites evidence paths that exist on disk under `_testatlas/evidence/runs/<run-id>/`.
 - Every result's `type` is one of `negative` / `state` / `integration` / `setup-testability`.
 - RUN JSON validates against `test-run.schema.json`.
-- Manifest `counts.runs` and `counts.evidence` match disk.
+- Manifest `counts.testRuns` and `counts.evidenceRecords` match disk.
 - Flow confidence updated for every flow touched.
 - The five lifecycle files updated.
 
