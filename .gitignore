@@ -56,4 +56,5 @@ prd
 CLAUDE.md
 AGENTS.md
 tmp-test-v2-migration/
+tmp/
 .claude/
