@@ -201,16 +201,9 @@ test('checkUndefinedCrossReference: POSITIVE — `see F-10` (cue word) passes (l
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'See F-10 for follow-up.',
-      '',
-      '## Lifecycle',
-      '',
-      'Update brain.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'See F-10 for follow-up.', '', '## Lifecycle', '', 'Update brain.', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkUndefinedCrossReference({ commandsDir });
   // Lenient — `see` is a cue word that suggests an upstream reference.

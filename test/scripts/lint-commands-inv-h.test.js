@@ -53,14 +53,9 @@ test('checkMissingCanonicalSection: NEGATIVE — file with no `## Lifecycle` fla
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Required First Reads',
-      '',
-      'Some content but no lifecycle section.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Required First Reads', '', 'Some content but no lifecycle section.', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkMissingCanonicalSection({ commandsDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -108,14 +103,7 @@ test('checkMissingCanonicalSection: POSITIVE — `## Lifecycle` with trailing wh
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Lifecycle   ',
-      '',
-      'After-run notes.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Lifecycle   ', '', 'After-run notes.', ''].join('\n'),
   );
   const violations = await checkMissingCanonicalSection({ commandsDir });
   assert.equal(violations.length, 0);

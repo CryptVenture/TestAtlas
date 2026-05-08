@@ -128,14 +128,9 @@ test('checkShellRequiredInFallback: NEGATIVE — fallback proposing `pnpm test` 
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '### Manual fallback (no shell)',
-      '',
-      '- Run `pnpm test --filter foo`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '### Manual fallback (no shell)', '', '- Run `pnpm test --filter foo`.', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkShellRequiredInFallback({ commandsDir });
   assert.ok(violations.length >= 1);

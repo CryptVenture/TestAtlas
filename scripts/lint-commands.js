@@ -50,6 +50,7 @@
 import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildCanonicalNameRegex, CANONICAL_NAMES } from './lib/canonical-names.js';
 import { MCP_TOOL_CATALOG } from './lib/mcp-tool-catalog.js';
 import {
   ENUM_FLAGS as DEFAULT_ENUM_FLAGS,
@@ -2012,8 +2013,7 @@ export async function checkShellRequiredInFallback({ commandsDir }) {
               invariant: 'shell-required-in-fallback',
               file: path.relative(PROJECT_ROOT, file),
               line: j + 1,
-              reason:
-                'no-shell fallback block proposes a shell-only tool (logical contradiction)',
+              reason: 'no-shell fallback block proposes a shell-only tool (logical contradiction)',
               detail: `block opened at L${i + 1} with header "${lines[i].trim()}"; offending line: "${line.trim()}" matches /${re.source}/`,
               suggestion:
                 'replace with no-shell primitives (Read tool, file-write capability, MCP tool calls), OR annotate with <!-- shell-fallback-allowed: <reason> --> if the tooling truly runs without subprocess',
@@ -2057,11 +2057,7 @@ export async function checkUndefinedCrossReference({ commandsDir }) {
   // bare `§N` produces ~375 false positives across the corpus. If a
   // future doc introduces non-PRD `§` references, add an explicit token
   // class with stricter resolution rules.
-  const TOKEN_RES = [
-    /\bF-\d+\b/g,
-    /\bINV-[A-Z]\b/g,
-    /\bLCB-\d+\b/g,
-  ];
+  const TOKEN_RES = [/\bF-\d+\b/g, /\bINV-[A-Z]\b/g, /\bLCB-\d+\b/g];
   // Cue words that, when immediately preceding the token (within ~6 chars
   // of leading whitespace), establish an upstream reference. Intentionally
   // generous to avoid false positives.
@@ -2104,7 +2100,7 @@ export async function checkUndefinedCrossReference({ commandsDir }) {
         scanLine = scanLine.slice(closeIdx + 3);
       }
       // Strip in-line HTML comments before scanning.
-      scanLine = scanLine.replace(/<!--[^]*?-->/g, '');
+      scanLine = scanLine.replace(/<!--[\s\S]*?-->/g, '');
       // Detect any unclosed HTML comment that opens on this line and
       // continues — set the flag and drop everything after the `<!--`.
       const openIdx = scanLine.indexOf('<!--');
@@ -2201,6 +2197,86 @@ function extractEnclosingParen(line, offset) {
   }
   if (closeIdx === -1) return null;
   return line.slice(openIdx + 1, closeIdx);
+}
+
+// ─── INV-K: product-name-canonicalization (Round-13 follow-up, Quick 260508-u72) ─
+
+/**
+ * Curated allowlist of canonical product / technology names. Flag any
+ * occurrence whose case doesn't match the canonical form.
+ *
+ * Skip rules:
+ *   - Inside a fenced code block (` ``` ... ``` `).
+ *   - Inside inline-code spans (` `...` `).
+ *   - Compound hyphenated forms (e.g., `cloud-scheduler-cron`) — these
+ *     are typically symbol names, slugs, or CLI sub-commands and not
+ *     prose product references.
+ *   - Lines carrying `<!-- product-name-allowed: <reason> -->`.
+ *
+ * Dictionary lives in `scripts/lib/canonical-names.js` so other tools can
+ * import it.
+ *
+ * @param {{commandsDir:string, canonicalNames?:Record<string,string>}} ctx
+ * @returns {Promise<Array<Violation>>}
+ */
+export async function checkProductNameCanonicalization({ commandsDir, canonicalNames }) {
+  const violations = [];
+  const dict = canonicalNames ?? CANONICAL_NAMES;
+  const cmdFiles = await listMarkdownFiles(commandsDir);
+  const NAME_RE_BASE = canonicalNames
+    ? buildCanonicalNameRegexCustom(dict)
+    : buildCanonicalNameRegex();
+  const OPT_OUT_RE = /<!--\s*product-name-allowed\s*:[^>]*-->/i;
+  // Match an inline-code span (single-backtick) globally to mask out.
+  const INLINE_CODE_RE = /`[^`\n]*`/g;
+  for (const file of cmdFiles) {
+    const text = await readFile(file, 'utf8');
+    const lines = text.split('\n');
+    let inFence = false;
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i];
+      // Fence toggle (``` or ~~~ at start of line, optionally indented).
+      if (/^\s*(?:```|~~~)/.test(raw)) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
+      if (OPT_OUT_RE.test(raw)) continue;
+      // Mask inline-code spans.
+      const masked = raw.replace(INLINE_CODE_RE, (s) => ' '.repeat(s.length));
+      const re = new RegExp(NAME_RE_BASE.source, 'gi');
+      for (const m of masked.matchAll(re)) {
+        const matched = m[0];
+        const start = m.index ?? 0;
+        const end = start + matched.length;
+        // Compound-form skip: if a `-` is directly adjacent on either
+        // side of the matched span, treat it as part of a hyphenated
+        // identifier and skip.
+        const prev = start > 0 ? raw[start - 1] : '';
+        const next = end < raw.length ? raw[end] : '';
+        if (prev === '-' || next === '-') continue;
+        const lower = matched.toLowerCase();
+        const canonical = dict[lower];
+        if (!canonical) continue; // shouldn't happen, but guard
+        if (matched === canonical) continue; // case matches → ok
+        violations.push({
+          invariant: 'product-name-canonicalization',
+          file: path.relative(PROJECT_ROOT, file),
+          line: i + 1,
+          reason: `product name "${matched}" does not match canonical form "${canonical}"`,
+          detail: `at L${i + 1} col ${start + 1}; canonical dictionary key: "${lower}" → "${canonical}"`,
+          suggestion: `replace "${matched}" with "${canonical}" (or annotate the line with <!-- product-name-allowed: <reason> --> for legitimate literal-quote contexts)`,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
+function buildCanonicalNameRegexCustom(dict) {
+  const keys = Object.keys(dict).sort((a, b) => b.length - a.length);
+  const escaped = keys.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return new RegExp(`\\b(?:${escaped.join('|')})\\b`, 'gi');
 }
 
 // ─── Audit-manifest mode (Quick 260508-syv) ─────────────────────────────────
@@ -2489,6 +2565,7 @@ export async function runLinter(opts = {}) {
     () => checkMissingCanonicalSection({ commandsDir }),
     () => checkShellRequiredInFallback({ commandsDir }),
     () => checkUndefinedCrossReference({ commandsDir }),
+    () => checkProductNameCanonicalization({ commandsDir }),
   ]) {
     const partial = await fn();
     all.push(...partial);
@@ -2561,6 +2638,8 @@ Invariants:
   24  shell-required-in-fallback (HARD) "no-shell" fallback blocks must not propose shell tools (u72/Round-13)
   25  undefined-cross-reference (LENIENT) F-N / INV-X / LCB-N tokens must resolve (u72/Round-13)
         (§N references are convention-resolved as PRD section refs and not flagged)
+  26  product-name-canonicalization (HARD) curated product/tech names must use canonical case (u72/Round-13)
+        (dictionary in scripts/lib/canonical-names.js)
 
 Options:
   --commands-dir <path>   Commands root (default: .testatlas/commands)
