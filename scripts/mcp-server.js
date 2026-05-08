@@ -211,11 +211,46 @@ function dispatch({ request, catalog }) {
   return err(id, -32601, `Method not found: ${method}`);
 }
 
+const USAGE = `Usage: node scripts/mcp-server.js [--help|-h]
+
+TestAtlas MCP Server (JSON-RPC 2.0 over stdio).
+
+Implements Model Context Protocol spec ${PROTOCOL_VERSION}. Exposes every
+\`.testatlas/commands/<name>.md\` source body as an MCP Prompt named
+\`atlas-<name>\` so MCP-capable hosts (e.g. Claude Desktop) can surface
+TestAtlas commands as discoverable user-controlled slash actions.
+
+Methods supported:
+  initialize    returns capabilities + serverInfo + protocolVersion
+  prompts/list  enumerates every command body as an MCP Prompt entry
+  prompts/get   returns the BOOTSTRAP_PREAMBLE-prefixed source body
+
+Workspace resolution (in order):
+  1. \$TESTATLAS_WORKSPACE environment variable
+  2. walk-up search from the script's directory looking for .testatlas/commands/
+
+Transport: stdin/stdout JSON-RPC line frames. HTTP/SSE is deferred.
+
+Flags:
+  -h, --help    Show this help and exit.
+
+This binary is normally invoked by an MCP host's mcp_config.json — not by hand.`;
+
+function maybePrintHelpAndExit() {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--help') || argv.includes('-h')) {
+    process.stdout.write(`${USAGE}\n`);
+    process.exit(0);
+  }
+}
+
 /**
  * Run the server. Reads stdin line-by-line; each line is one JSON-RPC
  * request. Writes responses to stdout, one per line.
  */
 async function main() {
+  maybePrintHelpAndExit();
+
   const repoRoot = resolveWorkspaceRoot();
   const catalog = await loadPromptCatalog(repoRoot);
 
