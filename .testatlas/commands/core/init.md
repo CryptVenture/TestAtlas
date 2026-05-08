@@ -74,12 +74,16 @@ Bring a target repository to a clean V2 baseline — `_testatlas/` directory tre
 - `_testatlas/11_workspace_manifest.json` (V1) and `_testatlas/brain/manifest.json` (V2).
 - Lifecycle close + brain event.
 
+<!-- Stop codes verified against `.testatlas/scripts/init-workspace.js` (Round-12, Quick 260508-u72) -->
+
 ## Stop Conditions
 
-- `.testatlas/` suite tree missing → halt with `Run testatlas install first.`
-- Existing `_testatlas/` directory present without an `11_workspace_manifest.json` (ambiguous workspace) → halt with `TESTATLAS_AMBIGUOUS_WORKSPACE`; pass `--force` to recreate. Note: `--force` ONLY resolves the ambiguous-workspace error code per `.testatlas/scripts/init-workspace.js:189-194`; manifest-validation failures on an existing workspace must be addressed by manual repair (review the failing AJV report from `node .testatlas/scripts/validate-workspace.js`), not by `--force`.
-- Target repo path is not writable → halt; never proceed silently.
-- `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable.
+- `.testatlas/bootstrap.md` missing → halt with `TESTATLAS_SUITE_MISSING` (`.testatlas/scripts/init-workspace.js:163-170`); run `npx @webventures/testatlas init` first.
+- Existing `_testatlas/` directory present without an `11_workspace_manifest.json` (ambiguous workspace) → halt with `TESTATLAS_AMBIGUOUS_WORKSPACE` (`.testatlas/scripts/init-workspace.js:190-197`); pass `--force` to recreate. Note: `--force` ONLY resolves the ambiguous-workspace error code (the script consumes `--force` at the missing-manifest check on line 190 and nowhere else); the script does NOT inspect an existing manifest for validity, so manifest-validation failures on an existing workspace must be addressed by manual repair (review the failing AJV report from `node .testatlas/scripts/validate-workspace.js`), not by `--force`.
+- Generated manifest schema definition cannot be loaded → halt with `TESTATLAS_SCHEMA_MISSING` (`.testatlas/scripts/init-workspace.js:273-277`).
+- Generated manifest fails schema validation against `workspace-manifest.schema.json` → halt with `TESTATLAS_INVALID_MANIFEST` and surface the AJV error report verbatim (`.testatlas/scripts/init-workspace.js:279-285`).
+- Target repo path is not writable → halt; never proceed silently. (No dedicated stop code; an underlying `EACCES`/`EROFS` from `node:fs/promises` propagates.)
+- `safeMode: true` AND any required step would mutate target-repo source files → halt; only `_testatlas/` is writable. (Enforced by the agent runner, not by `init-workspace.js`.)
 
 ## Lifecycle
 
