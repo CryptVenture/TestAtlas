@@ -4,6 +4,67 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Fixed (post-Phase-20 dogfood round 7 — ISSUE-040..064)
+
+**Schema extensions (additive — no breaking changes; existing artifacts still validate):**
+
+- **`app-map.schema.json`** — added 6 optional top-level properties (`errorHandling`, `integrationEnvironments`, `runtimeMetadata`, `observability`, `securityFindings`, `states`) — each declared closed (`additionalProperties:false`) at the item level. Also widened `jobs.items` from `{type: string}` to `oneOf: [string, object{name, schedule?, retry?, timeout?, dependencies?}]` so explorers can write either flat name strings or full job records. AJV strict-mode compile clean. Closes the schema-side of ISSUE-043, 044, 045, 046, 047, 048, 049.
+- **`issue.schema.json`** — added optional `triagedAs` (regex-pinned to `^duplicate_of=ISSUE-\d+`) and optional `closedAs` (free-form short-string) properties. `additionalProperties:false` preserved for everything else. Closes the schema-side of ISSUE-060 (triagedAs lifecycle metadata) and ISSUE-062 (closedAs lifecycle metadata).
+- **`vocabulary.schema.json`** — extended `$defs.disagreement_type` enum to the 10-value snake_case union (added `safety`, `implementation_interpretation`, `expected_behavior`, `product_strategy` to the existing `factual`, `interpretation`, `priority`, `scope`, `evidence_sufficiency`, `risk_assessment`). Standardized to `snake_case` everywhere (matches the existing `confidence` and `severity` enum conventions). Closes the schema-side of ISSUE-063 and ISSUE-064.
+- **`.testatlas/bootstrap.md`** — added the schema-flexible-explorer-writes escape-hatch rule: when an explorer has data that doesn't fit the closed `app-map.schema.json` properties, the write goes to `_testatlas/maps/<feature>.json` sidecars and never back into `12_app_map.json`. Documents the Pattern-1 fix's intent so future explorers don't reinvent ad-hoc keys.
+
+**Script change:**
+
+- **`scripts/sync-markdown-json.js`** — added `--dry-run` flag. Performs the no-mutation pass and prints a planned-writes report to stdout (paths + counts) without touching any file. Closes the script-side of ISSUE-050. Test coverage added in `test/scripts/sync-markdown-json-dry-run.test.js`.
+
+**Source command body fixes:**
+
+- **`commands/explore.md`** — added `explore-tests` to the child-task pool string. Steps 6/7 + frontmatter `capabilities=[file-write]` were verified correct against pre-flight (steps 6/7 are spawn-vs-aggregate not duplicates; the umbrella never shells). Closes ISSUE-040 (PARTIAL — only the pool entry was real).
+- **`commands/explore/explore-all.md`** — corrected total wording from "20 explorers" to "21 explorers" in the description and Required-Action 3. Sub-counts (11 V1 + 10 V2) preserved. Closes ISSUE-041 (PARTIAL — only the total was real; the 11/12 sub-count claim was wrong against source).
+- **`commands/explore/explore-errors.md`** — `redact-evidence.js` invocation rewritten from positional `<path>` to canonical `--evidence-id` per-record form. The ad-hoc `errorBoundaries` / `errorLogging` / `retryPatterns` keys (which violated `12_app_map.json` `additionalProperties:false`) are now collapsed to the schema-conformant `errorHandling[].kind` shape now that Pattern-1 has landed. Closes ISSUE-043.
+- **`commands/explore-integrations.md`** — sandbox/prod environment markers moved to top-level `integrationEnvironments[]` array (the per-integration `integrations[]` item shape is closed and forbids inline environment keys). Closes ISSUE-044.
+- **`commands/explore/explore-jobs.md`** — jobs writes documented per the new `oneOf:[string, object]` shape so explorers can emit either flat names or full job records without schema rejection. Closes ISSUE-045.
+- **`commands/explore/explore-observability.md`** — dropped the unsupported `redact-evidence.js --scan` invocation; switched to per-record `--evidence-id`. Observability writes go to the new top-level `observability` object (vs. the previous schema-violating ad-hoc keys). Closes ISSUE-046.
+- **`commands/explore-runtime.md`** — runtime-metadata enrichment now writes to top-level `runtimeMetadata` object on `12_app_map.json` per the schema extension. Closes ISSUE-047.
+- **`commands/explore/explore-security-privacy.md`** — dropped `--scan`; per-record `--evidence-id`; `securityFindings[]` writes go to the new top-level `securityFindings` array. Closes ISSUE-048.
+- **`commands/explore/explore-state.md`** — `states[]` writes go to the new top-level `states[]` schema property. The `handle_dialog({accept: false})` pattern on line 61 (old MCP API shape) was rewritten to `handle_dialog({action: "dismiss"})`; line 67's already-correct shape was preserved. Closes ISSUE-049.
+- **`commands/explore/explore-brain.md`** — documented the now-supported `--dry-run` flag for `sync-markdown-json.js` (paired with the script change above). Closes ISSUE-050 doc-side.
+- **`commands/test/test-critical-flows.md`** — added a `## Completion Criteria` section. The dogfood-round claim that `testRuns` / `evidenceRecords` should be renamed was INVERTED against source — these ARE the canonical keys per `workspace-manifest.schema.json:39,44` and were left untouched. Closes ISSUE-051 (PARTIAL).
+- **`commands/test/generate-automation.md`** — added Completion Criteria; canonicalized status string on `generated-but-not-validated` (matching the `test-scenario.schema.json` status enum); fixed line 126's typo `generated-not-yet-validated` → `generated-but-not-validated`. Closes ISSUE-052.
+- **`commands/test/generate-scenarios.md`** — added Completion Criteria. Closes ISSUE-053.
+- **`commands/test/generate-retest-pack.md`** — added Completion Criteria. Closes ISSUE-054.
+- **`commands/report.md`** — Step 1 wording corrected from "skip step 13 only" to "skip steps 2-13" (matches the script's actual coverage of the manual path). Closes ISSUE-055.
+- **`commands/report/report-dashboard-data.md`** — documented the previously-undocumented `--format <json|html-preview>` flag in description + Required Actions (the script supported it; the doc was incomplete). Stop Condition wording was already correct. Closes ISSUE-057.
+- **`commands/log-issue.md`** — domain back-references corrected from `domains/<slug>/issues.md` to `domains/<slug>/issues/index.md` (matching `create-domain.js:5-6,234`'s actual emission). Added flow back-ref maintenance step pointing to the existing `to_fix/by_flow/<flow-id>.md` index. Closes ISSUE-059.
+- **`commands/triage.md`** — documented `triagedAs` lifecycle metadata (now schema-allowed). Closes ISSUE-060 doc-side.
+- **`commands/retest.md`** — flow back-references rewritten from the directory-shaped `flows/<flow-id>/issues.md` to the actual `to_fix/by_flow/<flow-id>.md` form (flows are file pairs per `create-flow.js`, not directories). Closes ISSUE-061.
+- **`commands/consolidate.md`** — documented `closedAs` lifecycle metadata + recommended-values table (`fixed`, `wont_fix`, `duplicate`, `consolidated_into=ISSUE-NNNN`, `not_real`, free-form). Closes ISSUE-062 doc-side.
+- **`commands/council/council.md`** — disagreement-type tokens standardized to `snake_case` (kebab variants removed); enum cross-reference points at `vocabulary.schema.json#/$defs/disagreement_type`. Closes ISSUE-063.
+- **`commands/council/council-test-plan.md`** — snake_case disagreement-type tokens; Outputs list extended to 15 PRD §7.8 artifacts (matching the section's existing Completion Criteria contract; previously listed only 10). Closes ISSUE-064.
+
+**Cross-cutting pattern fixes (proactive sweep — Round-8 prevention):**
+
+- **Pattern 1** (043-049): `app-map.schema.json` extended with 6 optional sections + `jobs[]` widening (vs. creating 6 sidecar schema files). Preserves the cross-explorer mesh; future explorers writing schema-flexible content go to `_testatlas/maps/<feature>.json` sidecars per the new bootstrap escape-hatch rule.
+- **Pattern 2** (043, 046, 048): `redact-evidence.js` doc surface aligned to the script's existing `--evidence-id`-only API across all 3 affected commands (vs. extending the script with `--scan` cross-record discovery).
+- **Pattern 3** (051-054 + collateral sweep): `## Completion Criteria` sections added to 7 commands total — the 4 reported (`test-critical-flows`, `generate-automation`, `generate-scenarios`, `generate-retest-pack`) plus 3 from the Wave-3 collateral sweep across `report/*` (`report.md`, `report-domain.md`, `report-release.md`).
+- **Pattern 4** (060, 062): `triagedAs` and `closedAs` added to `issue.schema.json` as optional properties — paired schema additions matching the lifecycle-metadata pattern already used by `history[]`.
+- **Pattern 5** (059, 061): domain and flow back-refs canonicalized — domains use `domains/<slug>/issues/index.md` (per `create-domain.js`), flows use `to_fix/by_flow/<flow-id>.md` (per `create-flow.js` file-pair convention).
+- **Pattern 6** (063, 064): `disagreementType` enum extended to the 10-value union and standardized to `snake_case` across the schema and the 9 council command bodies (`replace_all` sweep — kebab forms eliminated).
+
+**Wave-3 collateral sweep totals:** 32 collateral hits closed across 24 files; 7 systematic-pattern sweeps with grep-and-remediate cycle (per Plan 20-11 SUMMARY).
+
+**Verification gates summary:** `pnpm test` 1643/1645 GREEN (0 fail, 2 skipped, 60.3s); `check-adapter-parity --strict` 1314/1314 obligations satisfied (100.0% coverage); `validate-workspace.js` exit 0; `mesh-graph.test.js` 4/4 GREEN; `cross-reference-integrity.test.js` 3/3 GREEN; AJV strict-compile of app-map + issue + vocabulary schemas clean. All 18 adapter trees regenerated via `node scripts/assemble-adapter.js` post-source-edits.
+
+### Reviewed and rejected (post-Phase-20 dogfood round 7 — NOT-REAL verdicts recorded)
+
+To prevent re-filing in future dogfood rounds, the following Round-7 claims were reviewed against the source code and pre-flight-verified as NOT-REAL. No edits were made.
+
+- **ISSUE-042 NOT-REAL** — Claim: in `.testatlas/commands/explore-codebase.md`, `default: \`git ls-files\` set` reads incorrectly and should be `scope`. Verdict: reads correctly as written. "set" is the noun (the file-set produced by `git ls-files`); `scope` is already the field name on the next line. No edit applied.
+- **ISSUE-056 NOT-REAL** — Claim: `.testatlas/commands/report/report-domain.md` Required First Reads section uses a `.testatlas/agents/...` prefix that should be `_testatlas/agents/...`. Verdict: file-body grep returns zero matches for the `.testatlas/agents/` token; the Required First Reads block contains only bootstrap + brain JSON paths. No edit applied.
+- **ISSUE-058 NOT-REAL** — Claim: capability `subagent-spawn` is referenced but not defined in any host. Verdict: defined in `.testatlas/reference/capabilities.md` lines 39 and 65. No edit applied.
+
+**Adapter regen:** All 18 adapter trees regenerated via `node scripts/assemble-adapter.js`; parity GREEN at the post-Phase-17 baseline (1314/1314).
+
 ### Fixed (post-Phase-19 dogfood round 6 — ISSUE-031..039)
 
 - **ISSUE-031 (medium) Chrome DevTools MCP tool API mismatches.** Three upstream tool shapes were documented incorrectly across the canonical reference and several command bodies, so an agent that copy-pasted the patterns would invoke the tool with rejected parameters:
