@@ -30,10 +30,10 @@ async function cliMain() {
     .option('--target <dir>', 'Target repo (default: cwd)')
     .option('--force-reinstall', 'Re-extract latest even when current version matches')
     .option('--dry-run', 'Print planned actions; do not write')
-    .option('--no-update-check', 'Skip GitHub Releases TTL check (Plan 07-04 wires this)')
+    .option('--no-update-check', 'Skip the GitHub Releases TTL check before applying the update')
     .option(
       '--latest-version <ver>',
-      'Override target version (defaults to currentVersion until 07-04 lands update-check)',
+      'Override target version (defaults to the version returned by the GitHub Releases check)',
     )
     .parse(process.argv);
 
