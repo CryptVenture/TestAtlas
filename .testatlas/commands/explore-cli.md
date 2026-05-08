@@ -99,6 +99,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the cli-command count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` CLI commands (`<safe>` safe, `<destructive>` destructive) into `12_app_map.json`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-cli --actor agent --status completed --reindex`.
+
 ## Stop Conditions
 
 - Target repo ships no recognizable CLI surface (no scripts, no `bin/`, no Make/Just) → record an empty inventory citing the absence and close. Do not fabricate commands.
@@ -110,7 +112,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 ## Completion Criteria
 
 - Every cli-command entry cites at least one evidence path that exists on disk under `_testatlas/evidence/explore-cli/<timestamp>/`.
-- Manifest `counts.cli-commands` (or analogous) is updated to match the on-disk map.
+- `_testatlas/12_app_map.json` `cliCommands[]` reflects every command with the canonical fields populated; the workspace manifest (`workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports`) tracks no per-explorer CLI count.
 - All safe commands have a captured `--help` and (when applicable) `--version` evidence file.
 - Every destructive command has `safety: destructive` and `executed: false` recorded.
 - The five lifecycle files above are updated.

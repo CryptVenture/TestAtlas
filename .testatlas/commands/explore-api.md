@@ -101,6 +101,8 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute the api-endpoint count.
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` API endpoints across `<surfaces>` into `12_app_map.json`."
 
+Then run `node .testatlas/scripts/update-brain-after-command.js --command explore-api --actor agent --status completed --reindex`.
+
 ## Stop Conditions
 
 - No API surface detected (no routes, schemas, RPC services, event consumers) → record an empty API inventory and close.
@@ -113,7 +115,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - Every api-endpoint entry cites at least one evidence path that exists on disk under `_testatlas/evidence/explore-api/<timestamp>/`.
 - Sandbox-vs-production boundary respected; every refusal recorded in `10_command_log.md`.
-- Manifest `counts.api-endpoints` (or analogous) reflects the on-disk map.
+- `_testatlas/12_app_map.json` `apis[]` reflects every endpoint with the canonical fields populated; the workspace manifest (`workspace-manifest.schema.json` defines `counts` keys `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only) tracks no per-explorer api count.
 - The five lifecycle files above are updated.
 - A subsequent `validate-workspace` run reports zero errors against the new artifacts.
 

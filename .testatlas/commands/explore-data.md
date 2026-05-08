@@ -86,7 +86,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 - `_testatlas/03_execution_status.md` — record current command + completion state, evidence-directory path, counts of entities / queues / caches / storage objects discovered.
 - `_testatlas/09_artifact_index.md` — re-derive the on-disk artifact list (the new evidence directory and updated `12_app_map.json` must appear).
 - `_testatlas/10_command_log.md` — append a row matching `command-result.schema.json` referencing this run.
-- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.models`, plus queue/cache/storage counts if the manifest tracks them.
+- `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (Entity/queue/cache/storage counts live in `12_app_map.json`; `workspace-manifest.schema.json` `counts` keys are `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports` only.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` entities, `<n>` queues, `<n>` caches, `<n>` storage objects into `12_app_map.json` data entries."
 
 ## Stop Conditions
