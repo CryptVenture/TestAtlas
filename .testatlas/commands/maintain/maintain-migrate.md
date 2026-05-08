@@ -113,9 +113,16 @@ produces a no-op success. Always safe to retry.
 
 ## Stop Conditions
 
-- Workspace missing → halt with `WORKSPACE_MISSING`; the operator must run `/atlas:core-init` first.
-- V2 markers already present AND `--force` not passed → halt with `ALREADY_V2` (operator can re-run with `--force` for re-baseline).
-- Backup creation fails → halt with `BACKUP_FAILED` BEFORE any migration write.
+The script does NOT halt with named error codes for the common no-op paths — instead it returns a status string and exits 0:
+
+- **Workspace missing** (no `11_workspace_manifest.json`) → script returns `{ status: 'no-workspace' }` and exits 0 with `v2-migrate: no-workspace at <wsDir> (0 files created)` on stdout. This is a successful no-op, not a halt; the operator should run `/atlas:core-init` first if a workspace is expected.
+- **Already V2** (manifest `schema_version === '2.0.0'`) AND `--force` not passed → script enters repair mode, backfills any missing V2 artifacts, and returns `{ status: 'already-v2' }` (zero files added) or `{ status: 'repaired' }` (some files added). Exit 0 in both cases — not a halt.
+
+The script DOES halt (non-zero exit, error printed to stderr as `v2-migrate: <CODE> — <message>`) for:
+
+- **Destructive-fs capability denied** → throws with `err.code = 'CAPABILITY_DENIED'`. Triggered when the user's config blocks destructive filesystem operations and a real migration (not a no-op) would need to write a backup.
+- **Backup `cp` failure** → propagates the underlying `node:fs/promises` error (no custom code; surfaces as `ERROR — <fs message>`). The script exits 1 BEFORE writing any V2 files.
+- **Any other unhandled error** → printed as `v2-migrate: <err.code ?? 'ERROR'> — <err.message>` and exit 1.
 
 ## Lifecycle
 
