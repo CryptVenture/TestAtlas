@@ -75,6 +75,15 @@
     "automationCandidate": { "type": "boolean", "description": "V2: regression-suite automation candidate." },
     "councilConsensusLevel": { "type": "string", "enum": ["unanimous", "majority", "split", "none"], "description": "V2: council consensus that surfaced the issue." },
     "evidenceStrength": { "type": "string", "enum": ["strong", "moderate", "weak"], "description": "V2: aggregate evidence strength." },
-    "retestPackPath": { "type": "string", "description": "V2: relative path to retest pack for verifying the fix." }
+    "retestPackPath": { "type": "string", "description": "V2: relative path to retest pack for verifying the fix." },
+    "triagedAs": {
+      "type": "string",
+      "pattern": "^duplicate_of=ISSUE-\\d+(-[a-z0-9]+(-[a-z0-9]+)*)?$",
+      "description": "Lifecycle metadata: when an issue is triaged as a duplicate, the triagedAs field captures the canonical issue id with the prefix 'duplicate_of='. Optional. Closes ISSUE-060."
+    },
+    "closedAs": {
+      "type": "string",
+      "description": "Lifecycle metadata: when an issue is closed, closedAs captures the closure verdict (e.g. 'fixed', 'wont_fix', 'duplicate', 'not_real', or a free-form short reason). Optional. Closes ISSUE-062."
+    }
   }
 }
