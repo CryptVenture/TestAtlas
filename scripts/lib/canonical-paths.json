@@ -1,0 +1,43 @@
+{
+  "_comment": "Quick 260508-pc0. Canonical _testatlas/ path patterns + known anti-patterns. Consumed by scripts/lint-commands.js Invariant 2 (path-canonicity). One-line comment per canonical pattern in adjacent _patterns_doc field.",
+  "patterns": [
+    "_testatlas/flows/FLOW-*.{md,json}",
+    "_testatlas/tests/runs/RUN-*.{md,json}",
+    "_testatlas/to_fix/by_*/<key>.md",
+    "_testatlas/domains/<slug>/issues/index.md",
+    "_testatlas/brain/manifest.json",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/domains.json",
+    "_testatlas/brain/flows.json",
+    "_testatlas/brain/quality_scores.json",
+    "_testatlas/brain/drift.json",
+    "_testatlas/brain/events.json",
+    "_testatlas/evidence/<command>/<timestamp>/",
+    "_testatlas/reports/REPORT-*.{md,json}",
+    "_testatlas/01_system_map.md",
+    "_testatlas/02_test_strategy.md",
+    "_testatlas/11_workspace_manifest.json"
+  ],
+  "antiPatterns": [
+    {
+      "match": "_testatlas/runs/",
+      "suggest": "_testatlas/tests/runs/",
+      "reason": "test runs live under _testatlas/tests/runs/, not _testatlas/runs/"
+    },
+    {
+      "match": "_testatlas/flows/<slug>/",
+      "suggest": "_testatlas/flows/FLOW-<slug>.{md,json}",
+      "reason": "flows are file pairs (FLOW-*.md + FLOW-*.json), not directories"
+    }
+  ],
+  "_patterns_doc": {
+    "_testatlas/flows/FLOW-*.{md,json}": "Flows are file pairs at the flat flows/ root, not subdirs.",
+    "_testatlas/tests/runs/RUN-*.{md,json}": "Test runs live under tests/runs/, never bare runs/.",
+    "_testatlas/to_fix/by_*/<key>.md": "to_fix axis indexes are by_<axis>/<key>.md (e.g. by_severity/critical.md).",
+    "_testatlas/domains/<slug>/issues/index.md": "Per-domain issue index lives at domains/<slug>/issues/index.md.",
+    "_testatlas/brain/<canonical>.json": "Brain state files: manifest, state, domains, flows, quality_scores, drift, events.",
+    "_testatlas/evidence/<command>/<timestamp>/": "Evidence directories nested by command name then timestamp.",
+    "_testatlas/reports/REPORT-*.{md,json}": "Reports are file pairs at reports/ root.",
+    "_testatlas/<NN>_<name>.md": "Numbered top-level workspace docs (system map, test strategy, etc)."
+  }
+}
