@@ -866,13 +866,32 @@ function aliasFamilies(names) {
 /**
  * Pattern matchers for common "status / severity / etc." literal claims in
  * command-body prose. Each entry binds a cue+capture to a vocabulary enum
- * name. The capture is a single token immediately after the cue; we only
- * inspect tokens that look like enum members (kebab/underscore lowercase).
+ * name.
+ *
+ * The cue MUST be one of: `--status <token>`, `status: \`<token>\``,
+ * `status="<token>"`, or `set status \`<token>\``. We require the value to
+ * be backtick-wrapped or quoted (or follow `--<flag>`) to avoid prose
+ * false-positives where words like "the" or "of" follow a cue word like
+ * "status".
  */
 const VOCAB_LITERAL_PATTERNS = [
-  { enum: 'issueStatus', re: /\bstatus[:\s]+`?([a-z][a-z0-9_]*)`?/gi },
-  { enum: 'severity', re: /\bseverity[:\s]+`?([a-z][a-z0-9_]*)`?/gi },
-  { enum: 'confidence', re: /\bconfidence[:\s]+`?([a-z][a-z0-9_-]*)`?/gi },
+  // Note: --status flag literals are owned by sub-invariant 1.2
+  // (enum-value-validity), which checks against the per-script enum (e.g.
+  // update-brain-after-command.js uses {completed, aborted, in_progress},
+  // NOT issueStatus). VOCAB_LITERAL_PATTERNS only inspects prose-form
+  // status / severity / confidence claims via `status: \`<lit>\``.
+  {
+    enum: 'issueStatus',
+    re: /(?:status\s*[=:]\s*|set\s+status\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+  },
+  {
+    enum: 'severity',
+    re: /(?:severity\s*[=:]\s*|set\s+severity\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+  },
+  {
+    enum: 'confidence',
+    re: /(?:confidence\s*[=:]\s*|set\s+confidence\s+to\s+)`([a-z][a-z0-9_-]*)`/gi,
+  },
 ];
 
 const VOCAB_LITERAL_IGNORE = new Set([
