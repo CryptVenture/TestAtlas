@@ -50,6 +50,10 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  ENUM_FLAGS as DEFAULT_ENUM_FLAGS,
+  REQUIRED_FLAGS as DEFAULT_REQUIRED_FLAGS,
+} from './lib/script-flag-metadata.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -434,25 +438,6 @@ export async function checkFrontmatterScriptForm({ commandsDir }) {
 // ─── Sub-invariant 1.1: flag-completeness (Quick 260508-rqx) ────────────────
 
 /**
- * Resolve REQUIRED_FLAGS / ENUM_FLAGS metadata. Tries scripts/lib/script-flag-metadata.js
- * first; returns empty defaults on miss so the linter still functions before
- * Task 2 lands the catalog.
- *
- * @returns {Promise<{requiredFlags:Object, enumFlags:Object}>}
- */
-async function loadScriptFlagMetadata() {
-  try {
-    const mod = await import('./lib/script-flag-metadata.js');
-    return {
-      requiredFlags: mod.REQUIRED_FLAGS ?? {},
-      enumFlags: mod.ENUM_FLAGS ?? {},
-    };
-  } catch {
-    return { requiredFlags: {}, enumFlags: {} };
-  }
-}
-
-/**
  * Walk command bodies for `node .testatlas/scripts/<x>.js [--flags ...]`
  * invocations; for each invocation, look up the script's required flags
  * (default: REQUIRED_FLAGS from scripts/lib/script-flag-metadata.js) and emit
@@ -463,7 +448,7 @@ async function loadScriptFlagMetadata() {
  */
 export async function checkRequiredFlags({ commandsDir, requiredFlags }) {
   const violations = [];
-  const required = requiredFlags ?? (await loadScriptFlagMetadata()).requiredFlags;
+  const required = requiredFlags ?? DEFAULT_REQUIRED_FLAGS;
   if (!required || Object.keys(required).length === 0) return violations;
   const cmdFiles = await listMarkdownFiles(commandsDir);
   const RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b([^\n`]*)/g;
@@ -515,7 +500,7 @@ export async function checkRequiredFlags({ commandsDir, requiredFlags }) {
  */
 export async function checkEnumValueValidity({ commandsDir, enumFlags }) {
   const violations = [];
-  const enums = enumFlags ?? (await loadScriptFlagMetadata()).enumFlags;
+  const enums = enumFlags ?? DEFAULT_ENUM_FLAGS;
   if (!enums || Object.keys(enums).length === 0) return violations;
   const cmdFiles = await listMarkdownFiles(commandsDir);
   const RE = /\bnode\s+\.testatlas\/scripts\/([\w-]+)\.js\b([^\n`]*)/g;

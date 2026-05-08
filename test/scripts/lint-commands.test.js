@@ -30,6 +30,10 @@ import {
   checkVocabEnumDrift,
   runLinter,
 } from '../../scripts/lint-commands.js';
+import {
+  ENUM_FLAGS,
+  REQUIRED_FLAGS,
+} from '../../scripts/lib/script-flag-metadata.js';
 
 // ─── Fixture helpers ────────────────────────────────────────────────────────
 
@@ -652,6 +656,24 @@ test('checkLifecyclePosition: ALLOWLIST — explore.md (umbrella) without ## Lif
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
 });
 
+// ─── script-flag-metadata smoke (Quick 260508-rqx Task 2) ──────────────────
+
+test('script-flag-metadata: REQUIRED_FLAGS update-brain-after-command.js core trio', () => {
+  const reqs = REQUIRED_FLAGS['update-brain-after-command.js'];
+  assert.ok(Array.isArray(reqs), 'REQUIRED_FLAGS update-brain-after-command.js is an array');
+  assert.ok(reqs.includes('--command'));
+  assert.ok(reqs.includes('--actor'));
+  assert.ok(reqs.includes('--summary'));
+});
+
+test('script-flag-metadata: ENUM_FLAGS update-brain-after-command.js --status enum', () => {
+  const enums = ENUM_FLAGS['update-brain-after-command.js'];
+  assert.ok(enums && typeof enums === 'object');
+  const allowed = enums['--status'];
+  assert.ok(Array.isArray(allowed));
+  assert.deepEqual([...allowed].sort(), ['aborted', 'completed', 'in_progress']);
+});
+
 // ─── runLinter smoke ────────────────────────────────────────────────────────
 
 test('runLinter: returns { violations, exitCode } shape', async () => {
@@ -673,7 +695,7 @@ test('runLinter: returns { violations, exitCode } shape', async () => {
       '',
       '## Lifecycle',
       '',
-      'Run `node .testatlas/scripts/update-brain-after-command.js --command good --actor agent --status completed`.',
+      'Run `node .testatlas/scripts/update-brain-after-command.js --command good --actor agent --summary "smoke test" --status completed`.',
       '',
     ].join('\n'),
   );
