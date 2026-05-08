@@ -370,7 +370,25 @@ async function runCli(argv) {
     }
     // Print a short summary to stdout; full report is r.reportMarkdown.
     process.stdout.write(r.reportMarkdown);
-    process.exit(r.exitCode);
+    // Quick 260508-pc0: also run the doc-vs-truth invariant linter so
+    // workspace validation surfaces command-body drift. The linter has its
+    // own exit code; promote any failure into the validate-workspace exit
+    // code (without masking a check failure that already would have failed).
+    let lintExit = 0;
+    try {
+      const { runLinter } = await import('./lint-commands.js');
+      const lintResult = await runLinter({ quiet: true });
+      lintExit = lintResult.exitCode;
+      if (lintExit !== 0) {
+        process.stderr.write(
+          `validate-workspace: lint-commands reported ${lintResult.violations.length} violation(s); see \`node scripts/lint-commands.js\` for detail.\n`,
+        );
+      }
+    } catch (err) {
+      process.stderr.write(`validate-workspace: lint-commands wiring error — ${err.message}\n`);
+      lintExit = 1;
+    }
+    process.exit(r.exitCode || lintExit);
   } catch (err) {
     console.error(`validate-workspace: ${err.code ?? 'ERROR'} — ${err.message}`);
     process.exit(1);

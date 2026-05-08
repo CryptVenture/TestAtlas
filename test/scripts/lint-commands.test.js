@@ -270,8 +270,10 @@ test('checkLifecycleCompleteness: POSITIVE — Lifecycle with update-brain hook 
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
 });
 
-test('checkLifecycleCompleteness: NEGATIVE — missing hook + not on allowlist flags violation', async () => {
+test('checkLifecycleCompleteness: NEGATIVE — missing hook on brain-writer (recompute) flags violation', async () => {
   const { commandsDir } = await makeFixtureRoot('inv4-neg');
+  // "recompute counts.*" is the brain-writer signal — without the hook
+  // this MUST flag.
   await writeCmd(
     commandsDir,
     'missing-hook.md',
@@ -281,7 +283,7 @@ test('checkLifecycleCompleteness: NEGATIVE — missing hook + not on allowlist f
       '## Lifecycle',
       '',
       '- Update `_testatlas/03_execution_status.md`.',
-      '- Update `_testatlas/11_workspace_manifest.json`.',
+      '- Update `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`; recompute `counts.evidence`.',
       '',
       '## Stop Conditions',
       '',
@@ -293,6 +295,37 @@ test('checkLifecycleCompleteness: NEGATIVE — missing hook + not on allowlist f
   assert.equal(violations.length, 1);
   assert.equal(violations[0].invariant, 'lifecycle-completeness');
   assert.match(violations[0].file, /missing-hook\.md$/);
+});
+
+test('checkLifecycleCompleteness: NON-BRAIN-WRITER — Lifecycle without recompute or evidence is not flagged', async () => {
+  const { commandsDir } = await makeFixtureRoot('inv4-nonwriter');
+  // Pure housekeeping Lifecycle — no recompute, no _testatlas/evidence —
+  // the hook is NOT required. This protects commands like cleanup,
+  // uninstall, update, bootstrap from spurious flags.
+  await writeCmd(
+    commandsDir,
+    'housekeeping.md',
+    [
+      '# Housekeeping',
+      '',
+      '## Lifecycle',
+      '',
+      '- Update `_testatlas/03_execution_status.md`.',
+      '- Update `_testatlas/09_artifact_index.md`.',
+      '- Update `_testatlas/10_command_log.md`.',
+      '',
+      '## Stop Conditions',
+      '',
+      '- None.',
+      '',
+    ].join('\n'),
+  );
+  const violations = await checkLifecycleCompleteness({ commandsDir });
+  assert.equal(
+    violations.length,
+    0,
+    `non-brain-writer must not be flagged, got: ${JSON.stringify(violations)}`,
+  );
 });
 
 test('checkLifecycleCompleteness: ALLOWLIST — umbrella commands skipped', async () => {

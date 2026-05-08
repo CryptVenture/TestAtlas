@@ -60,8 +60,9 @@
   "scripts": {
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "lint:commands": "node scripts/lint-commands.js",
     "format": "biome format --write .",
-    "test": "node --test",
+    "test": "node scripts/lint-commands.js && node --test",
     "shellcheck": "shellcheck install.sh",
     "changeset": "changeset",
     "prepare": "simple-git-hooks",

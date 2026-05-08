@@ -290,10 +290,23 @@ export async function checkSchemaKeyExistence({ commandsDir, schemasDir }) {
 // ─── Invariant 4: lifecycle-completeness ────────────────────────────────────
 
 /**
- * Every command file with a `## Lifecycle` (or `# Lifecycle`) section MUST
- * reference `update-brain-after-command.js` UNLESS it's on the umbrella
- * allowlist. Commands without a Lifecycle section are skipped (some pure
- * documentation files have none).
+ * Lifecycle-completeness rule (refined): a command's Lifecycle section MUST
+ * reference `update-brain-after-command.js` IF the section is "brain-touching"
+ * — empirically, when it mentions `recompute counts.*` (counts adjustments)
+ * OR writes to `_testatlas/evidence/`. Both signals indicate the command
+ * mutates brain-tracked state and therefore must trigger the brain refresh.
+ *
+ * Commands whose Lifecycle is purely housekeeping (only the standard
+ * 03_execution_status / 09_artifact_index / 10_command_log / lastUpdatedAt
+ * triplet without counts adjustment OR evidence emission) are NOT brain
+ * writers in this strict sense and the hook is not required. The umbrella
+ * allowlist still skips composition-only commands explicitly.
+ *
+ * Rationale: the 4 dogfood Round-9 targets (explore-runtime/security/
+ * accessibility/performance) all say "recompute counts.evidence" in their
+ * Lifecycle — that's the precise signal we want to flag. Pure orchestration
+ * commands (cleanup, uninstall, update, bootstrap) don't, and shouldn't
+ * trigger.
  *
  * @param {{commandsDir:string}} ctx
  * @returns {Promise<Array<Violation>>}
@@ -324,13 +337,22 @@ export async function checkLifecycleCompleteness({ commandsDir }) {
       }
     }
     const section = lines.slice(startLine, endLine).join('\n');
-    if (!section.includes('update-brain-after-command.js')) {
+    // Brain-writer signal: Lifecycle mentions `recompute` (counts.*) or
+    // `_testatlas/evidence/`. Without one of these signals we treat the
+    // command as a non-brain-writer; the hook is not required.
+    const brainWriter = /\brecompute\b/i.test(section) || /_testatlas\/evidence\//.test(section);
+    if (!brainWriter) continue;
+    // Hook may live in the Lifecycle section OR a downstream sibling
+    // section like `## Post-Operation Brain Update` (canonical pattern in
+    // `commands/core/init.md`). Search the full file so legitimate
+    // sibling-section placement isn't mis-flagged.
+    if (!text.includes('update-brain-after-command.js')) {
       violations.push({
         invariant: 'lifecycle-completeness',
         file: path.relative(PROJECT_ROOT, file),
         line: startLine + 1,
         reason: `Lifecycle section does not reference update-brain-after-command.js`,
-        detail: `command ${rel} has Lifecycle but no brain-update hook (not on umbrella allowlist)`,
+        detail: `command ${rel} has a brain-writing Lifecycle (recompute / evidence) but no brain-update hook (not on umbrella allowlist)`,
         suggestion: `add: \`node .testatlas/scripts/update-brain-after-command.js --command ${rel.replace(/\.md$/, '').split('/').pop()} --actor agent --status completed\``,
       });
     }
