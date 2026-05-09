@@ -42,9 +42,19 @@ function err(code, msg) {
  *   artifactsWritten?: string[],
  *   evidence?: string[],
  *   reindex?: boolean,
+ *   reconcileCounts?: boolean,
+ *   populateFromAppMap?: boolean,
+ *   detectDrift?: boolean,
  * }} args
+ * @param {{
+ *   reconcileCounts?: Function,
+ *   populateBrainFromAppMap?: Function,
+ *   detectDrift?: Function,
+ * }} _inject — TEST ONLY. Lets test harnesses replace the dynamic imports
+ *   for reconcile-counts.js / populate-brain-from-app-map.js / detect-drift.js
+ *   with mock functions. Production callers do NOT pass _inject.
  */
-export async function updateBrainAfterCommand(args = {}) {
+export async function updateBrainAfterCommand(args = {}, _inject = {}) {
   if (!args.command)
     throw err('TESTATLAS_INVALID_ARGS', 'update-brain-after-command: --command is required');
   if (!args.actor)
@@ -95,6 +105,26 @@ export async function updateBrainAfterCommand(args = {}) {
     await indexArtifacts({ cwd });
   }
 
+  if (args.reconcileCounts) {
+    const fn =
+      _inject.reconcileCounts ??
+      (await import('./reconcile-counts.js')).reconcileCounts;
+    await fn({ cwd });
+  }
+
+  if (args.populateFromAppMap) {
+    const fn =
+      _inject.populateBrainFromAppMap ??
+      (await import('./populate-brain-from-app-map.js')).populateBrainFromAppMap;
+    await fn({ cwd });
+  }
+
+  if (args.detectDrift) {
+    const fn =
+      _inject.detectDrift ?? (await import('./detect-drift.js')).detectDrift;
+    await fn({ cwd });
+  }
+
   return { ok: true, event: ev.event };
 }
 
@@ -138,6 +168,15 @@ if (isMain) {
       case '--reindex':
         opts.reindex = true;
         break;
+      case '--reconcile-counts':
+        opts.reconcileCounts = true;
+        break;
+      case '--populate-from-app-map':
+        opts.populateFromAppMap = true;
+        break;
+      case '--detect-drift':
+        opts.detectDrift = true;
+        break;
       case '--cwd':
         opts.cwd = path.resolve(argv[++i]);
         break;
@@ -149,7 +188,8 @@ if (isMain) {
         console.log(
           'Usage: node scripts/update-brain-after-command.js --command <s> --actor <s> --summary <s> ' +
             '[--status completed|aborted|in_progress] [--artifacts-read a,b] [--artifacts-written a,b] ' +
-            '[--evidence a,b] [--reindex] [--cwd <dir>] [--suite-cwd <dir>]',
+            '[--evidence a,b] [--reindex] [--reconcile-counts] [--populate-from-app-map] ' +
+            '[--detect-drift] [--cwd <dir>] [--suite-cwd <dir>]',
         );
         process.exit(0);
         break;
