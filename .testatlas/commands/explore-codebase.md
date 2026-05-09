@@ -96,7 +96,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (This command does not write to `counts.*` — those track per-domain/flow/issue/evidence/run artifacts that explore-codebase does not produce. Run `node .testatlas/scripts/sync-status.js` if downstream commands have populated counts that need reconciling against on-disk reality.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` apps, `<n>` routes, `<n>` integrations into `12_app_map.json`."
 
-Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`.
+Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex --reconcile-counts --populate-from-app-map --detect-drift`.
 
 ## Stop Conditions
 
