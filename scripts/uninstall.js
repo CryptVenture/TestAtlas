@@ -152,7 +152,7 @@ export async function runUninstall(opts = {}) {
   if (!cap.allowed) {
     throw new Error(
       `Refusing to uninstall: ${cap.reason}. Set safeMode:false and ` +
-        'allowDestructiveActions:true in .testatlas/testatlas.config.json to proceed.',
+        'allowDestructiveActions:true in testatlas.config.json (at the target repo root) to proceed.',
     );
   }
 
