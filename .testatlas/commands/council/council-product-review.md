@@ -117,6 +117,21 @@ persona's round 2-3 inline as a recovery. The threshold guard below applies.
 regardless of host capability (degenerate single-spawn = wasted overhead). Record
 `executionMode: 'single-spawn-inline'` (when 1 participant) or `'no-op'` (when 0).
 
+### After Spawn Round Completes — Record Execution Mode
+
+After the spawn round (rounds 2-3) finishes, the orchestrator MUST record how the spawn actually executed. This closes the audit-honesty contract from Phase-21 (HIGH-1: orchestrator records executionMode post-hoc when both args undefined) and consumes the Phase-22 DEC-006 producer.
+
+Run this command, substituting the actual session id and detected execution mode:
+
+```sh
+node .testatlas/scripts/record-execution-mode.js \
+  --session-id <COUNCIL-YYYY-MM-DD-NNN> \
+  --mode <parallel-subagents|single-spawn-inline|sequential-fallback|classify-only|inline-simulation|no-op> \
+  --justification "<short host/runtime context note>"
+```
+
+The valid `--mode` values are the six members of the `executionMode` enum in `council_session.schema.json`. If the host is unable to spawn sub-agents (e.g., concatenated-conventions adapter — see `.testatlas/reference/capabilities.md` § Concatenated-Conventions Adapter Limitations), record `inline-simulation`. Idempotent — safe to re-run.
+
 ## Setup
 
 ```sh
