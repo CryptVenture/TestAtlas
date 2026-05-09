@@ -102,3 +102,22 @@ The `tool_unavailable` field is part of every finding-bearing schema in Phase 2.
 ## Schema reference
 
 The nine values are enumerated in `.testatlas/schemas/vocabulary.schema.json` at `$defs/capability` and referenced from every adapter capability declaration via `$ref`. Do not introduce new capability values without a PRD revision. Phase 14 V2 added `council-orchestration`, `persona-context`, `brain-sync`; Phase 21 Wave 1 wired them onto concrete consumers (the 10 `council-*` sub-commands plus `create-persona.md` + `consolidate.md`).
+
+## Deferred to vN+1
+
+The following capabilities have schema/structure surfaces in the v2 brain layer but are intentionally deferred to a future major release. They are NOT required by `validate-brain.js` and producers/consumers will be wired in vN+1:
+
+- **embeddings_manifest** — semantic search index over the brain. Schema field exists at `_testatlas/brain/embeddings_manifest.json`; producer is deferred. As of Phase 22 (DEC-008), `validate-brain.js` no longer requires this file; presence is tolerated for forward-compat with future vN+1 producers. The post-Phase-22 required-files count is 22 brain files (19 JSON + 3 JSONL), down from 23 (20 JSON + 3 JSONL).
+
+## Concatenated-Conventions Adapter Limitations
+
+Four adapters use a concatenated-conventions rendering style that caps each command's `## Sub-Agent Orchestration` section to 1-3 lines as a reference rather than reproducing the full orchestration body:
+
+- **aider** — `.aider.conventions.md` per-section cap
+- **roo-code** — `.roo/instructions.md` per-section cap
+- **zed** — `.rules` per-section cap
+- **amazon-q** — `.amazon-q/conventions.md` per-section cap
+
+When TestAtlas commands run on these hosts, the runtime behavior collapses to **inline-simulation** regardless of source command edits. The `bootstrap.md` 18-adapter matrix entries (`yes` / `sequential` for these four) describe declared capability, not execution fidelity. For audit-grade honesty (DEC-010), downstream consumers SHOULD treat council sessions originating from these hosts as `executionMode: 'inline-simulation'` even when participants ≥ 2. The post-spawn `record-execution-mode.js` invocation wired into the 10 `council-*` sub-commands is the canonical place to record this honestly when the host's runtime collapses to inline-simulation.
+
+> NOTE: If the `bootstrap.md:70-89` matrix entries change for these adapters, this section MUST be revisited.
