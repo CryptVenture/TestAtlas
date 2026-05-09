@@ -1,0 +1,51 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/route.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Route / Page",
+  "description": "Schema for pages/PAGE-<slug>.md frontmatter or accompanying JSON (PRD §11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "path",
+    "domain",
+    "methods",
+    "personas",
+    "purpose",
+    "entryPoints",
+    "actions",
+    "states",
+    "evidence",
+    "issues",
+    "confidence",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/pageId" },
+    "path": { "type": "string", "minLength": 1 },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "methods": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+      }
+    },
+    "personas": { "type": "array", "items": { "type": "string" } },
+    "purpose": { "type": "string", "minLength": 1 },
+    "entryPoints": { "type": "array", "items": { "type": "string" } },
+    "actions": { "type": "array", "items": { "type": "string" } },
+    "states": { "type": "array", "items": { "type": "string" } },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+    },
+    "confidence": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/lowMedHighConfidence" },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

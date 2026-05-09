@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/persona.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+    "name": { "type": "string" },
+    "type": { "type": "string", "enum": ["system", "generated", "project"] },
+    "version": { "type": "string" },
+    "mission": { "type": "string" },
+    "domains": { "type": "array", "items": { "type": "string" } },
+    "default_tools": { "type": "array", "items": { "type": "string" } },
+    "read_first": { "type": "array", "items": { "type": "string" } },
+    "may_update": { "type": "array", "items": { "type": "string" } },
+    "must_not_update": { "type": "array", "items": { "type": "string" } },
+    "output_schema": { "type": "string" },
+    "blind_spots": { "type": "array", "items": { "type": "string" } },
+    "questions": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["id", "name", "type", "version", "mission"],
+  "additionalProperties": false
+}

@@ -1,0 +1,68 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/example-script.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Example Script",
+  "description": "The 19th JSON Schema (Plan 08-01). Describes the deterministic replay recipe for `examples/<name>/_testatlas-fixture/example-script.json`. The replay engine in scripts/lib/regenerate-core.js validates a script against this schema BEFORE invoking any Phase 5 emitter — bad scripts never mutate disk.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["exampleName", "fixedTimestamp", "steps"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "exampleName": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Kebab-slug matching examples/<exampleName>/."
+    },
+    "suiteVersionRange": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Optional semver range. The replay engine logs a warning if the running suite version does not satisfy this range, but does not refuse to replay (pinning is informational here)."
+    },
+    "fixedTimestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp injected into TESTATLAS_FIXED_TIMESTAMP for every replayed step. Must remain stable across regenerations."
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/step" }
+    }
+  },
+  "$defs": {
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "command"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Stable identifier for this step. Used for logging + diff messages."
+        },
+        "command": {
+          "type": "string",
+          "enum": [
+            "init-workspace",
+            "create-domain",
+            "create-flow",
+            "create-issue",
+            "create-evidence-record",
+            "update-indexes",
+            "sync-status",
+            "summarize-run",
+            "generate-report"
+          ]
+        },
+        "args": {
+          "type": "object",
+          "description": "Free-form key/value pairs flagified into `--key value` for the underlying emitter. Array values are repeated as `--key v1 --key v2`. Booleans become bare `--key` flags when true."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Optional human comment retained in the fixture for readability."
+        }
+      }
+    }
+  }
+}

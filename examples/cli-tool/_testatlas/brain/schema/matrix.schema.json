@@ -1,0 +1,34 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/matrix.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Scenario Matrix",
+  "description": "Schema for tests/matrix.json — the bundled scenario index produced by /atlas:plan (PRD §12.14). Each entry is a lightweight scenario reference; full scenario detail lives in tests/scenarios/TEST-*.{md,json}.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "generatedAt", "scenarios"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "generatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "scenarios": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/matrixEntry" }
+    }
+  },
+  "$defs": {
+    "matrixEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "priority", "type", "flow", "goal"],
+      "properties": {
+        "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testId" },
+        "name": { "type": "string", "minLength": 1 },
+        "priority": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+        "type": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testType" },
+        "flow": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" },
+        "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+        "goal": { "type": "string", "minLength": 1 },
+        "capability": { "type": "string" }
+      }
+    }
+  }
+}

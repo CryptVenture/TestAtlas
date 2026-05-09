@@ -1,0 +1,57 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/test-scenario.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Test Scenario",
+  "description": "Schema for tests/scenarios/TEST-<domain>-<slug>.{md,json} (PRD §19).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "domain",
+    "flow",
+    "priority",
+    "type",
+    "status",
+    "userGoal",
+    "preconditions",
+    "testData",
+    "steps",
+    "expectedResults",
+    "evidence",
+    "issues",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testId" },
+    "name": { "type": "string", "minLength": 1 },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "flow": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" },
+    "priority": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+    "type": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testType" },
+    "status": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testStatus" },
+    "userGoal": { "type": "string", "minLength": 1 },
+    "preconditions": { "type": "array", "items": { "type": "string" } },
+    "testData": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form test data (PRD-loose object — shape is scenario-specific)."
+    },
+    "steps": { "type": "array", "items": { "type": "string" } },
+    "expectedResults": { "type": "array", "items": { "type": "string" } },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+    },
+    "confidence": {
+      "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/confidence",
+      "description": "Per-scenario confidence per bootstrap.md §11; optional for backward compatibility, but plan.md Required Actions step 3 asks authors to record it whenever the underlying domain evidence supports the scenario's premise."
+    },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

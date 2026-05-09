@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/adapter.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "name": { "type": "string" },
+    "version": { "type": "string" },
+    "supported_commands": { "type": "array", "items": { "type": "string" } },
+    "capabilities": { "type": "array", "items": { "type": "string" } },
+    "persona_strategy": { "type": "string", "enum": ["subagent", "simulated", "hybrid"] },
+    "install_path": { "type": "string" }
+  },
+  "required": ["name", "version", "supported_commands", "capabilities"],
+  "additionalProperties": false
+}

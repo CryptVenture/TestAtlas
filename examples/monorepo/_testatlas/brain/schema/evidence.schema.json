@@ -1,0 +1,46 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/evidence.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Evidence Record",
+  "description": "Schema for evidence/evidence_index entries (PRD §18). Phase 2 validates JSON shape only; file-existence checks belong to Phase 5.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "type",
+    "path",
+    "capturedOn",
+    "environment",
+    "description",
+    "redacted"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" },
+    "type": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceType" },
+    "path": { "type": "string", "minLength": 1 },
+    "domain": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" }
+      ]
+    },
+    "flow": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" }
+      ]
+    },
+    "issue": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+      ]
+    },
+    "capturedOn": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "environment": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "redacted": { "type": "boolean" },
+    "hash": { "type": "string" }
+  }
+}

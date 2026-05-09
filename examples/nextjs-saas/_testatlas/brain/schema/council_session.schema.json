@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/council_session.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "pattern": "^COUNCIL-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]+$" },
+    "topic": { "type": "string" },
+    "scope": { "type": "string" },
+    "participants": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["pending", "active", "consolidating", "completed", "aborted"] },
+    "created_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "orchestrator": { "type": "string" }
+  },
+  "required": ["id", "topic", "participants", "status", "created_at"],
+  "additionalProperties": false
+}

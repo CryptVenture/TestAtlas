@@ -1,0 +1,48 @@
+{
+  "id": "bug-triage",
+  "version": "2.0.0",
+  "mode": "bug-triage",
+  "command": "council-bug-triage",
+  "description": "Reusable configuration for a bug triage council. Personas classify and prioritize open issues by severity, priority, and remediation sequencing.",
+  "default_participants": [
+    "qa-lead",
+    "security-privacy-reviewer",
+    "performance-skeptic",
+    "release-readiness-judge"
+  ],
+  "optional_participants": ["user-advocate", "data-steward", "automation-engineer"],
+  "required_context": [
+    "_testatlas/bootstrap/BOOTSTRAP.md",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/issues.json",
+    "_testatlas/to_fix/**"
+  ],
+  "severity_rubric": {
+    "critical": "Blocks core flow OR exposes sensitive data OR causes data loss",
+    "high": "Breaks important flow OR significantly degrades UX OR security risk",
+    "medium": "Inconveniences users OR has clear workaround OR cosmetic-but-noticeable",
+    "low": "Cosmetic OR rare edge case OR minor inconvenience"
+  },
+  "priority_rubric": {
+    "P0": "Fix immediately, block release",
+    "P1": "Fix this milestone",
+    "P2": "Fix next milestone",
+    "P3": "Backlog"
+  },
+  "assignment_rules": {
+    "discovered_by_persona": "assign to that persona's domain",
+    "security_severity": "always assign to security-privacy-reviewer for review",
+    "performance_severity": "always assign to performance-skeptic for review",
+    "data_severity": "always assign to data-steward for review"
+  },
+  "expected_outputs": {
+    "per_issue": ["accepted_severity", "accepted_priority", "remediation_order", "owner"],
+    "deduplication_required": true,
+    "voting_required_for": ["severity", "priority"]
+  },
+  "stop_conditions": [
+    "issue batch not specified",
+    "fewer than 2 participants",
+    "out-of-scope issues referenced"
+  ]
+}

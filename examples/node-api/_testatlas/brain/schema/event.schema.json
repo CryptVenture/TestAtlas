@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/event.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "pattern": "^EVENT-[0-9]+$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "actor": { "type": "string" },
+    "command": { "type": "string" },
+    "type": { "type": "string", "enum": ["artifact_updated", "artifact_created", "artifact_deleted", "command_started", "command_completed", "command_aborted", "council_started", "council_completed", "claim_extracted", "decision_recorded"] },
+    "summary": { "type": "string" },
+    "artifacts_read": { "type": "array", "items": { "type": "string" } },
+    "artifacts_written": { "type": "array", "items": { "type": "string" } },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "status": { "type": "string", "enum": ["completed", "aborted", "in_progress"] }
+  },
+  "required": ["id", "timestamp", "actor", "type", "summary", "status"],
+  "additionalProperties": false
+}

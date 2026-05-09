@@ -1,0 +1,89 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/issue.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Issue",
+  "description": "Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "slug",
+    "title",
+    "status",
+    "severity",
+    "confidence",
+    "type",
+    "domain",
+    "foundOn",
+    "summary",
+    "expectedBehavior",
+    "actualBehavior",
+    "userImpact",
+    "reproductionSteps",
+    "frequency",
+    "evidence",
+    "acceptanceCriteria",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" },
+    "slug": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/kebabSlug" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueStatus" },
+    "severity": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+    "confidence": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/confidence" },
+    "type": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueType" },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "flow": {
+      "oneOf": [
+        { "type": "null" },
+        { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" }
+      ]
+    },
+    "environment": { "type": "string" },
+    "persona": { "type": "string" },
+    "foundOn": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "foundBy": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "expectedBehavior": { "type": "string", "minLength": 1 },
+    "actualBehavior": { "type": "string", "minLength": 1 },
+    "userImpact": { "type": "string" },
+    "reproductionSteps": { "type": "array", "items": { "type": "string" } },
+    "frequency": { "type": "string", "enum": ["always", "intermittent", "unknown"] },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "relatedFiles": { "type": "array", "items": { "type": "string" } },
+    "relatedCode": { "type": "array", "items": { "type": "string" } },
+    "suspectedRootCause": { "type": "string" },
+    "scope": { "type": "string" },
+    "suggestedFixDirection": { "type": "string" },
+    "acceptanceCriteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "retestNotes": { "type": "array", "items": { "type": "string" } },
+    "history": { "type": "array", "items": { "type": "object" } },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "discoveredByPersona": { "type": "string", "description": "V2: persona id that discovered this issue (PRD §10.5)." },
+    "brainClaimIds": { "type": "array", "items": { "type": "string" }, "description": "V2: brain claim IDs that support this issue." },
+    "driftSensitivity": { "type": "string", "enum": ["low", "medium", "high"], "description": "V2: how sensitive this issue is to upstream drift." },
+    "automationCandidate": { "type": "boolean", "description": "V2: regression-suite automation candidate." },
+    "councilConsensusLevel": { "type": "string", "enum": ["unanimous", "majority", "split", "none"], "description": "V2: council consensus that surfaced the issue." },
+    "evidenceStrength": { "type": "string", "enum": ["strong", "moderate", "weak"], "description": "V2: aggregate evidence strength." },
+    "retestPackPath": { "type": "string", "description": "V2: relative path to retest pack for verifying the fix." },
+    "triagedAs": {
+      "type": "string",
+      "pattern": "^duplicate_of=ISSUE-\\d+(-[a-z0-9]+(-[a-z0-9]+)*)?$",
+      "description": "Lifecycle metadata: when an issue is triaged as a duplicate, the triagedAs field captures the canonical issue id with the prefix 'duplicate_of='. Optional. Closes ISSUE-060."
+    },
+    "closedAs": {
+      "type": "string",
+      "description": "Lifecycle metadata: when an issue is closed, closedAs captures the closure verdict (e.g. 'fixed', 'wont_fix', 'duplicate', 'not_real', or a free-form short reason). Optional. Closes ISSUE-062."
+    }
+  }
+}

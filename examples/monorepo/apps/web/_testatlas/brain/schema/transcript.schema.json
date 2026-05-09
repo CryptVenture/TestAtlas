@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/transcript.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": { "type": "string", "pattern": "^MSG-[0-9]+$" },
+    "session_id": { "type": "string" },
+    "round": { "type": "integer", "minimum": 1 },
+    "speaker": { "type": "string" },
+    "speaker_type": { "type": "string", "enum": ["persona", "orchestrator", "human"] },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "message_type": { "type": "string", "enum": ["finding", "critique", "rebuttal", "vote", "consolidation", "question", "evidence_request"] },
+    "content": { "type": "string" },
+    "claims": { "type": "array", "items": { "type": "string" } },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "confidence": { "type": "string", "enum": ["confirmed", "strong_suspect", "needs_validation"] }
+  },
+  "required": ["id", "session_id", "round", "speaker", "speaker_type", "timestamp", "message_type", "content"],
+  "additionalProperties": false
+}

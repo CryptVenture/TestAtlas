@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/state.schema.json",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "repo_root": { "type": "string" },
+        "primary_stack": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["name", "repo_root", "primary_stack"]
+    },
+    "status": {
+      "type": "object",
+      "properties": {
+        "phase": { "type": "string" },
+        "last_updated": { "type": "string", "format": "date-time" },
+        "last_command": { "type": "string" },
+        "active_environment": { "type": "string", "enum": ["local", "staging", "production", "unknown"] }
+      },
+      "required": ["phase", "last_updated", "active_environment"]
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "domains": { "type": "integer", "minimum": 0 },
+        "flows": { "type": "integer", "minimum": 0 },
+        "issues": { "type": "integer", "minimum": 0 },
+        "critical_issues": { "type": "integer", "minimum": 0 },
+        "high_issues": { "type": "integer", "minimum": 0 },
+        "evidence_artifacts": { "type": "integer", "minimum": 0 },
+        "council_sessions": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "properties": {
+        "overall": { "type": "string", "enum": ["high", "medium", "low", "unknown"] },
+        "highest_risk_domains": { "type": "array", "items": { "type": "string" } },
+        "stale_domains": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "next_recommended_commands": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["schema_version", "project", "status", "counts", "confidence"],
+  "additionalProperties": false
+}

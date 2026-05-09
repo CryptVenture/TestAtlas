@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/claim.schema.json",
+  "title": "TestAtlas V2 Claim",
+  "description": "A single claim extracted from a council transcript or persona output. PRD §7.10 / §11.1. Each claim is attributable to a speaker, links to evidence, and carries explicit epistemic status (type, confidence, status).",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": {
+      "type": "string",
+      "pattern": "^CLAIM-[0-9]+$",
+      "description": "Sequential claim ID, e.g. CLAIM-0001."
+    },
+    "session_id": {
+      "type": "string",
+      "description": "ID of the council session that produced this claim, e.g. COUNCIL-2026-05-03-001. May be empty for claims extracted outside a council."
+    },
+    "speaker": {
+      "type": "string",
+      "description": "Persona ID or actor that made the claim."
+    },
+    "type": {
+      "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/claim_type",
+      "description": "Epistemic class of the claim. See vocabulary.json claim_type."
+    },
+    "claim": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The claim itself, in plain English."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["confirmed", "strong_suspect", "needs_validation"],
+      "description": "Confidence in the claim. V2 uses snake_case (V1 used kebab-case)."
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Evidence references (file paths, EVIDENCE-NNN ids, URLs)."
+    },
+    "related_domains": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "related_flows": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "accepted", "rejected", "disputed", "needs_validation"],
+      "description": "Workflow status after consolidation."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "session_id", "speaker", "type", "claim", "confidence", "status", "created_at"],
+  "additionalProperties": false
+}

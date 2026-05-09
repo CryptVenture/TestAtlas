@@ -1,0 +1,51 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/api-endpoint.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas API Endpoint",
+  "description": "Schema for api/endpoints/API-<method>-<path>.md frontmatter (PRD §11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "method",
+    "path",
+    "domain",
+    "auth",
+    "inputContract",
+    "responseContract",
+    "errors",
+    "pagination",
+    "rateLimit",
+    "evidence",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/apiId" },
+    "method": {
+      "type": "string",
+      "enum": ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+    },
+    "path": { "type": "string", "minLength": 1 },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "auth": { "type": "string" },
+    "inputContract": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form input contract (PRD-loose object — schema/key shape is project-specific)."
+    },
+    "responseContract": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form response contract (PRD-loose object — schema/key shape is project-specific)."
+    },
+    "errors": { "type": "array", "items": { "type": "string" } },
+    "pagination": { "type": "string" },
+    "rateLimit": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

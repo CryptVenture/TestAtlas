@@ -1,0 +1,60 @@
+{
+  "id": "red-team",
+  "version": "2.0.0",
+  "mode": "red-team",
+  "command": "council-red-team",
+  "description": "Reusable configuration for a red team challenge council. Personas attempt to invalidate confident claims, probe abuse paths, and surface hidden failure modes.",
+  "default_participants": [
+    "adversarial-red-team-tester",
+    "security-privacy-reviewer",
+    "qa-lead"
+  ],
+  "optional_participants": [
+    "performance-skeptic",
+    "data-steward",
+    "user-advocate",
+    "runtime-investigator"
+  ],
+  "required_context": [
+    "_testatlas/bootstrap/BOOTSTRAP.md",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/claims.jsonl",
+    "_testatlas/brain/quality_scores.json",
+    ".testatlas/reference/safety.md"
+  ],
+  "scope_boundaries": {
+    "in_scope": [
+      "claim invalidation via evidence",
+      "abuse path enumeration (read-only)",
+      "contradiction detection across personas",
+      "confidence calibration audit"
+    ],
+    "out_of_scope": [
+      "exploit payload execution",
+      "code or service modification",
+      "production environment probing without explicit approval"
+    ]
+  },
+  "attack_categories": [
+    "claim invalidation",
+    "abuse path discovery",
+    "contradiction detection",
+    "overconfidence audit",
+    "hidden failure modes"
+  ],
+  "disclosure_rules": {
+    "vulnerability_findings": "Pair with redacted reproduction; defer to security-privacy-reviewer for disclosure path.",
+    "secret_exposure": "Run scripts/redact-evidence.js BEFORE inclusion in any output."
+  },
+  "expected_outputs": {
+    "claim_status_updates": "list of claims to mark invalidated|disputed",
+    "newly_surfaced_risks": "list",
+    "regression_test_candidates": "list",
+    "voting_required_for": ["claim invalidation", "risk severity"]
+  },
+  "stop_conditions": [
+    "scope not specified",
+    "any persona attempts an exploit payload",
+    "fewer than 2 participants"
+  ]
+}

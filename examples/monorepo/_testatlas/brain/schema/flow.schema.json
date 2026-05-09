@@ -1,0 +1,73 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/flow.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Flow",
+  "description": "Schema for flows/FLOW-<domain>-<slug>.{md,json} (PRD §16).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "domain",
+    "persona",
+    "priority",
+    "status",
+    "confidence",
+    "goal",
+    "preconditions",
+    "entryPoints",
+    "expectedBehavior",
+    "alternatePaths",
+    "edgeCases",
+    "failurePaths",
+    "dataRequirements",
+    "dependencies",
+    "testScenarios",
+    "evidence",
+    "issues",
+    "retestNotes",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" },
+    "name": { "type": "string", "minLength": 1 },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "persona": { "type": "string", "minLength": 1 },
+    "priority": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/severity" },
+    "status": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowStatus" },
+    "confidence": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/lowMedHighConfidence" },
+    "goal": { "type": "string", "minLength": 1 },
+    "preconditions": { "type": "array", "items": { "type": "string" } },
+    "entryPoints": { "type": "array", "items": { "type": "string" } },
+    "expectedBehavior": { "type": "array", "items": { "type": "string" } },
+    "alternatePaths": { "type": "array", "items": { "type": "string" } },
+    "edgeCases": { "type": "array", "items": { "type": "string" } },
+    "failurePaths": { "type": "array", "items": { "type": "string" } },
+    "dataRequirements": { "type": "array", "items": { "type": "string" } },
+    "dependencies": { "type": "array", "items": { "type": "string" } },
+    "testScenarios": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/testId" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+    },
+    "retestNotes": { "type": "array", "items": { "type": "string" } },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "routeCoverage": { "type": "array", "items": { "type": "string" }, "description": "V2: PAGE-id or paths covered." },
+    "dataLifecycle": { "type": "object", "description": "V2: data inputs/writes/reads/side-effects.", "additionalProperties": true },
+    "apiEndpointsTouched": { "type": "array", "items": { "type": "string" }, "description": "V2: API-METHOD-path." },
+    "backgroundJobsTouched": { "type": "array", "items": { "type": "string" }, "description": "V2: JOB-id." },
+    "personasConsulted": { "type": "array", "items": { "type": "string" }, "description": "V2: persona ids." },
+    "relatedCouncilSessions": { "type": "array", "items": { "type": "string" }, "description": "V2: COUNCIL-id." },
+    "qualityScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "V2: §7.15 quality score." },
+    "automationCandidate": { "type": "boolean", "description": "V2: candidate for regression suite." },
+    "driftStatus": { "type": "string", "enum": ["fresh", "possibly_stale", "stale_requires_review", "unknown"], "description": "V2: §7.16 drift status." }
+  }
+}

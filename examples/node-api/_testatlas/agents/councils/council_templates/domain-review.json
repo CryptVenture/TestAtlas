@@ -1,0 +1,44 @@
+{
+  "id": "domain-review",
+  "version": "2.0.0",
+  "mode": "roundtable-review",
+  "command": "council-domain-review",
+  "description": "Reusable configuration for a domain roundtable review. Personas inspect the domain's docs, evidence, and brain slice and contribute findings, claims, and disagreements.",
+  "default_participants": [
+    "qa-lead",
+    "user-advocate",
+    "codebase-mapper",
+    "documentation-curator",
+    "adversarial-red-team-tester"
+  ],
+  "optional_participants": [
+    "performance-skeptic",
+    "accessibility-reviewer",
+    "security-privacy-reviewer",
+    "data-steward",
+    "api-contract-analyst"
+  ],
+  "required_context": [
+    "_testatlas/bootstrap/BOOTSTRAP.md",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/domains.json",
+    "_testatlas/domains/<slug>/domain.{md,json}",
+    "_testatlas/brain/issues.json"
+  ],
+  "expected_outputs": {
+    "consolidation_topics": [
+      "coverage_gaps",
+      "issue_candidates",
+      "missing_acceptance_criteria",
+      "untested_user_jobs",
+      "documentation_drift"
+    ],
+    "minimum_claims": 5,
+    "voting_required_for": ["severity", "priority", "remediation_order"]
+  },
+  "stop_conditions": [
+    "domain artifact missing",
+    "fewer than 2 participants",
+    "evidence directory empty for the domain"
+  ]
+}

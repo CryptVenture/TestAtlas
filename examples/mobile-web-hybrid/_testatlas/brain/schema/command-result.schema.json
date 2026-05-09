@@ -1,0 +1,36 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/command-result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Command Result",
+  "description": "Schema for history/command_history.jsonl entries and 10_command_log.md table rows (PRD §30). 9 required fields (command, invokedAt, completedAt, status, outputs, errors, artifactsCreated, artifactsUpdated, manifestUpdated) plus 1 optional `executionMode` enum populated by orchestrator commands (Quick 260505-hld / F-11 Option A). Existing rows without `executionMode` continue to validate.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "command",
+    "invokedAt",
+    "completedAt",
+    "status",
+    "outputs",
+    "errors",
+    "artifactsCreated",
+    "artifactsUpdated",
+    "manifestUpdated"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "command": { "type": "string", "minLength": 1 },
+    "invokedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "completedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "status": { "type": "string", "enum": ["success", "failed", "aborted"] },
+    "outputs": { "type": "array", "items": { "type": "string" } },
+    "errors": { "type": "array", "items": { "type": "string" } },
+    "artifactsCreated": { "type": "array", "items": { "type": "string" } },
+    "artifactsUpdated": { "type": "array", "items": { "type": "string" } },
+    "manifestUpdated": { "type": "boolean" },
+    "executionMode": {
+      "type": "string",
+      "enum": ["classify-only", "parallel-subagents", "sequential-fallback", "single-spawn-inline", "no-op"],
+      "description": "How this command's child tasks were executed. Set by orchestrator commands (e.g. /atlas:explore in Option A spawn-and-aggregate mode); omitted for non-orchestrator commands. 'classify-only' is preserved for back-compat with Quick 260505-ge3 dogfood records."
+    }
+  }
+}

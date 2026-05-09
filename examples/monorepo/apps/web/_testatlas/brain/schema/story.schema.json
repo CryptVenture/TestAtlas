@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/story.schema.json",
+  "title": "TestAtlas V2 Story",
+  "description": "A user story / requirement that defines expected behavior for one or more flows. PRD §11.1. Stories are the source-of-truth for 'what the product is supposed to do' and feed scenario generation (§7.14).",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "id": {
+      "type": "string",
+      "pattern": "^STORY-[0-9]+$",
+      "description": "Sequential story ID, e.g. STORY-0001."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line summary, e.g. 'New user can sign up with email and password'."
+    },
+    "actor": {
+      "type": "string",
+      "description": "Primary actor role, e.g. 'new-user', 'admin', 'background-job'."
+    },
+    "goal": {
+      "type": "string",
+      "description": "What the actor is trying to achieve."
+    },
+    "expected_behavior": {
+      "type": "string",
+      "description": "What the system must do for the goal to succeed."
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Testable conditions that prove the story is satisfied."
+    },
+    "related_flows": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "related_domains": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Source artifacts that support the story (PRD doc, design link, runtime trace)."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "active", "validated", "superseded", "removed"],
+      "description": "Story lifecycle status."
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "Business priority. Optional."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": ["id", "title", "actor", "goal", "expected_behavior", "status", "created_at"],
+  "additionalProperties": false
+}

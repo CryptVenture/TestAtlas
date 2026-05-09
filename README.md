@@ -93,10 +93,10 @@ All three paths converge on the same install kernel and produce the same `.testa
 
 ## What you get
 
-- `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer (14 canonical files + 23 subdirs).
+- `_testatlas/` workspace inside your repo — durable, schema-validated quality intelligence layer. V2 adds a `brain/` tree (16 JSON indexes), `agents/` tree (personas + councils), `maps/` templates (8 surface types), and the canonical 14 markdown files + subdirs from V1.
 - Auto-detected adapter for your agent across 18 adapter families spanning the major 2026 AI coding agent ecosystems (see [`ADAPTER-OWNERS.md`](ADAPTER-OWNERS.md) for the full roster). `--all-adapters` ships every adapter; `--adapter <name>` picks specific ones.
 - 32 `/atlas:*` V1 commands plus 41 V2 commands covering init, validate, explore (×11 sub-explorers), test (×10 types), issue lifecycle, reporting, lifecycle/handoff/cleanup, plus the V2 surface (council, brain, generate, report-{domain,release,dashboard-data}, maintain).
-- 20 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
+- 39 JSON Schemas (Draft 2020-12) governing every machine-readable artifact.
 - Atomic self-update with backup + rollback, signed tarball verification (cosign opt-in), and version pinning for stability-conscious teams.
 
 ## Real browser testing, real evidence
@@ -138,6 +138,8 @@ Every claim is backed by on-disk evidence. The agent marks findings `confidence:
 | Signing & verification | [docs/SIGNING.md](docs/SIGNING.md) |
 | LTS strategy + support window | [docs/LTS.md](docs/LTS.md) |
 | Monorepo orchestration | [docs/MONOREPO.md](docs/MONOREPO.md) |
+| V2 workspace structure | [docs/V2_WORKSPACE.md](docs/V2_WORKSPACE.md) |
+| Personas & councils | [docs/PERSONAS_AND_COUNCILS.md](docs/PERSONAS_AND_COUNCILS.md) |
 | Release process (maintainers) | [docs/RELEASE.md](docs/RELEASE.md) |
 | Threat model | [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) |
 | Scope (in / out) | [docs/SCOPE.md](docs/SCOPE.md) |
@@ -172,7 +174,7 @@ TestAtlas is built in the open and we actively welcome contributors. Whether you
 
 - **Shape the future of AI-driven testing** — this is a greenfield space. Your ideas directly influence how 18+ agent ecosystems discover and test software.
 - **Adapter work is high-leverage** — adding or improving one adapter (e.g. a new VS Code extension, a new CLI tool) instantly benefits every user of that agent family. See [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md) for current ownership.
-- **Well-tested, well-documented** — 1,000+ tests, 20 JSON Schemas, auto-generated docs, and deterministic example regeneration mean you can refactor with confidence.
+- **Well-tested, well-documented** — 1,000+ tests, 39 JSON Schemas, auto-generated docs, and deterministic example regeneration mean you can refactor with confidence.
 - **Clear contribution paths:**
   - **New adapter?** Copy an existing renderer, add your entry to `adapter-capabilities.json`, run `node scripts/assemble-adapter.js`, and open a PR.
   - **New command?** Add a `.testatlas/commands/<name>.md` file, update schemas if needed, and the parity gate regenerates all 18 adapter families automatically.
@@ -188,7 +190,7 @@ Adapter-specific changes route through [ADAPTER-OWNERS.md](ADAPTER-OWNERS.md).
 TestAtlas is engineered for production use:
 
 - **1,000+ tests** covering install, update, uninstall, workspace init, schema validation, adapter parity, capability degradation, and end-to-end example regeneration — all run on every PR.
-- **20 JSON Schemas (Draft 2020-12)** — every machine-readable artifact is schema-governed. `validate-workspace` rejects malformed data before it pollutes your quality intelligence. The shared vocabulary lives at `.testatlas/schemas/vocabulary.schema.json` alongside the other schemas (single source of truth); AJV resolves cross-schema `$ref`s to it by `$id` URI (`https://testatlas.dev/schemas/v1/vocabulary.schema.json`).
+- **39 JSON Schemas (Draft 2020-12)** — every machine-readable artifact is schema-governed. `validate-workspace` rejects malformed data before it pollutes your quality intelligence. The shared vocabulary lives at `.testatlas/schemas/vocabulary.schema.json` alongside the other schemas (single source of truth); AJV resolves cross-schema `$ref`s to it by `$id` URI (`https://testatlas.dev/schemas/v1/vocabulary.schema.json`).
 - **Atomic updates with rollback** — self-update copies the suite atomically (staging → backup → swap) and can roll back on failure. Version pinning lets stability-conscious teams lock to a known-good release.
 - **Signed release artifacts** — npm provenance + optional cosign signature verification on tarballs.
 - **Capability-aware degradation** — when `browser` or `MCP` is unavailable, the agent falls back to code-reading and marks findings `confidence: needs-validation`. It never fabricates evidence.

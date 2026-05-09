@@ -1,0 +1,35 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/component.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Component",
+  "description": "Schema for components/<domain>/COMPONENT-<name>.{md,json} (PRD §11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "domain",
+    "usedOnPages",
+    "states",
+    "accessibilityNotes",
+    "evidence",
+    "lastUpdatedAt"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/componentId" },
+    "name": { "type": "string", "minLength": 1 },
+    "domain": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+    "usedOnPages": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/pageId" }
+    },
+    "states": { "type": "array", "items": { "type": "string" } },
+    "accessibilityNotes": { "type": "string" },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/evidenceId" }
+    },
+    "lastUpdatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" }
+  }
+}

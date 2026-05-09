@@ -1,0 +1,76 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/command-instruction.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Command Instruction",
+  "description": "Schema for the YAML frontmatter of every .testatlas/commands/*.md file (PRD §11, §38; CMD-02, CMD-04, CMD-05).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "command",
+    "version",
+    "description",
+    "capabilities",
+    "produces",
+    "consumes",
+    "lifecycle",
+    "boundary"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "command": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*[a-z0-9]$",
+      "description": "Kebab-case command name; must equal the filename minus '.md'."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semver triple (no pre-release in v1)."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 240
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/capability"
+      },
+      "description": "Adapter capabilities this command USES (declare full set; not minimal). The locked capability vocabulary lives in vocabulary.json#/$defs/capability — Plan 09-02 (6 entries: browser, shell, web-fetch, MCP, file-write, subagent-spawn)."
+    },
+    "produces": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "consumes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "lifecycle": {
+      "type": "array",
+      "uniqueItems": true,
+      "minItems": 5,
+      "maxItems": 7,
+      "items": {
+        "type": "string",
+        "enum": [
+          "03_execution_status.md",
+          "09_artifact_index.md",
+          "10_command_log.md",
+          "11_workspace_manifest.json",
+          "history/run_log.md",
+          "02_test_strategy.md",
+          "12_app_map.json"
+        ]
+      },
+      "description": "Lifecycle artifacts updated after every command (PRD §40). Always includes the 5 universal entries (03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md). Per Quick 260505-wjp (G3+G4): commands MAY also declare command-specific canonical files they write directly (02_test_strategy.md by /atlas:plan; 12_app_map.json by /atlas:explore-codebase) so the doc-drift gate can prove every Lifecycle-declared canonical has either a code-backed writer OR is hand-authored by the owning command."
+    },
+    "boundary": {
+      "type": "string",
+      "minLength": 20,
+      "description": "What this command MUST NOT do (PRD §6.5; mirrors bootstrap §4)."
+    }
+  }
+}

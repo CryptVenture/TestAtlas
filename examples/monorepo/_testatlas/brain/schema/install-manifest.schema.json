@@ -1,0 +1,95 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/install-manifest.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Install Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifestVersion",
+    "suiteVersion",
+    "schemaVersion",
+    "installedAt",
+    "target",
+    "adapters",
+    "files"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "manifestVersion": { "type": "string", "const": "1" },
+    "suiteVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$",
+      "description": "Semver of the testatlas npm package that wrote this manifest."
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Schema version of the _testatlas/ workspace; bumped by migrations."
+    },
+    "installedAt": { "type": "string", "format": "date-time" },
+    "target": {
+      "type": "string",
+      "description": "Absolute target path captured at install time (informational only; uninstall always uses cwd)."
+    },
+    "mode": {
+      "type": "string",
+      "enum": ["global"],
+      "description": "Optional. Set to 'global' when this manifest tracks a `--global` install (target == os.homedir() and adapter command files live under user-home). Project-local installs omit the field entirely (default-local for backwards compat)."
+    },
+    "adapters": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "claude-code",
+          "generic",
+          "opencode",
+          "kilocode",
+          "cursor",
+          "aider",
+          "mcp",
+          "codex",
+          "gemini-cli",
+          "cline",
+          "windsurf",
+          "kiro",
+          "continue-dev",
+          "github-copilot",
+          "sourcegraph-amp",
+          "roo-code",
+          "zed",
+          "amazon-q"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "hash", "source", "type"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^[^/\\\\][^\\\\]*$",
+            "description": "Target-relative POSIX path (forward-slashes only; backslashes rejected for cross-platform discipline)."
+          },
+          "hash": {
+            "type": "string",
+            "pattern": "^([0-9a-f]{16}|[0-9a-f]{64})$",
+            "description": "SHA-256 of file content (CRLF-normalized via content-hash.js). Accepts either 16-hex (legacy, pre-Phase-11) or 64-hex (Phase-11+ widened, full SHA-256). Manifests upgrade organically when users re-run `testatlas update` or `testatlas init --force`; verifyHashCompat in content-hash.js handles both lengths."
+          },
+          "source": {
+            "type": "string",
+            "description": "Suite-relative POSIX path of the source file in the testatlas package."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["suite", "adapter", "command"]
+          }
+        }
+      }
+    }
+  }
+}

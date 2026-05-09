@@ -1,0 +1,37 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/test-run.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Test Run",
+  "description": "Schema for tests/runs/RUN-<timestamp>.{md,json} (PRD §11).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "startedAt",
+    "endedAt",
+    "environment",
+    "commandsExecuted",
+    "scenariosRun",
+    "passed",
+    "failed",
+    "blocked",
+    "evidence",
+    "issuesCreated",
+    "flowConfidenceUpdates"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "minLength": 1 },
+    "startedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "endedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "environment": { "type": "string", "minLength": 1 },
+    "commandsExecuted": { "type": "array", "items": { "type": "string" } },
+    "scenariosRun": { "type": "array", "items": { "type": "string" } },
+    "passed": { "type": "integer", "minimum": 0 },
+    "failed": { "type": "integer", "minimum": 0 },
+    "blocked": { "type": "integer", "minimum": 0 },
+    "evidence": { "type": "array", "items": { "type": "string" } },
+    "issuesCreated": { "type": "array", "items": { "type": "string" } },
+    "flowConfidenceUpdates": { "type": "array", "items": { "type": "object" } }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "release-readiness",
+  "version": "2.0.0",
+  "mode": "release-readiness",
+  "command": "council-release-readiness",
+  "description": "Reusable configuration for a release readiness council. Personas weigh blockers, coverage thresholds, drift state, and council consensus into a documented go / conditional / no-go decision.",
+  "default_participants": [
+    "release-readiness-judge",
+    "qa-lead",
+    "security-privacy-reviewer",
+    "documentation-curator"
+  ],
+  "optional_participants": ["performance-skeptic", "adversarial-red-team-tester"],
+  "required_context": [
+    "_testatlas/bootstrap/BOOTSTRAP.md",
+    "_testatlas/brain/state.json",
+    "_testatlas/brain/issues.json",
+    "_testatlas/brain/coverage.json",
+    "_testatlas/brain/drift.json",
+    "_testatlas/brain/quality_scores.json",
+    "CHANGELOG.md"
+  ],
+  "go_no_go_thresholds": {
+    "max_critical_open_issues": 0,
+    "max_high_open_issues": 3,
+    "min_coverage_percent": 60,
+    "max_drift_state": "stable",
+    "min_quality_score": 70
+  },
+  "expected_outputs": {
+    "decision": "one of: go | conditional | no_go",
+    "rationale": "required",
+    "blockers": "explicit list",
+    "rollback_plan": "required",
+    "release_notes_proposals": "list"
+  },
+  "stop_conditions": [
+    "_testatlas/brain/ not initialized",
+    "required gate inputs missing",
+    "human override of no-go without escalation"
+  ]
+}

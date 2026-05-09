@@ -1,0 +1,48 @@
+{
+  "$id": "https://testatlas.dev/schemas/v1/sub-agent-handoff.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TestAtlas Sub-Agent Handoff",
+  "description": "Schema for sub_agents/handoffs/HANDOFF-<slug>.md frontmatter (PRD §25).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "assignedRole",
+    "createdOn",
+    "createdBy",
+    "status",
+    "objective",
+    "scope",
+    "nonScope",
+    "filesToRead",
+    "filesMayUpdate",
+    "requiredEvidence",
+    "questions",
+    "constraints",
+    "outputLocation",
+    "outputStructure",
+    "completionCriteria"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": { "type": "string", "minLength": 1 },
+    "assignedRole": { "type": "string", "minLength": 1 },
+    "createdOn": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
+    "createdBy": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["pending", "in_progress", "completed", "blocked", "abandoned"]
+    },
+    "objective": { "type": "string", "minLength": 1 },
+    "scope": { "type": "array", "items": { "type": "string" } },
+    "nonScope": { "type": "array", "items": { "type": "string" } },
+    "filesToRead": { "type": "array", "items": { "type": "string" } },
+    "filesMayUpdate": { "type": "array", "items": { "type": "string" } },
+    "requiredEvidence": { "type": "array", "items": { "type": "string" } },
+    "questions": { "type": "array", "items": { "type": "string" } },
+    "constraints": { "type": "array", "items": { "type": "string" } },
+    "outputLocation": { "type": "string", "minLength": 1 },
+    "outputStructure": { "type": "array", "items": { "type": "string" } },
+    "completionCriteria": { "type": "array", "items": { "type": "string" } }
+  }
+}

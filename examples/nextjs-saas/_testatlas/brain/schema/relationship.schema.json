@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://testatlas.dev/schemas/v2/relationship.schema.json",
+  "title": "TestAtlas V2 Brain Graph",
+  "description": "Schema for _testatlas/brain/graph.json. PRD §11.1 (entities) + §11.2 (relationships). Defines the 16 PRD-mandated relationship types and the node/edge shape used by graph queries (drift impact, evidence reachability, blocked-release detection).",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string", "format": "uri" },
+    "schema_version": { "type": "string", "pattern": "^2\\.0\\.0$" },
+    "last_updated": {
+      "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "string", "maxLength": 0 }]
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "type": { "type": "string" },
+          "label": { "type": "string" },
+          "metadata": { "type": "object", "additionalProperties": true }
+        },
+        "required": ["id"],
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "required": ["schema_version", "nodes", "edges"],
+  "additionalProperties": false,
+  "$defs": {
+    "relationshipType": {
+      "type": "string",
+      "description": "PRD §11.2 — exactly 16 relationship types. Adding a new type requires a PRD amendment.",
+      "enum": [
+        "domain-contains-flow",
+        "flow-touches-route",
+        "flow-touches-component",
+        "flow-calls-endpoint",
+        "flow-depends-on-integration",
+        "issue-affects-flow",
+        "issue-affects-domain",
+        "evidence-supports-issue",
+        "evidence-supports-claim",
+        "claim-originates-from-transcript",
+        "decision-resolves-disagreement",
+        "persona-participated-in-council",
+        "story-defines-expected-behavior-for-flow",
+        "test-scenario-validates-flow",
+        "drift-invalidates-confidence",
+        "risk-blocks-release"
+      ]
+    },
+    "edge": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "target": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/relationshipType" },
+        "metadata": { "type": "object", "additionalProperties": true }
+      },
+      "required": ["source", "target", "type"],
+      "additionalProperties": false
+    }
+  }
+}
