@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed (Phase 21 Wave 2 — `21-03`: executionMode arg + V2 capability docs)
+
+- **`scripts/create-council-session.js` extended with executionMode + 5-tier auto-detect.** Adds:
+  - `EXECUTION_MODE_ENUM` frozen export (6-value: `parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, `inline-simulation`, `no-op`) mirroring the schema enum from Plan 21-01.
+  - `detectExecutionMode({participants, hostHasSubagentSpawn})` 5-tier helper. Tier 5 (both signals undefined with participants ≥ 2) returns `undefined` and the caller's conditional spread `...(mode_actual !== undefined ? { executionMode: mode_actual } : {})` leaves the field ABSENT from `session.json` — the orchestrator agent records the mode post-hoc rather than the script writing systematically-wrong audit data (HIGH-1 contract per Wave 0 Test 5).
+  - Extended `createCouncilSession()` options: `executionMode`, `executionMode_justification`, `hostHasSubagentSpawn`. Tier-1 dispatch validates against `EXECUTION_MODE_ENUM` and throws `TESTATLAS_INVALID_ARGS` on invalid values (preferred earlier-error path; AJV pipeline remains unchanged as defense-in-depth).
+  - Three new CLI flags: `--execution-mode`, `--execution-mode-justification`, `--host-has-subagent-spawn`.
+- **`.testatlas/reference/capabilities.md` extended with V2 capability blocks.** Three new H3 blocks (Definition + Consumers + Runtime contract) for `council-orchestration`, `persona-context`, `brain-sync` — they are no longer dead code now that Phase 21 Wave 1 (Plan 21-02) wired them onto 10 `council-*` sub-commands plus `create-persona.md` + `consolidate.md`. H2 renamed `## The six capabilities` → `## The nine capabilities` with a Phase-14-V2 + Phase-21 wire-up note. Per-capability action matrix +3 rows. Schema-reference paragraph updated to cite `.testatlas/schemas/vocabulary.schema.json` (was the stale `vocabulary.json` filename).
+
+### Verification gates (Phase 21 Wave 2)
+
+- `pnpm test test/scripts/create-council-session-execution-mode.test.js` — 5/5 PASS (Test 1 RED → GREEN; Tests 2-5 stay GREEN).
+- `pnpm test test/council-session.test.js` — 6/6 PASS (back-compat preserved).
+- `pnpm test test/agentic/capability-vocab.test.js` — 3/3 PASS (vocabulary unchanged).
+- `pnpm test test/adapter-capabilities-schema.test.js` — 6/6 PASS.
+- `pnpm test test/schemas/schema-validity.test.js` — 10/10 PASS.
+- `node scripts/lint-commands.js` — 0 violations.
+- `node scripts/validate-workspace.js` — exit 0 (all 10 checks PASS).
+- `node scripts/create-council-session.js --help` — exit 0; output contains `--execution-mode`.
+- `pnpm test test/v2-adapter-categorized.test.js` — RED (intentional; deferred to Wave 3 / Plan 21-04 regen scope).
+
 ### Changed (Quick 260509-pdr — close 28 baseline schema-mapping errors + 7 source-code/docs fixes; ALL TESTS GREEN)
 
 - **`pnpm test` reaches 0 failures for the first time post-Phase-20.** Headline: 1766 pass / 0 fail / 2 skipped (intentional E2E gates). Pre-Quick baseline was 1737 / 26 / 2; this Quick closed 26 baseline failures (-26 fail, +29 pass) without introducing any regressions. Net journey across the session: 1735 / 25 / 2 (start) → 1766 / 0 / 2 (end).
