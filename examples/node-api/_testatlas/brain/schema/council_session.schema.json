@@ -11,7 +11,27 @@
     "status": { "type": "string", "enum": ["pending", "active", "consolidating", "completed", "aborted"] },
     "created_at": { "type": "string", "format": "date-time" },
     "completed_at": { "type": "string", "format": "date-time" },
-    "orchestrator": { "type": "string" }
+    "orchestrator": { "type": "string" },
+    "executionMode": {
+      "type": "string",
+      "enum": ["parallel-subagents", "single-spawn-inline", "sequential-fallback", "classify-only", "inline-simulation", "no-op"],
+      "description": "How the council was actually executed. parallel-subagents = real per-persona spawn occurred; single-spawn-inline = one degenerate single-participant spawn; sequential-fallback = spawn unavailable, ran serially; classify-only = topic classified, no review rounds; inline-simulation = historical default (one process role-played N personas); no-op = host advertises spawn but participant count guard tripped. Optional for back-compat with pre-Phase-21 sessions."
+    },
+    "executionMode_justification": {
+      "type": "string",
+      "description": "Free-form prose recording why this executionMode was chosen (host capability detection result, threshold guard trip, etc.)."
+    },
+    "outputs_audit": {
+      "type": "object",
+      "properties": {
+        "declared_participants_count": { "type": "integer", "minimum": 0 },
+        "materialized_outputs_count": { "type": "integer", "minimum": 0 },
+        "missing_persona_ids": { "type": "array", "items": { "type": "string" } },
+        "mismatch_reason": { "type": "string" }
+      },
+      "additionalProperties": false,
+      "description": "Optional close-of-session audit comparing declared participants[] to materialized outputs/<persona-id>-output.{md,json} files. Populated by create-council-session.js close hook (Wave 2)."
+    }
   },
   "required": ["id", "topic", "participants", "status", "created_at"],
   "additionalProperties": false

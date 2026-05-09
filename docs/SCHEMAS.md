@@ -128,7 +128,7 @@ Schema for components/<domain>/COMPONENT-<name>.{md,json} (PRD §11).
 
 **`$id`:** `https://testatlas.dev/schemas/v2/council_session.schema.json`
 
-**Top-level properties:** `id`, `topic`, `scope`, `participants`, `status`, `created_at`, `completed_at`, `orchestrator`
+**Top-level properties:** `id`, `topic`, `scope`, `participants`, `status`, `created_at`, `completed_at`, `orchestrator`, `executionMode`, `executionMode_justification`, `outputs_audit`
 
 [Source](../.testatlas/schemas/council_session.schema.json)
 

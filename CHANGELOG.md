@@ -25,6 +25,27 @@ All notable changes to this project will be documented in this file. Format is b
 - `node scripts/create-council-session.js --help` — exit 0; output contains `--execution-mode`.
 - `pnpm test test/v2-adapter-categorized.test.js` — RED (intentional; deferred to Wave 3 / Plan 21-04 regen scope).
 
+### Added (Phase 21 — full wire-up across all 4 waves)
+
+- **Phase 21 (2026-05-09):** Wired V2 council / persona / sub-agent orchestration end-to-end production-ready. The 11 `.testatlas/commands/council/*.md` files now declare `subagent-spawn` in frontmatter; the 10 sub-commands additionally declare `council-orchestration`, `persona-context`, and `brain-sync` (Path B+ verdict — the dispatcher `council.md` keeps a slim subagent-spawn-only declaration matching its router-only boundary). Each council command body now contains a `## Sub-Agent Orchestration` section modeled on `commands/explore.md` and `commands/consolidate.md` — spawn-one-per-persona for rounds 2-3 (Independent review + Initial findings); rounds 1, 4-9 run inline. `.testatlas/reference/council-protocol.md` §7 now cites the 18-adapter capability matrix in `commands/bootstrap.md:70-89` and names parallel-vs-simulated as a pre-round-2 capability-detection step. `.testatlas/reference/capabilities.md` documents concrete behavioral contracts for the 3 V2 capabilities, replacing dead-code drift from Phase 14. New tests `test/council-orchestration.test.js` (9 assertions) and `test/scripts/create-council-session-execution-mode.test.js` (5 assertions) lock the contracts.
+
+### Changed (Phase 21 — schema extension + adapter regen + docs regen)
+
+- **Phase 21 Wave 0 (`21-01`):** `.testatlas/schemas/council_session.schema.json` extended additively — three new OPTIONAL properties: `executionMode` (6-value enum: `parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, `inline-simulation`, `no-op`), `executionMode_justification` (string), `outputs_audit` (object). All optional; pre-Phase-21 sessions including `_testatlas/agents/councils/sessions/COUNCIL-2026-05-09-001/session.json` continue to validate unchanged.
+- **Phase 21 Wave 1 (`21-02`):** Source command edits on the 11 `.testatlas/commands/council/*.md` files (Path B+ frontmatter caps + `## Sub-Agent Orchestration` H2 section). `.testatlas/reference/council-protocol.md` §7 gained a citation matrix tying the 18 host adapters' subagent-spawn declarations to per-round behavior.
+- **Phase 21 Wave 2 (`21-03`):** `scripts/create-council-session.js` extended with a `--execution-mode <enum>` CLI flag, a programmatic `executionMode` option, and a 5-tier auto-detect helper: Tiers 1-4 select an enum value when `executionMode` is explicit, when `participants.length < 2`, or when `hostHasSubagentSpawn` is `true`/`false`; Tier 5 (both `executionMode` AND `hostHasSubagentSpawn` arguments omitted) leaves the field ABSENT from `session.json` so the orchestrator agent — which knows whether it actually spawned — can record the value post-hoc. Pre-Phase-21 sessions lacking the field continue to validate against the extended schema.
+- **Phase 21 Wave 3 (`21-04`):** Regenerated all 18 adapter trees post-source-edits via `node scripts/assemble-adapter.js`; `check-adapter-parity --strict` re-established 1314/1314 GREEN at the canonical full count (pre-regen baseline 879/1314 RED). Regenerated `docs/COMMANDS.md` and `docs/SCHEMAS.md` to reflect new frontmatter capabilities (`subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`) and the extended `council_session.schema.json` schema fields (`executionMode`, `executionMode_justification`, `outputs_audit`).
+
+### Verification gates (Phase 21 — final, all 4 phase gates GREEN)
+
+- `pnpm test`: ≥ 1746 pass / 0 NEW fail / 2 skipped (intentional E2E gates) — pre-Phase-21 baseline preserved; no regressions.
+- `node scripts/lint-commands.js`: 0 violations (27 invariants unchanged).
+- `node scripts/check-adapter-parity.js --strict`: 1314/1314 GREEN (denominator equals pre-regen baseline; no obligations dropped).
+- `node scripts/validate-workspace.js`: exit 0 (matches pre-existing baseline).
+- AJV back-compat re-check: `_testatlas/agents/councils/sessions/COUNCIL-2026-05-09-001/session.json` validates against the extended `council_session.schema.json` (Draft 2020-12).
+- 9 spawn-capable adapters (claude-code/opencode/kilocode/codex/gemini-cli/github-copilot/cline/kiro/sourcegraph-amp) preserve `## Sub-Agent Orchestration` body section in rendered council files.
+- 4 concatenated-conventions adapters (aider/roo-code/zed/amazon-q) preserve orchestration text by reference (per-section 7-line cap directs agent to read `.testatlas/commands/council/<slug>.md` for full body — consistent with existing capability-degradation pattern).
+
 ### Changed (Quick 260509-pdr — close 28 baseline schema-mapping errors + 7 source-code/docs fixes; ALL TESTS GREEN)
 
 - **`pnpm test` reaches 0 failures for the first time post-Phase-20.** Headline: 1766 pass / 0 fail / 2 skipped (intentional E2E gates). Pre-Quick baseline was 1737 / 26 / 2; this Quick closed 26 baseline failures (-26 fail, +29 pass) without introducing any regressions. Net journey across the session: 1735 / 25 / 2 (start) → 1766 / 0 / 2 (end).

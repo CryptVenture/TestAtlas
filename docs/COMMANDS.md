@@ -436,7 +436,7 @@ Summarize the current TestAtlas workspace — phase, counts, blockers, stale are
 
 Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-brain-audit.md)
 
@@ -446,7 +446,7 @@ Brain Audit Council — personas inspect the _testatlas workspace for staleness,
 
 Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-bug-triage.md)
 
@@ -456,7 +456,7 @@ Bug triage council — multiple personas classify and prioritize open issues by 
 
 Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol.
 
-**Capabilities:** `shell`, `browser`, `file-write`
+**Capabilities:** `shell`, `browser`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-design-critique.md)
 
@@ -466,7 +466,7 @@ Design Critique — Product Strategist, User Advocate, and Accessibility Reviewe
 
 Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-domain-review.md)
 
@@ -476,7 +476,7 @@ Roundtable review of a domain — every persona reads the domain's docs, evidenc
 
 Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-flow-review.md)
 
@@ -486,7 +486,7 @@ Roundtable review of a single user flow — personas read the flow doc, route ma
 
 Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-product-review.md)
 
@@ -496,7 +496,7 @@ Debate-mode council on product priority, feature coherence, and tradeoffs — pe
 
 Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-red-team.md)
 
@@ -506,7 +506,7 @@ Red Team Challenge — adversarial personas attempt to find hidden risks and inv
 
 Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-release-readiness.md)
 
@@ -516,7 +516,7 @@ Release readiness council — personas weigh blockers, coverage, drift, and coun
 
 Retest council — personas evaluate whether a claimed fix satisfies the issue's acceptance criteria through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-retest.md)
 
@@ -526,7 +526,7 @@ Retest council — personas evaluate whether a claimed fix satisfies the issue's
 
 Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`, `council-orchestration`, `persona-context`, `brain-sync`
 
 [Source](../.testatlas/commands/council/council-test-plan.md)
 
@@ -536,7 +536,7 @@ Test Plan Council — QA, automation, codebase, data, and runtime personas propo
 
 Umbrella router for V2 council commands.
 
-**Capabilities:** `shell`, `file-write`
+**Capabilities:** `shell`, `file-write`, `subagent-spawn`
 
 [Source](../.testatlas/commands/council/council.md)
 
