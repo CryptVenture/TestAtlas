@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed (Quick 260509-icl — fix 5 real issues from /atlas:explore run #7 audit)
+
+- **Audit caught 28% filing-FP rate.** `/atlas:explore` run #7 surfaced 7 candidate issues; closure-quote verification at HEAD `f55fe8e2` graded them as **5 REAL** + **2 FALSE-POSITIVE** (ISSUE-034 assemble-adapter --help TDZ regression: doesn't reproduce against current code; ISSUE-037 -h short-flag inconsistency: both representative scripts respond correctly to -h). Both FPs traced to the explore-cli sub-agent carrying forward 2026-05-05 claims without re-verifying — same root cause as the Round-13 56% dogfood-agent FP rate. Closure-quote registry quick-task documented as the canonical mitigation.
+- **`scripts/mcp-server.js`** — `--help` and `-h` now print substantive usage text (JSON-RPC transport, supported methods, workspace resolution, `.testatlas/commands` surface) and exit 0. Previously zero stdout / exit 0 looked indistinguishable from a frozen process. Pinned by `test/scripts/mcp-server-help.test.js`.
+- **`scripts/update.js`** — dropped two internal phase-plan IDs ("Plan 07-04 wires this" / "until 07-04 lands update-check") from `--no-update-check` + `--latest-version` flag descriptions. Phase 7 has long shipped (we are at v1.2.6); user-facing copy now describes behavior in operational terms. Pinned by `test/scripts/update-help-no-plan-ids.test.js` with `/Plan \d{2}-\d{2}/` + `/\d{2}-\d{2} lands/` guards.
+- **`.testatlas/schemas/test-scenario.schema.json`** — widened to accept optional `confidence` property (`$ref vocabulary.schema.json#/$defs/confidence`). Resolves the doc-vs-truth contradiction between `commands/plan.md` Required Actions step 3 ("Each scenario MUST include … per-scenario confidence per bootstrap.md §11") and the previously-closed schema. Optional so all 26 existing scenario sidecars stay valid; `with-confidence.json` fixture added under `test/fixtures/schemas/test-scenario/valid/`.
+
+### Fixed (post-Quick-260509-icl — ISSUE-031..036 from run-7 audit)
+
+- **ISSUE-031** (medium; data; closed) — `_testatlas/12_app_map.json#components` understated by 38 entries (89 vs on-disk 127). Refreshed against on-disk truth; new count 131 (covers all 127 `.js` files under `scripts/` + `bin/testatlas.js` + `install.js` + `install.sh` + `package.json`). Workspace-state-only fix (gitignored).
+- **ISSUE-032** (low; data; closed-with-residual) — All 17 `_testatlas/domains/<slug>/domain.json` carried empty ownership arrays. Populated 88 ownership claims across 14 of 17 domains via `entities[]` + `flows[]`. Residual: `domain.json#components` requires `COMPONENT-<slug>-<slug>` IDs and `#apis` requires `API-<METHOD>-<slug>` IDs, but `app-map.components` stores file paths and `app-map.apis` stores `external:<service>:<endpoint>` strings — schema-format mismatch. Each affected `domain.json#openQuestions` documents the gap; full closure needs a dedicated COMPONENT-XXXX inventory + API-XXXX inventory (out of scope for this quick).
+- **ISSUE-033** (low; documentation; closed) — `commands/plan.md` required per-scenario `confidence` but `test-scenario.schema.json` was closed without it. Schema widened (Option A — operator-confirmed); see "Changed" entry above.
+- **ISSUE-034** (high; closed as wont_fix) — `assemble-adapter.js --help` TDZ regression — verified at HEAD `f55fe8e2`: `--help` prints usage and exits 0. ISSUE-022's earlier closure was correct; the explore-cli sub-agent reported a stale claim from 2026-05-05 evidence.
+- **ISSUE-035** (medium; ux; closed) — `mcp-server.js --help` zero output. See "Changed" entry above.
+- **ISSUE-036** (low; copy; closed) — `update.js --help` plan-ID leak. Original ISSUE-036 also claimed `validate-workspace.js --help` leaked plan-IDs; audit at HEAD showed validate-workspace.js was already clean. Scope narrowed to update.js only via history entry; see "Changed" entry above.
+- **ISSUE-037** (low; ux; closed as wont_fix) — `-h` short-flag inconsistency — verified at HEAD: both `lint-commands.js -h` and `check-token-budget.js -h` print usage and exit 0. The explore-cli sub-agent reported a stale claim.
+
+### Verification gates (Quick 260509-icl)
+
+- `pnpm test` — 1737 pass / 26 fail / 2 skipped (vs pre-change 1734 / 29 / 2; net +3 pass, -3 fail; 26 remaining failures are all pre-existing baseline unchanged by this quick).
+- `node scripts/lint-commands.js` — 0 violations against the 27-invariant catalog (unchanged).
+- `node scripts/validate-workspace.js` — same residual maps/*.json + reports/dashboard-data.json schema-mapping gaps as before; no new findings introduced.
+- `node scripts/check-adapter-parity.js --strict` — 1314/1314 strict (no `.testatlas/commands/*.md` source bodies modified, so adapters did not need regen).
+
 ### Changed (Quick 260508-u72 — Round-13 dogfood closure + linter v5)
 
 - **Round-13 dogfood report graded.** The Round-13 dogfood agent reported 25 issues against the post-Round-12 corpus. Closure-quote verification graded the report as: **9 REAL doc-vs-script drifts** (closed in 9 atomic commits across 8 source command files) + **14 FALSE-POSITIVES** (the agent re-flagged Round-12 closures or misread source) + **2 NOT-A-DEFECT** (tagged in the Round-13 issue ledger). False-positive rate = **14/25 = 56%** — recorded as an architectural finding: dogfood-agent reading-comprehension produces material false-positive rates that future rounds should filter against a closure-quote registry before being acted on.
