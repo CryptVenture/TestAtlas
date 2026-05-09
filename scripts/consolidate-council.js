@@ -134,13 +134,29 @@ export async function consolidateCouncil(args = {}) {
   if (decisionsIdx) {
     if (!Array.isArray(decisionsIdx.decisions)) decisionsIdx.decisions = [];
     for (const c of claims) {
-      if (c.type === 'decision' || c.type === 'consolidated_decision') {
+      // DEC-004 (Phase 22 / COUNCIL-2026-05-09-002 / DRIFT-004): broaden the
+      // decision-promotion filter. extract-claims.js never emits 'decision'
+      // type — its VALID_TYPES are observed/inferred/hypothesized/disputed/
+      // open_question/decision. Without this broadening, every council
+      // session since Phase 14 produced ZERO brain decisions.
+      //
+      // Accepted promotions:
+      //   - type='decision' or 'consolidated_decision'                (back-compat)
+      //   - type IN {observed, inferred, hypothesized}
+      //     AND (status='accepted' OR confidence='confirmed' OR confidence='strong-suspect')
+      //
+      // 'disputed' type is never promoted, even when accepted+confirmed.
+      const isDecisionType = c.type === 'decision' || c.type === 'consolidated_decision';
+      const isAcceptedHighConfidence =
+        (c.type === 'observed' || c.type === 'inferred' || c.type === 'hypothesized') &&
+        (c.status === 'accepted' || c.confidence === 'confirmed');
+      if (isDecisionType || isAcceptedHighConfidence) {
         decisionsIdx.decisions.push({
           id: c.id,
           session_id: c.session_id,
-          summary: c.claim,
-          confidence: c.confidence,
-          recorded_at: c.created_at,
+          summary: c.claim ?? c.summary ?? c.text ?? '',
+          confidence: c.confidence ?? null,
+          recorded_at: c.created_at ?? c.recorded_at ?? null,
         });
       }
     }
