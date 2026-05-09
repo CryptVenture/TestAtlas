@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Phase 23 — Close 8 COUNCIL-2026-05-09-003 brain-audit findings (DEC-001..DEC-008 + OPEN-001)
+
+Phase 23 closes the structural-not-functional residue from Phase 22 surfaced by COUNCIL-2026-05-09-003. All 8 motions carried; 5 net-new high-leverage gaps the Phase-22 verifier missed. Backward-compat absolute — every fix is additive.
+
+#### Fixed
+
+- **DEC-001 / ISSUE-042 + ISSUE-045** — Audit-honesty: 22-04-SUMMARY.md + CHANGELOG `[Unreleased]` Phase-22 Verification subsection now cite live test counts (1842 total / 1836 pass / 6 distinct fail / 2 skip) with all 6 distinct failure names enumerated.
+- **DEC-002 / ISSUE-038** — `_testatlas/brain/drift.json` repopulated with 11 schema-conforming records (DRIFT-001..DRIFT-011) reflecting COUNCIL-2026-05-09-002 audit findings; `drift-record-additivity.test.js` Test 4 (length===11) now GREEN.
+- **DEC-003 / ISSUE-039** — `scripts/update-indexes.js#listCouncilSessions` now reads each session.json and emits per-session bullets with `topic + executionMode (mode=) + participants.length (participants=N) + status (status=)`; 09_artifact_index.md council-sessions block now enumerates real session metadata. Missing/malformed session.json falls back to path-only line (back-compat).
+- **DEC-004 / ISSUE-040** — `.testatlas/commands/explore.md` trimmed to ≤1800 words AND ≤6 What's Next entries; long-form per-child brief contract extracted to NEW `.testatlas/reference/explore-orchestration.md`; `/atlas:council-flow-review` What's Next entry dropped (council-domain-review preserved as the canonical escalation path for explore output).
+- **DEC-005 / ISSUE-043** — `_testatlas/00_overview.md` "Core Domains" section replaced with TESTATLAS:GENERATED `domain-count` block driven by `state.json#counts.domains`; doc never drifts from brain truth.
+- **DEC-006 / ISSUE-041** — `--reconcile-counts --populate-from-app-map --detect-drift` flags wired into the existing `update-brain-after-command.js` invocations in `.testatlas/commands/explore-codebase.md` AND `.testatlas/commands/core/brain-sync.md`. Phase-22 producer scripts (reconcile-counts.js, populate-brain-from-app-map.js, detect-drift.js) now actually fire at runtime; `lifecycle-flag-wiring.test.js` pins the wiring.
+- **DEC-007 / ISSUE-044** — `scripts/consolidate-council.js` docstring lines 215-221 trimmed to drop the orphan `'strong-suspect'` mention; comment now matches code at line 227. Cross-reference added pointing to `test/scripts/consolidate-council-decisions.test.js Test 2` as the canonical pinning contract.
+- **DEC-008 part 1** — `CHANGELOG.md [0.1.0]` block gains `### Schema migration` section ("None — baseline schemaVersion: 1."); DIST-03 contract test GREEN.
+- **DEC-008 part 2** — `package.json#version` bumped 1.2.6 → 2.0.0 to align with the existing `## [2.0.0] - 2026-05-09` CHANGELOG block (concurrent-agent commit `51079651`'s work, untouched). package-version-vs-CHANGELOG test GREEN.
+
+#### Added
+
+- **OPEN-001 ADR captured** — `.testatlas/reference/council-protocol.md` gains "Deferred design — vote-status producer (OPEN-001)" section documenting the future `update-claim-status-from-votes.js` producer that would let DEC-004's OR-gate tighten to AND without re-introducing the 5-phase silent zero-promotion regression. Implementation deferred to a future phase; design + test scaffolding captured here for canonical visibility.
+- **NEW** `.testatlas/reference/explore-orchestration.md` — long-form per-child brief contract reference extracted from `explore.md` per CMD-03 budget compliance.
+
+#### Verification
+
+- `pnpm test` reports **1877 total / 1875 pass / 0 fail / 2 intentional skip** (the previously-failing 6 distinct ✖ all flipped GREEN: What's Next 1-6, check-command-budgets exit 0, CMD-03 1800-word, drift-record-additivity Test 4, [0.1.0] Schema migration, package.json version match; plus the Wave-2 cascade RED bars — 8 example-regenerate fixtures, ~3 adapter-parity, 73 mcp adapter hand-edit drift entries — all closed by Wave 3 adapter + example regen)
+- `node scripts/check-adapter-parity.js --strict` reports **1314/1314 obligations satisfied (100.0% coverage)** — restored from the Wave-2 source-body divergence (910/1314 RED → 1314/1314 GREEN after Wave-3 regen of 18 adapter trees + 7 example workspaces)
+- `node scripts/lint-commands.js` 0 violations (PHASE17-INV-B `script-path-leaks-suite-form` holds)
+- `node scripts/check-command-budgets.js` exits 0 (CMD-03 1800-word budget holds for explore.md)
+- `node scripts/validate-workspace.js` exits 0
+- `node scripts/validate-brain.js` exits 0
+- 18 adapter trees regenerated via `node scripts/assemble-adapter.js` (most-recent commit `4211c590`); 7 example workspaces regenerated via `node scripts/regenerate-example.js`
+- 5 NEW Wave-0 RED-bar tests authored: `update-indexes-council-sessions-rich.test.js`, `00-overview-domain-count.test.js`, `lifecycle-flag-wiring.test.js`, `consolidate-council-comment-code-parity.test.js`, `council-protocol-deferred-design.test.js` — all GREEN post-Wave-1/2 implementation
+- Concurrent-agent boundary preserved: `scripts/lib/install-core.js`, `scripts/lib/update-core.js`, and the `## [2.0.0] - 2026-05-09` CHANGELOG block remain byte-identical to pre-Phase-23 state
+
 ### Fixed (Phase 23 / Plan 23-03 — DEC-001 audit-honesty correction to Phase-22 verification)
 
 - **Phase-22 Verification narrative corrected.** The original Phase-22 closure narrative (CHANGELOG history + `.planning/phases/22-.../22-04-SUMMARY.md`) cited "1837 pass / 3 fail / 2 skip of 1842". Per COUNCIL-2026-05-09-003 DIS-001 audit, the live counts at Phase-22 closure were **1842 total / 1836 pass / 4 fail (TAP summary) / 6 distinct ✖ / 2 skip**. The 6 distinct failures: What's Next 1-6 entries; check-command-budgets exit 0; CMD-03 1800-word budget; drift-record-additivity Test 4 (drift.json length=11); dist03-changelog [0.1.0] Schema migration; dist03-changelog package.json version match. Phase 23 closes all 6 (DEC-004 closes #1-3; DEC-002 closes #4; DEC-008 closes #5+#6). The under-count cited only the TAP summary parent-test counter and missed 2 failures hidden in nested suites that surface only in the human-readable `failing tests:` block.
