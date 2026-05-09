@@ -1,6 +1,6 @@
-<!-- TestAtlas command: atlas-explore-ui. Invoke as /prompts:atlas-explore-ui. Description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. -->
+<!-- TestAtlas command: atlas-explore-ui. Invoke as /prompts:atlas-explore-ui. Description: Map UI routes, components, forms, modals, PRD §13.1 states (empty/loading/error/success/permission), breakpoints, a11y via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="c9cfbd17501b5b6820c62871ef499d9aca3801a3d748af9e7a316f7a293de4fd" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="fcd67a1fc1d27366d1f505367df92a1315ff656335ce8d0c52f29d55bd5df5fc" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose

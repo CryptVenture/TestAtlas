@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="53a904b1ab088db55d200f23ca4bfea55d974b2702aa6f842493f138e15e9b72" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="e0e8bc4dbbf72b0f1b80dc877c8180ceadfa471269e874c5c2aed0002d16e6f5" -->
 First read `.testatlas/bootstrap.md`. Then read `.roo/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -215,7 +215,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 ## /atlas-explore-ui
 
-Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
+Map UI routes, components, forms, modals, PRD §13.1 states (empty/loading/error/success/permission), breakpoints, a11y via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. Read `.testatlas/commands/explore-ui.md` for full instructions.
 - Required capabilities: browser, MCP, shell, file-write.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 

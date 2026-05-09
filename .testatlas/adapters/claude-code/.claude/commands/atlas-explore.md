@@ -3,7 +3,7 @@ description: Umbrella explorer orchestrator — classifies sub-explorers, spawns
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="a4ac30bf4fb57f4dae44a73cdb2fc8e6bfd6d847e308d0eff29d9bb4f0ccb1f8" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="f62d4ef421251736b0d0ac7e3af08a3e7abbd3b0d0040957236eb3462a4ab24b" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -51,9 +51,11 @@ The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, e
 - **may-write:** "the child writes only to its own evidence directory `_testatlas/evidence/[child]/[timestamp]/`; the umbrella never grants additional write paths."
 - **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
 
-**Aggregation clause.** After spawned children return (parallel) or complete (sequential-fallback), the umbrella reads each child's evidence directory and synthesizes findings into the 5 generated sections of `_testatlas/02_product_overview.md`. Cached children skip respawn and appear in the child-results-table with `status:cached` linking to their existing evidence dir.
+**Aggregation.** After children return, the umbrella reads each evidence dir and synthesizes findings into the 5 generated sections of `02_product_overview.md`. Cached children skip respawn and surface as `status:cached` with a link to their existing evidence dir.
 
-**Failure clause.** Partial halts surface as `coverage-gaps`; full halt means every recommended non-cached child halted (rare).
+**Failure.** Partial halts surface as `coverage-gaps`; full halt means every recommended non-cached child halted (rare).
+
+**Capability degradation.** When `shell` unavailable, the lifecycle hook cannot run — append entries by hand and mark `confidence: needs-validation` with `tool_unavailable: shell`. Spawning is independent of `shell`.
 
 ## Outputs
 
@@ -75,8 +77,8 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## Stop Conditions
 
-- `_testatlas/12_app_map.json` absent OR contains zero entries across all 11 surface arrays (`domains`, `routes`, `components`, `apis`, `cliCommands`, `jobs`, `integrations`, `entities`, `flows`, `tests`, `relationships`) → halt with the explore-codebase recommendation. The umbrella cannot classify without surface signals.
-- The umbrella itself attempts to write a schema artifact (`route`, `component`, `evidence`, `issue`, etc.) → halt; those are children's responsibility, not the umbrella's. The umbrella may only write the two markdown artifacts (`explore-plan.md`, `02_product_overview.md`) and the standard lifecycle files.
+- `_testatlas/12_app_map.json` absent OR all 11 surface arrays empty → halt with the explore-codebase recommendation; umbrella cannot classify without surface signals.
+- Umbrella attempts to write a schema artifact (`route`, `component`, `evidence`, `issue`, etc.) → halt; those are children's. Umbrella may only write `explore-plan.md`, `02_product_overview.md`, and the lifecycle files.
 - `safeMode=true` and a step would mutate target-repo source files → halt; the workspace lives only under `_testatlas/`.
 - Filesystem is read-only and the command cannot write `_testatlas/explore-plan.md` OR `_testatlas/02_product_overview.md` → halt; this command requires `file-write`.
 - Every spawned non-cached child halts on its own stop condition → halt with all child error codes surfaced. Partial child halts are NOT a stop condition — they surface as `coverage-gaps` and the run records `status:partial`.
@@ -121,7 +123,7 @@ Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps th
 | `/atlas:explore-jobs` | Workers, queues, schedulers |
 | `/atlas:explore-security-privacy` | Auth flows, secrets, PII paths |
 | `/atlas:explore-observability` | Logging, metrics, tracing, alerting |
-| `/atlas:explore-tests` | Test coverage, frameworks, CI gates (bridges V1 surfaces and V2 brain — its outputs feed the V1-style `tests/matrix.json` index even when invoked via the V2 classification pass) |
+| `/atlas:explore-tests` | Test coverage, frameworks, CI gates (bridges V1+V2; outputs feed `tests/matrix.json`) |
 | `/atlas:explore-brain` | Brain-layer state (drift, scores, graph) |
 | `/atlas:explore-release-readiness` | Release-readiness signals |
 

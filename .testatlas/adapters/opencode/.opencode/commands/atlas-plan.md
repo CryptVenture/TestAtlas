@@ -2,7 +2,7 @@
 description: Produce a risk-based, domain-based, flow-based, state-aware test strategy and master plan covering 02_test_strategy.md, plans/PLAN-master.md, the test matrix, and exploratory charters per PRD §12.14.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="137dd487e8e3323d9362bf8cf622375566dc2ea537b607be49f4dbb55d346a70" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/plan.md" hash="0acb001eafd9cb061ff021d40b390205f787cc096144a1ee6d5beb4722969643" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -25,7 +25,7 @@ Produce a test strategy and master plan: `_testatlas/02_test_strategy.md`, `_tes
 
 1. Identify high-risk surfaces. Cross-reference signals: domains with the most routes/APIs (blast radius), integrations marked sandbox vs production (regression risk), flows with state-coverage gaps (PRD §13 — empty/loading/error/success/permission), and surfaces that have produced prior issues. Rank surfaces by an explicit risk score; record the scoring rationale in `02_test_strategy.md`.
 2. For each domain, generate test scenarios per PRD §26 test types. The canonical test-type vocabulary is `vocabulary.schema.json` `$defs.testType.enum`: `smoke`, `user-flow`, `exploratory`, `regression`, `negative`, `state`, `accessibility`, `performance`, `integration`, `setup`. The dogfood loop targets `smoke` first; mark scenarios for `regression`, `exploratory`, `negative`, `state`, `accessibility`, `performance`, `integration`, `setup`, and `user-flow` as deferred to Phase-4 commands and assign them to subsequent runs rather than the immediate matrix.
-3. Each scenario MUST include: a stable scenario id, name, type, target flow and/or domain, preconditions (workspace + product state), steps (numbered, evidence-attaching), expected behaviour, evidence-to-capture (which states, what artifacts), capability requirements (`shell`, `browser`, `web-fetch`, `MCP`), priority (P0/P1/P2), and a per-scenario `confidence` per `bootstrap.md` §11 reflecting how well the underlying domain evidence supports the scenario's premise.
+3. Each scenario MUST include: a stable scenario id, name, type, target flow and/or domain, preconditions (workspace + product state), steps (numbered, evidence-attaching), expected behaviour, evidence-to-capture (which states, what artifacts), capability requirements (`shell`, `browser`, `web-fetch`, `MCP`), and priority (P0/P1/P2). SHOULD include a per-scenario `confidence` per `bootstrap.md` §11 reflecting how well the underlying domain evidence supports the scenario's premise — the `test-scenario.schema.json` accepts `confidence` as an optional property (added post-ISSUE-033), so populate it whenever the planner can recalibrate it from evidence; legacy sidecars without `confidence` remain valid.
 4. Write `_testatlas/02_test_strategy.md` — a one-page strategy framing: scope, risk model, test-type mix, capability-availability assumptions, success thresholds, and explicit out-of-scope items.
 5. Write `_testatlas/plans/PLAN-master.md` — the prioritized master scenario list (P0 → P1 → P2). Each row links to its `matrix.json` entry by id and notes the next command (`/atlas:test-flow`, etc.) that will execute it.
    - **Preferred path for flow emission (if `shell` is available):** for each net-new flow surfaced by the strategy, run `node .testatlas/scripts/create-flow.js --name "<name>" --domain domain-<slug> --persona "<persona>" --goal "<goal>" [--priority <priority>] [--status draft] [--confidence <c>] [--workspace <p>]`. The script AJV-validates against `flow.schema.json` and increments `counts.flows` in the manifest. Scenarios in `matrix.{md,json}` are still authored by this command; the script only handles flow record emission.
@@ -89,7 +89,7 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 - All four plan artifacts exist: `02_test_strategy.md`, `plans/PLAN-master.md`, `tests/matrix.{md,json}`, `tests/exploratory_charters.md`.
 - `matrix.json` validates against `matrix.schema.json`; every per-scenario sidecar validates against `test-scenario.schema.json`.
-- Every scenario carries an explicit `confidence` per `bootstrap.md` §11.
+- Scenarios that the planner can recalibrate from evidence carry an explicit `confidence` per `bootstrap.md` §11. (The `test-scenario.schema.json` accepts `confidence` as optional; legacy sidecars without it remain valid.)
 - `tests/matrix.json` scenario count and `tests/exploratory_charters.md` charter count match on-disk counts. (These are not workspace-manifest counts; the manifest's `counts` keys are limited to `domains`, `flows`, `issues`, `evidenceRecords`, `testRuns`, `reports`.)
 - The five lifecycle files listed above are updated.
 
