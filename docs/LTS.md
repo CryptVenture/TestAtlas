@@ -8,9 +8,9 @@ TestAtlas follows a clear, predictable Long-Term Support policy so adopters can 
 
 | Version line | Status | Receives |
 |--------------|--------|----------|
-| Current major (e.g., `1.x`) | Active | New features, bug fixes, security patches, schema migrations |
-| Previous major (e.g., `0.x`) | Maintenance | Security patches and critical bug fixes only — no new features |
-| Older majors | End-of-life | No updates of any kind. Open issues will be closed with an upgrade pointer. |
+| Current major (`2.x`) | Active | New features, bug fixes, security patches, schema migrations |
+| Previous major (`1.x`) | Maintenance | Security patches and critical bug fixes only — no new features |
+| Older majors (`0.x`) | End-of-life | No updates of any kind. Open issues will be closed with an upgrade pointer. |
 
 Each new major release pushes the support window forward by one. When `2.x` ships, `1.x` enters maintenance and `0.x` becomes EOL.
 

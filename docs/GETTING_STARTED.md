@@ -300,6 +300,75 @@ Pulls a newer version of the suite (`.testatlas/`) from the configured release s
 
 ---
 
+## V2 Advanced path (~15 min additional)
+
+After completing the Day 1 happy path, the V2 surface unlocks deeper intelligence: multi-persona councils, brain-based querying, drift detection, and specialised reports.
+
+### V2 exploration commands
+
+The V2 explorers add surface-type specificity beyond the V1 umbrella:
+
+| Command | Use when… |
+|---------|-----------|
+| `/atlas:explore-components` | You need a component-level inventory (props, states, responsive behaviour) |
+| `/atlas:explore-routes` | You need every route, guard, redirect, and deep-link mapped |
+| `/atlas:explore-state` | UI state coverage (empty/loading/error/success/permission) is in scope |
+| `/atlas:explore-errors` | Error boundaries, fallback UI, and retry patterns need auditing |
+| `/atlas:explore-jobs` | Background jobs, queues, schedules, and retry policies are central |
+| `/atlas:explore-observability` | Logging, metrics, alerts, and tracing need verification |
+| `/atlas:explore-tests` | You want to measure existing test coverage and find gaps |
+| `/atlas:explore-security-privacy` | A dedicated security + privacy pass is needed |
+| `/atlas:explore-release-readiness` | You need to map release artifacts, blockers, and gates |
+| `/atlas:explore-brain` | The workspace itself needs auditing (stale docs, invalid JSON, orphaned evidence) |
+
+Each writes to `_testatlas/brain/` indexes and to per-surface map templates under `_testatlas/maps/`.
+
+### Brain commands
+
+| Command | Purpose |
+|---------|---------|
+| `/atlas:brain-score` | Compute 11 quality scores from brain evidence (coverage, drift, issue severity, etc.) |
+| `/atlas:brain-drift` | Detect drift between the last exploration and current repo state |
+| `/atlas:brain-query` | Ask a question about the workspace; get cited answers from brain JSON |
+| `/atlas:brain-sync` | Reconcile markdown artifacts with brain JSON indexes |
+| `/atlas:brain-validate` | Schema-validate every file under `_testatlas/brain/` |
+| `/atlas:brain-compact` | Summarise long transcripts without losing decisions or evidence |
+| `/atlas:brain-export` | Export the brain as JSON, graph, or archive for handoff |
+
+### Council commands
+
+| Command | Purpose |
+|---------|---------|
+| `/atlas:council-bug-triage` | Multi-persona review of open issues — re-prioritises with consensus |
+| `/atlas:council-domain-review` | Deep-dive review of one domain by multiple personas |
+| `/atlas:council-red-team` | Adversarial challenge of confident claims |
+| `/atlas:council-release-readiness` | Go/no-go assessment with documented consensus |
+| `/atlas:council-test-plan` | Multi-persona test plan proposal |
+| `/atlas:council-design-critique` | UX/a11y critique of a UI flow |
+| `/atlas:council-brain-audit` | Workspace staleness and contradiction audit |
+| `/atlas:council-flow-review` | Roundtable review of a single user flow |
+| `/atlas:council-product-review` | Debate-mode review of product priorities |
+| `/atlas:council-retest` | Evaluate whether a claimed fix satisfies acceptance criteria |
+
+Councils follow a 9-round protocol. Adapters with `council-orchestration` capability spawn subagents per persona; others fall back to simulated sequential role-play. See [docs/PERSONAS_AND_COUNCILS.md](PERSONAS_AND_COUNCILS.md) for the full roster and usage guide.
+
+### Report commands
+
+| Command | Output |
+|---------|--------|
+| `/atlas:report-domain` | Per-domain quality report (`reports/domain-<slug>.md`) |
+| `/atlas:report-release` | Release readiness assessment (`reports/release_readiness.md`) |
+| `/atlas:report-dashboard-data` | Machine-readable dashboard export (`reports/dashboard-data.json`) |
+
+### Maintain commands
+
+| Command | Purpose |
+|---------|---------|
+| `/atlas:maintain-migrate` | Migrate a V1 workspace to V2 |
+| `/atlas:maintain-validate-artifacts` | Deep artifact validation beyond `validate-workspace` |
+
+---
+
 ## Common patterns
 
 Four real flows you'll likely run.

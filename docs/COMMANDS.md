@@ -152,7 +152,7 @@ Catalog auth surfaces, secrets-handling locations, and redaction risks per PRD �
 
 ## /atlas:explore-ui
 
-Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
+Map UI routes, components, forms, modals, PRD §13.1 states (empty/loading/error/success/permission), breakpoints, a11y via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable.
 
 **Capabilities:** `browser`, `MCP`, `shell`, `file-write`
 
@@ -164,7 +164,7 @@ Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error
 
 Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md.
 
-**Capabilities:** `file-write`
+**Capabilities:** `file-write`, `shell`
 
 [Source](../.testatlas/commands/explore.md)
 

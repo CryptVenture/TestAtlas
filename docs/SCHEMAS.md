@@ -410,7 +410,7 @@ Schema for tests/scenarios/TEST-<domain>-<slug>.{md,json} (PRD §19).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/test-scenario.schema.json`
 
-**Top-level properties:** `id`, `name`, `domain`, `flow`, `priority`, `type`, `status`, `userGoal`, `preconditions`, `testData`, `steps`, `expectedResults`, `evidence`, `issues`, `lastUpdatedAt`
+**Top-level properties:** `id`, `name`, `domain`, `flow`, `priority`, `type`, `status`, `userGoal`, `preconditions`, `testData`, `steps`, `expectedResults`, `evidence`, `issues`, `confidence`, `lastUpdatedAt`
 
 [Source](../.testatlas/schemas/test-scenario.schema.json)
 

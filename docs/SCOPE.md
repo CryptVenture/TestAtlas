@@ -5,8 +5,8 @@ scope-rejection list referenced in CONTRIBUTING.md and enforces requirement GOV-
 New feature proposals that conflict with anything below will be closed.
 
 This list combines:
-- The "Out of Scope" table from `.planning/PROJECT.md`
-- The 15 anti-features identified in research (`research/FEATURES.md` rejected list)
+- The original PRD out-of-scope table
+- Research-derived anti-features
 - PRD §42 non-goals
 
 ## Hard Rejections (PROJECT.md Out of Scope)
@@ -77,6 +77,4 @@ If you believe a rejected item should be reconsidered:
 
 ## See Also
 
-- `.planning/PROJECT.md` — Source Out-of-Scope table
-- `.planning/REQUIREMENTS.md` — Full v1 + v2 requirement catalog
 - `docs/THREAT_MODEL.md` — Security boundaries that complement scope boundaries

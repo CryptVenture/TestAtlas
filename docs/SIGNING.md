@@ -81,11 +81,11 @@ If verification fails, install/update aborts. If cosign is absent, install.sh pr
 You can verify a release entirely outside the install flow:
 
 ```sh
-# 1. Download the published tarball
-curl -fsSL https://registry.npmjs.org/testatlas/-/testatlas-0.1.0.tgz -o testatlas.tgz
+# 1. Download the published tarball (replace <VERSION> with the target release, e.g. 1.2.6)
+curl -fsSL https://registry.npmjs.org/testatlas/-/testatlas-<VERSION>.tgz -o testatlas.tgz
 
 # 2. Download the sigstore bundle (from GitHub Releases)
-curl -fsSL https://github.com/CryptVenture/TestAtlas/releases/download/v0.1.0/testatlas-0.1.0.tgz.sigstore.json \
+curl -fsSL https://github.com/CryptVenture/TestAtlas/releases/download/v<VERSION>/testatlas-<VERSION>.tgz.sigstore.json \
   -o testatlas.tgz.sigstore.json
 
 # 3. Verify

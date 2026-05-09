@@ -18,8 +18,11 @@ tree.
 | V2 core | `.testatlas/commands/core/*.md` | 8 | V2 |
 | V2 explore | `.testatlas/commands/explore/*.md` | 11 | V2 |
 | V2 council | `.testatlas/commands/council/*.md` | 11 | V2 |
-| V2 test/brain/report/maintain | `.testatlas/commands/{test,brain,report,maintain}/` | 0 (reserved for plans 14-06/07/08) | V2 |
-| **Total** | | **62** | (V1=32 + V2=30) |
+| V2 test | `.testatlas/commands/test/*.md` | 4 | V2 |
+| V2 brain | `.testatlas/commands/brain/*.md` | 2 | V2 |
+| V2 report | `.testatlas/commands/report/*.md` | 3 | V2 |
+| V2 maintain | `.testatlas/commands/maintain/*.md` | 2 | V2 |
+| **Total** | | **73** | (V1=32 + V2=41) |
 
 A command's rendered output path is determined by the adapter's `outputPattern` and `outputDir`:
 

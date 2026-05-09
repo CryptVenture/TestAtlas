@@ -55,9 +55,11 @@ The workflow already has `id-token: write` permission. After Trusted Publisher i
 
 For the very first publish (chicken-and-egg), generate a granular `NPM_TOKEN` (publish-only, package-scoped to `testatlas`), add it as a GitHub repo secret, run the publish, then configure Trusted Publishing for subsequent releases and revoke the token.
 
-## First publish — Bootstrap NPM_TOKEN (v1.0.0 only)
+## First publish — Bootstrap NPM_TOKEN (historical)
 
-v1.0.0 is the **first publish**. Trusted Publishing (OIDC) requires the npm package to exist before a trust relationship can be declared, so the very first publish needs a different bootstrap path. This section is the explicit one-shot procedure.
+> This section documents the v1.0.0 bootstrap procedure for historical reference. v1.0.0 has already shipped. New releases use the OIDC path documented above.
+
+v1.0.0 was the **first publish**. Trusted Publishing (OIDC) requires the npm package to exist before a trust relationship can be declared, so the very first publish needs a different bootstrap path. This section is the explicit one-shot procedure.
 
 1. **Verify the npm name is available.**
 
@@ -85,9 +87,9 @@ v1.0.0 is the **first publish**. Trusted Publishing (OIDC) requires the npm pack
 4. **Tag and dispatch.**
 
    ```sh
-   git tag -a v1.0.0 -m "TestAtlas v1.0.0 GA"
-   git push origin v1.0.0
-   gh workflow run release.yml --ref v1.0.0
+   git tag -a v1.2.6 -m "TestAtlas v1.2.6"
+   git push origin v1.2.6
+   gh workflow run release.yml --ref v1.2.6
    gh run watch
    ```
 
@@ -96,7 +98,7 @@ v1.0.0 is the **first publish**. Trusted Publishing (OIDC) requires the npm pack
 5. **Verify the publish.**
 
    ```sh
-   npm view testatlas version            # → 1.0.0
+   npm view testatlas version            # → 1.2.6
    npm view testatlas dist.shasum
    npm audit signatures                  # provenance + signature verify
    ```
@@ -170,8 +172,8 @@ End state:
 `install.sh` has two `sed`-targeted lines that the release workflow rewrites every release:
 
 ```sh
-VERSION="0.1.0"
-TARBALL_SHA256="abc123..."
+VERSION="<VERSION>"   # e.g. "1.2.6"
+TARBALL_SHA256="<SHA256>"
 ```
 
 These lines must:
@@ -319,7 +321,7 @@ The new section is the source of truth for `gh release create --notes-file` — 
 
 | Path | When | Command |
 |------|------|---------|
-| **OIDC (canonical)** | Trusted Publisher configured (post-v1.0.0 setup) | `node scripts/bump-version.js --minor --release` |
+| **OIDC (canonical)** | Trusted Publisher configured (post-v1.0.0) | `node scripts/bump-version.js --minor --release` |
 | **Bootstrap (deprecated)** | First-ever publish OR emergency fallback | `node scripts/bump-version.js --minor --publish` (warns; needs `NPM_TOKEN`) |
 
 The OIDC path delegates the actual publish to `release.yml` (which uses the `id-token: write` permission to mint a short-lived OIDC token). `--publish` runs `npm publish` from the developer's machine and is bootstrap-only — it now emits a loud deprecation warning suggesting `--release`.

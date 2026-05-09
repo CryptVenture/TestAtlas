@@ -173,4 +173,4 @@ surface is identified. Changes require maintainer consensus via PR.
 
 - `SECURITY.md` — How to report vulnerabilities privately.
 - `docs/SCOPE.md` — What TestAtlas refuses to do (complementary boundary).
-- `.planning/research/PITFALLS.md` — Source research for these threats.
+- `docs/SCOPE.md` — Scope boundaries that complement security boundaries.

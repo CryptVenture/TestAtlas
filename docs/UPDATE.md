@@ -71,7 +71,7 @@ Migrations live in `.testatlas/migrations/v<N>-to-v<N+1>.js` and export an `up({
 - **N→N+1 only** — each file migrates exactly one version step. Long jumps are composed automatically.
 - **Touches `_testatlas/` only via the migration runner** — the migration is the only legitimate writer to the workspace tree during update.
 
-v0.1.0 ships zero migrations — the v1 schema is the baseline. The first real migration arrives at v0.2.0+.
+v1.0.0 shipped zero migrations — the v1 schema was the baseline. The first real migration shipped at v1.1.0. v2.0.0 includes the V1→V2 migration (`v2-migrate.js`).
 
 ## Workspace lockfile
 
@@ -90,7 +90,7 @@ Some teams want to lock to a specific suite version (audit / compliance / paced 
 ```json
 // .testatlas/config.json
 {
-  "pinnedVersion": "0.1.0",
+  "pinnedVersion": "1.2.6",
   "pinnedSince": "2026-05-04T00:00:00Z",
   "pinAlertThresholdDays": 90
 }
