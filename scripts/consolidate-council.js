@@ -12,7 +12,7 @@
 //   import { consolidateCouncil } from './consolidate-council.js';
 //   const r = await consolidateCouncil({ cwd, sessionId, dryRun });
 
-import { mkdir, readFile, stat } from 'node:fs/promises';
+import { mkdir, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
 
@@ -126,6 +126,53 @@ export async function consolidateCouncil(args = {}) {
 
   const followupsPath = path.join(sessionDir, 'followups.md');
   await atomicWrite(followupsPath, lines.join('\n'));
+
+  // DEC-005 (Phase 22 / DRIFT-005) — outputs_audit producer.
+  // Compares declared session.participants[] to materialized
+  // outputs/<persona-id>-output.{md,json} files. Schema-conforming write
+  // even when session.json is absent or outputs/ dir missing.
+  const sessionJsonPath = path.join(sessionDir, 'session.json');
+  let sessionJson = null;
+  try {
+    sessionJson = JSON.parse(await readFile(sessionJsonPath, 'utf8'));
+  } catch (e) {
+    if (e.code !== 'ENOENT') throw e;
+  }
+  if (sessionJson) {
+    const outputsDir = path.join(sessionDir, 'outputs');
+    let outputFiles = [];
+    let mismatchReason = '';
+    try {
+      outputFiles = await readdir(outputsDir);
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        mismatchReason = 'no outputs directory';
+      } else {
+        throw e;
+      }
+    }
+    const declaredParticipants = Array.isArray(sessionJson.participants)
+      ? sessionJson.participants
+      : [];
+    const materializedSet = new Set();
+    for (const f of outputFiles) {
+      const m = /^(.+)-output\.(md|json)$/.exec(f);
+      if (m) materializedSet.add(m[1]);
+    }
+    const missingPersonaIds = declaredParticipants.filter((p) => !materializedSet.has(p));
+    sessionJson.outputs_audit = {
+      declared_participants_count: declaredParticipants.length,
+      materialized_outputs_count: materializedSet.size,
+      missing_persona_ids: missingPersonaIds,
+      ...(missingPersonaIds.length > 0
+        ? {
+            mismatch_reason:
+              mismatchReason || 'declared participants without materialized outputs',
+          }
+        : {}),
+    };
+    await atomicWrite(sessionJsonPath, `${JSON.stringify(sessionJson, null, 2)}\n`);
+  }
 
   // Update brain/decisions.json with any consolidated_decision claim.
   const brainDir = path.join(wsDir, 'brain');
