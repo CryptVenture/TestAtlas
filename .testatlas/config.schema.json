@@ -105,8 +105,11 @@
       "oneOf": [
         { "type": "null" },
         { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$" },
-        { "type": "string", "pattern": "^\\d+\\.(\\d+|[x*])(\\.[x*])?$" }
-      ]
+        { "type": "string", "pattern": "^\\d+\\.(\\d+|[x*])(\\.[x*])?$" },
+        { "type": "string", "pattern": "^[~^]\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$" },
+        { "type": "string", "pattern": "^[<>]=?\\d+\\.\\d+\\.\\d+(-[\\w.-]+)?$" }
+      ],
+      "description": "Pinned suite version. Accepts: null (no pin); exact semver '1.2.3' or '1.2.3-pre'; partial 'X.Y'/'X.Y.Z' with x/* wildcards; caret/tilde ranges '^1.2.3' / '~1.2.3'; comparator ranges '>=1.2.3' / '<2.0.0'. The runtime semver-satisfies check (scripts/lib/update-core.js) is the authoritative gate for whether a release is in-range; this schema rejects only obviously-malformed strings."
     },
     "disableUpdateCheck": { "type": "boolean" },
     "updateCheckTtlHours": {
