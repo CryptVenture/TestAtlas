@@ -22,7 +22,12 @@ const STATUS_FILE = '03_execution_status.md';
 const OVERVIEW_FILE = '00_overview.md';
 const MANIFEST = '11_workspace_manifest.json';
 const COUNTS_SECTION = 'counts';
-const OVERVIEW_SECTIONS = ['current-status', 'latest-report-pointer', 'last-updated'];
+const OVERVIEW_SECTIONS = [
+  'domain-count',
+  'current-status',
+  'latest-report-pointer',
+  'last-updated',
+];
 
 async function countDirs(wsDir, sub, prefix) {
   try {
@@ -163,6 +168,16 @@ export async function syncStatus(args = {}, _inject = {}) {
     }
 
     let bodyChanged = false;
+    // DEC-005 (Phase 23 / COUNCIL-2026-05-09-002): replace static "N domains
+    // discovered" prose with a GENERATED block whose body is rendered from
+    // the live on-disk count (counts.domains, computed above) — keeps
+    // 00_overview.md honest about the actual domain count post any add/rm.
+    if (sections.has('domain-count')) {
+      const dcBody = [`${counts.domains} domains discovered (see \`12_app_map.json\`).`];
+      const before = nextOverview;
+      nextOverview = renderSection(nextOverview, 'domain-count', dcBody);
+      if (nextOverview !== before) bodyChanged = true;
+    }
     if (sections.has('current-status')) {
       const lastCommand = await tailLastCommandFromLog(path.join(wsDir, '10_command_log.md'));
       const csBody = [

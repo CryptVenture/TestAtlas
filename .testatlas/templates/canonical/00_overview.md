@@ -18,6 +18,10 @@ This document is the entry point for the workspace. It summarizes what the appli
 
 ## Core Domains
 
+<!-- TESTATLAS:GENERATED:START section="domain-count" -->
+0 domains discovered (see `12_app_map.json`).
+<!-- TESTATLAS:GENERATED:END section="domain-count" -->
+
 (List the top-level product domains discovered during mapping. Link each to `domains/<slug>/domain_overview.md` when present.)
 
 ## Architecture Shape
