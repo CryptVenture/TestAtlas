@@ -12,7 +12,7 @@
 //   import { consolidateCouncil } from './consolidate-council.js';
 //   const r = await consolidateCouncil({ cwd, sessionId, dryRun });
 
-import { mkdir, readFile, readdir, stat } from 'node:fs/promises';
+import { mkdir, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
 
@@ -194,8 +194,7 @@ export async function consolidateCouncil(args = {}) {
       missing_persona_ids: missingPersonaIds,
       ...(missingPersonaIds.length > 0
         ? {
-            mismatch_reason:
-              mismatchReason || 'declared participants without materialized outputs',
+            mismatch_reason: mismatchReason || 'declared participants without materialized outputs',
           }
         : {}),
     };
@@ -218,7 +217,8 @@ export async function consolidateCouncil(args = {}) {
       // Accepted promotions:
       //   - type='decision' or 'consolidated_decision'                (back-compat)
       //   - type IN {observed, inferred, hypothesized}
-      //     AND (status='accepted' OR confidence='confirmed' OR confidence='strong-suspect')
+      //     AND (status='accepted' OR confidence='confirmed')
+      //     See test/scripts/consolidate-council-decisions.test.js Test 2 for the pinning contract.
       //
       // 'disputed' type is never promoted, even when accepted+confirmed.
       const isDecisionType = c.type === 'decision' || c.type === 'consolidated_decision';
