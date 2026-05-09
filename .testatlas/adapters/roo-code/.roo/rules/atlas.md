@@ -1,4 +1,4 @@
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="e0e8bc4dbbf72b0f1b80dc877c8180ceadfa471269e874c5c2aed0002d16e6f5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/_aggregate" hash="5edc1d82ad9a3940eca1af6c4ed73e2bf7304efa0ef23d2abc5fa5e1f6d1aadc" -->
 First read `.testatlas/bootstrap.md`. Then read `.roo/rules/atlas.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 TestAtlas conventions for Roo Code. Bootstrap rules in `.testatlas/bootstrap.md` win on conflict. To run a command, read its source file at `.testatlas/commands/<command>.md` and follow it exactly.
@@ -84,67 +84,78 @@ Summarize the current TestAtlas workspace — phase, counts, blockers, stale are
 ## /atlas-council-brain-audit
 
 Brain Audit Council — personas inspect the _testatlas workspace for staleness, contradictions, missing updates, and bad structure through the 9-round protocol. Read `.testatlas/commands/council/council-brain-audit.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-bug-triage
 
 Bug triage council — multiple personas classify and prioritize open issues by severity, priority, and remediation sequencing through the 9-round protocol. Read `.testatlas/commands/council/council-bug-triage.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-design-critique
 
 Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. Read `.testatlas/commands/council/council-design-critique.md` for full instructions.
-- Required capabilities: shell, browser, file-write.
+- Required capabilities: shell, browser, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-domain-review
 
 Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. Read `.testatlas/commands/council/council-domain-review.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-flow-review
 
 Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol. Read `.testatlas/commands/council/council-flow-review.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-product-review
 
 Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol. Read `.testatlas/commands/council/council-product-review.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-red-team
 
 Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol. Read `.testatlas/commands/council/council-red-team.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-release-readiness
 
 Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol. Read `.testatlas/commands/council/council-release-readiness.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-retest
 
 Retest council — personas evaluate whether a claimed fix satisfies the issue's acceptance criteria through the 9-round protocol. Read `.testatlas/commands/council/council-retest.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council-test-plan
 
 Test Plan Council — QA, automation, codebase, data, and runtime personas propose a complete testing plan through the 9-round protocol. Read `.testatlas/commands/council/council-test-plan.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn, council-orchestration, persona-context, brain-sync.
+- DEGRADED: subagent-spawn/council-orchestration unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-council
 
 Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command. Read `.testatlas/commands/council/council.md` for full instructions.
-- Required capabilities: shell, file-write.
+- Required capabilities: shell, file-write, subagent-spawn.
+- DEGRADED: subagent-spawn unavailable; Do NOT fabricate, mark findings confidence: needs-validation.
 - Lifecycle: 03_execution_status.md, 09_artifact_index.md, 10_command_log.md, 11_workspace_manifest.json, history/run_log.md.
 
 ## /atlas-create-persona

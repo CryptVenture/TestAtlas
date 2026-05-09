@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-domain-review. Invoke as /atlas-council-domain-review.md. Description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="70154a85fd048538ee5a798b441dede2a96c85278c75473f23e702add000fc53" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="8334d5e3405590255f32de921eb2cdf2090c991ee8e42e44e3fd13d62ee785d2" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -42,6 +42,60 @@ node .testatlas/scripts/create-council-session.js \
 ```
 
 Then run `node .testatlas/scripts/extract-claims.js --session-id <id>` after round 3 to materialize claims.jsonl.
+
+## Sub-Agent Orchestration
+
+This council command is a per-persona spawn-and-aggregate orchestrator. When the host declares the
+`subagent-spawn` capability (per `bootstrap.md` Capability Degradation, the 18-adapter matrix at
+bootstrap.md lines 70-89), the command spawns ONE sub-agent per declared participant for rounds
+2 and 3 (Independent review + Initial findings) and aggregates their structured findings into the
+session transcript. Per the per-round orchestration table in `.testatlas/reference/council-protocol.md`
+§7, rounds 1, 4, 5, 6, 7, 8, and 9 run inline; only rounds 2 and 3 spawn. Specifically, round 2 (Independent review) and round 3 (Initial findings) are the two per-persona spawn rounds.
+
+The applicable child task pool is the `participants` array recorded in `session.json` (3-7 personas
+typical), with each child reading the persona's own `read_first` allow-list from
+`_testatlas/agents/personas/<type>/<persona-id>.json` rather than the full transcript.
+
+**Per-child brief contract** (placeholder `<persona-id>` stands for each declared participant):
+
+- **objective:** "Produce <persona-id>'s independent roundtable-review findings on the domain under review."
+- **scope:** "Reading allowed: prompt.md, context_bundle.md, the persona's own read_first
+  allow-list, and the in-scope target artifact(s). Reading other personas' outputs is forbidden
+  during this spawn — independence is the cognitive contract for rounds 2-3."
+- **files-to-read:** "_testatlas/agents/councils/sessions/<session-id>/{prompt.md,context_bundle.md},
+  _testatlas/agents/personas/<type>/<persona-id>.json (read the read_first array and follow each
+  path), and the council-protocol reference shard at .testatlas/reference/council-protocol.md."
+- **output-format:** "Markdown to outputs/<persona-id>-output.md (free-form structured findings)
+  PLUS JSON to outputs/<persona-id>-output.json ({findings:[{id,title,evidence_refs[],severity,confidence,disagreement_seed?}]})
+  PLUS transcript.jsonl appends (one line per finding) with message_type:'finding', speaker:<persona-id>."
+- **may-write:** "ONLY outputs/<persona-id>-output.{md,json} and transcript.jsonl appends. The
+  persona's may_update allow-list applies post-consolidation (round 9 via consolidate-council.js),
+  NOT during this spawn. No canonical doc writes during the spawn."
+- **exit-criteria:** "Persona's outputs/<persona-id>-output.{md,json} written; ≥1 finding emitted
+  to transcript.jsonl with the persona's speaker id; persona's blind_spots acknowledged in the
+  markdown output's preamble."
+
+**Aggregation.** After all spawned children complete, the orchestrator merges their transcript
+appends, then runs `node .testatlas/scripts/extract-claims.js` to materialize claims.jsonl from
+the merged transcript. Rounds 4-9 then run inline in the orchestrator's context with full
+visibility of every persona's outputs/ artifact.
+
+**Failure.** If any spawned child fails to produce its outputs/<persona-id>-output.{md,json}
+pair, mark `executionMode: 'sequential-fallback'` in `session.json` and re-run the failed
+persona's round 2-3 inline as a recovery. The threshold guard below applies.
+
+**Capability degradation.** Mark the run record `executionMode` per the 6-mode enum:
+- `parallel-subagents` — host has `subagent-spawn` AND participants.length ≥ 2 AND all spawns succeeded.
+- `single-spawn-inline` — host has `subagent-spawn` AND participants.length === 1 (degenerate; spawn anyway).
+- `sequential-fallback` — host has `subagent-spawn` BUT one or more spawns failed and personas ran serially.
+- `classify-only` — topic was classified but participants.length === 0; no rounds executed.
+- `inline-simulation` — host LACKS `subagent-spawn`; one process role-plays N personas inline (the
+  pre-Phase-21 default; backward-compatible for adapters in the 9-row no-spawn matrix in bootstrap.md).
+- `no-op` — host has `subagent-spawn` but the threshold guard below tripped.
+
+**Threshold guard.** If `participants.length < 2` after filtering, run all 9 rounds inline
+regardless of host capability (degenerate single-spawn = wasted overhead). Record
+`executionMode: 'single-spawn-inline'` (when 1 participant) or `'no-op'` (when 0).
 
 ## Outputs (PRD §12.7)
 
