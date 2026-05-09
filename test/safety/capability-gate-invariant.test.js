@@ -39,6 +39,14 @@ const ALLOWLIST = new Set([
   // SAFETY-EXEMPT annotation block at the top of the script for traceability.
   // See scripts/e2e/run-node-api-graph.js header comment.
   'e2e/run-node-api-graph.js',
+  // lib/copy-v2-artifacts.js — internal helper used only by init-workspace.js
+  // and v2-migrate.js, both of which call assertCapability at their entry
+  // points BEFORE any I/O reaches this helper. Threading capability checks
+  // through the helper would duplicate the gate without adding safety. The
+  // helper is also defensive: it stat-checks each source path, mkdirs only the
+  // target subtree it owns under _testatlas/, and uses cp() which respects
+  // node:fs/promises path-traversal rules. (Quick 260509-pdr.)
+  'lib/copy-v2-artifacts.js',
 ]);
 
 async function* walk(dir, base = dir) {
