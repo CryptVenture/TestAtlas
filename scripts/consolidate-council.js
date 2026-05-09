@@ -105,9 +105,37 @@ export async function consolidateCouncil(args = {}) {
   lines.push('');
   lines.push('## Votes');
   lines.push('');
-  const voteList = Array.isArray(votes.votes) ? votes.votes : [];
+  // DRIFT-011 (Phase 22 / collateral): votes.json may use either the
+  // motion-keyed shape (votes.motions[].votes[]) which is the schema-correct
+  // form post-Phase-14, OR the legacy flat shape (votes.votes[]). The
+  // previous renderer only read votes.votes — every motion-keyed session
+  // silently rendered '(no votes cast)' even when 30+ votes were cast.
+  const voteList = [];
+  if (Array.isArray(votes.motions)) {
+    for (const motion of votes.motions) {
+      if (Array.isArray(motion.votes)) {
+        for (const v of motion.votes) {
+          voteList.push({
+            motion_id: motion.motion_id,
+            persona: v.persona,
+            value: v.value,
+            rationale: v.rationale,
+          });
+        }
+      }
+    }
+  } else if (Array.isArray(votes.votes)) {
+    for (const v of votes.votes) voteList.push(v);
+  }
   if (voteList.length === 0) lines.push('- (no votes cast)');
-  for (const v of voteList) lines.push(`- ${v.claim_id ?? '?'}: ${v.value ?? '?'}`);
+  for (const v of voteList) {
+    if (v.motion_id) {
+      const rationale = v.rationale ? ` (${v.rationale})` : '';
+      lines.push(`- ${v.motion_id} — ${v.persona ?? '?'}: ${v.value ?? '?'}${rationale}`);
+    } else {
+      lines.push(`- ${v.claim_id ?? '?'}: ${v.value ?? '?'}`);
+    }
+  }
   lines.push('');
   lines.push('## Disagreements (excerpt)');
   lines.push('');
