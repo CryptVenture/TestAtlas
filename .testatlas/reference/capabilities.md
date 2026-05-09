@@ -4,7 +4,9 @@
 
 TestAtlas adapters declare per-adapter capabilities (Phase 6 ships `adapter-capabilities.json`). Until that file is shipped, treat the conservative default as: only the capabilities you have already successfully used in this session are available. Do not assume — confirm.
 
-## The six capabilities
+## The nine capabilities
+
+> **Note (Phase 14 V2 + Phase 21):** The original 6-capability set (browser, shell, web-fetch, MCP, file-write, subagent-spawn) was extended in Phase 14 with three V2 capabilities — `council-orchestration`, `persona-context`, `brain-sync` — to model the multi-agent council + brain layer. Wave 1 of Phase 21 (Plan 21-02) wired them onto concrete consumers (the 10 `council-*` sub-commands plus `create-persona.md` + `consolidate.md`). They are no longer dead code.
 
 ### browser
 
@@ -42,6 +44,36 @@ The agent host supports parallel sub-agent invocation driven from a markdown com
 
 **Used by:** umbrella orchestration commands (e.g. `/atlas:explore`, `/atlas:plan`, `/atlas:test-flow`) when fan-out across multiple child commands is preferable to sequential execution.
 
+### council-orchestration
+
+**Definition.** Declares that this command runs the V2 council 9-round protocol — i.e. spawns one sub-agent per declared participant for rounds 2 (Independent review) and 3 (Initial findings) and runs rounds 1, 4-9 inline. Distinct from the lower-level `subagent-spawn` capability (which is the host primitive); `council-orchestration` is the command-level commitment to the per-persona spawn shape defined in `.testatlas/reference/council-protocol.md` §7.
+
+**Consumers (10 sub-commands).** All `.testatlas/commands/council/council-*.md` files declare this capability EXCEPT the dispatcher `council.md`: `council-domain-review`, `council-flow-review`, `council-product-review`, `council-bug-triage`, `council-release-readiness`, `council-red-team`, `council-brain-audit`, `council-retest`, `council-design-critique`, `council-test-plan`.
+
+**NOT consumed by.** `council.md` (the dispatcher) — it routes councils but does not run one. This boundary is enforced by Phase-21's `test/council-orchestration.test.js` Test 7 (Path B+ verdict — dispatcher gets `subagent-spawn` only, never the 3 V2 caps).
+
+**Runtime contract.** When a host has both `subagent-spawn` AND the council command has `council-orchestration`, the orchestrator MAY spawn one persona-child per participant for rounds 2 and 3. The `session.json` `executionMode` field records what actually happened — one of the 6 values in `.testatlas/schemas/council_session.schema.json` (`parallel-subagents`, `single-spawn-inline`, `sequential-fallback`, `classify-only`, `inline-simulation`, `no-op`). The orchestrator picks the value via the 5-tier auto-detect table in `scripts/create-council-session.js`'s `detectExecutionMode` helper (or via the `--execution-mode` CLI flag); if both signals are absent (Tier 5), the field is OMITTED from `session.json` and the orchestrator records it post-hoc rather than producing systematically-wrong audit data.
+
+### persona-context
+
+**Definition.** Declares that this command slices context per persona via the persona's `read_first` allow-list. When a persona-child is spawned (rounds 2-3 of a council), the orchestrator passes only the persona's own `read_first` paths plus the session's `prompt.md` + `context_bundle.md` — NOT the full transcript. This enforces the independence cognitive contract: each persona reasons in its own scoped context. See `.testatlas/reference/council-protocol.md` §7 for the per-round mode table.
+
+**Consumers.** Same 10 council-* sub-commands as `council-orchestration`. Also declared by `.testatlas/commands/create-persona.md` (which authors persona JSON sidecars including the `read_first` array) per the existing Phase-14 wire-up.
+
+**NOT consumed by.** `council.md` dispatcher — it does not orchestrate persona work.
+
+**Runtime contract.** The orchestrator reads each persona's `_testatlas/agents/personas/<type>/<persona-id>.json` and resolves the `read_first` array (5-7 paths typical) into the per-child brief's `files-to-read` slot. The child sees only those files — its independence is structurally enforced by what the orchestrator hands it. Adapter renderers must preserve the `read_first` semantics when translating per-host spawn primitives.
+
+### brain-sync
+
+**Definition.** Declares that this command writes consolidated council outputs back into the canonical brain on round 9 (Canonical updates) — specifically into `_testatlas/brain/decisions.json`, `_testatlas/brain/open_questions.json`, and any related canonical artifacts referenced in the council's `consolidation.json`. This is the only round that writes outside the session directory; it runs via `node .testatlas/scripts/consolidate-council.js`.
+
+**Consumers.** Same 10 council-* sub-commands as `council-orchestration`. Also declared by `.testatlas/commands/consolidate.md` (the standalone consolidator) per the existing Phase-14 wire-up.
+
+**NOT consumed by.** `council.md` dispatcher (does not run the consolidation hook).
+
+**Runtime contract.** After round 8 produces `consolidation.json` for a session, the orchestrator invokes `node .testatlas/scripts/consolidate-council.js`, which applies accepted findings to the brain. The persona's `may_update` allow-list governs which canonical paths a given finding can touch; entries outside `may_update` become `open_questions` instead of `decisions`. Run records `executionMode_justification` if the brain-sync was skipped or partially applied.
+
 ## Capability-aware degradation rule (mirrored from bootstrap §4)
 
 Before any action requiring a capability, confirm it is available. If unavailable:
@@ -63,7 +95,10 @@ The `tool_unavailable` field is part of every finding-bearing schema in Phase 2.
 | `MCP`             | Successful tool list from the MCP server              | Fall back to `browser` or `shell` capability       | Invoke canonical Chrome DevTools MCP toolset per `reference/chrome-devtools-mcp.md` (Tier 1–4) |
 | `file-write`      | Successful write + read-back to a temp file           | HALT; without `file-write` no findings persist     | Persist all command outputs atomically per `bootstrap.md` §5          |
 | `subagent-spawn`  | Host-specific spawn primitive returns a child handle  | Sequential execution with `executionMode: 'sequential-fallback'` | Fan out independent subtasks per umbrella commands' Sub-Agent Orchestration sections |
+| `council-orchestration` | Command frontmatter declares it AND host has `subagent-spawn` | Inline-simulate per `council-protocol.md` §7 (`executionMode: 'inline-simulation'`) | Run 9-round protocol; spawn one persona-child per participant for rounds 2-3 |
+| `persona-context` | Persona JSON sidecar resolves with a non-empty `read_first` array | Pass full `prompt.md`+`context_bundle.md` to the child (independence weakened) | Resolve each persona's `read_first` paths into the spawn brief `files-to-read` slot |
+| `brain-sync`      | `node .testatlas/scripts/consolidate-council.js --session-id <id>` exits 0 | Skip canonical write; record `executionMode_justification` explaining why | Apply round-9 consolidation to `_testatlas/brain/{decisions,open_questions}.json` |
 
 ## Schema reference
 
-The six values are enumerated in `vocabulary.json` at `$defs/capability` and referenced from every adapter capability declaration via `$ref`. Do not introduce new capability values without a PRD revision.
+The nine values are enumerated in `.testatlas/schemas/vocabulary.schema.json` at `$defs/capability` and referenced from every adapter capability declaration via `$ref`. Do not introduce new capability values without a PRD revision. Phase 14 V2 added `council-orchestration`, `persona-context`, `brain-sync`; Phase 21 Wave 1 wired them onto concrete consumers (the 10 `council-*` sub-commands plus `create-persona.md` + `consolidate.md`).
