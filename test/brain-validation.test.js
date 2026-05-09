@@ -186,3 +186,45 @@ test('Test 7: validateBrain function is exportable', async () => {
   const mod = await import(SCRIPT);
   assert.equal(typeof mod.validateBrain, 'function', 'validate-brain.js must export validateBrain');
 });
+
+// Plan 22-01 Task 9 — DEC-008 regression (LOW).
+// Pins that validate-brain.js MUST tolerate `embeddings_manifest.json` being
+// absent (Wave 1 strips it from REQUIRED_JSON_FILES) AND must still tolerate
+// it when present (back-compat for legacy installs).
+//
+// Note on the local REQUIRED_JSON_FILES array (lines 23-44 above): it is
+// intentionally LEFT UNTOUCHED. It is a test fixture seed loop — seeding an
+// extra (no-longer-required) file is back-compat-tolerant, so makeHealthyBrain
+// continues to write embeddings_manifest.json into the temp workspace.
+
+test('Test 8 (DEC-008): exit 0 when embeddings_manifest.json is absent', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'tb-brain-validation-'));
+  try {
+    const brainDir = await makeHealthyBrain(dir);
+    await rm(path.join(brainDir, 'embeddings_manifest.json'));
+    const { code, stdout, stderr } = runValidate(dir);
+    assert.equal(
+      code,
+      0,
+      `expected exit 0 (embeddings_manifest no longer required), got ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}`,
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('Test 9 (DEC-008): exit 0 when embeddings_manifest.json is present (back-compat)', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'tb-brain-validation-'));
+  try {
+    // makeHealthyBrain already writes embeddings_manifest.json via local seed loop.
+    await makeHealthyBrain(dir);
+    const { code, stdout, stderr } = runValidate(dir);
+    assert.equal(
+      code,
+      0,
+      `expected exit 0 (presence still tolerated), got ${code}\nstdout:\n${stdout}\nstderr:\n${stderr}`,
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
