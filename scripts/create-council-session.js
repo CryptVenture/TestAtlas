@@ -28,6 +28,51 @@ import { loadAllSchemas } from './lib/schema-loader.js';
 
 const COUNCIL_SESSION_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/council_session.schema.json';
 
+/**
+ * The 6-value executionMode enum mirrors the bounded enum in
+ * `.testatlas/schemas/council_session.schema.json` (Plan 21-01) and the
+ * `executionMode` table in `.testatlas/reference/council-protocol.md` §7.2.
+ * Records HOW a council was actually executed so future audits can tell the
+ * difference between a real per-persona spawn and inline simulation.
+ */
+export const EXECUTION_MODE_ENUM = Object.freeze([
+  'parallel-subagents',
+  'single-spawn-inline',
+  'sequential-fallback',
+  'classify-only',
+  'inline-simulation',
+  'no-op',
+]);
+
+/**
+ * Detect the executionMode for a council session via the 5-tier table.
+ *
+ * Tier 1: caller passed `executionMode` explicitly → returned by caller; this
+ *          fn is not invoked in that path.
+ * Tier 2: participants.length < 2 → degenerate spawn case.
+ *          length === 0 → 'classify-only' (no review rounds run);
+ *          length === 1 → 'single-spawn-inline' (one degenerate spawn).
+ * Tier 3: hostHasSubagentSpawn === true  AND participants ≥ 2 → 'parallel-subagents'.
+ * Tier 4: hostHasSubagentSpawn === false AND participants ≥ 2 → 'sequential-fallback'.
+ * Tier 5: hostHasSubagentSpawn undefined  AND participants ≥ 2 → undefined.
+ *          Caller MUST OMIT the `executionMode` field from session.json — the
+ *          orchestrator agent (which knows whether it actually spawned) records
+ *          the mode post-hoc. Recording 'inline-simulation' as a default would
+ *          systematically produce wrong audit data — that's the bug Wave 0
+ *          Test 5 prevents (HIGH-1 contract).
+ *
+ * @param {{participants?: string[]|undefined, hostHasSubagentSpawn?: boolean|undefined}} input
+ * @returns {string|undefined} one of EXECUTION_MODE_ENUM, or undefined for Tier 5
+ */
+export function detectExecutionMode({ participants, hostHasSubagentSpawn } = {}) {
+  const n = Array.isArray(participants) ? participants.length : 0;
+  if (n === 0) return 'classify-only'; // Tier 2 (length 0)
+  if (n === 1) return 'single-spawn-inline'; // Tier 2 (length 1)
+  if (hostHasSubagentSpawn === true) return 'parallel-subagents'; // Tier 3
+  if (hostHasSubagentSpawn === false) return 'sequential-fallback'; // Tier 4
+  return undefined; // Tier 5 — caller must OMIT the field
+}
+
 // PRD §7.8 — 15 required artifact files, plus outputs/ dir.
 const TEMPLATE_FILES = [
   { name: 'session.md', tmpl: 'session.md' },
@@ -104,6 +149,9 @@ function substitute(text, vars) {
  *   participants: string[],
  *   scope?: string,
  *   orchestrator?: string,
+ *   executionMode?: string,
+ *   executionMode_justification?: string,
+ *   hostHasSubagentSpawn?: boolean,
  * }} args
  */
 export async function createCouncilSession(args = {}) {
@@ -115,6 +163,23 @@ export async function createCouncilSession(args = {}) {
       'TESTATLAS_INVALID_ARGS',
       'create-council-session: --participants must be a non-empty list',
     );
+  }
+
+  // executionMode dispatch — Tier 1 (explicit) vs Tier 2-5 (auto-detect via
+  // detectExecutionMode; Tier 5 returns undefined to signal "OMIT the field").
+  let mode_actual;
+  if (args.executionMode === undefined || args.executionMode === null) {
+    mode_actual = detectExecutionMode({
+      participants: args.participants,
+      hostHasSubagentSpawn: args.hostHasSubagentSpawn,
+    });
+  } else if (!EXECUTION_MODE_ENUM.includes(args.executionMode)) {
+    throw err(
+      'TESTATLAS_INVALID_ARGS',
+      `Invalid executionMode "${args.executionMode}". Must be one of: ${EXECUTION_MODE_ENUM.join(', ')}`,
+    );
+  } else {
+    mode_actual = args.executionMode;
   }
 
   const cwd = args.cwd ?? process.cwd();
@@ -134,6 +199,9 @@ export async function createCouncilSession(args = {}) {
   const orchestrator = args.orchestrator ?? 'testatlas-orchestrator';
   const scope = args.scope ?? args.topic;
 
+  // Conditional spread: Tier 5 (mode_actual === undefined) MUST leave
+  // executionMode ABSENT from session.json (HIGH-1 contract — orchestrator
+  // records post-hoc; the script does NOT guess a default).
   const sessionRecord = {
     id: sessionId,
     topic: args.topic,
@@ -142,6 +210,10 @@ export async function createCouncilSession(args = {}) {
     status: 'pending',
     created_at: createdAt,
     orchestrator,
+    ...(mode_actual !== undefined ? { executionMode: mode_actual } : {}),
+    ...(args.executionMode_justification
+      ? { executionMode_justification: args.executionMode_justification }
+      : {}),
   };
 
   // Validate sessionRecord against council_session.schema.json BEFORE write.
@@ -245,11 +317,31 @@ if (isMain) {
       case '--suite-cwd':
         opts.suiteCwd = path.resolve(argv[++i]);
         break;
+      case '--execution-mode':
+        opts.executionMode = argv[++i];
+        break;
+      case '--execution-mode-justification':
+        opts.executionMode_justification = argv[++i];
+        break;
+      case '--host-has-subagent-spawn': {
+        const v = String(argv[++i]).toLowerCase();
+        if (v === 'true') opts.hostHasSubagentSpawn = true;
+        else if (v === 'false') opts.hostHasSubagentSpawn = false;
+        else {
+          console.error(
+            `create-council-session: --host-has-subagent-spawn must be "true" or "false" (got "${v}")`,
+          );
+          process.exit(2);
+        }
+        break;
+      }
       case '--help':
       case '-h':
         console.log(
           'Usage: node scripts/create-council-session.js --topic <s> --mode <s> ' +
-            '--participants <a,b,c> [--scope <s>] [--orchestrator <s>] [--cwd <dir>] [--suite-cwd <dir>]',
+            '--participants <a,b,c> [--scope <s>] [--orchestrator <s>] [--cwd <dir>] [--suite-cwd <dir>] ' +
+            `[--execution-mode <${EXECUTION_MODE_ENUM.join('|')}>] ` +
+            '[--execution-mode-justification <text>] [--host-has-subagent-spawn <true|false>]',
         );
         process.exit(0);
         break;
