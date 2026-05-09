@@ -232,6 +232,10 @@ First public-ready cut. Phase 0–7 complete.
 - `package.json`: removed `private: true`, bumped to `0.1.0`, added `publishConfig`.
 - Config schema: added `pinnedSince` and `pinAlertThresholdDays`.
 
+### Schema migration
+
+None — baseline schemaVersion: 1.
+
 ### Security
 
 - npm publish via Trusted Publishing (OIDC); SLSA Build L3 provenance.
