@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Changed (Quick 260509-pdr — close 28 baseline schema-mapping errors + 7 source-code/docs fixes; ALL TESTS GREEN)
+
+- **`pnpm test` reaches 0 failures for the first time post-Phase-20.** Headline: 1766 pass / 0 fail / 2 skipped (intentional E2E gates). Pre-Quick baseline was 1737 / 26 / 2; this Quick closed 26 baseline failures (-26 fail, +29 pass) without introducing any regressions. Net journey across the session: 1735 / 25 / 2 (start) → 1766 / 0 / 2 (end).
+- **`validate-workspace` reaches PASS for the first time since Round-7.** Pre-Quick baseline was FAIL with 28 TESTATLAS_UNKNOWN_SCHEMA errors carried in `deferred-items.md` for multiple rounds. The closure path was a single check-schemas directory-mapping extension (FU-003 from COUNCIL-2026-05-09-001) that registered 5 new rules. validate-workspace now exits 0 / 0 errors / 0 warnings.
+- **`scripts/lib/validate/check-schemas.js` extended (FU-003 / 5 new rules).** Added directory-mapping rules for: (1) `agents/personas/{system,generated,project}/*.json` → `persona.schema.json` (V2; closes 14 baseline errors); (2) `agents/councils/sessions/<id>/*.json` → `__SKIP__` (heterogeneous sub-artifacts; closes 4); (3) `agents/councils/council_templates/*.json` → `__SKIP__` (no schema yet; closes 5); (4) `maps/<feature>.json` → `__SKIP__` (per `bootstrap.md` §2 schema-flexible explorer-output sidecars; closes 8); (5) `reports/dashboard-data.json` → `__SKIP__` (heterogeneous machine export per PRD §16; closes 1). Pinned by `test/scripts/check-schemas-directory-mappings.test.js`.
+- **`.testatlas/config.schema.json#pinnedVersion`** widened to accept caret/tilde/comparator semver ranges (`^1.0.0`, `~1.0.0`, `>=1.2.0`, `<2.0.0`). Previously only exact semver and partial wildcards (`1.x`, `1.2.x`) validated, but `scripts/lib/update-core.js` runtime semver-satisfies check accepts the full range syntax. Schema rejected before runtime ever saw the value. Pinned by `test/schemas/config-pinned-version.test.js` with 13 valid + 5 invalid cases.
+- **`.testatlas/commands/plan.md` MUST → SHOULD confidence (FU-006).** Reword Required Actions step 3 + Completion Criteria from "MUST include per-scenario `confidence`" to "SHOULD include — schema accepts it as optional post-ISSUE-033". Eliminates the soft doc-vs-truth contradiction surfaced by COUNCIL-2026-05-09-001 ART-2; preserves the `bootstrap.md` §11 reference; legacy 26-sidecar set remains valid.
+- **`.testatlas/commands/explore.md` shell-fallback prose** added per CMD-04 capability-fallback-test contract (`shell` was added to the frontmatter capabilities array in ISSUE-175 fix but no fallback-prose paragraph existed). Trimmed Sub-Agent Orchestration + Stop Conditions text to stay under the 1800-word `check-token-budget` gate.
+- **`.testatlas/commands/explore-ui.md` description** trimmed to 240 chars (was 248) while retaining the mandatory walkthrough phrase required by `mcp-server-walkthrough-description.test.js`.
+
+### Fixed (post-Quick-260509-pdr)
+
+- **ISSUE-027** (low; copy; closed) — `scripts/uninstall.js` `assertCapability` failure message previously cited `.testatlas/testatlas.config.json` as the override path, but `loadConfig` reads `testatlas.config.json` at the target repo root. 1-line copy fix.
+- **ISSUE-028** (medium; validation; closed) — `pinnedVersion` schema rejected caret/tilde/comparator semver ranges. See "Changed" entry above.
+- **FU-002 / FU-003 / FU-006 / FU-007 / FU-008** (council followups; closed). FU-001 had landed earlier in session (brain manifest + coverage canonical fix).
+
+### Verification gates (Quick 260509-pdr)
+
+- `pnpm test` — **1766 pass / 0 fail / 2 skipped** (intentional E2E gates: `set TESTATLAS_E2E=1` to enable). First 0-fail run since Phase 20.
+- `node scripts/lint-commands.js` — 0 violations against the 27-invariant catalog.
+- `node scripts/check-adapter-parity.js --strict` — 1314/1314 (100%).
+- `node scripts/validate-workspace.js` — **PASS** (0 errors, 0 warnings across 12 checks). First clean validate-workspace since the deferred-items.md backlog opened.
+- `node scripts/validate-brain.js` — OK.
+- 9 atomic commits this Quick + this final docs commit. No release cut — last tag stays `v1.2.6`.
+
+### Changed (Documentation audit — v2.0.0 release readiness)
+
+- **Schema counts corrected.** README.md (3 occurrences), docs/SCHEMAS.md, and docs/ADAPTERS.md now report the actual counts: 39 JSON Schemas (21 V1 + 18 V2), 73 commands (32 V1 + 41 V2), 18 adapters, 14 system personas, and 5 council templates. Previously these docs claimed 20 schemas, 62 commands, and omitted the persona/council surface entirely.
+- **Stale version references removed.** docs/UPDATE.md, docs/RELEASE.md, and docs/SIGNING.md updated to use `<VERSION>` placeholders or current version (1.2.6) instead of hardcoded v0.1.0 / v1.0.0 examples.
+- **Gitignored file references cleaned.** docs/SCOPE.md and docs/THREAT_MODEL.md no longer reference `.planning/PROJECT.md`, `.planning/REQUIREMENTS.md`, or `.planning/research/PITFALLS.md` (all in the gitignored `.planning/` tree).
+- **LTS.md updated** for v2.0.0 transition — support window table now shows 2.x as active, 1.x as maintenance, 0.x as EOL.
+- **Orphan file removed.** `docs/static-html-report-spec.md` deleted (duplicate of `prd/static-html-report-spec.md`).
+- **New documentation:**
+  - `docs/V2_WORKSPACE.md` — complete reference for the V2 brain tree (16 JSON files), agents tree (personas + councils), map templates (8 surface types), and report exports.
+  - `docs/PERSONAS_AND_COUNCILS.md` — user guide for the 14 built-in personas, 5 council templates, the 9-round council protocol, and how to create custom personas.
+  - `docs/GETTING_STARTED.md` — extended with a V2 Advanced Path section covering brain commands, council commands, new explorers, report commands, and maintain commands.
+- **README.md documentation table** expanded to include `docs/V2_WORKSPACE.md` and `docs/PERSONAS_AND_COUNCILS.md`.
+- **README.md "What you get"** updated to describe the V2 workspace structure (brain tree, agents tree, map templates) instead of the V1-only count.
+
 ### Changed (Quick 260509-icl — fix 5 real issues from /atlas:explore run #7 audit)
 
 - **Audit caught 28% filing-FP rate.** `/atlas:explore` run #7 surfaced 7 candidate issues; closure-quote verification at HEAD `f55fe8e2` graded them as **5 REAL** + **2 FALSE-POSITIVE** (ISSUE-034 assemble-adapter --help TDZ regression: doesn't reproduce against current code; ISSUE-037 -h short-flag inconsistency: both representative scripts respond correctly to -h). Both FPs traced to the explore-cli sub-agent carrying forward 2026-05-05 claims without re-verifying — same root cause as the Round-13 56% dogfood-agent FP rate. Closure-quote registry quick-task documented as the canonical mitigation.
