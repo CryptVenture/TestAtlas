@@ -48,6 +48,7 @@ const SECTIONS = [
   'json-maps',
   'command-outputs',
   'sub-agent-outputs',
+  'council-sessions',
 ];
 
 async function listDomains(wsDir) {
@@ -174,6 +175,27 @@ async function listCommandOutputs(wsDir) {
   return out.sort();
 }
 
+// council-sessions: agents/councils/sessions/COUNCIL-*/ directory listing.
+// DEC-009 (Phase 22 / DRIFT-009): operators had no entry-point from the
+// artifact index to discover existing council sessions on disk.
+async function listCouncilSessions(wsDir) {
+  const out = [];
+  try {
+    const entries = await sortedReaddir(
+      path.join(wsDir, 'agents', 'councils', 'sessions'),
+      { withFileTypes: true },
+    );
+    for (const e of entries) {
+      if (e.isDirectory() && /^COUNCIL-/.test(e.name)) {
+        out.push(`agents/councils/sessions/${e.name}/`);
+      }
+    }
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+  return out.sort();
+}
+
 // sub-agent-outputs: handoffs/HANDOFF-*.md
 async function listSubAgentOutputs(wsDir) {
   const out = [];
@@ -219,6 +241,9 @@ async function buildSectionBody(section, wsDir) {
       break;
     case 'sub-agent-outputs':
       items = await listSubAgentOutputs(wsDir);
+      break;
+    case 'council-sessions':
+      items = await listCouncilSessions(wsDir);
       break;
     default:
       throw new Error(`update-indexes: unknown section "${section}"`);
