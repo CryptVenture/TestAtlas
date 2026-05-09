@@ -4,7 +4,7 @@ description: Retest council — personas evaluate whether a claimed fix satisfie
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="94827346bae6d0762d1229d7a626b2a63d9f8c92d5191afdc6d0b156c7cab6d5" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-retest.md" hash="6551ac772f5ce6deee2c5ea847b399000c939836415e98bfed4f405a34ba8f94" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-council-retest.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -89,6 +89,21 @@ persona's round 2-3 inline as a recovery. The threshold guard below applies.
 **Threshold guard.** If `participants.length < 2` after filtering, run all 9 rounds inline
 regardless of host capability (degenerate single-spawn = wasted overhead). Record
 `executionMode: 'single-spawn-inline'` (when 1 participant) or `'no-op'` (when 0).
+
+### After Spawn Round Completes — Record Execution Mode
+
+After the spawn round (rounds 2-3) finishes, the orchestrator MUST record how the spawn actually executed. This closes the audit-honesty contract from Phase-21 (HIGH-1: orchestrator records executionMode post-hoc when both args undefined) and consumes the Phase-22 DEC-006 producer.
+
+Run this command, substituting the actual session id and detected execution mode:
+
+```sh
+node .testatlas/scripts/record-execution-mode.js \
+  --session-id <COUNCIL-YYYY-MM-DD-NNN> \
+  --mode <parallel-subagents|single-spawn-inline|sequential-fallback|classify-only|inline-simulation|no-op> \
+  --justification "<short host/runtime context note>"
+```
+
+The valid `--mode` values are the six members of the `executionMode` enum in `council_session.schema.json`. If the host is unable to spawn sub-agents (e.g., concatenated-conventions adapter — see `.testatlas/reference/capabilities.md` § Concatenated-Conventions Adapter Limitations), record `inline-simulation`. Idempotent — safe to re-run.
 
 ## Setup
 

@@ -1,6 +1,6 @@
 description = "Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol."
 prompt = """
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="83b3d8cf358d7993637d5c5b99d1ee481abdbde2d0fa5f15591c37f64ea35e1b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="a4971fbf61e5e2c7d91b0b009cb87bd0b2572c1e1729586d05a4b153d7e382a3" -->
 First read `.testatlas/bootstrap.md`. Then read `{ {ADAPTER_COMMAND_PATH}}` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -85,6 +85,21 @@ persona's round 2-3 inline as a recovery. The threshold guard below applies.
 **Threshold guard.** If `participants.length < 2` after filtering, run all 9 rounds inline
 regardless of host capability (degenerate single-spawn = wasted overhead). Record
 `executionMode: 'single-spawn-inline'` (when 1 participant) or `'no-op'` (when 0).
+
+### After Spawn Round Completes — Record Execution Mode
+
+After the spawn round (rounds 2-3) finishes, the orchestrator MUST record how the spawn actually executed. This closes the audit-honesty contract from Phase-21 (HIGH-1: orchestrator records executionMode post-hoc when both args undefined) and consumes the Phase-22 DEC-006 producer.
+
+Run this command, substituting the actual session id and detected execution mode:
+
+```sh
+node .testatlas/scripts/record-execution-mode.js \\
+  --session-id <COUNCIL-YYYY-MM-DD-NNN> \\
+  --mode <parallel-subagents|single-spawn-inline|sequential-fallback|classify-only|inline-simulation|no-op> \\
+  --justification "<short host/runtime context note>"
+```
+
+The valid `--mode` values are the six members of the `executionMode` enum in `council_session.schema.json`. If the host is unable to spawn sub-agents (e.g., concatenated-conventions adapter — see `.testatlas/reference/capabilities.md` § Concatenated-Conventions Adapter Limitations), record `inline-simulation`. Idempotent — safe to re-run.
 
 ## Setup
 
