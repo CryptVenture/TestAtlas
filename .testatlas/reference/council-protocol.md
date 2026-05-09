@@ -210,3 +210,49 @@ to the appropriate sub-command based on user intent.
   human approval AND `allowDestructiveActions: true` in workspace config.
 - Any evidence containing secrets MUST be processed by `redact-evidence.js`
   before inclusion in transcripts or outputs.
+
+## Deferred design — vote-status producer (OPEN-001)
+
+### Problem
+
+Phase 22's DEC-004 broadened the consolidation filter to accept claims with
+`(status='accepted' OR confidence='confirmed')`. The OR-gate permits
+`status:pending` claims to be promoted to `brain/decisions.json` so long
+as `confidence='confirmed'`. Vote authority is bypassed: the 5 promoted
+decisions in `brain/decisions.json` (CLAIM-0002..CLAIM-0006 from
+COUNCIL-2026-05-09-002) all have `status:pending`.
+
+### Constraint
+
+Tightening the filter to AND would re-introduce the 5-phase silent
+zero-promotion regression Phase 22 fixed. Any change must preserve
+DEC-004's positive-promotion guarantee.
+
+### Proposed design
+
+A new `scripts/update-claim-status-from-votes.js` producer that, on
+council-session close (after `consolidate-council.js` writes
+`consolidation.json`), walks `votes.json#motions[]` and flips any
+`status:pending` claim in `claims.jsonl` to `status:accepted` IFF the
+associated motion's `outcome` is `passed`. Then DEC-004's filter can
+tighten to AND without losing claims (because passed motions already have
+their claims promoted to `status:accepted`).
+
+### Test scaffolding (captured in Phase 23, no implementation)
+
+- **Test "vote-status producer flips pending → status:accepted on motion=passed":**
+  given `claims.jsonl` with claim X `status:pending` + motion M referencing
+  X with `outcome:passed`, after running the producer X has `status:accepted`.
+- **Test "no flip on motion=rejected":** X stays `status:pending`.
+- **Test "AND-tightened filter matches COUNCIL-002 5-promotion result"**
+  after the producer runs first.
+
+### Implementation deferred
+
+Out of Phase 23 scope. Phase 23 captures this design only — no producer
+script, no filter tightening. Schedule the implementation via
+`/obd:add-phase Implement vote-status producer (claim status:pending →
+status:accepted on motion outcome=passed) so DEC-004 OR-gate can tighten`
+when the council protocol is ready to evolve.
+
+> Cross-references: DEC-004 (Phase 22 broadened filter); Phase 23 OPEN-001 ADR capture.
