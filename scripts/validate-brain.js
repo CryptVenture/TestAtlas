@@ -25,7 +25,15 @@ import path from 'node:path';
 import { formatErrors } from './lib/ajv-instance.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
-/** Required JSON brain files (19). */
+/**
+ * Required JSON brain files (19).
+ *
+ * DEC-008 (Phase 22 / DRIFT-008): embeddings_manifest.json was previously
+ * required (line 40 in pre-Phase-22 baseline) but had no producer or
+ * consumer — pure dead-structure. Stripped from required-files. Presence is
+ * still tolerated for back-compat with legacy installs (validate-brain
+ * does not block on extra files).
+ */
 export const REQUIRED_JSON_FILES = [
   'manifest.json',
   'state.json',
@@ -37,7 +45,6 @@ export const REQUIRED_JSON_FILES = [
   'decisions.json',
   'domains.json',
   'drift.json',
-  'embeddings_manifest.json',
   'evidence.json',
   'flows.json',
   'graph.json',

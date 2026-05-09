@@ -3,7 +3,7 @@ description: Run comprehensive artifact validation beyond `validate-workspace` �
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="700ace49693de23365156ba4fa45d9752bc12f6e56ea4202ac43cc4713e41beb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="d4d32217afc2f3c8c1ff2972006bb40dfb0ae2c406bbcbbd4f3b62e5427e811f" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -63,7 +63,7 @@ The four validation dimensions:
    - Run `node .testatlas/scripts/validate-workspace.js` — produces the
      base-layer pass/fail.
    - Run `node .testatlas/scripts/validate-brain.js` — checks brain JSON:
-     (a) every required brain file is present (23 total: 20 JSON + 3 JSONL),
+     (a) every required brain file is present (22 total: 19 JSON + 3 JSONL),
      (b) every JSON file is parseable, (c) every JSONL line parses as a JSON
      object, (d) each file's parsed value validates against its registered
      V2 schema via AJV (per-file). The script does NOT perform cross-id
