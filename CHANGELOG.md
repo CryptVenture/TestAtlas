@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Fixed (Phase 23 / Plan 23-03 — DEC-001 audit-honesty correction to Phase-22 verification)
+
+- **Phase-22 Verification narrative corrected.** The original Phase-22 closure narrative (CHANGELOG history + `.planning/phases/22-.../22-04-SUMMARY.md`) cited "1837 pass / 3 fail / 2 skip of 1842". Per COUNCIL-2026-05-09-003 DIS-001 audit, the live counts at Phase-22 closure were **1842 total / 1836 pass / 4 fail (TAP summary) / 6 distinct ✖ / 2 skip**. The 6 distinct failures: What's Next 1-6 entries; check-command-budgets exit 0; CMD-03 1800-word budget; drift-record-additivity Test 4 (drift.json length=11); dist03-changelog [0.1.0] Schema migration; dist03-changelog package.json version match. Phase 23 closes all 6 (DEC-004 closes #1-3; DEC-002 closes #4; DEC-008 closes #5+#6). The under-count cited only the TAP summary parent-test counter and missed 2 failures hidden in nested suites that surface only in the human-readable `failing tests:` block.
+
 ### Added (Phase 23 / Plan 23-01 — Wave 0 TDD red-bar)
 
 - 5 new RED-bar regression tests pinning Phase-23 contracts (DEC-003, DEC-005, DEC-006, DEC-007, OPEN-001) BEFORE any production-code edits, per Nyquist contract:
