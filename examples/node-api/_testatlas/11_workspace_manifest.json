@@ -53,7 +53,8 @@
       "reports": "ef05d2b58e02f519b8c24d60b46a8e09b0bdc9816b5da3f8d35c0f4512cf0fe2",
       "json-maps": "c4af485db8a628f20af104abdb3c0f870021e72df15969b096dbff4b6fc299cf",
       "command-outputs": "c00b53b8f1ae74c1af9eb0010980e08dc1465dcfb828cdcfdd8a0355b51ebcf5",
-      "sub-agent-outputs": "20264dd605531bc70bf0af03afc3c7db1f7c7d8d34002e2c501c0647bcf15393"
+      "sub-agent-outputs": "20264dd605531bc70bf0af03afc3c7db1f7c7d8d34002e2c501c0647bcf15393",
+      "council-sessions": "be1146593cb7e296c45e37e7bdf8ae9b6a50d4c3c584665b655ff232a572871d"
     },
     "_testatlas/10_command_log.md": {
       "entries": "fd2da5b31c9ebc4ec4c9cd49c36c95dafb9784b897d549a67a4bf3cd5f429b20"
@@ -74,7 +75,8 @@
       "canonical-docs": "c4720f34c70e453a54fa30f715ee2d5257067879ab847871fb8e9f27d5b0fcfb",
       "json-maps": "15b685212a857a7901b8dc758df902892a5f23c407568f587c39bb041566eb24",
       "command-outputs": "faae5d1bc4a946c2ef744eb6038f8a7a8b4df5e77948a2c643707da9d82d5eba",
-      "sub-agent-outputs": "7293b483d652313ba75eddb16f367936e85b33bf106223f895f1b7dd82ea040e"
+      "sub-agent-outputs": "7293b483d652313ba75eddb16f367936e85b33bf106223f895f1b7dd82ea040e",
+      "council-sessions": "14190be45d1f43f272ce334c98cbcd01983f4f105ecff141a267a090c9d22565"
     },
     "00_overview.md": {
       "current-status": "bba68b3c20b6361514fdeffd68a179ea56130bf4c08d5f34eafdb64ef0160cf3",

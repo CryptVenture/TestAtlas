@@ -87,3 +87,9 @@ This document is the index of every artifact in the workspace. Generated section
 <!-- TESTATLAS:GENERATED:START section="sub-agent-outputs" -->
 (no sub-agent-outputs yet)
 <!-- TESTATLAS:GENERATED:END section="sub-agent-outputs" -->
+
+## Council Sessions
+
+<!-- TESTATLAS:GENERATED:START section="council-sessions" -->
+(no council-sessions yet)
+<!-- TESTATLAS:GENERATED:END section="council-sessions" -->
