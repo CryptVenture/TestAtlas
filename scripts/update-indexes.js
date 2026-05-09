@@ -181,14 +181,36 @@ async function listCommandOutputs(wsDir) {
 async function listCouncilSessions(wsDir) {
   const out = [];
   try {
-    const entries = await sortedReaddir(
-      path.join(wsDir, 'agents', 'councils', 'sessions'),
-      { withFileTypes: true },
-    );
+    const entries = await sortedReaddir(path.join(wsDir, 'agents', 'councils', 'sessions'), {
+      withFileTypes: true,
+    });
     for (const e of entries) {
-      if (e.isDirectory() && /^COUNCIL-/.test(e.name)) {
-        out.push(`agents/councils/sessions/${e.name}/`);
+      if (!(e.isDirectory() && /^COUNCIL-/.test(e.name))) continue;
+      const sessionPath = path.join(
+        wsDir,
+        'agents',
+        'councils',
+        'sessions',
+        e.name,
+        'session.json',
+      );
+      let session = null;
+      try {
+        session = JSON.parse(await readFile(sessionPath, 'utf8'));
+      } catch {
+        // Missing or malformed session.json — fall back to path-only entry (back-compat).
       }
+      if (session === null) {
+        out.push(`agents/councils/sessions/${e.name}/`);
+        continue;
+      }
+      const topic = String(session.topic ?? '(no topic)').slice(0, 80);
+      const mode = session.executionMode ?? 'unknown';
+      const participants = Array.isArray(session.participants) ? session.participants.length : 0;
+      const status = session.status ?? 'unknown';
+      out.push(
+        `agents/councils/sessions/${e.name}/ — ${topic} (mode=${mode}, participants=${participants}, status=${status})`,
+      );
     }
   } catch (err) {
     if (err.code !== 'ENOENT') throw err;
