@@ -24,6 +24,7 @@
   "status": "initialized",
   "generatedSections": {
     "_testatlas/00_overview.md": {
+      "domain-count": "5117bf7422116169d879793988a9a7fdf49b70fefe03a9830779bd8a741f565d",
       "current-status": "4fc3cd82d647074257c7b9c1c9ae51de9346d16ad2afb322c8828df5536a193c",
       "latest-report-pointer": "849f86780034fbe2bf69243739b2385bc14627f0e1afc35e692ad3b7c08405ec",
       "last-updated": "b2acf42260643ff7d5f5a019682e74f7cfbeb01e019defc52cc3993e2a3883d2"
@@ -79,6 +80,7 @@
       "council-sessions": "14190be45d1f43f272ce334c98cbcd01983f4f105ecff141a267a090c9d22565"
     },
     "00_overview.md": {
+      "domain-count": "e6f7f17e6b835d94339841380d48ede4ac225281b3618e1a00b07d74cde85d18",
       "current-status": "53c261e94c1fa8bb5ecbd65677776396b28c7e3f207f49cde082c3a9b0c8e501",
       "latest-report-pointer": "849f86780034fbe2bf69243739b2385bc14627f0e1afc35e692ad3b7c08405ec",
       "last-updated": "b2acf42260643ff7d5f5a019682e74f7cfbeb01e019defc52cc3993e2a3883d2"

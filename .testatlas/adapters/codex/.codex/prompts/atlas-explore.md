@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore. Invoke as /prompts:atlas-explore. Description: Umbrella explorer orchestrator — classifies sub-explorers, spawns the recommended ones in parallel via subagent-spawn, and aggregates findings into _testatlas/02_product_overview.md alongside _testatlas/explore-plan.md. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="cc82026018027f23dd12e7dcf55ea0cc008b75a6d06886a7b7799c58db0d38c9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="617c13f6ac67b468514b9a74fe2ddcd984f1a0efdfeb1ad5578a5e36f3dac577" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -39,14 +39,7 @@ This umbrella is a spawn-and-aggregate orchestrator. When the host declares the 
 
 The applicable child task pool is `{explore-codebase, explore-ui, explore-cli, explore-api, explore-docs, explore-runtime, explore-data, explore-integrations, explore-accessibility, explore-performance, explore-security, explore-tests}`, filtered by the classification produced in Required Actions step 3 and the idempotency filter in step 4.
 
-**Per-child brief contract** (the placeholder `[child]` stands for the chosen sub-explorer name like `codebase`, `ui`, `api`, etc.):
-
-- **objective:** "Map the [domain] surface area of the target product."
-- **scope:** "Files and runtime artifacts in scope of the [child] command."
-- **files-to-read:** ".testatlas/commands/explore-[child].md plus the product files relevant to [domain]."
-- **output-format:** "Structured markdown matching the explore-[domain] finding schema fragment, or JSON if the host prefers; one finding per discovered surface."
-- **may-write:** "the child writes only to its own evidence directory `_testatlas/evidence/[child]/[timestamp]/`; the umbrella never grants additional write paths."
-- **exit-criteria:** "All scoped surface area enumerated; coverage gaps explicitly listed."
+**Per-child brief contract.** See `.testatlas/reference/explore-orchestration.md` for the 6-field contract (objective / scope / files-to-read / output-format / may-write / exit-criteria). The umbrella never grants write paths beyond the child's `_testatlas/evidence/[child]/[timestamp]/` directory.
 
 **Aggregation.** After children return, the umbrella reads each evidence dir and synthesizes findings into the 5 generated sections of `02_product_overview.md`. Cached children skip respawn and surface as `status:cached` with a link to their existing evidence dir.
 
@@ -135,6 +128,5 @@ Now that the explore-plan is routed and the product overview aggregated:
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)
 - **`/atlas:test-flow`** — start executing flows immediately if scope is already clear
 - **`/atlas:council-domain-review`** — escalate exploration findings into a council quality gate per domain.
-- **`/atlas:council-flow-review`** — escalate flow-related findings into a council quality gate.
 - **`/atlas:explore-all`** — V2 router covering V2 explorers (state, errors, components, routes, jobs, security-privacy, observability, tests, brain, release-readiness).
 <!-- TESTATLAS:GENERATED:END section="adapter-body" -->

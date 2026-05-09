@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="fe3c1dc1692ba841935012f1a0404b4e2ce13ff6118ec6dd5e3a9a8e72c9e0c2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/core/brain-sync.md" hash="251650a7429c342e913b3555787c0601b8b3952614c0e83455b4bcf265a13d7d" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-core-brain-sync.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -70,7 +70,7 @@ Reconcile drift between human-authored markdown (`_testatlas/domains/<slug>/doma
 
 ## Lifecycle
 
-Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-sync --actor agent --summary "Brain synced — N changes" --reindex`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically and the standard 5 lifecycle artifacts are updated by the hook.
+Run `node .testatlas/scripts/update-brain-after-command.js --command core-brain-sync --actor agent --summary "Brain synced — N changes" --reindex --reconcile-counts --populate-from-app-map --detect-drift`. The `--reindex` flag re-runs `index-artifacts.js` to ensure state.json counts agree with on-disk artifacts; the event is appended automatically and the standard 5 lifecycle artifacts are updated by the hook.
 
 ## What's Next
 

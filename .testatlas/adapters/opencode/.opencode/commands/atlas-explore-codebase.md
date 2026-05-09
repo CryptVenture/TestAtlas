@@ -2,7 +2,7 @@
 description: Map the target product across languages, frameworks, monorepo layout, apps/services/workers, routes, handlers, jobs, integrations, and data flows; produce 12_app_map.json plus a domain inventory.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="506ad75bdfc733175e888993f8b0558b5208248e9c18ba428c486ee11abbd7b6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="21f94d3ff1649541bc5edcd07b28686fd4c4f3845ed6bb10c7c28865c73ca481" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-explore-codebase.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -65,7 +65,7 @@ This command works as both a parallel sub-agent (when `/atlas:explore` spawns it
 - `_testatlas/11_workspace_manifest.json` — bump `lastUpdatedAt`. (This command does not write to `counts.*` — those track per-domain/flow/issue/evidence/run artifacts that explore-codebase does not produce. Run `node .testatlas/scripts/sync-status.js` if downstream commands have populated counts that need reconciling against on-disk reality.)
 - `_testatlas/history/run_log.md` — narrative entry: "Mapped `<n>` apps, `<n>` routes, `<n>` integrations into `12_app_map.json`."
 
-Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex`.
+Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-command.js --command explore-codebase --actor agent --summary "Mapped codebase routing surfaces and dependency graph" --status completed --reindex --reconcile-counts --populate-from-app-map --detect-drift`.
 
 ## Stop Conditions
 
