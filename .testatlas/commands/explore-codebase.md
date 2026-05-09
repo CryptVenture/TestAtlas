@@ -117,7 +117,10 @@ Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-comman
 
 ## What's Next
 
+
 Now that the app map is built:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-ui`** — observe runtime UI states for the routes you just inventoried
 - **`/atlas:explore-api`** — exercise the HTTP surface and capture endpoint evidence

@@ -4,7 +4,7 @@ description: Test Plan Council — QA, automation, codebase, data, and runtime p
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="87a80e8124f073e9ad8014202cfa015267528c306a7117efc74bb0376ac07937" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-test-plan.md" hash="759a93b595ed6ec53b57d730441e6365ddfa1bf14b74b352346edffa38a76432" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-council-test-plan.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -148,6 +148,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:test-generate-scenarios` to materialize accepted scenarios.
 - `/atlas:test-generate-automation` to scaffold automation skeletons.

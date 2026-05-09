@@ -2,7 +2,7 @@
 description: Roundtable review of a domain — every persona reads the domain's docs, evidence, and brain slice and contributes findings, claims, and disagreements through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="8334d5e3405590255f32de921eb2cdf2090c991ee8e42e44e3fd13d62ee785d2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-domain-review.md" hash="9d1a18eb73221759178f37f30b99e1eb06f43153f2741c4966fe38517df61cd1" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-council-domain-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -142,6 +142,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:report` to refresh the latest quality report.
 - `/atlas:core-brain-validate` to confirm consolidation produced valid brain state.

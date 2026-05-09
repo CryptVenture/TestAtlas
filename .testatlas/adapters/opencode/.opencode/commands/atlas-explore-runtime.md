@@ -2,7 +2,7 @@
 description: Map how to run the target product safely — package scripts, Docker, env vars, ports, migrations, seeds, mock servers; start local services only when safe.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="30ce066f94e9727738c13868c6f23c53dbde75b282d8fd15bb04fa7e36df6aa6" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-runtime.md" hash="87c8a757dfc6bfe3c4584426a585c7d9a3f2bb0973e67e5ea91d8dd2cd676612" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-explore-runtime.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -115,7 +115,10 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## What's Next
 
+
 Now that the runtime surface is mapped:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-performance`** — measure baseline performance against the running services
 - **`/atlas:test-flow`** — exercise scenarios against the documented runtime topology

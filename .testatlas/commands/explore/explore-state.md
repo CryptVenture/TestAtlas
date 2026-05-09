@@ -142,6 +142,9 @@ State coverage was previously aspirational — `_testatlas/states/` had a schema
 
 ## What's Next
 
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
+
 - **`/atlas:explore-errors`** — deepen the error path with boundaries, fallback UI, retry patterns.
 - **`/atlas:test-flow`** — drive end-to-end scenarios that exercise the transitions you just captured.
 - **`/atlas:explore-components`** — map the components that own these states.

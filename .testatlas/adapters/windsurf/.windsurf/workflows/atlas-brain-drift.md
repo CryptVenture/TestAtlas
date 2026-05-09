@@ -3,7 +3,7 @@ description: Detect drift between the last exploration and the current repositor
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="f7a1ca15b03199b91140b601e1b49eec59ade2eb2a5176d1c65f6a05aeeb26ca" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-drift.md" hash="340f6cef432a1acc2ad1752e51aa83b1aef36c12b02fc4ac17346813a7a9d100" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-brain-drift.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift
 
 ## What's Next
 
+
 Now that drift signals are computed:
+
+- **`/atlas:log-issue`** — if `drift_status` is `stale_requires_review` and the drift indicates a product defect (not just documentation staleness), file an issue via `/atlas:log-issue` referencing the drift record ID.
 
 - **`/atlas:brain-score`** — score the workspace against the drift signals you just computed.
 - **`/atlas:report-dashboard-data`** — assemble dashboard JSON for downstream reports.

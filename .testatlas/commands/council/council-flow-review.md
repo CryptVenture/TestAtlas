@@ -170,6 +170,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 
 ## What's Next
 
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
+
 - `/atlas:test-flow` to validate council-proposed test scenarios.
 - `/atlas:report` to refresh the quality report.
 - If new issue candidates were generated, run `/atlas:triage` to prioritize.

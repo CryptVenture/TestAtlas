@@ -127,6 +127,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## What's Next
 
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
+
 - **`/atlas:report`** — produce the full quality report tying readiness to coverage and quality.
 - **`/atlas:core-brain-export --mode archive`** — snapshot the brain alongside the release.
 - (When ready) `node .testatlas/scripts/bump-version.js` — actually bump (manual step; this command does not auto-bump).

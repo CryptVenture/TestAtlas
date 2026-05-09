@@ -4,7 +4,7 @@ description: Render a release readiness report with go/no-go assessment combinin
 invokable: true
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="86200d05bdcb17a53f844a2093f581f8ed086b4c177f9efe3af80b9bec3d9698" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/report/report-release.md" hash="5a0a7a30126ad8dd94af9b703881d0dbb66b47f23292f0e70af82b6b7e69669a" -->
 First read `.testatlas/bootstrap.md`. Then read `.continue/prompts/atlas-report-release.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -115,7 +115,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command report-rele
 
 ## What's Next
 
+
 Now that the release verdict is published:
+
+- **`/atlas:log-issue`** — if the verdict is `no-go` or `conditional` due to newly surfaced blockers, file each blocker as an issue via `/atlas:log-issue` so it can be tracked to resolution. Existing issues that already exist in `_testatlas/to_fix/` do not need to be re-logged.
 
 - **`/atlas:handoff`** — package the workspace for the next operator now that the release report is final.
 - **`/atlas:cleanup`** — prune transient artifacts before handoff.

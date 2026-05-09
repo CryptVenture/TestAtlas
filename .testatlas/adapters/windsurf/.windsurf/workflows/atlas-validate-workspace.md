@@ -3,7 +3,7 @@ description: Schema-validate the _testatlas/ workspace; surface drift, broken li
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="01d3ceb97766b4bba668e1c3caa6ba7ef5e85a431d40c763b3f5feb735f0a8cb" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/validate-workspace.md" hash="2a293570100dff8a19c6dcc06703a8beff4c1a1eccdf3c7cc6606a619211a9fb" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-validate-workspace.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -79,7 +79,10 @@ Note: there is **no** `>50 critical findings` threshold and **no** `schema_versi
 
 ## What's Next
 
+
 Now that the workspace is validated:
+
+- **`/atlas:log-issue`** — if validation findings indicate product-level defects (e.g., broken cross-references that hide real issues, orphaned evidence that removes issue backing), file issues for the underlying problems via `/atlas:log-issue`. Pure workspace-structure violations (e.g., missing canonical files) should be fixed by re-running the originating command instead.
 
 - **`/atlas:explore`** — proceed with discovery if validation passed clean
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift

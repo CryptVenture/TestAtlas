@@ -4,7 +4,7 @@ description: Map background jobs, schedules, queues, retry policies, timeouts, a
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="ee3edb76f8f7a4dcbdd033cb2e8706f63588bca92a10ea0f2313bf198cb1f4d0" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-jobs.md" hash="32d737c52217de35dfd45f3b6c8d007776699f2195a0caf9af63e3b3bd81a570" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-explore-jobs.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -98,6 +98,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 - The 5 lifecycle files updated; `update-brain-after-command.js` ran with `--reindex`.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-observability`** — verify alerting hooks for the jobs.
 - **`/atlas:explore-data`** — map the data the jobs mutate.

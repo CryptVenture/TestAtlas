@@ -105,7 +105,10 @@ Note: there is **no** `>50 critical findings` threshold and **no** `schema_versi
 
 ## What's Next
 
+
 Now that the workspace is validated:
+
+- **`/atlas:log-issue`** — if validation findings indicate product-level defects (e.g., broken cross-references that hide real issues, orphaned evidence that removes issue backing), file issues for the underlying problems via `/atlas:log-issue`. Pure workspace-structure violations (e.g., missing canonical files) should be fixed by re-running the originating command instead.
 
 - **`/atlas:explore`** — proceed with discovery if validation passed clean
 - **`/atlas:cleanup`** — archive resolved findings if validation surfaced drift

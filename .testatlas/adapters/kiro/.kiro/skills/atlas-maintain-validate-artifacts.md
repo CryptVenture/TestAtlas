@@ -4,7 +4,7 @@ description: Run comprehensive artifact validation beyond `validate-workspace` �
 inclusion: manual
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="ac1d9c9088c5c83ad7c3ceaa35ab54ef1b6672b2445348588334ccb609aad9c9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/maintain/maintain-validate-artifacts.md" hash="700ace49693de23365156ba4fa45d9752bc12f6e56ea4202ac43cc4713e41beb" -->
 First read `.testatlas/bootstrap.md`. Then read `.kiro/skills/atlas-maintain-validate-artifacts.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -147,7 +147,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-va
 
 ## What's Next
 
+
 Now that artifacts have been validated:
+
+- **`/atlas:log-issue`** — if deep-validation findings surface product-level defects (e.g., dangling issue references that hide un-fixed bugs), file issues for the underlying problems via `/atlas:log-issue`.
 
 - **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
 - **`/atlas:core-brain-sync`** — re-index brain state after artifact validation.

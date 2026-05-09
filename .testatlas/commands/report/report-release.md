@@ -141,7 +141,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command report-rele
 
 ## What's Next
 
+
 Now that the release verdict is published:
+
+- **`/atlas:log-issue`** — if the verdict is `no-go` or `conditional` due to newly surfaced blockers, file each blocker as an issue via `/atlas:log-issue` so it can be tracked to resolution. Existing issues that already exist in `_testatlas/to_fix/` do not need to be re-logged.
 
 - **`/atlas:handoff`** — package the workspace for the next operator now that the release report is final.
 - **`/atlas:cleanup`** — prune transient artifacts before handoff.

@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-flow-review. Invoke as /prompts:atlas-council-flow-review. Description: Roundtable review of a single user flow — personas read the flow doc, route map, evidence, and run logs and contribute findings, claims, and disagreements through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="6313c4b1a5942b12ab351aaaa05e919cc2fb05e25ba6e41a6eb8d12bbc797286" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-flow-review.md" hash="83b3d8cf358d7993637d5c5b99d1ee481abdbde2d0fa5f15591c37f64ea35e1b" -->
 First read `.testatlas/bootstrap.md`. Then read `.codex/prompts/atlas-council-flow-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -136,6 +136,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:test-flow` to validate council-proposed test scenarios.
 - `/atlas:report` to refresh the quality report.

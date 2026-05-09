@@ -3,7 +3,7 @@ description: Map the target product across languages, frameworks, monorepo layou
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="98527ccb46088f4b44e67dd34199eeabe792f74cd907e3ada4e38a231fa4bc3f" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-codebase.md" hash="506ad75bdfc733175e888993f8b0558b5208248e9c18ba428c486ee11abbd7b6" -->
 First read `.testatlas/bootstrap.md`. Then read `.claude/commands/atlas-explore-codebase.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -87,7 +87,10 @@ Then (full-run case ONLY) run `node .testatlas/scripts/update-brain-after-comman
 
 ## What's Next
 
+
 Now that the app map is built:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-ui`** — observe runtime UI states for the routes you just inventoried
 - **`/atlas:explore-api`** — exercise the HTTP surface and capture endpoint evidence

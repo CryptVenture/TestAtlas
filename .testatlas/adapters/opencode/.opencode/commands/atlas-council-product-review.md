@@ -2,7 +2,7 @@
 description: Debate-mode council on product priority, feature coherence, and tradeoffs — personas argue for/against a conclusion through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="7ba8662c81a5252404ddf80338ca23ce3a5f5f647e851e7ed5d2d4f92a2eaf9e" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-product-review.md" hash="6e0bf46db93cb3a29e738e65d5cbbf3cb847a6ef9ba506ab5ffa28e2e17c995c" -->
 First read `.testatlas/bootstrap.md`. Then read `.opencode/commands/atlas-council-product-review.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -137,6 +137,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - If decision is "ship": `/atlas:report` to fold into the next quality report.
 - If decision is "defer": `/atlas:retest issue <id>` once new evidence lands.

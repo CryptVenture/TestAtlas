@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-ui. Paste .testatlas/bootstrap.md first; description: Map UI routes, components, forms, modals, PRD §13.1 states (empty/loading/error/success/permission), breakpoints, a11y via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="fcd67a1fc1d27366d1f505367df92a1315ff656335ce8d0c52f29d55bd5df5fc" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-ui.md" hash="75d86b698d1ce59ade84a90f69cf93402c77b6fdf93b68c3db17dd65e955b6da" -->
 First read `.testatlas/bootstrap.md`. Then read `prompts/atlas-explore-ui.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -96,6 +96,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 - Manifest counts match disk; the five lifecycle files updated; zero stop conditions triggered.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-accessibility`** — audit mapped routes for WCAG.
 - **`/atlas:test-flow`** — execute end-to-end scenarios against mapped routes.

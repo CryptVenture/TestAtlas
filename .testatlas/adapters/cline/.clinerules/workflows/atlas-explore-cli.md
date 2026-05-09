@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-explore-cli. Invoke as /atlas-explore-cli.md. Description: Map package scripts, binaries, and task runners for the target product; classify destructive vs safe commands; capture help text and exit codes for safe ones. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="bca93699bb4318ebdecc791e0c09e81e7311f6a08351bc22265bf7aeed73cb40" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore-cli.md" hash="31b89ac997f8f928771a5fc87b0adce52fa2197de00c85365d9c6098071e04fd" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-explore-cli.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -88,7 +88,10 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## What's Next
 
+
 Now that the CLI surface is mapped:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-codebase`** — cross-reference CLI commands with their handler source
 - **`/atlas:test-flow`** — execute safe CLI flows end-to-end with evidence capture

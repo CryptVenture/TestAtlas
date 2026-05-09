@@ -3,7 +3,7 @@ mode: agent
 description: Map UI states (empty, loading, error, success, permission) plus state transitions, default/initial states, and error recovery via mandatory Chrome DevTools MCP walkthrough; degrade to code-reading when MCP unavailable.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="95d626ef07000188b99c6b33e098acce592e345646443d1bebedb4eb529633d9" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-state.md" hash="981e303cea805e309c15c16b65735f1e997d14871c02f4acd6f8c27410272e36" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-explore-state.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -112,6 +112,9 @@ For each distinct UI/process state surfaced during exploration, materialize a st
 State coverage was previously aspirational — `_testatlas/states/` had a schema but no writer. PRD §13 mandates explore-state materializes the schema; this writer block closes that gap.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-errors`** — deepen the error path with boundaries, fallback UI, retry patterns.
 - **`/atlas:test-flow`** — drive end-to-end scenarios that exercise the transitions you just captured.

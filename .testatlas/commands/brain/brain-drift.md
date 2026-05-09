@@ -104,7 +104,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-drift
 
 ## What's Next
 
+
 Now that drift signals are computed:
+
+- **`/atlas:log-issue`** — if `drift_status` is `stale_requires_review` and the drift indicates a product defect (not just documentation staleness), file an issue via `/atlas:log-issue` referencing the drift record ID.
 
 - **`/atlas:brain-score`** — score the workspace against the drift signals you just computed.
 - **`/atlas:report-dashboard-data`** — assemble dashboard JSON for downstream reports.

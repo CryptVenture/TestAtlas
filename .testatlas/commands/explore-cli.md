@@ -121,7 +121,10 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## What's Next
 
+
 Now that the CLI surface is mapped:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-codebase`** — cross-reference CLI commands with their handler source
 - **`/atlas:test-flow`** — execute safe CLI flows end-to-end with evidence capture

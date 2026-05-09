@@ -130,7 +130,10 @@ After completing this command, update these workspace artifacts in PRD §40 orde
 
 ## What's Next
 
+
 Now that integrations are catalogued:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:explore-api`** — confirm integration boundaries match the API surface
 - **`/atlas:explore-security`** — audit credentials, secrets, and trust boundaries

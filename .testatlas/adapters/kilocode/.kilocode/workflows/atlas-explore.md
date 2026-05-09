@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="f62d4ef421251736b0d0ac7e3af08a3e7abbd3b0d0040957236eb3462a4ab24b" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore.md" hash="cc82026018027f23dd12e7dcf55ea0cc008b75a6d06886a7b7799c58db0d38c9" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-explore.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -135,7 +135,10 @@ Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps th
 
 ## What's Next
 
+
 Now that the explore-plan is routed and the product overview aggregated:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:map-domains`** — group explorer findings into testable domains
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)

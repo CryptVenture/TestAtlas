@@ -157,7 +157,10 @@ Sub-explorer roster — V1 (PRD §13 / §6.5) plus V2 surfaces. Each row maps th
 
 ## What's Next
 
+
 Now that the explore-plan is routed and the product overview aggregated:
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:map-domains`** — group explorer findings into testable domains
 - **`/atlas:plan`** — design the test plan (skip map-domains if your scope is small)

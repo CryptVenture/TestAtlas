@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-release-readiness. Invoke as /atlas-council-release-readiness. Description: Release readiness council — personas weigh blockers, coverage, drift, and council consensus into a documented go / conditional / no-go decision through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="c5355352d2bc918cd2cc04ee3baa12d91f65b7c95b985e807125683db54c6e07" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-release-readiness.md" hash="8a7fc4b4660a40803407505592a2376106b471a4e270459a2e5602a835785b6a" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-council-release-readiness.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -137,6 +137,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:report` for the full quality report.
 - If go: human-driven `node .testatlas/scripts/bump-version.js` (this command does not auto-bump).

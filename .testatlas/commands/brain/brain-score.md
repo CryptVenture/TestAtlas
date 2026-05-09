@@ -107,7 +107,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score
 
 ## What's Next
 
+
 Now that the workspace has been scored:
+
+- **`/atlas:log-issue`** — if any quality score falls below the project's defined threshold (default: 60), file an issue via `/atlas:log-issue` describing the deficient metric and its evidence references.
 
 - **`/atlas:report-dashboard-data`** — materialize dashboard data from the score you just computed.
 - **`/atlas:report-release`** — produce a V2 release report incorporating quality scores.

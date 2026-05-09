@@ -169,6 +169,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 
 ## What's Next
 
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
+
 - `/atlas:core-brain-validate` to confirm post-audit brain integrity.
 - `/atlas:core-brain-sync` to apply markdown↔JSON sync fixes.
 - If many drift findings, schedule `/atlas:council-retest` for affected issues.

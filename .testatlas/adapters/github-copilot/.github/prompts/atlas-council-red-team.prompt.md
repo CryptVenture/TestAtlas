@@ -3,7 +3,7 @@ mode: agent
 description: Red Team Challenge — adversarial personas attempt to find hidden risks and invalidate confident claims through the 9-round protocol.
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="e9b42c3b9ddd81b900658c4683b5dc217aa555ade8c0b52a523e72af6fea02d2" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-red-team.md" hash="db789daa61300c72e5fe2a4d68bc1b8fe5b89aa9fd04ae666a00151f6272095d" -->
 First read `.testatlas/bootstrap.md`. Then read `.github/prompts/atlas-council-red-team.prompt.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -139,6 +139,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:retest issue <id>` for any newly invalidated claim that maps to an issue.
 - `/atlas:report` to surface the recalibrated confidence map.

@@ -120,6 +120,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 
 ## What's Next
 
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
+
 - **`/atlas:plan`** — design new tests for the gaps reported here.
 - **`/atlas:explore-brain`** — verify the brain coverage ledger reflects the run.
 - **`/atlas:report`** — produce a quality-readiness report.

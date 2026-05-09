@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-brain-score. Invoke as /atlas-brain-score. Description: Compute the 11 PRD §7.15 quality scores from documented brain evidence and write _testatlas/brain/quality_scores.json with freshness + confidence + disclaimer. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="90237f54e9490a529f77f0425fca98e8e6631f9626f957f71c34cdb834322e22" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/brain/brain-score.md" hash="b986a6f29117bc9db670dfcfa962e5993b68cf1a99a857e17941a35c3c8f7d66" -->
 First read `.testatlas/bootstrap.md`. Then read `.agents/commands/atlas-brain-score.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -76,7 +76,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command brain-score
 
 ## What's Next
 
+
 Now that the workspace has been scored:
+
+- **`/atlas:log-issue`** — if any quality score falls below the project's defined threshold (default: 60), file an issue via `/atlas:log-issue` describing the deficient metric and its evidence references.
 
 - **`/atlas:report-dashboard-data`** — materialize dashboard data from the score you just computed.
 - **`/atlas:report-release`** — produce a V2 release report incorporating quality scores.

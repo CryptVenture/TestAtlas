@@ -1,6 +1,6 @@
 <!-- TestAtlas command: atlas-council-design-critique. Invoke as /atlas-council-design-critique.md. Description: Design Critique — Product Strategist, User Advocate, and Accessibility Reviewer critique a UI flow's user experience, copy, navigation, and a11y through the 9-round protocol. -->
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="989fea4ed71a02b75552e4f2137cf9f83ca790bbbedaffd4fd95694eba437789" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-design-critique.md" hash="0367301f71c04abac20cb8c84ed1234571183cfc4cf87011b387b529914d111f" -->
 First read `.testatlas/bootstrap.md`. Then read `.clinerules/workflows/atlas-council-design-critique.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -136,6 +136,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:test-flow scenario=<id>` to validate any proposed regression scenarios.
 - `/atlas:report` to surface UX/A11y findings in the next quality report.

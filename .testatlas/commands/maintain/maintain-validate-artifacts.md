@@ -174,7 +174,10 @@ Run `node .testatlas/scripts/update-brain-after-command.js --command maintain-va
 
 ## What's Next
 
+
 Now that artifacts have been validated:
+
+- **`/atlas:log-issue`** — if deep-validation findings surface product-level defects (e.g., dangling issue references that hide un-fixed bugs), file issues for the underlying problems via `/atlas:log-issue`.
 
 - **`/atlas:cleanup`** — remove or quarantine artifacts flagged invalid.
 - **`/atlas:core-brain-sync`** — re-index brain state after artifact validation.

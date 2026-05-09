@@ -9,7 +9,7 @@ permission:
   bash: allow
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="fd98c023d898ad69ee9de2632265f09c19b41e224794d9702794636bf1801605" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/council/council-brain-audit.md" hash="09de4c128640812e3e7bf8704bd1d2eb56b6dd019c6b2282437fc53ef8e4955c" -->
 First read `.testatlas/bootstrap.md`. Then read `.kilocode/workflows/atlas-council-brain-audit.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -145,6 +145,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command counci
 - Lifecycle close entries written.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every accepted issue candidate with severity `medium` or higher, invoke `/atlas:log-issue` to create a tracked issue under `_testatlas/to_fix/`. Link the issue back to the council session ID in its `history` array. Rejected candidates do not need to be logged.
 
 - `/atlas:core-brain-validate` to confirm post-audit brain integrity.
 - `/atlas:core-brain-sync` to apply markdown↔JSON sync fixes.

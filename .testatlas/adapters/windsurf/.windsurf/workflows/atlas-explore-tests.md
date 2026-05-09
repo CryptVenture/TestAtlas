@@ -3,7 +3,7 @@ description: Inventory existing tests, measure coverage, identify gaps, surface 
 auto_execution_mode: 1
 ---
 
-<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="bc329dceea61ba21bacf563dcb334af854dfe07264df368b6ed77cf2a99a35af" -->
+<!-- TESTATLAS:GENERATED:START section="adapter-body" source="commands/explore/explore-tests.md" hash="c72f18663e33d4d8f1d1491b9823fa13e88440dff489f5dfcfa2dcb9f83e42fe" -->
 First read `.testatlas/bootstrap.md`. Then read `.windsurf/workflows/atlas-explore-tests.md` (already loaded into your context if invoked via slash). Follow both exactly. If they conflict, bootstrap safety and persistence rules win unless this command is more specific and not less safe.
 
 ## Purpose
@@ -90,6 +90,9 @@ Then run `node .testatlas/scripts/update-brain-after-command.js --command explor
 - The 5 lifecycle files updated; `update-brain-after-command.js` + `update-coverage.js` both ran.
 
 ## What's Next
+
+
+- **`/atlas:log-issue`** — for every finding with severity `medium` or higher, file an individual issue under `_testatlas/to_fix/` using `/atlas:log-issue`. Include the evidence path captured by this command in the issue's `evidence` array. Skip findings that are purely informational (severity = `low` or `enhancement`) unless the operator requests them.
 
 - **`/atlas:plan`** — design new tests for the gaps reported here.
 - **`/atlas:explore-brain`** — verify the brain coverage ledger reflects the run.
