@@ -3,7 +3,7 @@ command: council
 version: 2.0.0
 mode: dispatch
 description: Umbrella router for V2 council commands. Selects a conversation mode + topic + participants and dispatches to the matching council-* sub-command.
-capabilities: [shell, file-write]
+capabilities: [shell, file-write, subagent-spawn]
 produces:
   - command-result
 consumes:
@@ -61,6 +61,37 @@ Route the operator to the right V2 council sub-command. Pick the conversation mo
 3. Pick participants per the recommended slate in `council-protocol.md` §5. Operator may add/remove personas; record the rationale.
 4. Record the routing decision in `_testatlas/agents/councils/sessions/dispatch-log.md` (append-only): timestamp, requested topic, chosen mode, chosen sub-command, chosen participants.
 5. Hand off to the chosen sub-command. The sub-command will create the session folder via `node .testatlas/scripts/create-council-session.js --topic <s> --mode <s> --participants <a,b,c>`.
+
+## Sub-Agent Orchestration
+
+This command is the V2 council ROUTER, not an executor. Per `bootstrap.md` Capability
+Degradation (18-adapter matrix at bootstrap.md:70-89), when the host declares
+`subagent-spawn` and the routing decision selects a council-* sub-command, the
+dispatcher MAY spawn the chosen sub-command via the host's Task primitive. The
+dispatched sub-command then runs the per-persona spawn (round 2 + round 3) and inline
+rounds (1, 4-9) per its own `## Sub-Agent Orchestration` block.
+
+**Per-child brief** (the dispatched sub-command, NOT a persona — placeholder `<persona-id>` is NOT applicable here, see sub-command blocks for persona-level briefs and outputs/<persona-id>-output writes):
+
+- **objective:** Execute the chosen council-* sub-command end-to-end on the routed topic.
+- **scope:** Sub-command's full lifecycle — context build, 9-round protocol, consolidation, brain-sync.
+- **files-to-read:** Routing decision payload + the sub-command's own source body.
+- **output-format:** Sub-command's normal session artifacts under _testatlas/agents/councils/sessions/<id>/.
+- **may-write:** Whatever the dispatched sub-command's `may_update` permits.
+- **exit-criteria:** Sub-command's session.json status `completed`; consolidation written.
+
+**executionMode** for the dispatcher is always `classify-only` if the routing decision
+produces no sub-command match, OR delegated to the dispatched sub-command otherwise.
+The dispatcher does NOT itself run persona work — it has no participants[] of its own.
+Persona orchestration (the `council-orchestration`, `persona-context`, `brain-sync`
+capabilities) is declared on the 10 sub-commands, NOT here, by design (boundary clause
+above). The 6-mode executionMode enum (`parallel-subagents`, `single-spawn-inline`,
+`sequential-fallback`, `classify-only`, `inline-simulation`, `no-op`) is recorded in the
+dispatched sub-command's session.json.
+
+**Capability degradation.** When the host LACKS `subagent-spawn`, the dispatcher hands
+control to the chosen sub-command in-process; the sub-command then sets its own
+`executionMode: 'inline-simulation'` per its block above.
 
 ## Inputs
 

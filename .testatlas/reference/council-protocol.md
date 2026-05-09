@@ -34,7 +34,7 @@ rebuttal), but must never skip a round that produced content.
 8. **Consolidation.** The Documentation Curator (or the persona designated as
    moderator) drafts `consolidation.{md,json}` with accepted, rejected, and
    disputed claims.
-9. **Canonical updates.** Run `node scripts/consolidate-council.js
+9. **Canonical updates.** Run `node .testatlas/scripts/consolidate-council.js
    --session-id <id>` to apply accepted findings to canonical docs and brain
    indexes; record `followups.md`.
 
@@ -123,12 +123,65 @@ _testatlas/agents/councils/sessions/COUNCIL-<id>/
   outputs/<persona-id>-output.{md,json}  # per-persona outputs
 ```
 
-## 7. Orchestrator Responsibilities (PRD §12.1)
+## 7. Sub-Agent Orchestration & Orchestrator Responsibilities (PRD §12.1)
+
+The 9-round protocol above uses sub-agent spawning ONLY for rounds 2 and 3 (Independent
+review + Initial findings). Rounds 1, 4, 5, 6, 7, 8, and 9 run inline because they
+require shared transcript visibility (cross-questioning, disagreement capture, voting,
+consolidation, and canonical-doc updates are single-author syntheses by design).
+
+### §7.1 — Capability detection (pre-round-2 named step)
+
+Before round 2 begins, each council-* command consults the 18-adapter capability matrix
+in `commands/bootstrap.md` lines 70-89. If the host adapter declares `subagent-spawn`
+(the 9 spawn-capable adapters: claude-code, opencode, kilocode, codex, gemini-cli,
+github-copilot, cline, kiro, sourcegraph-amp), rounds 2 and 3 spawn ONE child per
+`participants[]` entry. If the host LACKS `subagent-spawn` (the 9 no-spawn adapters:
+cursor, zed, windsurf, aider, continue-dev, roo-code, amazon-q, mcp:default,
+generic:default), the council runs `inline-simulation` mode — one process role-plays
+each persona in turn — preserving full backward compatibility with pre-Phase-21
+sessions. This capability-detection step is named `Pre-2: Detect subagent-spawn
+capability` and runs immediately after round 1 completes.
+
+### §7.2 — executionMode enum
+
+Each session.json records exactly one `executionMode` from this 6-value enum:
+
+| Value | When |
+|-------|------|
+| `parallel-subagents`   | Host has `subagent-spawn` AND participants ≥ 2 AND all spawns succeeded |
+| `single-spawn-inline`  | Host has `subagent-spawn` AND participants === 1 (degenerate; ran inline) |
+| `sequential-fallback`  | Host has `subagent-spawn` BUT one or more spawns failed; ran serially |
+| `classify-only`        | Topic classified; participants === 0; no rounds executed |
+| `inline-simulation`    | Host LACKS `subagent-spawn`; one process role-played N personas (Phase-21 default) |
+| `no-op`                | Host has `subagent-spawn` but threshold guard tripped (participants < 2) |
+
+### §7.3 — Per-round mode table
+
+| Round | Name              | Mode    | Why |
+|-------|-------------------|---------|-----|
+| 1     | Context read      | INLINE  | Bootstrap shared context — no per-persona artifact |
+| 2     | Independent review| SPAWN   | Independence is the cognitive contract; one child per persona |
+| 3     | Initial findings  | SPAWN   | Same child as round 2; emits outputs/<persona-id>-output.{md,json} |
+| 4     | Cross-questioning | INLINE  | Questions reference others' findings — shared context required |
+| 5     | Disagreement capture | INLINE | Multi-persona synthesis — orchestrator-only |
+| 6     | Rebuttal / evidence | INLINE | Same as round 4 — shared context required |
+| 7     | Vote / confidence | INLINE  | Tabulation step — no new reasoning needed |
+| 8     | Consolidation     | INLINE  | Single-author doc draft via consolidate-council.js |
+| 9     | Canonical updates | INLINE  | brain-sync hook fires here via consolidate-council.js |
+
+### §7.4 — Threshold guard
+
+If `participants.length < 2`, run all 9 rounds inline regardless of host capability
+(degenerate single-spawn = wasted overhead). Record `single-spawn-inline` (1 participant)
+or `no-op` (0 participants).
+
+### §7.5 — Orchestrator Responsibilities (PRD §12.1)
 
 - Select personas from the `.testatlas/agents/registry.md` slate.
 - Build a scoped `context_bundle.md` (see `bundle-context.js`).
 - Define explicit scope; prevent uncontrolled writes outside session dir.
-- Launch persona turns (true subagents where supported, simulated otherwise).
+- Launch persona turns (true subagents where supported per §7.1, simulated otherwise).
 - Append transcript messages with structured metadata.
 - Run `extract-claims.js` after each round 3+ to materialize claims.jsonl.
 - Resolve contradictions or escalate to disagreements.md.
