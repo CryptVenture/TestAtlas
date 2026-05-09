@@ -135,6 +135,47 @@ function inferSchemaId(absPath, parsed, wsDir) {
     return '__SKIP__';
   }
 
+  // V2: agents/personas/{system,generated,project}/*.json → persona.schema.json (V2).
+  // Closes 14 of the deferred-items.md baseline TESTATLAS_UNKNOWN_SCHEMA errors.
+  if (
+    /^agents\/personas\/(system|generated|project)\/[^/]+\.json$/.test(relPath) &&
+    baseName.endsWith('.json')
+  ) {
+    return `https://testatlas.dev/schemas/v2/persona.schema.json`;
+  }
+
+  // V2: agents/councils/sessions/<id>/*.json — session sub-artifacts (session.json,
+  // participants.json, consolidation.json, votes.json). Heterogeneous shapes
+  // emitted by create-council-session.js + consolidate-council.js; each is
+  // schema-flexible by design (mirrors brain/ skeleton stubs). Skip until each
+  // sub-artifact gets a dedicated schema or carries an explicit `$schema` field.
+  if (/^agents\/councils\/sessions\//.test(relPath) && baseName.endsWith('.json')) {
+    return '__SKIP__';
+  }
+
+  // V2: agents/councils/council_templates/*.json — reusable mode presets
+  // (brain-audit, bug-triage, domain-review, red-team, release-readiness).
+  // Heterogeneous; skip until a dedicated council-template.schema.json lands.
+  if (/^agents\/councils\/council_templates\//.test(relPath) && baseName.endsWith('.json')) {
+    return '__SKIP__';
+  }
+
+  // V2: maps/<feature>.json — schema-flexible explorer-output sidecars per
+  // bootstrap.md §2 ("write a per-feature sidecar at `_testatlas/maps/<feature>.json`
+  // rather than inventing new keys on `12_app_map.json`"). Heterogeneous by
+  // design; the closed app-map schema is the canonical contract, the maps/
+  // sidecars preserve cross-explorer mesh without breaking it.
+  if (relPath.startsWith('maps/') && baseName.endsWith('.json')) {
+    return '__SKIP__';
+  }
+
+  // V2: reports/dashboard-data.json — heterogeneous machine-readable export
+  // (PRD §16) shaped for downstream UIs / CI status pages, not a single-record
+  // schema artifact. Skip until a dedicated dashboard-data.schema.json lands.
+  if (relPath === 'reports/dashboard-data.json') {
+    return '__SKIP__';
+  }
+
   // No mapping — caller surfaces as TESTATLAS_UNKNOWN_SCHEMA.
   return null;
 }
