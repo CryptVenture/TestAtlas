@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Added (Phase 23 / Plan 23-01 — Wave 0 TDD red-bar)
+
+- 5 new RED-bar regression tests pinning Phase-23 contracts (DEC-003, DEC-005, DEC-006, DEC-007, OPEN-001) BEFORE any production-code edits, per Nyquist contract:
+  - `test/update-indexes-council-sessions-rich.test.js` — DEC-003: pins `listCouncilSessions` enrichment to emit `topic` + `mode=` + `participants=N` + `status=` per session.json.
+  - `test/00-overview-domain-count.test.js` — DEC-005: pins `00_overview.md` `section="domain-count"` GENERATED block to live-sync from on-disk count and/or `_testatlas/brain/state.json#counts.domains`. Producer confirmed as `scripts/sync-status.js` (Wave 1 will extend).
+  - `test/commands/lifecycle-flag-wiring.test.js` — DEC-006: pins `.testatlas/commands/explore-codebase.md` and `.testatlas/commands/core/brain-sync.md` invocation lines to include `--reconcile-counts --populate-from-app-map --detect-drift` on their `update-brain-after-command.js` calls (handlers already exist from Phase 22).
+  - `test/scripts/consolidate-council-comment-code-parity.test.js` — DEC-007: pins zero occurrences of `strong-suspect` in `scripts/consolidate-council.js` (current docstring drifted from code post-DEC-004).
+  - `test/reference/council-protocol-deferred-design.test.js` — OPEN-001: pins ADR section `Deferred design — vote-status producer` in `.testatlas/reference/council-protocol.md` capturing the deferred `update-claim-status-from-votes` producer.
+- Test suite delta: 1842 → 1877 tests (+35); 1834 → 1849 pass (+15 back-compat baselines GREEN); 6 → 26 fail (+20 RED contract pins). All baseline RED tests preserved unchanged.
+
 ## [2.0.0] - 2026-05-09
 
 TestAtlas v2.0.0 is a major release introducing the **Multi-Agent Quality Intelligence Brain** — a persistent, machine-readable quality layer that turns any capable AI agent into a product-understanding, exploration, and evidence-collection system. V2 adds 41 new commands, 18 new schemas, 14 system personas, 11 council commands, and full support across all 18 host adapters.
