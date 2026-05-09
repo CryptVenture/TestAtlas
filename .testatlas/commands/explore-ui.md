@@ -1,7 +1,7 @@
 ---
 command: explore-ui
 version: 1.0.0
-description: Map routes, components, forms, modals, PRD §13.1 UI states (empty/loading/error/success/permission), responsive breakpoints, a11y basics via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable.
+description: Map UI routes, components, forms, modals, PRD §13.1 states (empty/loading/error/success/permission), breakpoints, a11y via mandatory Chrome DevTools MCP walkthrough; halt and defer to /atlas:explore-codebase when MCP or browser unavailable.
 capabilities: [browser, MCP, shell, file-write]
 produces:
   - route
