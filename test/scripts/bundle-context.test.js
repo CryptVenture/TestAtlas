@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'bundle-context.js');
@@ -59,7 +60,7 @@ async function setupBrain() {
 test('Test 1: bundleContext writes a context_bundle.md', async () => {
   const ctx = await setupBrain();
   try {
-    const { bundleContext } = await import(SCRIPT);
+    const { bundleContext } = await import(pathToFileURL(SCRIPT).href);
     const r = await bundleContext({
       cwd: ctx.dir,
       persona: 'security-reviewer',
@@ -80,7 +81,7 @@ test('Test 1: bundleContext writes a context_bundle.md', async () => {
 test('Test 2: bundleContext fails gracefully when brain missing', async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'tb-bundle-ctx-empty-'));
   try {
-    const { bundleContext } = await import(SCRIPT);
+    const { bundleContext } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(bundleContext({ cwd: dir, persona: 'x', session: 'y', scope: 'z' }), (e) =>
       /brain|missing/i.test(e.message),
     );

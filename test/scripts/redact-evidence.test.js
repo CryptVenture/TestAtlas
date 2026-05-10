@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'redact-evidence.js');
@@ -40,7 +41,7 @@ for (const { name, payload } of PATTERNS) {
     try {
       const evidencePath = path.join(ctx.wsDir, 'evidence', 'EVIDENCE-001.txt');
       await writeFile(evidencePath, `prefix\n${payload}\nsuffix\n`);
-      const { redactEvidence } = await import(SCRIPT);
+      const { redactEvidence } = await import(pathToFileURL(SCRIPT).href);
       const r = await redactEvidence({ cwd: ctx.dir, evidenceId: 'EVIDENCE-001' });
       assert.equal(r.ok, true);
       assert.equal(r.sensitive, true);
@@ -64,7 +65,7 @@ test('Test: clean evidence yields sensitive=false (no redacted copy)', async () 
   try {
     const evidencePath = path.join(ctx.wsDir, 'evidence', 'EVIDENCE-001.txt');
     await writeFile(evidencePath, 'plain log line — nothing sensitive\n');
-    const { redactEvidence } = await import(SCRIPT);
+    const { redactEvidence } = await import(pathToFileURL(SCRIPT).href);
     const r = await redactEvidence({ cwd: ctx.dir, evidenceId: 'EVIDENCE-001' });
     assert.equal(r.ok, true);
     assert.equal(r.sensitive, false);

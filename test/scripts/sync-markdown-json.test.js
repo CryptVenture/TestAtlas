@@ -19,6 +19,7 @@ import { mkdir, mkdtemp, readFile, rm, utimes, writeFile } from 'node:fs/promise
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'sync-markdown-json.js');
@@ -51,7 +52,7 @@ async function setupWorkspace() {
 test('Test 1: sync on empty workspace is a no-op', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { syncMarkdownJson } = await import(SCRIPT);
+    const { syncMarkdownJson } = await import(pathToFileURL(SCRIPT).href);
     const r = await syncMarkdownJson({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     assert.deepEqual(r.changed, []);
@@ -77,7 +78,7 @@ test('Test 2: domain markdown drift updates JSON index entry', async () => {
     const newer = new Date(Date.now() + 60_000);
     await utimes(path.join(domainDir, 'domain.md'), newer, newer);
 
-    const { syncMarkdownJson } = await import(SCRIPT);
+    const { syncMarkdownJson } = await import(pathToFileURL(SCRIPT).href);
     const r = await syncMarkdownJson({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     const idx = JSON.parse(await readFile(path.join(ctx.wsDir, 'brain', 'domains.json'), 'utf8'));
@@ -103,7 +104,7 @@ test('Test 3: human prose outside TESTATLAS:GENERATED markers is preserved', asy
       JSON.stringify({ id: 'domain-billing', schema_version: '2.0.0', status: 'mapped' }),
     );
 
-    const { syncMarkdownJson } = await import(SCRIPT);
+    const { syncMarkdownJson } = await import(pathToFileURL(SCRIPT).href);
     await syncMarkdownJson({ cwd: ctx.dir });
 
     const after = await readFile(path.join(domainDir, 'domain.md'), 'utf8');
@@ -126,7 +127,7 @@ test('Test 4: idempotent — running twice yields zero changes the second time',
       path.join(domainDir, 'domain.json'),
       JSON.stringify({ id: 'domain-a', schema_version: '2.0.0', status: 'mapped' }),
     );
-    const { syncMarkdownJson } = await import(SCRIPT);
+    const { syncMarkdownJson } = await import(pathToFileURL(SCRIPT).href);
     await syncMarkdownJson({ cwd: ctx.dir });
     const r2 = await syncMarkdownJson({ cwd: ctx.dir });
     assert.equal(r2.ok, true);

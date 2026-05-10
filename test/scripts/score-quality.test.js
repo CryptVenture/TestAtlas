@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'score-quality.js');
@@ -137,7 +138,7 @@ async function setupBrain() {
 test('Test 1: scoreQuality computes all 11 PRD §7.15 metrics with score 0-100', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     const r = await scoreQuality({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     const metrics = r.scores.map((s) => s.metric);
@@ -156,7 +157,7 @@ test('Test 1: scoreQuality computes all 11 PRD §7.15 metrics with score 0-100',
 test('Test 2: Each score includes evidence_refs array (may be empty)', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     const r = await scoreQuality({ cwd: ctx.dir });
     for (const s of r.scores) {
       assert.ok(Array.isArray(s.evidence_refs), `evidence_refs not an array: ${s.metric}`);
@@ -172,7 +173,7 @@ test('Test 2: Each score includes evidence_refs array (may be empty)', async () 
 test('Test 3: Each score includes freshness + confidence enum values', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     const r = await scoreQuality({ cwd: ctx.dir });
     const FRESHNESS = new Set(['fresh', 'stale', 'unknown']);
     const CONFIDENCE = new Set(['confirmed', 'strong_suspect', 'needs_validation']);
@@ -189,7 +190,7 @@ test('Test 3: Each score includes freshness + confidence enum values', async () 
 test('Test 4: Output JSON includes a prominent disclaimer string', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     const r = await scoreQuality({ cwd: ctx.dir });
     const outPath = path.join(ctx.dir, '_testatlas', 'brain', 'quality_scores.json');
     const written = JSON.parse(await readFile(outPath, 'utf8'));
@@ -204,7 +205,7 @@ test('Test 4: Output JSON includes a prominent disclaimer string', async () => {
 test('Test 5: CLI --category filter restricts metrics emitted', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     const r = await scoreQuality({ cwd: ctx.dir, category: 'a11y' });
     const metrics = r.scores.map((s) => s.metric);
     assert.deepEqual(metrics, ['accessibility_baseline_score']);
@@ -216,7 +217,7 @@ test('Test 5: CLI --category filter restricts metrics emitted', async () => {
 test('Test 6: Output written to _testatlas/brain/quality_scores.json with schema fields', async () => {
   const ctx = await setupBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     await scoreQuality({ cwd: ctx.dir });
     const outPath = path.join(ctx.dir, '_testatlas', 'brain', 'quality_scores.json');
     const written = JSON.parse(await readFile(outPath, 'utf8'));

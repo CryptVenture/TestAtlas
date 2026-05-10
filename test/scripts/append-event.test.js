@@ -7,6 +7,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'append-event.js');
@@ -22,7 +23,7 @@ async function setupWorkspace() {
 test('Test 1: appendEvent writes a schema-valid line', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { appendEvent } = await import(SCRIPT);
+    const { appendEvent } = await import(pathToFileURL(SCRIPT).href);
     const r = await appendEvent({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -50,7 +51,7 @@ test('Test 1: appendEvent writes a schema-valid line', async () => {
 test('Test 2: appendEvent rejects invalid event.type via AJV', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { appendEvent } = await import(SCRIPT);
+    const { appendEvent } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       appendEvent({
         cwd: ctx.dir,
@@ -69,7 +70,7 @@ test('Test 2: appendEvent rejects invalid event.type via AJV', async () => {
 test('Test 3: appendEvent allocates monotonically increasing IDs', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { appendEvent } = await import(SCRIPT);
+    const { appendEvent } = await import(pathToFileURL(SCRIPT).href);
     const r1 = await appendEvent({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,

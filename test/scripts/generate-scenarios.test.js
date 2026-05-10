@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'generate-scenarios.js');
@@ -97,7 +98,7 @@ async function setupWorkspace() {
 test('Test 1: generateScenarios reads flow docs and writes scenario md+json under _testatlas/tests/scenarios/', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, all: true });
     assert.equal(r.ok, true);
     assert.ok(Array.isArray(r.scenarios));
@@ -116,7 +117,7 @@ test('Test 1: generateScenarios reads flow docs and writes scenario md+json unde
 test('Test 2: generated scenarios marked status: "generated-not-yet-validated"', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, all: true });
     assert.equal(r.ok, true);
     for (const s of r.scenarios) {
@@ -172,7 +173,7 @@ test('Test 3: --flow filter restricts output to a single flow', async () => {
       ),
     );
 
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, flow: 'FLOW-auth-login' });
     assert.equal(r.ok, true);
     assert.ok(r.scenarios.every((s) => s.flow === 'FLOW-auth-login'));
@@ -184,7 +185,7 @@ test('Test 3: --flow filter restricts output to a single flow', async () => {
 test('Test 4: scenarios reference originating flow id and include steps + expectedResults', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, all: true });
     assert.equal(r.ok, true);
     const s = r.scenarios[0];
@@ -200,7 +201,7 @@ test('Test 4: scenarios reference originating flow id and include steps + expect
 test('Test 5: written scenario validates against test-scenario.schema.json (key fields shape)', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, all: true });
     assert.equal(r.ok, true);
 
@@ -237,7 +238,7 @@ test('Test 5: written scenario validates against test-scenario.schema.json (key 
 test('Test 6: writes only under _testatlas/tests/ — never outside', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateScenarios } = await import(SCRIPT);
+    const { generateScenarios } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateScenarios({ cwd: ctx.dir, all: true });
     assert.equal(r.ok, true);
     for (const f of r.written ?? []) {

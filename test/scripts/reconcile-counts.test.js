@@ -14,6 +14,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'reconcile-counts.js');
@@ -87,7 +88,7 @@ test('Test 1: counts.council_sessions + counts.evidence_artifacts reflect on-dis
     evidence: ['EVIDENCE-001', 'EVIDENCE-002', 'EVIDENCE-003'],
   });
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     await reconcileCounts({ cwd: ctx.dir });
     const state = JSON.parse(await readFile(path.join(ctx.brainDir, 'state.json'), 'utf8'));
     assert.equal(state.counts.council_sessions, 2);
@@ -100,7 +101,7 @@ test('Test 1: counts.council_sessions + counts.evidence_artifacts reflect on-dis
 test('Test 2: project.name + project.primary_stack populated from package.json', async () => {
   const ctx = await setupWorkspace({ withPackageJson: true });
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     await reconcileCounts({ cwd: ctx.dir });
     const state = JSON.parse(await readFile(path.join(ctx.brainDir, 'state.json'), 'utf8'));
     assert.equal(state.project.name, 'testatlas');
@@ -120,7 +121,7 @@ test('Test 2: project.name + project.primary_stack populated from package.json',
 test('Test 3: manifest.adapters reflects .testatlas/adapters/ on-disk (sorted)', async () => {
   const ctx = await setupWorkspace({ adapters: ['cursor', 'aider', 'claude-code'] });
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     await reconcileCounts({ cwd: ctx.dir });
     const manifest = JSON.parse(await readFile(path.join(ctx.brainDir, 'manifest.json'), 'utf8'));
     assert.deepEqual(manifest.adapters, ['aider', 'claude-code', 'cursor']);
@@ -136,7 +137,7 @@ test('Test 4: confidence.overall + next_recommended_commands populated (DEC-003)
     withPackageJson: true,
   });
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     await reconcileCounts({ cwd: ctx.dir });
     const state = JSON.parse(await readFile(path.join(ctx.brainDir, 'state.json'), 'utf8'));
     assert.notEqual(state.confidence.overall, 'unknown');
@@ -156,7 +157,7 @@ test('Test 5: idempotent — second invocation reports no changes', async () => 
     adapters: ['aider'],
   });
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     await reconcileCounts({ cwd: ctx.dir });
     const r2 = await reconcileCounts({ cwd: ctx.dir });
     assert.equal(r2.stateChanged, false, 'second call should report stateChanged=false');
@@ -169,7 +170,7 @@ test('Test 5: idempotent — second invocation reports no changes', async () => 
 test('Test 6: empty workspace — counts populated as 0, no error', async () => {
   const ctx = await setupWorkspace({});
   try {
-    const { reconcileCounts } = await import(SCRIPT);
+    const { reconcileCounts } = await import(pathToFileURL(SCRIPT).href);
     const r = await reconcileCounts({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     const state = JSON.parse(await readFile(path.join(ctx.brainDir, 'state.json'), 'utf8'));

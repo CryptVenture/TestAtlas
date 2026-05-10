@@ -15,9 +15,15 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'validate-brain.js');
+// Dynamic import() on Windows requires a file:// URL (or a relative
+// specifier); a raw absolute path like `D:\...` is rejected by the ESM
+// loader with ERR_UNSUPPORTED_ESM_URL_SCHEME. pathToFileURL handles both
+// POSIX and Windows paths uniformly.
+const SCRIPT_URL = pathToFileURL(SCRIPT).href;
 
 // Required brain files per Wave 0 SUMMARY (22 = 19 JSON + 3 JSONL).
 const REQUIRED_JSON_FILES = [
@@ -183,7 +189,7 @@ test('Test 6: empty JSONL is acceptable (healthy)', async () => {
 });
 
 test('Test 7: validateBrain function is exportable', async () => {
-  const mod = await import(SCRIPT);
+  const mod = await import(SCRIPT_URL);
   assert.equal(typeof mod.validateBrain, 'function', 'validate-brain.js must export validateBrain');
 });
 

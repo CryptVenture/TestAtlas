@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'generate-automation.js');
@@ -75,7 +76,7 @@ const FRAMEWORKS = ['playwright', 'cypress', 'api', 'cli', 'contract', 'smoke'];
 test('Test 1: generateAutomation supports all six framework flags', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateAutomation } = await import(SCRIPT);
+    const { generateAutomation } = await import(pathToFileURL(SCRIPT).href);
     for (const fw of FRAMEWORKS) {
       const r = await generateAutomation({ cwd: ctx.dir, framework: fw, all: true });
       assert.equal(r.ok, true, `framework ${fw} should succeed`);
@@ -95,7 +96,7 @@ test('Test 1: generateAutomation supports all six framework flags', async () => 
 test('Test 2: each generated skeleton mentions fixture requirements + mock data plan', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateAutomation } = await import(SCRIPT);
+    const { generateAutomation } = await import(pathToFileURL(SCRIPT).href);
     for (const fw of FRAMEWORKS) {
       const r = await generateAutomation({ cwd: ctx.dir, framework: fw, all: true });
       assert.equal(r.ok, true);
@@ -124,7 +125,7 @@ test('Test 2: each generated skeleton mentions fixture requirements + mock data 
 test('Test 3: each skeleton tracks status=generated-but-not-validated in companion JSON', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateAutomation } = await import(SCRIPT);
+    const { generateAutomation } = await import(pathToFileURL(SCRIPT).href);
     for (const fw of FRAMEWORKS) {
       const r = await generateAutomation({ cwd: ctx.dir, framework: fw, all: true });
       assert.equal(r.ok, true);
@@ -142,7 +143,7 @@ test('Test 3: each skeleton tracks status=generated-but-not-validated in compani
 });
 
 test('Test 4: status enum lists generated-but-not-validated, validated, committed, flaky', async () => {
-  const { STATUS_VALUES } = await import(SCRIPT);
+  const { STATUS_VALUES } = await import(pathToFileURL(SCRIPT).href);
   assert.ok(Array.isArray(STATUS_VALUES));
   for (const want of ['generated-but-not-validated', 'validated', 'committed', 'flaky']) {
     assert.ok(STATUS_VALUES.includes(want), `status enum missing ${want}`);
@@ -152,7 +153,7 @@ test('Test 4: status enum lists generated-but-not-validated, validated, committe
 test('Test 5: only writes under _testatlas/tests/generated_automation/', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateAutomation } = await import(SCRIPT);
+    const { generateAutomation } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateAutomation({ cwd: ctx.dir, framework: 'playwright', all: true });
     assert.equal(r.ok, true);
     for (const f of r.written ?? []) {
@@ -203,7 +204,7 @@ test('Test 6: --flow restricts skeletons to a single flow id', async () => {
       ),
     );
 
-    const { generateAutomation } = await import(SCRIPT);
+    const { generateAutomation } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateAutomation({
       cwd: ctx.dir,
       framework: 'playwright',

@@ -94,8 +94,13 @@ jobs:
             sudo apt-get update -qq
             sudo apt-get install -y -qq shellcheck
           else
-            # macOS: brew preinstall ships shellcheck on github-hosted runners.
-            shellcheck --version >/dev/null
+            # macOS: brew preinstall used to ship shellcheck; as of mid-2026
+            # the runner image dropped it, so install on demand. `brew install`
+            # is a no-op if already present (exits 0), so this is safe whether
+            # or not the runner image regains the preinstall.
+            if ! command -v shellcheck >/dev/null 2>&1; then
+              brew install shellcheck
+            fi
           fi
           echo "shellcheck version:"
           shellcheck --version | head -n 3

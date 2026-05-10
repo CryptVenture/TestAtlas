@@ -34,12 +34,26 @@ test('install.js --help: renders the TESTATLAS block-art banner', () => {
   const r = runHelp({ NO_COLOR: '1' });
   assert.equal(r.status, 0, `expected exit 0, got ${r.status}\nstderr=${r.stderr}`);
   // 8-of-9 lines (the leading blank line is whitespace-only, so we skip it).
-  let hits = 0;
-  for (const line of BANNER_LINES) {
-    if (line.trim().length === 0) continue;
-    if (r.stdout.includes(line)) hits++;
-  }
-  assert.ok(hits >= 4, `expected ≥4 banner art lines in --help; got ${hits}\nstdout=${r.stdout}`);
+  // Accept either the Unicode block art (`█`) or the ASCII fallback (`#`) —
+  // `isUnicode()` in scripts/lib/colors.js returns false on Windows runners
+  // without WT_SESSION/TERM_PROGRAM (the github-hosted runner default), so
+  // the renderer emits ASCII there. This test verifies a banner is rendered,
+  // not which variant; the dedicated NO_UNICODE=1 test below pins the
+  // ASCII-fallback contract explicitly.
+  const countHits = (lines) => {
+    let n = 0;
+    for (const line of lines) {
+      if (line.trim().length === 0) continue;
+      if (r.stdout.includes(line)) n++;
+    }
+    return n;
+  };
+  const unicodeHits = countHits(BANNER_LINES);
+  const asciiHits = countHits(BANNER_ASCII_LINES);
+  assert.ok(
+    unicodeHits >= 4 || asciiHits >= 4,
+    `expected ≥4 banner art lines in --help; got unicode=${unicodeHits} ascii=${asciiHits}\nstdout=${r.stdout}`,
+  );
 });
 
 test('install.js --help: NO_COLOR=1 → zero ANSI escape sequences in stdout', () => {

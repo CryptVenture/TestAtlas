@@ -138,7 +138,8 @@ const MANIFEST_SCHEMA_ID = 'https://testatlas.dev/schemas/v1/workspace-manifest.
  * @param {{
  *   workspaceDir?: string,
  *   cwd?: string,
- *   force?: boolean
+ *   force?: boolean,
+ *   projectName?: string
  * }} [opts]
  * @param {{
  *   assertNotUpdate?: typeof assertNotUpdate
@@ -150,7 +151,7 @@ const MANIFEST_SCHEMA_ID = 'https://testatlas.dev/schemas/v1/workspace-manifest.
  * }>}
  */
 export async function initWorkspace(
-  { workspaceDir, cwd = process.cwd(), force = false } = {},
+  { workspaceDir, cwd = process.cwd(), force = false, projectName: projectNameOverride } = {},
   _inject = {},
 ) {
   const _assertNotUpdate = _inject.assertNotUpdate ?? assertNotUpdate;
@@ -212,7 +213,14 @@ export async function initWorkspace(
 
   const templatesDir = path.join(cwd, '.testatlas', 'templates', 'canonical');
   const nowIso = now();
-  const projectName = path.basename(cwd);
+  // projectName resolution order: explicit override > TESTATLAS_PROJECT_NAME env
+  // var > path.basename(cwd). Override exists so callers like
+  // regenerate-example.js can pin a deterministic name (the fixture's expected
+  // value) regardless of where the suite is checked out — otherwise running
+  // tests in a clone not literally named `TestAtlas` produces a drift mismatch
+  // in `_testatlas/11_workspace_manifest.json` and `brain/manifest.json`.
+  const projectName =
+    projectNameOverride ?? process.env.TESTATLAS_PROJECT_NAME ?? path.basename(cwd);
   const created = [];
   /** @type {Record<string, Record<string, string>>} */
   const generatedSections = {};
@@ -500,9 +508,11 @@ async function runCli(argv) {
       opts.cwd = argv[++i];
     } else if (a === '--force') {
       opts.force = true;
+    } else if (a === '--project-name') {
+      opts.projectName = argv[++i];
     } else if (a === '--help' || a === '-h') {
       console.log(
-        'Usage: node scripts/init-workspace.js [--workspace <path>] [--cwd <path>] [--force]',
+        'Usage: node scripts/init-workspace.js [--workspace <path>] [--cwd <path>] [--force] [--project-name <name>]',
       );
       process.exit(0);
     } else {

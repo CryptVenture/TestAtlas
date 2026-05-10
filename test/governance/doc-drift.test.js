@@ -24,6 +24,8 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { skipIfMissing } from '../_helpers/repo-local-state.js';
+
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const README_PATH = path.join(REPO_ROOT, 'README.md');
 const COMMANDS_README_PATH = path.join(REPO_ROOT, '.testatlas', 'commands', 'README.md');
@@ -75,7 +77,8 @@ test('.testatlas/commands/README.md does not carry pre-GA `9 of 26` framing', as
   );
 });
 
-test('CLAUDE.md does not contain stale `15 JSON Schemas` claim', async () => {
+test('CLAUDE.md does not contain stale `15 JSON Schemas` claim', async (t) => {
+  if (!(await skipIfMissing(t, CLAUDE_PATH))) return;
   const text = await readFile(CLAUDE_PATH, 'utf8');
   assert.ok(
     !text.includes('15 JSON Schemas'),
@@ -83,7 +86,8 @@ test('CLAUDE.md does not contain stale `15 JSON Schemas` claim', async () => {
   );
 });
 
-test('CLAUDE.md reports the live JSON Schema count (currently 20)', async () => {
+test('CLAUDE.md reports the live JSON Schema count (currently 20)', async (t) => {
+  if (!(await skipIfMissing(t, CLAUDE_PATH))) return;
   const [text, n] = await Promise.all([readFile(CLAUDE_PATH, 'utf8'), countSchemas()]);
   const expected = `${n} JSON Schemas`;
   assert.ok(

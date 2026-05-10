@@ -17,6 +17,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { generateReport } from '../../scripts/generate-report.js';
 import { makeValidationFixture } from '../_helpers.js';
 
@@ -81,7 +82,7 @@ async function setupBrain() {
 test('Test 1: generateV2Report writes REPORT-latest.md with all PRD §16.1 sections', async () => {
   const ctx = await setupBrain();
   try {
-    const mod = await import(SCRIPT);
+    const mod = await import(pathToFileURL(SCRIPT).href);
     assert.equal(
       typeof mod.generateV2Report,
       'function',
@@ -109,7 +110,7 @@ test('Test 1: generateV2Report writes REPORT-latest.md with all PRD §16.1 secti
 test('Test 2: generateV2Report severity counts come from issues.json', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateV2Report } = await import(SCRIPT);
+    const { generateV2Report } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateV2Report({ cwd: ctx.dir, type: 'latest' });
     const text = await readFile(r.outputPath, 'utf8');
     assert.match(text, /critical.*1/i);

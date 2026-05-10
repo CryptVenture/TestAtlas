@@ -7,7 +7,13 @@ import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { skipIfMissing } from './_helpers/repo-local-state.js';
+
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
+// The whole `_testatlas/` tree is gitignored (suite-author dogfood
+// workspace). These tests verify its structure when present; on a
+// fresh CI checkout they all skip-with-reason.
+const WORKSPACE_ROOT = path.join(REPO_ROOT, '_testatlas');
 
 const REQUIRED_DIRS = [
   '_testatlas/bootstrap',
@@ -89,7 +95,8 @@ async function pathExists(p) {
   }
 }
 
-test('all required V2 directories exist', async () => {
+test('all required V2 directories exist', async (t) => {
+  if (!(await skipIfMissing(t, WORKSPACE_ROOT))) return;
   for (const dir of REQUIRED_DIRS) {
     const fullPath = path.join(REPO_ROOT, dir);
     const exists = await pathExists(fullPath);
@@ -97,7 +104,8 @@ test('all required V2 directories exist', async () => {
   }
 });
 
-test('all required bootstrap and README files exist', async () => {
+test('all required bootstrap and README files exist', async (t) => {
+  if (!(await skipIfMissing(t, WORKSPACE_ROOT))) return;
   for (const file of REQUIRED_FILES) {
     const fullPath = path.join(REPO_ROOT, file);
     const exists = await pathExists(fullPath);
@@ -105,14 +113,18 @@ test('all required bootstrap and README files exist', async () => {
   }
 });
 
-test('BOOTSTRAP.md is ≤3000 words', async () => {
-  const text = await readFile(path.join(REPO_ROOT, '_testatlas/bootstrap/BOOTSTRAP.md'), 'utf8');
+test('BOOTSTRAP.md is ≤3000 words', async (t) => {
+  const bootstrapPath = path.join(REPO_ROOT, '_testatlas/bootstrap/BOOTSTRAP.md');
+  if (!(await skipIfMissing(t, bootstrapPath))) return;
+  const text = await readFile(bootstrapPath, 'utf8');
   const words = text.split(/\s+/).filter(Boolean).length;
   assert.ok(words <= 3000, `BOOTSTRAP.md has ${words} words, exceeds 3000 limit`);
 });
 
-test('BOOTSTRAP.md contains load-bearing content in first 500 tokens', async () => {
-  const text = await readFile(path.join(REPO_ROOT, '_testatlas/bootstrap/BOOTSTRAP.md'), 'utf8');
+test('BOOTSTRAP.md contains load-bearing content in first 500 tokens', async (t) => {
+  const bootstrapPath = path.join(REPO_ROOT, '_testatlas/bootstrap/BOOTSTRAP.md');
+  if (!(await skipIfMissing(t, bootstrapPath))) return;
+  const text = await readFile(bootstrapPath, 'utf8');
   const firstTokens = text.split(/\s+/).slice(0, 500).join(' ');
   assert.ok(
     firstTokens.includes('No evidence, no finding'),
@@ -128,7 +140,8 @@ test('BOOTSTRAP.md contains load-bearing content in first 500 tokens', async () 
   );
 });
 
-test('all 22 brain files exist', async () => {
+test('all 22 brain files exist', async (t) => {
+  if (!(await skipIfMissing(t, WORKSPACE_ROOT))) return;
   for (const file of BRAIN_FILES) {
     const fullPath = path.join(REPO_ROOT, file);
     const exists = await pathExists(fullPath);
@@ -136,7 +149,8 @@ test('all 22 brain files exist', async () => {
   }
 });
 
-test('brain JSON files contain valid JSON', async () => {
+test('brain JSON files contain valid JSON', async (t) => {
+  if (!(await skipIfMissing(t, WORKSPACE_ROOT))) return;
   const jsonFiles = BRAIN_FILES.filter((f) => f.endsWith('.json'));
   for (const file of jsonFiles) {
     const fullPath = path.join(REPO_ROOT, file);
@@ -146,8 +160,10 @@ test('brain JSON files contain valid JSON', async () => {
   }
 });
 
-test('agents/registry.json is valid JSON', async () => {
-  const content = await readFile(path.join(REPO_ROOT, '_testatlas/agents/registry.json'), 'utf8');
+test('agents/registry.json is valid JSON', async (t) => {
+  const registryPath = path.join(REPO_ROOT, '_testatlas/agents/registry.json');
+  if (!(await skipIfMissing(t, registryPath))) return;
+  const content = await readFile(registryPath, 'utf8');
   const parsed = JSON.parse(content);
   assert.ok(typeof parsed === 'object', 'registry.json is not a valid JSON object');
   assert.ok(Array.isArray(parsed.personas), 'registry.json missing personas array');

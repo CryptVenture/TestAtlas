@@ -14,6 +14,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'consolidate-council.js');
@@ -54,7 +55,7 @@ test('Test 1: motion-keyed — single motion with one vote renders persona/value
     ],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFollowups(ctx.sessionDir);
     assert.match(text, /MOTION-001/, 'followups.md must reference motion id');
@@ -88,7 +89,7 @@ test('Test 2: motion-keyed — 2 motions × 3 votes each → 6 vote lines render
     ],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFollowups(ctx.sessionDir);
     // Count distinct vote-line markers — each rendered vote should reference a persona+value pair.
@@ -117,7 +118,7 @@ test('Test 3: back-compat — flat votes.votes[] still renders', async () => {
     votes: [{ claim_id: 'CLAIM-1', value: 'yea' }],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFollowups(ctx.sessionDir);
     assert.match(text, /CLAIM-1/);
@@ -130,7 +131,7 @@ test('Test 3: back-compat — flat votes.votes[] still renders', async () => {
 test('Test 4: empty motions — placeholder rendered', async () => {
   const ctx = await setupSession({ motions: [] });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFollowups(ctx.sessionDir);
     assert.match(text, /no votes cast/);
@@ -142,7 +143,7 @@ test('Test 4: empty motions — placeholder rendered', async () => {
 test('Test 5: empty flat votes — placeholder rendered (existing back-compat)', async () => {
   const ctx = await setupSession({ votes: [] });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFollowups(ctx.sessionDir);
     assert.match(text, /no votes cast/);

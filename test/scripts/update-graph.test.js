@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'update-graph.js');
@@ -161,7 +162,7 @@ async function setupBrain() {
 test('Test 1: updateGraph reads brain indexes and populates nodes + edges', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateGraph } = await import(SCRIPT);
+    const { updateGraph } = await import(pathToFileURL(SCRIPT).href);
     const r = await updateGraph({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     assert.ok(Array.isArray(r.graph.nodes));
@@ -176,7 +177,7 @@ test('Test 1: updateGraph reads brain indexes and populates nodes + edges', asyn
 test('Test 2: all 16 PRD §11.2 relationship types appear at least once', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateGraph } = await import(SCRIPT);
+    const { updateGraph } = await import(pathToFileURL(SCRIPT).href);
     const r = await updateGraph({ cwd: ctx.dir });
     const types = new Set(r.graph.edges.map((e) => e.type));
     for (const t of RELATIONSHIPS) {
@@ -190,7 +191,7 @@ test('Test 2: all 16 PRD §11.2 relationship types appear at least once', async 
 test('Test 3: graph.json validates against relationship.schema.json', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateGraph } = await import(SCRIPT);
+    const { updateGraph } = await import(pathToFileURL(SCRIPT).href);
     await updateGraph({ cwd: ctx.dir });
     const out = JSON.parse(
       await readFile(path.join(ctx.dir, '_testatlas', 'brain', 'graph.json'), 'utf8'),
@@ -212,7 +213,7 @@ test('Test 3: graph.json validates against relationship.schema.json', async () =
 test('Test 4: idempotent — second run produces the same edges + nodes', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateGraph } = await import(SCRIPT);
+    const { updateGraph } = await import(pathToFileURL(SCRIPT).href);
     const r1 = await updateGraph({ cwd: ctx.dir });
     const r2 = await updateGraph({ cwd: ctx.dir });
     // Compare ignoring last_updated which is regenerated each run.

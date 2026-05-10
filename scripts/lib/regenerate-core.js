@@ -341,8 +341,30 @@ export async function regenerateExample({ examplePath, suiteRoot, check = false,
     // example). We replay init-workspace with cwd=suiteRoot so init-workspace
     // can find the suite tree, but pass --workspace=<absolute target> so the
     // workspace lands inside the example (or tempdir).
+    //
+    // projectName pin: init-workspace defaults `project.name` to
+    // `path.basename(cwd)`, which makes the regen output depend on the suite
+    // checkout directory name. The fixture's existing manifest records the
+    // project name as the suite was named WHEN the fixture was captured
+    // (typically `TestAtlas`). Read that value from the checked-in
+    // workspace manifest and pin it via --project-name so regen is
+    // deterministic across clone dir names (e.g. testatlas-ci-sim, /tmp/...).
+    let pinnedProjectName;
+    try {
+      const fixtureManifestPath = path.join(checkedInWorkspace, '11_workspace_manifest.json');
+      const fixtureManifest = JSON.parse(await readFile(fixtureManifestPath, 'utf8'));
+      pinnedProjectName = fixtureManifest?.project?.name;
+    } catch {
+      // No checked-in manifest (initial bootstrap of a new example) — fall
+      // back to init-workspace's basename default. Drift detection would
+      // still flag a future check-in if the project name differs.
+    }
     await replayStep(
-      { id: '_init', command: 'init-workspace', args: {} },
+      {
+        id: '_init',
+        command: 'init-workspace',
+        args: pinnedProjectName ? { projectName: pinnedProjectName } : {},
+      },
       {
         workspacePath: target,
         exampleCwd: suiteRoot,

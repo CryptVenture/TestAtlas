@@ -16,6 +16,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'consolidate-council.js');
@@ -65,7 +66,7 @@ test('Test 1: positive — accepted observed claim → 1 decision entry (DEC-004
     { id: 'CLAIM-001', type: 'observed', status: 'accepted', confidence: 'confirmed' },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(decisions.decisions.length, 1, 'accepted observed claim must produce 1 decision');
@@ -88,7 +89,7 @@ test('Test 2: positive — strong-suspect hypothesized → REJECTED (only confir
     },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(
@@ -111,7 +112,7 @@ test('Test 3: negative — pending observed weak-suspect → 0 decisions', async
     },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(decisions.decisions.length, 0);
@@ -130,7 +131,7 @@ test('Test 4: negative — disputed type stays rejected even if accepted', async
     },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(decisions.decisions.length, 0, 'disputed type must NOT promote even if accepted');
@@ -144,7 +145,7 @@ test('Test 5: back-compat — type=decision still produces decision (existing pa
     { id: 'CLAIM-005', type: 'decision', status: 'pending', confidence: 'unknown' },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(decisions.decisions.length, 1);
@@ -164,7 +165,7 @@ test('Test 6: back-compat — type=consolidated_decision still produces decision
     },
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     assert.equal(decisions.decisions.length, 1);
@@ -185,7 +186,7 @@ test('Test 7: mixed fixture — 4 accepted/confirmed (observed/inferred/hypothes
     { id: 'CLAIM-G', type: 'decision', status: 'pending', confidence: 'unknown' }, // back-compat
   ]);
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-TEST-001' });
     const decisions = await readDecisions(ctx.brainDir);
     // Expected: A, B, C, D (4 accepted/confirmed observed-class) + G (decision-type) = 5

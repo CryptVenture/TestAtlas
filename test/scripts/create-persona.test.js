@@ -7,6 +7,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'create-persona.js');
@@ -26,7 +27,7 @@ async function setupWorkspace() {
 test('Test 1: createPersona writes md+json under agents/personas/<type>/', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createPersona } = await import(SCRIPT);
+    const { createPersona } = await import(pathToFileURL(SCRIPT).href);
     const r = await createPersona({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -52,7 +53,7 @@ test('Test 1: createPersona writes md+json under agents/personas/<type>/', async
 test('Test 2: createPersona updates brain/personas.json index', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createPersona } = await import(SCRIPT);
+    const { createPersona } = await import(pathToFileURL(SCRIPT).href);
     await createPersona({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -74,7 +75,7 @@ test('Test 2: createPersona updates brain/personas.json index', async () => {
 test('Test 3: missing required flag throws TESTATLAS_INVALID_ARGS', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createPersona } = await import(SCRIPT);
+    const { createPersona } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       createPersona({ cwd: ctx.dir, suiteCwd: REPO_ROOT }),
       (e) => e.code === 'TESTATLAS_INVALID_ARGS',
@@ -87,7 +88,7 @@ test('Test 3: missing required flag throws TESTATLAS_INVALID_ARGS', async () => 
 test('Test 5: createPersona emits $schema annotation on persona JSON (sub-finding #1)', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createPersona } = await import(SCRIPT);
+    const { createPersona } = await import(pathToFileURL(SCRIPT).href);
     const r = await createPersona({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -109,7 +110,7 @@ test('Test 5: createPersona emits $schema annotation on persona JSON (sub-findin
 test('Test 4: invalid type fails AJV validation against persona.schema.json', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createPersona } = await import(SCRIPT);
+    const { createPersona } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       createPersona({
         cwd: ctx.dir,

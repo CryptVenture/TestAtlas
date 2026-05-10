@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'update-brain-after-command.js');
@@ -42,7 +43,7 @@ async function setupBrain() {
 test('Test 1: updateBrainAfterCommand appends event + updates state.last_command', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     const r = await updateBrainAfterCommand({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -70,7 +71,7 @@ test('Test 1: updateBrainAfterCommand appends event + updates state.last_command
 test('Test 2: updateBrainAfterCommand handles aborted status', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     const r = await updateBrainAfterCommand({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -92,7 +93,7 @@ test('Test 2: updateBrainAfterCommand handles aborted status', async () => {
 test('Test 3: updateBrainAfterCommand fails when command missing', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       updateBrainAfterCommand({
         cwd: ctx.dir,

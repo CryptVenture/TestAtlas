@@ -14,6 +14,7 @@ import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'create-domain.js');
@@ -75,7 +76,7 @@ async function setupV2Workspace() {
 test('Test 1: createDomain (V2) updates brain/domains.json index', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { createDomain } = await import(SCRIPT);
+    const { createDomain } = await import(pathToFileURL(SCRIPT).href);
     await createDomain({
       cwd: ctx.dir,
       // Tell the V2 path: also write to brain index. The script auto-detects
@@ -94,7 +95,7 @@ test('Test 1: createDomain (V2) updates brain/domains.json index', async () => {
 test('Test 2: createDomain (V2) bumps brain/state.json counts.domains', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { createDomain } = await import(SCRIPT);
+    const { createDomain } = await import(pathToFileURL(SCRIPT).href);
     await createDomain({ cwd: ctx.dir, name: 'Billing', purpose: 'Charge cards' });
     const state = JSON.parse(await readFile(path.join(ctx.wsDir, 'brain', 'state.json'), 'utf8'));
     assert.equal(state.counts.domains, 1);

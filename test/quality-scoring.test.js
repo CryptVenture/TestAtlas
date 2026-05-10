@@ -11,6 +11,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'score-quality.js');
@@ -42,7 +43,7 @@ async function minimalBrain() {
 test('Test 1: written quality_scores.json validates against quality_score.schema.json', async () => {
   const ctx = await minimalBrain();
   try {
-    const { scoreQuality } = await import(SCRIPT);
+    const { scoreQuality } = await import(pathToFileURL(SCRIPT).href);
     await scoreQuality({ cwd: ctx.dir });
     const out = JSON.parse(
       await readFile(path.join(ctx.dir, '_testatlas', 'brain', 'quality_scores.json'), 'utf8'),

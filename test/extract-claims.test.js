@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'extract-claims.js');
@@ -66,7 +67,7 @@ test('Test 1: extractClaims emits claims.jsonl with PRD §7.10 classification', 
     ],
   });
   try {
-    const { extractClaims } = await import(SCRIPT);
+    const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     const r = await extractClaims({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -128,7 +129,7 @@ test('Test 2: extractClaims appends to existing claims.jsonl (idempotent IDs)', 
         created_at: '2026-05-07T09:00:00Z',
       }) + '\n',
     );
-    const { extractClaims } = await import(SCRIPT);
+    const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     const r = await extractClaims({ cwd: ctx.dir, sessionId: ctx.sessionId });
     assert.equal(r.ok, true);
     const text = await readFile(path.join(ctx.sessionDir, 'claims.jsonl'), 'utf8');
@@ -162,7 +163,7 @@ test('Test 3: claims.jsonl validates against claim.schema.json', async () => {
     ],
   });
   try {
-    const { extractClaims } = await import(SCRIPT);
+    const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     await extractClaims({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFile(path.join(ctx.sessionDir, 'claims.jsonl'), 'utf8');
     const claim = JSON.parse(text.trim().split('\n')[0]);
@@ -184,7 +185,7 @@ test('Test 4: missing transcript file errors out', async () => {
   try {
     // Remove the transcript file we just wrote.
     await rm(path.join(ctx.sessionDir, 'transcript.jsonl'));
-    const { extractClaims } = await import(SCRIPT);
+    const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(extractClaims({ cwd: ctx.dir, sessionId: ctx.sessionId }), (e) =>
       /transcript|missing/i.test(e.message),
     );
@@ -212,7 +213,7 @@ test('Test 5: links related domains and flows when content references them', asy
     ],
   });
   try {
-    const { extractClaims } = await import(SCRIPT);
+    const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     await extractClaims({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const claim = JSON.parse(
       (await readFile(path.join(ctx.sessionDir, 'claims.jsonl'), 'utf8')).trim().split('\n')[0],

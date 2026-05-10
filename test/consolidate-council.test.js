@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'consolidate-council.js');
@@ -112,7 +113,7 @@ async function setupSession() {
 test('Test 1: consolidateCouncil writes followups.md with all pending + needs_validation claims', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     const r = await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     assert.equal(r.ok, true);
     const text = await readFile(path.join(ctx.sessionDir, 'followups.md'), 'utf8');
@@ -132,7 +133,7 @@ test('Test 1: consolidateCouncil writes followups.md with all pending + needs_va
 test('Test 2: consolidateCouncil updates brain/decisions.json with decision claims', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const decisions = JSON.parse(await readFile(path.join(ctx.brainDir, 'decisions.json'), 'utf8'));
     assert.ok(Array.isArray(decisions.decisions));
@@ -148,7 +149,7 @@ test('Test 2: consolidateCouncil updates brain/decisions.json with decision clai
 test('Test 3: consolidateCouncil dry-run does not write outputs', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     const r = await consolidateCouncil({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -168,7 +169,7 @@ test('Test 3: consolidateCouncil dry-run does not write outputs', async () => {
 test('Test 4: missing session folder errors out', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-NO-SUCH' }), (e) =>
       /session|missing/i.test(e.message),
     );
@@ -180,7 +181,7 @@ test('Test 4: missing session folder errors out', async () => {
 test('Test 5: followups.md surfaces vote tallies for each motion', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const text = await readFile(path.join(ctx.sessionDir, 'followups.md'), 'utf8');
     // Both votes for CLAIM-0001 should appear.

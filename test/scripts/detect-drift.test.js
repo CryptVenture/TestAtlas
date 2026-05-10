@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'detect-drift.js');
@@ -94,7 +95,7 @@ test('Test 1: detectDrift detects changed files since baseline ref + maps to dom
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change auth');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     assert.equal(r.ok, true);
     const all = r.drift_records;
@@ -117,7 +118,7 @@ test('Test 2: detectDrift flags package lock changes', async () => {
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'bump lock');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     const cats = r.drift_records.flatMap((d) => d.categories ?? []);
     assert.ok(cats.includes('package_lock'), 'expected package_lock category in drift');
@@ -142,7 +143,7 @@ test('Test 3: detectDrift covers all 7 PRD §7.16 input categories', async () =>
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'mass change');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     const cats = new Set(r.drift_records.flatMap((d) => d.categories ?? []));
     for (const c of [
@@ -168,7 +169,7 @@ test('Test 4: drift status assigned per record (fresh/possibly_stale/stale_requi
     await writeFile(path.join(ctx.dir, 'src', 'routes', 'auth.ts'), '// v2\n');
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     const VALID = new Set(['fresh', 'possibly_stale', 'stale_requires_review', 'unknown']);
     for (const rec of r.drift_records) {
@@ -189,7 +190,7 @@ test('Test 5: drift.json validates against drift_record.schema.json', async () =
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     await detectDrift({ cwd: ctx.dir, since: baseline });
     const out = JSON.parse(
       await readFile(path.join(ctx.dir, '_testatlas', 'brain', 'drift.json'), 'utf8'),
@@ -220,7 +221,7 @@ test('Test 6: human-readable drift report written under _testatlas/reports/drift
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     await detectDrift({ cwd: ctx.dir, since: baseline });
     const reportPath = path.join(ctx.dir, '_testatlas', 'reports', 'drift.md');
     const text = await readFile(reportPath, 'utf8');
@@ -276,7 +277,7 @@ test('Test 7 (18-03): detectDrift in non-git tmpdir returns degradedMode=mtime-o
   const origWarn = console.warn;
   console.warn = (m) => warnings.push(String(m));
   try {
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir });
     assert.equal(r.degradedMode, 'mtime-only');
     assert.ok(
@@ -295,7 +296,7 @@ test('Test 8 (18-03): detectDrift handles git EACCES gracefully via _inject', as
   const origWarn = console.warn;
   console.warn = (m) => warnings.push(String(m));
   try {
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({
       cwd: ctx.dir,
       _inject: {
@@ -322,7 +323,7 @@ test('Test 9 (18-03): detectDrift handles git EPIPE gracefully via _inject', asy
   const origWarn = console.warn;
   console.warn = () => {};
   try {
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({
       cwd: ctx.dir,
       _inject: {
@@ -347,7 +348,7 @@ test('Test 10 (18-03): happy-path detectDrift sets degradedMode=null when git wo
     await writeFile(path.join(ctx.dir, 'src', 'routes', 'auth.ts'), '// v5\n');
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     assert.equal(r.degradedMode, null, 'git-available run must NOT be degraded');
   } finally {

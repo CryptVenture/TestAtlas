@@ -16,12 +16,13 @@ import { strict as assert } from 'node:assert';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'build-sqlite.js');
 
 test('Test 1: build-sqlite degrades gracefully when better-sqlite3 absent', async () => {
-  const { buildSqlite } = await import(SCRIPT);
+  const { buildSqlite } = await import(pathToFileURL(SCRIPT).href);
   const r = await buildSqlite({ cwd: REPO_ROOT, output: '/tmp/should-not-exist.sqlite' });
   assert.equal(r.ok, false);
   assert.equal(r.reason, 'OPTIONAL_DEPENDENCY_MISSING');

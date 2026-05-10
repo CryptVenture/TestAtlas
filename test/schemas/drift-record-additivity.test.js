@@ -17,6 +17,8 @@ import { test } from 'node:test';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
+import { skipIfMissing } from '../_helpers/repo-local-state.js';
+
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCHEMA_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'drift_record.schema.json');
 const DRIFT_PATH = path.join(REPO_ROOT, '_testatlas', 'brain', 'drift.json');
@@ -29,7 +31,8 @@ async function compileValidate() {
   return ajv.compile(schema);
 }
 
-test('Test 1: every record in drift.json validates against drift_record.schema.json', async () => {
+test('Test 1: every record in drift.json validates against drift_record.schema.json', async (t) => {
+  if (!(await skipIfMissing(t, DRIFT_PATH))) return;
   const validate = await compileValidate();
   const drift = JSON.parse(await readFile(DRIFT_PATH, 'utf8'));
   for (const record of drift.drift_records) {
@@ -72,7 +75,8 @@ test('Test 3: schema rejects records missing git_ref', async () => {
   );
 });
 
-test('Test 4: drift.json contains 11 records (DRIFT-001..DRIFT-011)', async () => {
+test('Test 4: drift.json contains 11 records (DRIFT-001..DRIFT-011)', async (t) => {
+  if (!(await skipIfMissing(t, DRIFT_PATH))) return;
   const drift = JSON.parse(await readFile(DRIFT_PATH, 'utf8'));
   assert.equal(
     drift.drift_records.length,
@@ -81,7 +85,8 @@ test('Test 4: drift.json contains 11 records (DRIFT-001..DRIFT-011)', async () =
   );
 });
 
-test('Test 5: every record id matches /^DRIFT-[0-9]+$/', async () => {
+test('Test 5: every record id matches /^DRIFT-[0-9]+$/', async (t) => {
+  if (!(await skipIfMissing(t, DRIFT_PATH))) return;
   const drift = JSON.parse(await readFile(DRIFT_PATH, 'utf8'));
   for (const record of drift.drift_records) {
     assert.match(record.id, /^DRIFT-[0-9]+$/, `record id "${record.id}" must match /^DRIFT-\\d+$/`);

@@ -12,6 +12,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { skipIfMissing } from './_helpers/repo-local-state.js';
+
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 // Canonical schema source-of-truth lives in the suite tree (.testatlas/schemas/);
 // install/init-workspace mirrors it to _testatlas/brain/schema/ in target repos.
@@ -73,7 +75,8 @@ test('Test 3: relationship schema compiles with AJV', async () => {
   }
 });
 
-test('Test 4: existing _testatlas/brain/graph.json validates against relationship schema', async () => {
+test('Test 4: existing _testatlas/brain/graph.json validates against relationship schema', async (t) => {
+  if (!(await skipIfMissing(t, GRAPH_PATH))) return;
   const ajv = await getAjv();
   const schema = JSON.parse(await readFile(SCHEMA_PATH, 'utf8'));
   const validate = ajv.getSchema(schema.$id) ?? ajv.compile(schema);

@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'consolidate-council.js');
@@ -52,7 +53,7 @@ async function setupSession() {
 test('Test 1: consolidateCouncil writes followups.md and updates brain', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     const r = await consolidateCouncil({ cwd: ctx.dir, sessionId: 'COUNCIL-001' });
     assert.equal(r.ok, true);
     const followupsPath = path.join(ctx.sessionDir, 'followups.md');
@@ -67,7 +68,7 @@ test('Test 1: consolidateCouncil writes followups.md and updates brain', async (
 test('Test 2: consolidateCouncil dry-run does not write', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     const r = await consolidateCouncil({
       cwd: ctx.dir,
       sessionId: 'COUNCIL-001',
@@ -85,7 +86,7 @@ test('Test 2: consolidateCouncil dry-run does not write', async () => {
 test('Test 3: missing session folder errors out', async () => {
   const ctx = await setupSession();
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(consolidateCouncil({ cwd: ctx.dir, sessionId: 'NO-SUCH-SESSION' }), (e) =>
       /session|missing/i.test(e.message),
     );

@@ -12,6 +12,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'populate-brain-from-app-map.js');
@@ -63,7 +64,7 @@ test('Test 1: populates components/routes/commands from 12_app_map.json', async 
     },
   });
   try {
-    const { populateBrainFromAppMap } = await import(SCRIPT);
+    const { populateBrainFromAppMap } = await import(pathToFileURL(SCRIPT).href);
     await populateBrainFromAppMap({ cwd: ctx.dir });
     const components = JSON.parse(
       await readFile(path.join(ctx.brainDir, 'components.json'), 'utf8'),
@@ -88,7 +89,7 @@ test('Test 2: each written index has schema_version + last_updated', async () =>
     },
   });
   try {
-    const { populateBrainFromAppMap } = await import(SCRIPT);
+    const { populateBrainFromAppMap } = await import(pathToFileURL(SCRIPT).href);
     await populateBrainFromAppMap({ cwd: ctx.dir });
     for (const fname of ['components.json', 'routes.json', 'commands.json']) {
       const obj = JSON.parse(await readFile(path.join(ctx.brainDir, fname), 'utf8'));
@@ -115,7 +116,7 @@ test('Test 3: idempotent — repeat run reports changed:[]', async () => {
     },
   });
   try {
-    const { populateBrainFromAppMap } = await import(SCRIPT);
+    const { populateBrainFromAppMap } = await import(pathToFileURL(SCRIPT).href);
     await populateBrainFromAppMap({ cwd: ctx.dir });
     const r2 = await populateBrainFromAppMap({ cwd: ctx.dir });
     assert.deepEqual(r2.changed, [], 'second run must report no changed files');
@@ -129,7 +130,7 @@ test('Test 4: empty app-map → empty arrays in brain indexes (no error)', async
     appMap: { schema_version: '2.0.0', components: [], routes: [], cliCommands: [] },
   });
   try {
-    const { populateBrainFromAppMap } = await import(SCRIPT);
+    const { populateBrainFromAppMap } = await import(pathToFileURL(SCRIPT).href);
     const r = await populateBrainFromAppMap({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     const components = JSON.parse(
@@ -144,7 +145,7 @@ test('Test 4: empty app-map → empty arrays in brain indexes (no error)', async
 test('Test 5: missing app-map → graceful skip (ok:true, changed:[])', async () => {
   const ctx = await setupWorkspace({}); // no appMap written
   try {
-    const { populateBrainFromAppMap } = await import(SCRIPT);
+    const { populateBrainFromAppMap } = await import(pathToFileURL(SCRIPT).href);
     const r = await populateBrainFromAppMap({ cwd: ctx.dir });
     assert.equal(r.ok, true);
     assert.deepEqual(r.changed, []);

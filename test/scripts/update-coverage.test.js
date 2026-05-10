@@ -21,6 +21,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 import { loadAllSchemas } from '../../scripts/lib/schema-loader.js';
 
@@ -219,7 +220,7 @@ async function setupWorkspace() {
 test('Test 1: updateCoverage tracks all 6 categories from the map files', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     const result = await updateCoverage({
       cwd: ctx.dir,
       brainDir: ctx.brainDir,
@@ -245,7 +246,7 @@ test('Test 1: updateCoverage tracks all 6 categories from the map files', async 
 test('Test 2: coverage percentage computed correctly per category', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     const result = await updateCoverage({
       cwd: ctx.dir,
       brainDir: ctx.brainDir,
@@ -276,7 +277,7 @@ test('Test 2: coverage percentage computed correctly per category', async () => 
 test('Test 3: uncovered items linked to their map id (test scenarios when present)', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     await updateCoverage({
       cwd: ctx.dir,
       brainDir: ctx.brainDir,
@@ -300,7 +301,7 @@ test('Test 3: uncovered items linked to their map id (test scenarios when presen
 test('Test 4: output validates against coverage.schema.json', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     await updateCoverage({
       cwd: ctx.dir,
       brainDir: ctx.brainDir,
@@ -321,7 +322,7 @@ test('Test 4: output validates against coverage.schema.json', async () => {
 test('Test 5: --category filter restricts the update to one category', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     // First populate everything.
     await updateCoverage({
       cwd: ctx.dir,
@@ -366,7 +367,7 @@ test('Test 6: missing maps gracefully degrade to zero-count categories', async (
   await mkdir(mapsDir, { recursive: true });
   await mkdir(brainDir, { recursive: true });
   try {
-    const { updateCoverage } = await import(SCRIPT);
+    const { updateCoverage } = await import(pathToFileURL(SCRIPT).href);
     const r = await updateCoverage({ cwd: dir, brainDir, mapsDir, category: 'all' });
     assert.equal(r.ok, true);
     assert.equal(r.summary.routes.total, 0);

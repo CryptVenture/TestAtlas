@@ -13,6 +13,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
@@ -82,7 +83,7 @@ test('Test 1: partial materialization → outputs_audit lists missing persona', 
     ],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const session = await readSession(ctx.sessionDir);
     assert.ok(session.outputs_audit, 'outputs_audit must be populated');
@@ -101,7 +102,7 @@ test('Test 2: full materialization → missing_persona_ids:[] and no mismatch_re
     outputs: [{ name: 'p1-output.md' }, { name: 'p2-output.json' }],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const session = await readSession(ctx.sessionDir);
     assert.ok(session.outputs_audit, 'outputs_audit must be populated');
@@ -120,7 +121,7 @@ test('Test 2: full materialization → missing_persona_ids:[] and no mismatch_re
 test('Test 3: zero participants → all-zero audit, no missing', async () => {
   const ctx = await setupSession({ participants: [], outputs: [] });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const session = await readSession(ctx.sessionDir);
     assert.ok(session.outputs_audit, 'outputs_audit must be populated');
@@ -135,7 +136,7 @@ test('Test 3: zero participants → all-zero audit, no missing', async () => {
 test('Test 4: outputs/ dir absent → all participants in missing, mismatch_reason set', async () => {
   const ctx = await setupSession({ participants: ['p1', 'p2'], outputs: null });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const session = await readSession(ctx.sessionDir);
     assert.ok(session.outputs_audit, 'outputs_audit must be populated');
@@ -161,7 +162,7 @@ test('Test 5: populated session.json validates against council_session.schema.js
     outputs: [{ name: 'p1-output.md' }, { name: 'p2-output.json' }],
   });
   try {
-    const { consolidateCouncil } = await import(SCRIPT);
+    const { consolidateCouncil } = await import(pathToFileURL(SCRIPT).href);
     await consolidateCouncil({ cwd: ctx.dir, sessionId: ctx.sessionId });
     const session = await readSession(ctx.sessionDir);
 

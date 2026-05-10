@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'create-council-session.js');
@@ -59,7 +60,7 @@ async function fileExists(p) {
 test('Test 1: createCouncilSession creates session folder with all 15 required artifacts', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     const r = await createCouncilSession({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -85,7 +86,7 @@ test('Test 1: createCouncilSession creates session folder with all 15 required a
 test('Test 2: session.json validates against council_session.schema.json', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     const r = await createCouncilSession({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -120,7 +121,7 @@ test('Test 2: session.json validates against council_session.schema.json', async
 test('Test 3: createCouncilSession updates brain/agent_sessions.json', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     const r = await createCouncilSession({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -142,7 +143,7 @@ test('Test 3: createCouncilSession updates brain/agent_sessions.json', async () 
 test('Test 4: missing required arg throws TESTATLAS_INVALID_ARGS', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       createCouncilSession({ cwd: ctx.dir, suiteCwd: REPO_ROOT }),
       (e) => e.code === 'TESTATLAS_INVALID_ARGS',
@@ -165,7 +166,7 @@ test('Test 4: missing required arg throws TESTATLAS_INVALID_ARGS', async () => {
 test('Test 5: participants.json contains entries for every requested persona', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     const r = await createCouncilSession({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,
@@ -186,7 +187,7 @@ test('Test 5: participants.json contains entries for every requested persona', a
 test('Test 6: subsequent sessions on the same date increment the suffix', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { createCouncilSession } = await import(SCRIPT);
+    const { createCouncilSession } = await import(pathToFileURL(SCRIPT).href);
     const r1 = await createCouncilSession({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,

@@ -17,6 +17,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'update-brain-after-command.js');
@@ -48,7 +49,7 @@ async function setupBrain() {
 test('B1: detectDrift:true triggers detect-drift producer invocation via _inject mock', async () => {
   const ctx = await setupBrain();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     const calls = [];
     const mockProducer = async (a) => {
       calls.push(a);
@@ -76,7 +77,7 @@ test('B2: default off — drift.json untouched when flag absent', async () => {
   const ctx = await setupBrain();
   try {
     const before = await readFile(path.join(ctx.brainDir, 'drift.json'));
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     await updateBrainAfterCommand({
       cwd: ctx.dir,
       suiteCwd: REPO_ROOT,

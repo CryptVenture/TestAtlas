@@ -8,6 +8,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'detect-drift.js');
@@ -63,7 +64,7 @@ test('E2E 1: detect-drift writes drift.json + drift.md atomically', async () => 
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     assert.equal(r.ok, true);
     const out = JSON.parse(
@@ -92,7 +93,7 @@ test('E2E 2: --category filter restricts records to selected category', async ()
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'change');
 
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline, category: 'routes' });
     const cats = r.drift_records.flatMap((d) => d.categories ?? []);
     assert.ok(cats.includes('route'), 'routes filter should keep route records');
@@ -106,7 +107,7 @@ test('E2E 3: empty repo (no changes) yields empty drift_records', async () => {
   const ctx = await setupRepo();
   try {
     const baseline = git(ctx.dir, 'rev-parse', 'HEAD').trim();
-    const { detectDrift } = await import(SCRIPT);
+    const { detectDrift } = await import(pathToFileURL(SCRIPT).href);
     const r = await detectDrift({ cwd: ctx.dir, since: baseline });
     assert.equal(r.ok, true);
     assert.equal(r.drift_records.length, 0);

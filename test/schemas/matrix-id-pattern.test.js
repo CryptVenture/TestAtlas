@@ -21,6 +21,8 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { skipIfMissing } from '../_helpers/repo-local-state.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SUITE_ROOT = path.resolve(__dirname, '..', '..');
 const VOCAB_PATH = path.join(SUITE_ROOT, '.testatlas', 'schemas', 'vocabulary.schema.json');
@@ -110,7 +112,8 @@ async function collectMatrixTestIds() {
   return collected;
 }
 
-test('matrix surface: every TEST-* id matches the vocabulary regex', async () => {
+test('matrix surface: every TEST-* id matches the vocabulary regex', async (t) => {
+  if (!(await skipIfMissing(t, TESTS_DIR))) return;
   const idRe = await loadTestIdPattern();
   const collected = await collectMatrixTestIds();
 

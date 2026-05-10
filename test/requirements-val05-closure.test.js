@@ -25,6 +25,8 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { skipIfMissing } from './_helpers/repo-local-state.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
 const REQUIREMENTS_PATH = path.join(repoRoot, '.planning', 'REQUIREMENTS.md');
@@ -42,7 +44,8 @@ const ADP_IDS = [
   'ADP-10',
 ];
 
-test('Test 1: VAL-05 partial-acceptance suffix is fully removed from REQUIREMENTS.md', async () => {
+test('Test 1: VAL-05 partial-acceptance suffix is fully removed from REQUIREMENTS.md', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
   const text = await readFile(REQUIREMENTS_PATH, 'utf8');
   const FORBIDDEN = '(stub Complete; Phase 6 fills runtime)';
   assert.ok(
@@ -51,7 +54,8 @@ test('Test 1: VAL-05 partial-acceptance suffix is fully removed from REQUIREMENT
   );
 });
 
-test('Test 2: each ADP-01..ADP-10 requirement-list checkbox is flipped to [x]', async () => {
+test('Test 2: each ADP-01..ADP-10 requirement-list checkbox is flipped to [x]', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
   const text = await readFile(REQUIREMENTS_PATH, 'utf8');
   for (const id of ADP_IDS) {
     const expected = `- [x] **${id}**:`;
@@ -67,7 +71,8 @@ test('Test 2: each ADP-01..ADP-10 requirement-list checkbox is flipped to [x]', 
   }
 });
 
-test('Test 3: traceability table marks each ADP-01..ADP-10 as Phase 6 | Complete', async () => {
+test('Test 3: traceability table marks each ADP-01..ADP-10 as Phase 6 | Complete', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
   const text = await readFile(REQUIREMENTS_PATH, 'utf8');
   for (const id of ADP_IDS) {
     const completeRow = `| ${id} | Phase 6 | Complete |`;

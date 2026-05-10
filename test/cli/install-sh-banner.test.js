@@ -32,14 +32,22 @@ function runHelp(env = {}) {
 test('install.sh --help: renders the TESTATLAS block-art banner', { skip: isWindows }, () => {
   const r = runHelp({ NO_COLOR: '1' });
   assert.equal(r.status, 0, `expected exit 0, got ${r.status}\nstderr=${r.stderr}`);
-  let hits = 0;
-  for (const line of BANNER_LINES) {
-    if (line.trim().length === 0) continue;
-    if (r.stdout.includes(line)) hits++;
-  }
+  // Accept either Unicode (█) or ASCII (#) art — install.sh's _banner()
+  // function selects between embedded `_b1..._b5` Unicode and ASCII
+  // variants based on the same isUnicode() heuristic.
+  const countHits = (lines) => {
+    let n = 0;
+    for (const line of lines) {
+      if (line.trim().length === 0) continue;
+      if (r.stdout.includes(line)) n++;
+    }
+    return n;
+  };
+  const unicodeHits = countHits(BANNER_LINES);
+  const asciiHits = countHits(BANNER_ASCII_LINES);
   assert.ok(
-    hits >= 4,
-    `expected ≥4 banner art lines in install.sh --help; got ${hits}\nstdout=${r.stdout}`,
+    unicodeHits >= 4 || asciiHits >= 4,
+    `expected ≥4 banner art lines in install.sh --help; got unicode=${unicodeHits} ascii=${asciiHits}\nstdout=${r.stdout}`,
   );
 });
 

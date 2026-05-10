@@ -12,7 +12,10 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { skipIfMissing } from '../_helpers/repo-local-state.js';
+
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
+const REQUIREMENTS_PATH = path.join(REPO_ROOT, '.planning', 'REQUIREMENTS.md');
 
 test('CHANGELOG.md: contains a [0.1.0] heading', async () => {
   const buf = await readFile(path.join(REPO_ROOT, 'CHANGELOG.md'), 'utf8');
@@ -70,26 +73,30 @@ test('package.json version matches the most-recent CHANGELOG entry', async () =>
   );
 });
 
-test('REQUIREMENTS.md: all 6 INSTALL-0X are flipped to [x]', async () => {
-  const buf = await readFile(path.join(REPO_ROOT, '.planning', 'REQUIREMENTS.md'), 'utf8');
+test('REQUIREMENTS.md: all 6 INSTALL-0X are flipped to [x]', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
+  const buf = await readFile(REQUIREMENTS_PATH, 'utf8');
   const matches = buf.match(/^- \[x\] \*\*INSTALL-0[1-6]\*\*/gm) ?? [];
   assert.equal(matches.length, 6, `expected 6 INSTALL-0X [x] flips, got ${matches.length}`);
 });
 
-test('REQUIREMENTS.md: all 7 UPDATE-0X are flipped to [x]', async () => {
-  const buf = await readFile(path.join(REPO_ROOT, '.planning', 'REQUIREMENTS.md'), 'utf8');
+test('REQUIREMENTS.md: all 7 UPDATE-0X are flipped to [x]', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
+  const buf = await readFile(REQUIREMENTS_PATH, 'utf8');
   const matches = buf.match(/^- \[x\] \*\*UPDATE-0[1-7]\*\*/gm) ?? [];
   assert.equal(matches.length, 7, `expected 7 UPDATE-0X [x] flips, got ${matches.length}`);
 });
 
-test('REQUIREMENTS.md: all 3 DIST-0X are flipped to [x]', async () => {
-  const buf = await readFile(path.join(REPO_ROOT, '.planning', 'REQUIREMENTS.md'), 'utf8');
+test('REQUIREMENTS.md: all 3 DIST-0X are flipped to [x]', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
+  const buf = await readFile(REQUIREMENTS_PATH, 'utf8');
   const matches = buf.match(/^- \[x\] \*\*DIST-0[1-3]\*\*/gm) ?? [];
   assert.equal(matches.length, 3, `expected 3 DIST-0X [x] flips, got ${matches.length}`);
 });
 
-test('REQUIREMENTS.md: traceability rows for INSTALL/UPDATE/DIST all say "Complete"', async () => {
-  const buf = await readFile(path.join(REPO_ROOT, '.planning', 'REQUIREMENTS.md'), 'utf8');
+test('REQUIREMENTS.md: traceability rows for INSTALL/UPDATE/DIST all say "Complete"', async (t) => {
+  if (!(await skipIfMissing(t, REQUIREMENTS_PATH))) return;
+  const buf = await readFile(REQUIREMENTS_PATH, 'utf8');
   const ids = [
     ...['INSTALL-01', 'INSTALL-02', 'INSTALL-03', 'INSTALL-04', 'INSTALL-05', 'INSTALL-06'],
     ...['UPDATE-01', 'UPDATE-02', 'UPDATE-03', 'UPDATE-04', 'UPDATE-05', 'UPDATE-06', 'UPDATE-07'],

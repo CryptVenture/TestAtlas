@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'generate-retest-pack.js');
@@ -85,7 +86,7 @@ async function setupWorkspace() {
 test('Test 1: generateRetestPack reads issue + emits md+json under retest_packs/RET-<id>/', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateRetestPack({ cwd: ctx.dir, issueId: 'ISSUE-001-signup-failure' });
     assert.equal(r.ok, true);
     assert.ok(Array.isArray(r.packs) && r.packs.length === 1);
@@ -102,7 +103,7 @@ test('Test 1: generateRetestPack reads issue + emits md+json under retest_packs/
 test('Test 2: pack JSON validates against retest_pack.schema.json (key fields)', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateRetestPack({ cwd: ctx.dir, issueId: 'ISSUE-001-signup-failure' });
     assert.equal(r.ok, true);
     const packDirs = await readdir(ctx.retestDir);
@@ -166,7 +167,7 @@ test('Test 3: --all-open generates packs for every open issue and skips closed',
       ),
     );
 
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateRetestPack({ cwd: ctx.dir, allOpen: true });
     assert.equal(r.ok, true);
     assert.equal(r.packs.length, 1, 'closed issue should be skipped');
@@ -179,7 +180,7 @@ test('Test 3: --all-open generates packs for every open issue and skips closed',
 test('Test 4: pack carries pass/fail criteria derived from acceptanceCriteria + evidence refs', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateRetestPack({ cwd: ctx.dir, issueId: 'ISSUE-001-signup-failure' });
     assert.equal(r.ok, true);
     const pack = r.packs[0];
@@ -198,7 +199,7 @@ test('Test 4: pack carries pass/fail criteria derived from acceptanceCriteria + 
 test('Test 5: only writes under _testatlas/tests/retest_packs/', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateRetestPack({ cwd: ctx.dir, issueId: 'ISSUE-001-signup-failure' });
     assert.equal(r.ok, true);
     for (const f of r.written ?? []) {
@@ -216,7 +217,7 @@ test('Test 5: only writes under _testatlas/tests/retest_packs/', async () => {
 test('Test 6: missing issue id halts with ISSUE_NOT_FOUND', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { generateRetestPack } = await import(SCRIPT);
+    const { generateRetestPack } = await import(pathToFileURL(SCRIPT).href);
     await assert.rejects(
       () => generateRetestPack({ cwd: ctx.dir, issueId: 'ISSUE-999-missing' }),
       (err) => err.code === 'ISSUE_NOT_FOUND',

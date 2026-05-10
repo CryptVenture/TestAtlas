@@ -15,6 +15,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
@@ -57,7 +58,7 @@ async function compileSchema() {
 test('Test 1: undefined → set — stamps executionMode + justification', async () => {
   const ctx = await setupSession();
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     const r = await recordExecutionMode({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -77,7 +78,7 @@ test('Test 1: undefined → set — stamps executionMode + justification', async
 test('Test 2: idempotent — re-record with identical args reports changed:false', async () => {
   const ctx = await setupSession();
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     await recordExecutionMode({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -102,7 +103,7 @@ test('Test 2: idempotent — re-record with identical args reports changed:false
 test('Test 3: overwrite existing — prior mode replaced with new', async () => {
   const ctx = await setupSession({ priorMode: 'inline-simulation' });
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     await recordExecutionMode({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -120,7 +121,7 @@ test('Test 3: overwrite existing — prior mode replaced with new', async () => 
 test('Test 4: back-compat — pre-Phase-21 session (no executionMode) still validates after stamp', async () => {
   const ctx = await setupSession();
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     await recordExecutionMode({
       cwd: ctx.dir,
       sessionId: ctx.sessionId,
@@ -141,7 +142,7 @@ test('Test 4: back-compat — pre-Phase-21 session (no executionMode) still vali
 test('Test 5: invalid mode rejected — session.json untouched', async () => {
   const ctx = await setupSession();
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     const before = await readFile(path.join(ctx.sessionDir, 'session.json'));
     let threw = false;
     let okFalse = false;
@@ -167,7 +168,7 @@ test('Test 5: invalid mode rejected — session.json untouched', async () => {
 test('Test 6: missing session — returns {ok:false} or throws ENOENT', async () => {
   const ctx = await setupSession({ createSessionFile: false });
   try {
-    const { recordExecutionMode } = await import(SCRIPT);
+    const { recordExecutionMode } = await import(pathToFileURL(SCRIPT).href);
     let threw = false;
     let okFalse = false;
     try {

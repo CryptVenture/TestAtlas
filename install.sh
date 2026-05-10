@@ -155,6 +155,21 @@ _main() {
         # public feature.
         _log "Using local tarball override: ${_TESTATLAS_TARBALL_OVERRIDE}"
         cp "${_TESTATLAS_TARBALL_OVERRIDE}" "$TARBALL"
+        # Override implies the caller takes responsibility for the file
+        # (test fixture or local pnpm-pack output). The hardcoded
+        # TARBALL_SHA256 above is the SHA of the official published npm
+        # tarball at release time — a locally-packed tarball cannot match
+        # it because tar metadata + compression bits differ. Force the
+        # checksum-skip path so `_verify_checksum` still runs (and emits
+        # the dev-mode "placeholder" / "skipping" log line tests assert
+        # on) but doesn't reject the local file. Signature verification
+        # would also reject the local file (sigstore bundle is keyed to
+        # the published tarball), so it stays opt-in via
+        # TESTATLAS_VERIFY_SIGNATURE — when the user pins that env var
+        # alongside the override, they're explicitly asking for a
+        # signature check that will fail by design.
+        TESTATLAS_SKIP_CHECKSUM=1
+        export TESTATLAS_SKIP_CHECKSUM
     else
         _log "Downloading from ${TARBALL_URL}"
         if ! _download "$TARBALL_URL" "$TARBALL"; then

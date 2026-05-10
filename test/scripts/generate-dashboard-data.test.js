@@ -9,6 +9,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'generate-dashboard-data.js');
@@ -136,7 +137,7 @@ async function setupBrain() {
 test('Test 1: generateDashboardData produces JSON with PRD §16 fields', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const r = await generateDashboardData({ cwd: ctx.dir });
     assert.equal(typeof r, 'object');
     assert.equal(r.schema_version, '2.0.0');
@@ -155,7 +156,7 @@ test('Test 1: generateDashboardData produces JSON with PRD §16 fields', async (
 test('Test 2: output validates against dashboard_data.schema.json', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: ctx.dir });
     const { loadAllSchemas } = await import(
       path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
@@ -175,7 +176,7 @@ test('Test 2: output validates against dashboard_data.schema.json', async () => 
 test('Test 3: dashboard includes issue counts by severity and domain coverage', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: ctx.dir });
     assert.equal(out.issues_by_severity.critical, 1);
     assert.equal(out.issues_by_severity.high, 1);
@@ -197,7 +198,7 @@ test('Test 3: dashboard includes issue counts by severity and domain coverage', 
 test('Test 4: drift summary lists stale_requires_review domains', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: ctx.dir });
     assert.ok(Array.isArray(out.drift.stale_domains));
     assert.ok(out.drift.stale_domains.includes('domain-billing'));
@@ -210,7 +211,7 @@ test('Test 4: drift summary lists stale_requires_review domains', async () => {
 test('Test 5: council_activity tallies sessions and open decisions', async () => {
   const ctx = await setupBrain();
   try {
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: ctx.dir });
     assert.equal(out.council_activity.sessions_total, 1);
     assert.equal(typeof out.council_activity.sessions_last_7_days, 'number');
@@ -224,7 +225,7 @@ test('Test 6: --output writes JSON to disk and is parseable', async () => {
   const ctx = await setupBrain();
   try {
     const out = path.join(ctx.dir, '_testatlas', 'reports', 'dashboard-data.json');
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     await generateDashboardData({ cwd: ctx.dir, output: out });
     const parsed = JSON.parse(await readFile(out, 'utf8'));
     assert.equal(parsed.schema_version, '2.0.0');
@@ -252,7 +253,7 @@ test('Test 7: tolerates missing brain files (degrades to empty defaults)', async
         schema_uri: 'https://testatlas.dev/schemas/v2/manifest.schema.json',
       }),
     );
-    const { generateDashboardData } = await import(SCRIPT);
+    const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: dir });
     assert.equal(out.project, 'empty-fixture');
     assert.equal(out.quality_summary.domains_total, 0);

@@ -16,6 +16,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'update-brain-after-command.js');
@@ -47,7 +48,7 @@ async function setupWorkspace() {
 test('Test 1: reconcileCounts:true triggers producer invocation via _inject mock', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     const calls = [];
     const mockReconcile = async (a) => {
       calls.push(a);
@@ -78,7 +79,7 @@ test('Test 1: reconcileCounts:true triggers producer invocation via _inject mock
 test('Test 2: default off — flag absent → producer NOT called (back-compat)', async () => {
   const ctx = await setupWorkspace();
   try {
-    const { updateBrainAfterCommand } = await import(SCRIPT);
+    const { updateBrainAfterCommand } = await import(pathToFileURL(SCRIPT).href);
     const calls = [];
     const mockReconcile = async (a) => {
       calls.push(a);

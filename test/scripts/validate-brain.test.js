@@ -25,6 +25,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'validate-brain.js');
@@ -292,6 +293,6 @@ test('Test 5: claims.jsonl with line violating claim.schema.json → AJV failure
 });
 
 test('Test 6: validateBrain export is a function', async () => {
-  const mod = await import(SCRIPT);
+  const mod = await import(pathToFileURL(SCRIPT).href);
   assert.equal(typeof mod.validateBrain, 'function');
 });
