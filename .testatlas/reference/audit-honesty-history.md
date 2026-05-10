@@ -16,10 +16,10 @@ The Release Readiness council (2026-05-10) ratified CONDITIONAL-GO on cutting v2
 
 The council also surfaced 3 prompt-side errors that the orchestrator caught only because personas re-verified independently: (1) the prompt asserted `validate-workspace exits 0 confirmed` when in fact it exits 1 with 2 errors + 7 warnings (a `tail -15` pipe in the orchestrator's verification step had masked the real exit code); (2) the prompt asserted ISSUE-038..045 were `5×high / 3×medium` when on-disk severities were `3×high / 4×medium / 1×low`; (3) the prompt referenced "ISSUE-082 release.yml sigstore" — no on-disk issue exists; the real release.yml predecessor was ISSUE-011 closed Phase 12-01. All three were captured as DIS-005 + DEC-007 process-improvement; carried forward as OPEN-006 ("orchestrator MUST re-verify prompt evidence before sub-agent spawn").
 
-## OPEN questions carried forward
+## OPEN questions carried forward — closed by Quick 260510-rfp follow-up
 
-- **OPEN-006:** Add to `.testatlas/reference/council-protocol.md` round-1 checklist that the orchestrator MUST stat-and-grep every issue ID, count, and version cited in `prompt.md` before spawning rounds 2-3 personas.
-- **OPEN-007:** Extend the obd-verifier checklist to include "flip closed-by-this-phase issues to status:closed" — the Phase-23 verifier passed 30/30 must-haves but did NOT include this contract; result was 8 brain rows with stale `status:new` (closed retroactively by COUNCIL-2026-05-10-001 DEC-003).
+- **OPEN-006 (CLOSED 2026-05-10):** Pre-spawn prompt-evidence verification — `.testatlas/reference/council-protocol.md` §7.5 now requires the orchestrator to stat-and-grep every issue ID, count, version reference, and script path cited in `prompt.md` BEFORE spawning rounds 2-3 personas. Pinned by `test/reference/council-protocol-prompt-evidence-verification.test.js` (7 tests, all GREEN).
+- **OPEN-007 (CLOSED 2026-05-10):** Issue-status closure parity check — `~/.claude/agents/obd-verifier.md` Step 6d now adds a generic "Issue-Status Closure Parity" gap-detection rule that walks SUMMARY/CHANGELOG for `ISSUE-NNNN` citations and verifies the corresponding sidecar's status field transitioned to `closed` (or `wont_fix`). Pinned in TestAtlas by `test/brain/changelog-issue-status-parity.test.js` (2 tests, both GREEN; gracefully skip on fresh-checkout where `_testatlas/` is absent). This check would have caught the 8 ISSUE-038..045 lifecycle gap at Phase-23 closure instead of post-hoc at COUNCIL-2026-05-10-001.
 
 ---
 
