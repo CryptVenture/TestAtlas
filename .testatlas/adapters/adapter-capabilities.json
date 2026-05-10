@@ -1,6 +1,6 @@
 {
   "$schema": "../schemas/adapter-capabilities.schema.json",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "adapters": [
     {
       "name": "claude-code",

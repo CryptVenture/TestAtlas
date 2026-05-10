@@ -10,6 +10,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Removed
 
+## [2.0.2] - 2026-05-10
+
+### Added
+
+### Changed
+
+### Removed
+
 ### Fixed
 
 - **Hotfix — `update` no longer wipes `<target>/.testatlas/scripts/`.** `extractTarball()` (`scripts/lib/tarball.js`) extracted only `package/.testatlas/` from the npm tarball, dropping the sibling `package/scripts/` tree on the floor. The atomic-swap step in `runUpdate()` then renamed the staged tree (with no `scripts/`) into place, deleting the script subtree the prior `init` had populated via `copyValidatorScripts()`. Net effect on every released v2.0.x consumer: the first `npx @webventures/testatlas update [--force-reinstall]` removed every accelerator script (`create-domain.js`, `sync-system-map.js`, `create-issue.js`, `create-flow.js`, `create-evidence-record.js`, `update-indexes.js`, `validate-workspace.js`, etc.) plus their `lib/` closure, forcing every `/atlas:*` command into its slow manual-fallback path and breaking the `/atlas:map-domains` preferred path the user reported. v2.0.2 makes `extractTarball` perform two staged extractions: `package/.testatlas/` (`--strip-components=2`, unchanged) and `package/scripts/` (`--strip-components=1`, excluding `scripts/e2e/` to mirror `copyValidatorScripts`'s init-time exclusion). The staged tree now mirrors a fully-installed `.testatlas/` so the post-swap `<target>/.testatlas/` includes its `scripts/` subtree. Three new regression tests in `test/scripts/extract-tarball-strips-package-wrapper.test.js` pin the new contract: `package/scripts/x.js → dstDir/scripts/x.js`, `package/scripts/lib/y.js → dstDir/scripts/lib/y.js`, and `package/scripts/e2e/z.js` excluded; the existing top-level-shape assertion was updated to `['adapters','bootstrap.md','migrations','scripts']`. End-to-end verified by packing the suite locally and asserting all six user-facing accelerator scripts arrive in the staged tree. No init-path change required — `copyValidatorScripts()` (`scripts/lib/install-core.js:472-494`) already handled this for fresh installs; v2.0.2 brings the update path to parity.
