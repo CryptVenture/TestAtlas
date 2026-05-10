@@ -17,7 +17,6 @@
 
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { isMainModule } from './lib/is-main.js';

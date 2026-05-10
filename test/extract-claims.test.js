@@ -115,7 +115,7 @@ test('Test 2: extractClaims appends to existing claims.jsonl (idempotent IDs)', 
     // Pre-populate with an existing claim using ID CLAIM-0042.
     await writeFile(
       path.join(ctx.sessionDir, 'claims.jsonl'),
-      JSON.stringify({
+      `${JSON.stringify({
         id: 'CLAIM-0042',
         session_id: 'COUNCIL-2026-05-07-001',
         speaker: 'product-strategist',
@@ -127,7 +127,7 @@ test('Test 2: extractClaims appends to existing claims.jsonl (idempotent IDs)', 
         related_flows: [],
         status: 'pending',
         created_at: '2026-05-07T09:00:00Z',
-      }) + '\n',
+      })}\n`,
     );
     const { extractClaims } = await import(pathToFileURL(SCRIPT).href);
     const r = await extractClaims({ cwd: ctx.dir, sessionId: ctx.sessionId });

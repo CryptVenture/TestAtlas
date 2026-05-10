@@ -5,9 +5,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--publish emits deprecation warning suggesting --release', async (t) => {
+test('--publish emits deprecation warning suggesting --release', { skip: isWindows }, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -32,7 +34,9 @@ test('--publish emits deprecation warning suggesting --release', async (t) => {
   );
 });
 
-test('--release does not emit the --publish deprecation warning', async (t) => {
+test('--release does not emit the --publish deprecation warning', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 

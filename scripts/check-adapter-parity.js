@@ -27,7 +27,6 @@
 // with the parity library + the rewritten stub.
 
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { enumerate } from './lib/adapters/parity.js';
 import { isMainModule } from './lib/is-main.js';
 

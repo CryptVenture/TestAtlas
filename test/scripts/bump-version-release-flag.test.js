@@ -14,9 +14,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--release: dry-run shows full sequence (push + gh release create + notes-file)', async (t) => {
+test('--release: dry-run shows full sequence (push + gh release create + notes-file)', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -42,7 +46,9 @@ test('--release: dry-run shows full sequence (push + gh release create + notes-f
   assert.match(out, /--title/, 'expected --title flag preview');
 });
 
-test('--release executes push + gh release create with --notes-file', async (t) => {
+test('--release executes push + gh release create with --notes-file', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', withOrigin: true });
   t.after(fx.cleanup);
 
@@ -99,7 +105,9 @@ test('--release executes push + gh release create with --notes-file', async (t) 
   assert.ok(gitPushes.length >= 1, `expected git push attempts; saw ${gitPushes.length}`);
 });
 
-test('--push without --release does not invoke gh release create', async (t) => {
+test('--push without --release does not invoke gh release create', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 

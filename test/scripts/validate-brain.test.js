@@ -55,7 +55,7 @@ const REQUIRED_JSON_FILES = [
 
 const REQUIRED_JSONL_FILES = ['claims.jsonl', 'events.jsonl', 'observations.jsonl'];
 
-async function makeHealthyBrain(repoRoot) {
+async function _makeHealthyBrain(repoRoot) {
   const brainDir = path.join(repoRoot, '_testatlas', 'brain');
   await mkdir(brainDir, { recursive: true });
   // Suite tree (schemas + vocabulary) is required so AJV can load schemas.

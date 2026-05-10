@@ -14,9 +14,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--wait passes --commit to gh run list', async (t) => {
+test('--wait passes --commit to gh run list', { skip: isWindows }, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', withOrigin: true });
   t.after(fx.cleanup);
 
@@ -66,7 +68,9 @@ test('--wait passes --commit to gh run list', async (t) => {
   assert.match(sha, /^[0-9a-f]{7,40}$/, `expected sha-shaped --commit value; got "${sha}"`);
 });
 
-test('--wait retries when run-list returns [] then succeeds when run appears', async (t) => {
+test('--wait retries when run-list returns [] then succeeds when run appears', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -88,7 +92,9 @@ test('--wait retries when run-list returns [] then succeeds when run appears', a
   assert.match(out, /--commit/, 'expected --wait dry-run preview to mention --commit filter');
 });
 
-test('--resume --wait: when run-list keeps returning [], surfaces sha-citing timeout error', async (t) => {
+test('--resume --wait: when run-list keeps returning [], surfaces sha-citing timeout error', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 

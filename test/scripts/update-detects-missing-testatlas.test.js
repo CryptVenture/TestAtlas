@@ -29,7 +29,7 @@ const __dirname2 = path.dirname(fileURLToPath(import.meta.url));
 const SUITE_ROOT_FOR_CONFIG = path.resolve(__dirname2, '..', '..');
 
 // Phase 18-01 / ISSUE-011: seed the destructive-fs gate prerequisites in `tmp`.
-async function seedPermissiveConfig(tmp) {
+async function _seedPermissiveConfig(tmp) {
   await mkdir(path.join(tmp, '.testatlas'), { recursive: true });
   await cp(
     path.join(SUITE_ROOT_FOR_CONFIG, '.testatlas', 'default.config.json'),

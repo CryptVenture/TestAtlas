@@ -36,7 +36,7 @@ const PATTERNS = [
   {
     name: 'token-query-param',
     re: /([?&])token=[^\s&"']+/g,
-    repl: (m, p) => `${p}token=[REDACTED:token-query-param]`,
+    repl: (_m, p) => `${p}token=[REDACTED:token-query-param]`,
   },
   { name: 'jwt', re: /eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g },
   {

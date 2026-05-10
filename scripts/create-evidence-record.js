@@ -8,7 +8,6 @@
 
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';

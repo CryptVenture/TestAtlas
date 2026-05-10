@@ -16,7 +16,6 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { isMainModule } from './lib/is-main.js';
@@ -54,7 +53,7 @@ function derivePrimaryStack(pkg) {
   const stack = [];
   if (pkg && typeof pkg === 'object') {
     const deps = { ...(pkg.dependencies ?? {}), ...(pkg.devDependencies ?? {}) };
-    if (pkg.engines && pkg.engines.node) stack.push('node');
+    if (pkg.engines?.node) stack.push('node');
     else if (deps.commander || deps.ajv || deps.semver) stack.push('node');
     if (deps.react || deps['react-dom']) stack.push('react');
     if (deps.vue) stack.push('vue');

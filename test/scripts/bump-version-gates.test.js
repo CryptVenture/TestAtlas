@@ -18,9 +18,13 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('bump-version: refuses on dirty working tree without --force-dirty', async (t) => {
+test('bump-version: refuses on dirty working tree without --force-dirty', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
@@ -39,7 +43,9 @@ test('bump-version: refuses on dirty working tree without --force-dirty', async 
   assert.match(`${result.stdout}\n${result.stderr}`, /dirty|uncommitted|--force-dirty/i);
 });
 
-test('bump-version: --force-dirty allows bumping with uncommitted changes', async (t) => {
+test('bump-version: --force-dirty allows bumping with uncommitted changes', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
@@ -62,7 +68,7 @@ test('bump-version: --force-dirty allows bumping with uncommitted changes', asyn
   );
 });
 
-test('bump-version: refuses when tag already exists locally', async (t) => {
+test('bump-version: refuses when tag already exists locally', { skip: isWindows }, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -80,7 +86,9 @@ test('bump-version: refuses when tag already exists locally', async (t) => {
   assert.match(`${result.stdout}\n${result.stderr}`, /tag.*v1\.0\.1.*exists/i);
 });
 
-test('bump-version: refuses when tag exists on remote (ls-remote check)', async (t) => {
+test('bump-version: refuses when tag exists on remote (ls-remote check)', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -104,7 +112,9 @@ test('bump-version: refuses when tag exists on remote (ls-remote check)', async 
   );
 });
 
-test('bump-version: gates run pnpm test + parity + validate before any write', async (t) => {
+test('bump-version: gates run pnpm test + parity + validate before any write', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
@@ -138,7 +148,9 @@ test('bump-version: gates run pnpm test + parity + validate before any write', a
   );
 });
 
-test('bump-version: gate failure (pnpm test fails) aborts BEFORE any file writes', async (t) => {
+test('bump-version: gate failure (pnpm test fails) aborts BEFORE any file writes', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
@@ -161,7 +173,9 @@ test('bump-version: gate failure (pnpm test fails) aborts BEFORE any file writes
   assert.equal(versionFile, '1.0.0');
 });
 
-test('bump-version: --skip-gates bypasses pnpm test + parity + validate', async (t) => {
+test('bump-version: --skip-gates bypasses pnpm test + parity + validate', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 
@@ -184,7 +198,9 @@ test('bump-version: --skip-gates bypasses pnpm test + parity + validate', async 
   assert.equal(pnpmCalls.length, 0, '--skip-gates must NOT invoke pnpm test');
 });
 
-test('bump-version: --dry-run never invokes write-y stubs (no git commit/tag/push)', async (t) => {
+test('bump-version: --dry-run never invokes write-y stubs (no git commit/tag/push)', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture();
   t.after(fx.cleanup);
 

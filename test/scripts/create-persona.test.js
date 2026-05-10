@@ -37,8 +37,10 @@ test('Test 1: createPersona writes md+json under agents/personas/<type>/', async
       domains: ['domain-auth', 'domain-billing'],
     });
     assert.equal(r.ok, true);
-    assert.match(r.mdPath, /agents\/personas\/system\/[a-z0-9-]+\.md$/);
-    assert.match(r.jsonPath, /agents\/personas\/system\/[a-z0-9-]+\.json$/);
+    // Normalize to forward slashes — Windows returns `\` separators which
+    // wouldn't match a POSIX-style regex without normalization.
+    assert.match(r.mdPath.replaceAll('\\', '/'), /agents\/personas\/system\/[a-z0-9-]+\.md$/);
+    assert.match(r.jsonPath.replaceAll('\\', '/'), /agents\/personas\/system\/[a-z0-9-]+\.json$/);
     const mdText = await readFile(r.mdPath, 'utf8');
     assert.match(mdText, /Mission/);
     const json = JSON.parse(await readFile(r.jsonPath, 'utf8'));
@@ -119,7 +121,7 @@ test('Test 4: invalid type fails AJV validation against persona.schema.json', as
         type: 'not-a-real-type',
         mission: 'irrelevant',
       }),
-      (e) => /TESTATLAS_INVALID|enum/i.test(String(e.code) + ' ' + String(e.message)),
+      (e) => /TESTATLAS_INVALID|enum/i.test(`${String(e.code)} ${String(e.message)}`),
     );
   } finally {
     await ctx.cleanup();

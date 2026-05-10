@@ -45,7 +45,6 @@
 
 import { readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { regenerateCrossCutIndexes } from './lib/command-lifecycle.js';
 import { hashContent } from './lib/content-hash.js';

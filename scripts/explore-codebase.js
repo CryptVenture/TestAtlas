@@ -158,7 +158,10 @@ async function detectSystemBinaries(rootDir) {
         out.push({
           name: bin,
           type: 'system-binary',
-          source: `${path.relative(rootDir, full)}:${lineNo}`,
+          // Normalize to POSIX separators so the JSON output is
+          // platform-stable; downstream consumers (schemas + agents)
+          // expect `scripts/foo.js:2` regardless of host OS.
+          source: `${path.relative(rootDir, full).replaceAll('\\', '/')}:${lineNo}`,
         });
       }
     }

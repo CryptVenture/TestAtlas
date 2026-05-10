@@ -24,7 +24,6 @@
 
 import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { copyV2Artifacts } from './lib/copy-v2-artifacts.js';

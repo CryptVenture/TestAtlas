@@ -23,7 +23,6 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { formatErrors } from './lib/ajv-instance.js';
 import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';

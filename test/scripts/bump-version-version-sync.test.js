@@ -22,6 +22,8 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, runBump } from './_bump-version-helpers.js';
 
 const SAMPLE_INSTALL_SH = `#!/bin/sh
@@ -36,7 +38,9 @@ _main() { :; }
 _main "$@"
 `;
 
-test('bump-version --patch --dry-run lists install.sh in the change set', async (t) => {
+test('bump-version --patch --dry-run lists install.sh in the change set', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -53,7 +57,9 @@ test('bump-version --patch --dry-run lists install.sh in the change set', async 
   );
 });
 
-test('bump-version --patch (real run) rewrites install.sh VERSION line and leaves TARBALL_SHA256 untouched', async (t) => {
+test('bump-version --patch (real run) rewrites install.sh VERSION line and leaves TARBALL_SHA256 untouched', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -79,7 +85,9 @@ test('bump-version --patch (real run) rewrites install.sh VERSION line and leave
   );
 });
 
-test('bump-version skips install.sh sync when file is absent (consumer fixture)', async (t) => {
+test('bump-version skips install.sh sync when file is absent (consumer fixture)', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 

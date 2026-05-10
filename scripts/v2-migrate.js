@@ -8,7 +8,6 @@
 
 import { cp, mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { copyV2Artifacts } from './lib/copy-v2-artifacts.js';
 import { now } from './lib/determinism.js';
 import { isMainModule } from './lib/is-main.js';

@@ -28,7 +28,6 @@
 
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { discoverWorkspaces } from './lib/all-workspaces.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { isMainModule } from './lib/is-main.js';

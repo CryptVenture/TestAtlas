@@ -4,7 +4,6 @@
 // against flow.schema.json.
 
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';

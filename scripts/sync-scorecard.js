@@ -21,7 +21,6 @@
 
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';

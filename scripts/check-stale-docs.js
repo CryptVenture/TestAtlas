@@ -18,7 +18,6 @@
 
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';

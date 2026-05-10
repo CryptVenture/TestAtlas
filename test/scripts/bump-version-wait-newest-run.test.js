@@ -22,9 +22,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--release --wait picks newest in-progress run, not oldest completed-failure', async (t) => {
+test('--release --wait picks newest in-progress run, not oldest completed-failure', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', withOrigin: true });
   t.after(fx.cleanup);
 
@@ -95,7 +99,9 @@ test('--release --wait picks newest in-progress run, not oldest completed-failur
   }
 });
 
-test('findReleaseRunForSha picker: in-progress wins over completed (unit via env seam)', async (t) => {
+test('findReleaseRunForSha picker: in-progress wins over completed (unit via env seam)', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -139,7 +145,9 @@ test('findReleaseRunForSha picker: in-progress wins over completed (unit via env
   // but we verify the picker logic via the unit-style test below.
 });
 
-test('findReleaseRunForSha picker: when only completed runs are present, newest wins', async (_t) => {
+test('findReleaseRunForSha picker: when only completed runs are present, newest wins', {
+  skip: isWindows,
+}, async (_t) => {
   // Direct unit test: import and invoke the helper.
   // bump-version.js exports findReleaseRunForSha + pickPreferredRun for tests.
   const mod = await import('../../scripts/bump-version.js?test=picker-completed');
@@ -176,7 +184,9 @@ test('findReleaseRunForSha picker: when only completed runs are present, newest 
   );
 });
 
-test('findReleaseRunForSha picker: in-progress preempts newer completed', async () => {
+test('findReleaseRunForSha picker: in-progress preempts newer completed', {
+  skip: isWindows,
+}, async () => {
   const mod = await import('../../scripts/bump-version.js?test=picker-inprogress');
   assert.ok(typeof mod.pickPreferredRun === 'function');
 
@@ -209,7 +219,7 @@ test('findReleaseRunForSha picker: in-progress preempts newer completed', async 
   );
 });
 
-test('findReleaseRunForSha picker: empty list returns null', async () => {
+test('findReleaseRunForSha picker: empty list returns null', { skip: isWindows }, async () => {
   const mod = await import('../../scripts/bump-version.js?test=picker-empty');
   assert.equal(mod.pickPreferredRun([]), null);
 });

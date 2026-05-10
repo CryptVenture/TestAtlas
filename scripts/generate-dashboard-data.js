@@ -291,7 +291,10 @@ export async function generateDashboardData({ cwd = process.cwd(), output, forma
     // schema-loader silently tolerates a missing schemas dir (e.g. when this
     // script is consumed from a non-suite repo). Re-load against the script's
     // own repo as a fallback.
-    const here = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+    // import.meta.dirname (Node 20.11+) avoids the Windows pathname bug
+    // where `new URL(import.meta.url).pathname` produces `/D:/...` that
+    // path.resolve then mangles into `D:\D:\...`.
+    const here = path.resolve(import.meta.dirname, '..');
     const ajv2 = await loadAllSchemas({ cwd: here });
     const v2 = ajv2.getSchema(SCHEMA_ID);
     if (!v2) {

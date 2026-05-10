@@ -103,7 +103,7 @@ function fileExt(framework) {
   }
 }
 
-function fixtureBlock(framework, prefix) {
+function fixtureBlock(_framework, prefix) {
   const lines = [
     `${prefix} -----------------------------------------------------------`,
     `${prefix} Fixtures required:`,
@@ -130,10 +130,10 @@ function renderPlaywright(flow) {
     `test.describe('${flow.id} — ${flow.name ?? ''}', () => {`,
     `  test('walks the documented happy path', async ({ page }) => {`,
     `    // TODO: replace with real entry point.`,
-    `    await page.goto(${JSON.stringify((flow.entryPoints && flow.entryPoints[0]) || '/')});`,
+    `    await page.goto(${JSON.stringify(flow.entryPoints?.[0] || '/')});`,
     `    // TODO: drive the documented steps.`,
     `    // Documented expectation:`,
-    `    //   ${(flow.expectedBehavior && flow.expectedBehavior[0]) || 'flow completes without error'}`,
+    `    //   ${flow.expectedBehavior?.[0] || 'flow completes without error'}`,
     `    await expect(page).toHaveURL(/.*/);`,
     `  });`,
     `});`,
@@ -151,10 +151,10 @@ function renderCypress(flow) {
     ``,
     `describe('${flow.id} — ${flow.name ?? ''}', () => {`,
     `  it('walks the documented happy path', () => {`,
-    `    cy.visit(${JSON.stringify((flow.entryPoints && flow.entryPoints[0]) || '/')});`,
+    `    cy.visit(${JSON.stringify(flow.entryPoints?.[0] || '/')});`,
     `    // TODO: drive documented steps.`,
     `    // Documented expectation:`,
-    `    //   ${(flow.expectedBehavior && flow.expectedBehavior[0]) || 'flow completes without error'}`,
+    `    //   ${flow.expectedBehavior?.[0] || 'flow completes without error'}`,
     `    cy.url().should('match', /.*/);`,
     `  });`,
     `});`,
@@ -171,10 +171,10 @@ function renderApi(flow) {
     fixtureBlock('api', '###'),
     ``,
     `### Replace the URL + payload with documented entry points.`,
-    `GET {{baseUrl}}${(flow.entryPoints && flow.entryPoints[0]) || '/'}`,
+    `GET {{baseUrl}}${flow.entryPoints?.[0] || '/'}`,
     `Accept: application/json`,
     ``,
-    `### Expected: ${(flow.expectedBehavior && flow.expectedBehavior[0]) || '200 OK'}`,
+    `### Expected: ${flow.expectedBehavior?.[0] || '200 OK'}`,
     ``,
   ].join('\n');
 }
@@ -191,7 +191,7 @@ function renderCli(flow) {
     `set -eu`,
     ``,
     `# TODO: drive the documented CLI command(s).`,
-    `# Documented expectation: ${(flow.expectedBehavior && flow.expectedBehavior[0]) || 'exit 0'}`,
+    `# Documented expectation: ${flow.expectedBehavior?.[0] || 'exit 0'}`,
     `echo "TODO: replace with actual command" >&2`,
     `exit 0`,
     ``,
@@ -208,7 +208,7 @@ function renderContract(flow) {
       {
         description: `Generated from ${flow.id}`,
         providerState: 'TODO-state',
-        request: { method: 'GET', path: (flow.entryPoints && flow.entryPoints[0]) || '/' },
+        request: { method: 'GET', path: flow.entryPoints?.[0] || '/' },
         response: { status: 200, headers: { 'Content-Type': 'application/json' }, body: {} },
       },
     ],
@@ -245,9 +245,9 @@ function renderSmoke(flow) {
     ``,
     `## Smoke checks`,
     ``,
-    `- [ ] Entry point reachable: \`${(flow.entryPoints && flow.entryPoints[0]) || '/'}\``,
+    `- [ ] Entry point reachable: \`${flow.entryPoints?.[0] || '/'}\``,
     `- [ ] No console errors`,
-    `- [ ] Documented expectation observed: ${(flow.expectedBehavior && flow.expectedBehavior[0]) || 'happy path completes'}`,
+    `- [ ] Documented expectation observed: ${flow.expectedBehavior?.[0] || 'happy path completes'}`,
     ``,
     fixtureBlock('smoke', '<!--'),
     ``,

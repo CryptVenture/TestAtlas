@@ -60,7 +60,7 @@ test('Test 2: appendEvent rejects invalid event.type via AJV', async () => {
         type: 'NOT_AN_EVENT_TYPE',
         summary: 'x',
       }),
-      (e) => /TESTATLAS_INVALID|enum/i.test(String(e.code) + ' ' + String(e.message)),
+      (e) => /TESTATLAS_INVALID|enum/i.test(`${String(e.code)} ${String(e.message)}`),
     );
   } finally {
     await ctx.cleanup();

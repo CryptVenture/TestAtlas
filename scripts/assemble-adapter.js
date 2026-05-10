@@ -22,7 +22,6 @@
 
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { commandBaseNameFromSource, substituteAdapterCommandPath } from './lib/adapters/_shared.js';
 import { renderAider } from './lib/adapters/render-aider.js';
 import { renderAmazonQ } from './lib/adapters/render-amazon-q.js';

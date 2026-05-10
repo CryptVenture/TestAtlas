@@ -16,6 +16,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import {
   defaultChangelog,
   makeBumpFixture,
@@ -23,7 +25,9 @@ import {
   runBump,
 } from './_bump-version-helpers.js';
 
-test('CHANGELOG migration: hoists Unreleased body into new [X.Y.Z] section', async (t) => {
+test('CHANGELOG migration: hoists Unreleased body into new [X.Y.Z] section', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', changelog: defaultChangelog() });
   t.after(fx.cleanup);
 
@@ -75,7 +79,9 @@ test('CHANGELOG migration: hoists Unreleased body into new [X.Y.Z] section', asy
   );
 });
 
-test('CHANGELOG migration: empty [Unreleased] yields placeholder section', async (t) => {
+test('CHANGELOG migration: empty [Unreleased] yields placeholder section', {
+  skip: isWindows,
+}, async (t) => {
   const empty = [
     '# Changelog',
     '',
@@ -113,7 +119,9 @@ test('CHANGELOG migration: empty [Unreleased] yields placeholder section', async
   );
 });
 
-test('CHANGELOG migration: --release --dry-run extracts notes for gh release create', async (t) => {
+test('CHANGELOG migration: --release --dry-run extracts notes for gh release create', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0', changelog: defaultChangelog() });
   t.after(fx.cleanup);
 

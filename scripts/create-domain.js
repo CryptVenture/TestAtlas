@@ -11,7 +11,6 @@
 
 import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';

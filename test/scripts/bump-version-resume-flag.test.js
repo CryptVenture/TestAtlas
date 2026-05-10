@@ -25,9 +25,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+const isWindows = process.platform === 'win32';
+
 import { makeBumpFixture, makeStubBin, runBump } from './_bump-version-helpers.js';
 
-test('--resume v9.9.9 against missing tag → exits 1 with "not found on origin"', async (t) => {
+test('--resume v9.9.9 against missing tag → exits 1 with "not found on origin"', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -51,7 +55,9 @@ test('--resume v9.9.9 against missing tag → exits 1 with "not found on origin"
   assert.match(out, /v9\.9\.9 not found on origin/i, 'expected "not found on origin" error');
 });
 
-test('--resume v1.0.0 against an already-published version → exits 1 ("Already published")', async (t) => {
+test('--resume v1.0.0 against an already-published version → exits 1 ("Already published")', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -77,7 +83,9 @@ test('--resume v1.0.0 against an already-published version → exits 1 ("Already
   assert.match(out, /nothing to resume/i, 'expected "nothing to resume" message');
 });
 
-test('--resume v1.1.0 dry-run against unpublished version → state summary + planned workflow_dispatch', async (t) => {
+test('--resume v1.1.0 dry-run against unpublished version → state summary + planned workflow_dispatch', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -121,7 +129,9 @@ test('--resume v1.1.0 dry-run against unpublished version → state summary + pl
   assert.equal(ghTriggers.length, 0, `dry-run must not trigger workflow; saw ${ghTriggers.length}`);
 });
 
-test('--resume v1.1.0 --wait --dry-run → adds "Would poll: gh run list" preview', async (t) => {
+test('--resume v1.1.0 --wait --dry-run → adds "Would poll: gh run list" preview', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -153,7 +163,9 @@ test('--resume v1.1.0 --wait --dry-run → adds "Would poll: gh run list" previe
   );
 });
 
-test('--resume + --minor → exits 2 with combination-refusal error', async (t) => {
+test('--resume + --minor → exits 2 with combination-refusal error', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 
@@ -173,7 +185,9 @@ test('--resume + --minor → exits 2 with combination-refusal error', async (t) 
   assert.match(out, /--resume cannot be combined with/i, 'expected combination-refusal error');
 });
 
-test('--resume invalid-tag-format → exits 2 with semver-tag validation error', async (t) => {
+test('--resume invalid-tag-format → exits 2 with semver-tag validation error', {
+  skip: isWindows,
+}, async (t) => {
   const fx = await makeBumpFixture({ version: '1.0.0' });
   t.after(fx.cleanup);
 

@@ -163,6 +163,11 @@ fs.appendFileSync(
 `;
   await writeFile(recorderPath, recorderJs, 'utf8');
 
+  // Note: this stub harness emits POSIX `#!/bin/sh` wrappers and uses
+  // `:` to join the PATH. It's fundamentally incompatible with Windows
+  // (no `/bin/sh`, no `which`, PATH separator is `;`). Callers should
+  // skip-on-Windows at the test level; we leave the helper as-is here
+  // so the dev experience on macOS/Linux stays simple.
   for (const name of ['git', 'gh', 'npm', 'pnpm']) {
     const upper = name.toUpperCase();
     if (realBins.includes(name)) {

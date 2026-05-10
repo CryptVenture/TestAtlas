@@ -105,8 +105,13 @@ test('adapter-detect: kilocode — both .kilo/ and .kilocode/ deduped to a singl
 
 test('adapter-detect: SIGNALS covers every non-generic adapter from adapter-capabilities.json', async () => {
   // Locked invariant — keeps adapter-detect.js honest as new adapters land.
+  // Use import.meta.dirname (Node 20.11+) instead of
+  // `path.dirname(new URL(import.meta.url).pathname)` because the latter
+  // produces `/D:/...` on Windows which `path.resolve` then mangles into
+  // `D:\D:\...` (treating the leading-slash absolute path as relative to
+  // the current drive root).
   const capsPath = path.resolve(
-    path.dirname(new URL(import.meta.url).pathname),
+    import.meta.dirname,
     '..',
     '..',
     '.testatlas',

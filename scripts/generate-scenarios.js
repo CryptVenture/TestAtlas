@@ -67,7 +67,7 @@ function extractStepsFromMarkdown(md) {
     if (inSteps && /^##\s+/.test(line)) break;
     if (inSteps) {
       const m = line.match(/^\s*(?:\d+\.\s+|[-*]\s+)(.+?)\s*$/);
-      if (m && m[1]) steps.push(m[1]);
+      if (m?.[1]) steps.push(m[1]);
     }
   }
   return steps;
