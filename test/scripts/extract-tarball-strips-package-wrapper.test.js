@@ -48,10 +48,11 @@ async function exists(p) {
  *   package/.testatlas/bootstrap.md
  *   package/.testatlas/migrations/v1-to-v2.js
  *   package/.testatlas/adapters/claude-code/init.md
- *   package/package.json        ← outside .testatlas/ + outside scripts/, must NOT extract
- *   package/scripts/x.js        ← agent accelerator, MUST extract to dstDir/scripts/x.js (v2.0.2)
- *   package/scripts/lib/y.js    ← script lib, MUST extract to dstDir/scripts/lib/y.js (v2.0.2)
- *   package/scripts/e2e/z.js    ← test infrastructure, must NOT extract (parity with copyValidatorScripts)
+ *   package/.testatlas/package.json   ← ESM marker (Node "type":"module"), MUST extract to dstDir/package.json
+ *   package/package.json              ← outer suite package.json, must NOT extract
+ *   package/scripts/x.js              ← agent accelerator, MUST extract to dstDir/scripts/x.js (v2.0.2)
+ *   package/scripts/lib/y.js          ← script lib, MUST extract to dstDir/scripts/lib/y.js (v2.0.2)
+ *   package/scripts/e2e/z.js          ← test infrastructure, must NOT extract (parity with copyValidatorScripts)
  *
  * Mirrors the layout of `npm pack @webventures/testatlas`.
  */
@@ -73,6 +74,10 @@ async function buildFakeNpmTarball(tarballPath, scratchDir) {
   await writeFile(
     path.join(scratchDir, 'package', '.testatlas', 'adapters', 'claude-code', 'init.md'),
     '# claude-code init\n',
+  );
+  await writeFile(
+    path.join(scratchDir, 'package', '.testatlas', 'package.json'),
+    '{"type":"module","private":true}\n',
   );
   await writeFile(path.join(scratchDir, 'package', 'package.json'), '{"name":"fake"}\n');
   await writeFile(
@@ -126,7 +131,12 @@ test('extractTarball strips package/.testatlas/ wrapper and leaves suite content
   );
 });
 
-test('extractTarball does NOT extract package.json or `package/` wrapper', async (t) => {
+test('extractTarball lands `.testatlas/package.json` ESM marker at dstDir/package.json (v2.0.3)', async (t) => {
+  // The dstDir/package.json that lands here is `package/.testatlas/package.json`
+  // (the ESM marker telling Node to parse the script subtree as ES modules)
+  // — NOT the outer `package/package.json` (suite's own). The strip filter
+  // `package/.testatlas` excludes the latter; the former is part of the
+  // included subtree and lands at dstDir/package.json correctly.
   const scratch = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-strip-scratch2-'));
   const dst = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-strip-dst2-'));
   t.after(async () => {
@@ -138,10 +148,23 @@ test('extractTarball does NOT extract package.json or `package/` wrapper', async
   await buildFakeNpmTarball(tarball, scratch);
   await extractTarball(tarball, dst);
 
+  const dstPkgJson = path.join(dst, 'package.json');
   assert.equal(
-    await exists(path.join(dst, 'package.json')),
-    false,
-    'tarball-root package.json must NOT land at dstDir/package.json',
+    await exists(dstPkgJson),
+    true,
+    '.testatlas/package.json (ESM marker) MUST land at dstDir/package.json',
+  );
+  const { readFile } = await import('node:fs/promises');
+  const dstPkgContent = JSON.parse(await readFile(dstPkgJson, 'utf8'));
+  assert.equal(
+    dstPkgContent.type,
+    'module',
+    'extracted dstDir/package.json must be the ESM marker (type:module), not the outer suite package.json',
+  );
+  assert.notEqual(
+    dstPkgContent.name,
+    'fake',
+    'extracted dstDir/package.json must NOT be the outer suite package.json (name:"fake" in fixture)',
   );
   assert.equal(
     await exists(path.join(dst, 'package')),
@@ -224,7 +247,7 @@ test('extractTarball post-extract layout matches what runUpdate atomic-swap expe
   const top = (await readdir(dst, { withFileTypes: true })).map((e) => e.name).sort();
   assert.deepStrictEqual(
     top,
-    ['adapters', 'bootstrap.md', 'migrations', 'scripts'],
-    `dstDir top-level must include scripts/ (v2.0.2); got: ${top.join(',')}`,
+    ['adapters', 'bootstrap.md', 'migrations', 'package.json', 'scripts'],
+    `dstDir top-level must include scripts/ (v2.0.2) and package.json ESM marker (v2.0.3); got: ${top.join(',')}`,
   );
 });

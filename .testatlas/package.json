@@ -1,0 +1,5 @@
+{
+  "type": "module",
+  "private": true,
+  "description": "ESM marker for .testatlas/scripts/. Tells Node to parse the script subtree as ES modules without walking up to the consumer's package.json. Suite-internal — never published to npm as a standalone package."
+}
