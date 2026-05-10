@@ -19,6 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now, sortedReaddir } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
 async function countDirsMatching(dir, regex) {
@@ -189,9 +190,7 @@ export async function reconcileCounts(args = {}, _inject = {}) {
     dryRun: args.dryRun ?? false,
   };
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   const argv = process.argv.slice(2);
   const opts = {};
   for (let i = 0; i < argv.length; i++) {

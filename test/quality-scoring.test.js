@@ -49,7 +49,7 @@ test('Test 1: written quality_scores.json validates against quality_score.schema
       await readFile(path.join(ctx.dir, '_testatlas', 'brain', 'quality_scores.json'), 'utf8'),
     );
     const { loadAllSchemas } = await import(
-      path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
     );
     const ajv = await loadAllSchemas({ cwd: REPO_ROOT });
     const v = ajv.getSchema('https://testatlas.dev/schemas/v2/quality_score.schema.json');

@@ -20,13 +20,14 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT_PATH = path.resolve(REPO_ROOT, 'scripts/explore-tests.js');
 
 async function loadScript() {
   try {
-    return await import(`file://${SCRIPT_PATH}`);
+    return await import(pathToFileURL(SCRIPT_PATH).href);
   } catch (err) {
     if (err.code === 'ERR_MODULE_NOT_FOUND') {
       assert.fail('scripts/explore-tests.js missing — REVIEW-T3-1 follow-up must create it');

@@ -11,6 +11,7 @@ import { strict as assert } from 'node:assert';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 import { skipIfMissing } from './_helpers/repo-local-state.js';
 
@@ -42,7 +43,7 @@ const PRD_RELATIONSHIP_TYPES = [
 
 async function getAjv() {
   const { loadAllSchemas } = await import(
-    path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+    pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
   );
   return loadAllSchemas({ cwd: REPO_ROOT });
 }

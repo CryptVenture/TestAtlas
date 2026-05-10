@@ -29,6 +29,7 @@ import { Command } from 'commander';
 import { renderBanner } from './lib/banner.js';
 import { info, success, warning } from './lib/colors.js';
 import { INSTALL_MANIFEST_PATH } from './lib/constants.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { loadAndValidateManifest } from './lib/manifest.js';
 import { assertCapability } from './lib/safety.js';
@@ -308,6 +309,6 @@ async function cliMain() {
 }
 
 // Direct-invocation detection (Node 20+: `import.meta.url`-vs-argv check).
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   await cliMain();
 }

@@ -23,13 +23,14 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const DETECTOR_PATH = path.resolve(REPO_ROOT, 'scripts/explore-codebase.js');
 
 async function loadDetector() {
   try {
-    return await import(`file://${DETECTOR_PATH}`);
+    return await import(pathToFileURL(DETECTOR_PATH).href);
   } catch (err) {
     if (err.code === 'ERR_MODULE_NOT_FOUND') {
       assert.fail(
@@ -154,7 +155,7 @@ test('detector output (full app-map) validates against widened app-map.schema.js
 
   // Use the same AJV singleton + schema-loader as validate-workspace.
   const { loadAllSchemas } = await import(
-    `file://${path.join(REPO_ROOT, 'scripts/lib/schema-loader.js')}`
+    pathToFileURL(path.join(REPO_ROOT, 'scripts/lib/schema-loader.js')).href
   );
   const ajv = await loadAllSchemas({ cwd: REPO_ROOT });
   const validate = ajv.getSchema('https://testatlas.dev/schemas/v1/app-map.schema.json');

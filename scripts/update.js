@@ -14,6 +14,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Command } from 'commander';
 import { renderBanner } from './lib/banner.js';
+import { isMainModule } from './lib/is-main.js';
 import { runUpdate } from './lib/update-core.js';
 
 const PKG_PATH = path.join(import.meta.dirname, '..', 'package.json');
@@ -59,6 +60,6 @@ async function cliMain() {
       : 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   await cliMain();
 }

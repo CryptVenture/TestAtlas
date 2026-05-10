@@ -29,6 +29,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 const ARTIFACT_DIRS = [
   { dir: 'domains', glob: 'domain.json', indexFile: 'domains.json', collection: 'domains' },
@@ -174,7 +175,7 @@ export async function syncMarkdownJson({ cwd = process.cwd(), dryRun = false } =
   return { ok: true, changed };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   let cwd = process.cwd();
   let dryRun = false;

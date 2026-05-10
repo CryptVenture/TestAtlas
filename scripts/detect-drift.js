@@ -38,6 +38,7 @@ import { mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -365,7 +366,7 @@ export async function detectDrift(args = {}) {
   };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

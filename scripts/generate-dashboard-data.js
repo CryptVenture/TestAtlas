@@ -37,6 +37,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const SCHEMA_ID = 'https://testatlas.dev/schemas/v2/dashboard_data.schema.json';
@@ -341,7 +342,7 @@ async function main() {
   return 0;
 }
 
-const isCLI = import.meta.url === `file://${process.argv[1]}`;
+const isCLI = isMainModule(import.meta.url);
 if (isCLI) {
   main().catch((e) => {
     console.error(`generate-dashboard-data: ${e.code || 'ERROR'}: ${e.message}`);

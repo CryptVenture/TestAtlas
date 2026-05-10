@@ -23,6 +23,7 @@
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { formatErrors } from './lib/ajv-instance.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 /**
@@ -321,7 +322,7 @@ function parseArgs(argv) {
   return { cwd, brainDir, suiteCwd };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const args = parseArgs(process.argv.slice(2));
   const { ok, findings, brainDir } = await validateBrain(args);

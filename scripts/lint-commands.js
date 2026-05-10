@@ -51,6 +51,7 @@ import { mkdir, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCanonicalNameRegex, CANONICAL_NAMES } from './lib/canonical-names.js';
+import { isMainModule } from './lib/is-main.js';
 import { MCP_TOOL_CATALOG } from './lib/mcp-tool-catalog.js';
 import {
   ENUM_FLAGS as DEFAULT_ENUM_FLAGS,
@@ -2711,8 +2712,6 @@ async function runCli(argv) {
   }
   process.exit(r.exitCode);
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }

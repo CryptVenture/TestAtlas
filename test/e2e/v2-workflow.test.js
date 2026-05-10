@@ -23,6 +23,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -224,7 +225,9 @@ async function setupV2Workspace() {
 test('E2E: brain validation passes on a freshly seeded V2 workspace', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { validateBrain } = await import(path.join(REPO_ROOT, 'scripts', 'validate-brain.js'));
+    const { validateBrain } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'validate-brain.js')).href
+    );
     const r = await validateBrain({ cwd: ctx.dir });
     // Soft assertion — validate-brain returns findings; we want zero
     // BRAIN_FILE_MISSING / BRAIN_JSON_PARSE_ERROR / BRAIN_REQUIRED_FIELD_MISSING.
@@ -246,7 +249,9 @@ test('E2E: brain validation passes on a freshly seeded V2 workspace', async () =
 test('E2E: score-quality emits the 11 PRD §7.15 metrics', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { scoreQuality } = await import(path.join(REPO_ROOT, 'scripts', 'score-quality.js'));
+    const { scoreQuality } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'score-quality.js')).href
+    );
     const out = path.join(ctx.brainDir, 'quality_scores.json');
     await scoreQuality({ cwd: ctx.dir, output: out });
     const doc = JSON.parse(await readFile(out, 'utf8'));
@@ -270,7 +275,9 @@ test('E2E: detect-drift writes drift.json + drift report', async () => {
     await writeFile(path.join(ctx.dir, 'README.md'), '# e2e v2\n');
     git(ctx.dir, 'add', '.');
     git(ctx.dir, 'commit', '-q', '-m', 'mutate');
-    const { detectDrift } = await import(path.join(REPO_ROOT, 'scripts', 'detect-drift.js'));
+    const { detectDrift } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'detect-drift.js')).href
+    );
     await detectDrift({ cwd: ctx.dir, since: baseline });
     const driftDoc = JSON.parse(await readFile(path.join(ctx.brainDir, 'drift.json'), 'utf8'));
     assert.ok(Array.isArray(driftDoc.drift_records));
@@ -283,7 +290,9 @@ test('E2E: detect-drift writes drift.json + drift report', async () => {
 test('E2E: update-graph emits all 16 PRD §11.2 relationship types', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { updateGraph } = await import(path.join(REPO_ROOT, 'scripts', 'update-graph.js'));
+    const { updateGraph } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'update-graph.js')).href
+    );
     await updateGraph({ cwd: ctx.dir });
     const graph = JSON.parse(await readFile(path.join(ctx.brainDir, 'graph.json'), 'utf8'));
     assert.ok(Array.isArray(graph.nodes));
@@ -299,7 +308,7 @@ test('E2E: generate-dashboard-data validates against schema and writes JSON', as
   const ctx = await setupV2Workspace();
   try {
     const { generateDashboardData } = await import(
-      path.join(REPO_ROOT, 'scripts', 'generate-dashboard-data.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'generate-dashboard-data.js')).href
     );
     const out = path.join(ctx.dir, '_testatlas', 'reports', 'dashboard-data.json');
     const data = await generateDashboardData({ cwd: ctx.dir, output: out });
@@ -318,7 +327,9 @@ test('E2E: generate-dashboard-data validates against schema and writes JSON', as
 test('E2E: build-sqlite degrades gracefully (better-sqlite3 absent in suite)', async () => {
   const ctx = await setupV2Workspace();
   try {
-    const { buildSqlite } = await import(path.join(REPO_ROOT, 'scripts', 'build-sqlite.js'));
+    const { buildSqlite } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'build-sqlite.js')).href
+    );
     const r = await buildSqlite({
       cwd: ctx.dir,
       output: path.join(ctx.brainDir, 'testatlas.sqlite'),
@@ -342,12 +353,20 @@ test('E2E: full chain (validate → score → drift → graph → dashboard) com
   const ctx = await setupV2Workspace();
   try {
     const baseline = git(ctx.dir, 'rev-parse', 'HEAD').trim();
-    const { validateBrain } = await import(path.join(REPO_ROOT, 'scripts', 'validate-brain.js'));
-    const { scoreQuality } = await import(path.join(REPO_ROOT, 'scripts', 'score-quality.js'));
-    const { detectDrift } = await import(path.join(REPO_ROOT, 'scripts', 'detect-drift.js'));
-    const { updateGraph } = await import(path.join(REPO_ROOT, 'scripts', 'update-graph.js'));
+    const { validateBrain } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'validate-brain.js')).href
+    );
+    const { scoreQuality } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'score-quality.js')).href
+    );
+    const { detectDrift } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'detect-drift.js')).href
+    );
+    const { updateGraph } = await import(
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'update-graph.js')).href
+    );
     const { generateDashboardData } = await import(
-      path.join(REPO_ROOT, 'scripts', 'generate-dashboard-data.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'generate-dashboard-data.js')).href
     );
 
     await validateBrain({ cwd: ctx.dir });

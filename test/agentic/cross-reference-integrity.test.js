@@ -16,6 +16,7 @@ import { strict as assert } from 'node:assert';
 import { access, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 

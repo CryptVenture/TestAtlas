@@ -34,6 +34,7 @@
 
 import { mkdir, readFile, unlink } from 'node:fs/promises';
 import path from 'node:path';
+import { isMainModule } from './lib/is-main.js';
 
 const TABLES = Object.freeze([
   'domains',
@@ -257,7 +258,7 @@ async function main() {
   return 0;
 }
 
-const isCLI = import.meta.url === `file://${process.argv[1]}`;
+const isCLI = isMainModule(import.meta.url);
 if (isCLI) {
   main().catch((e) => {
     console.error(`build-sqlite: ${e.code || 'ERROR'}: ${e.message}`);

@@ -23,6 +23,7 @@ import { readdir, readFile, rename } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
 import { requireCapability } from './lib/safety.js';
@@ -285,10 +286,7 @@ export async function normalizeSlugs(args = {}, _inject = {}) {
 // expansion (e.g., parsing legacy ID forms).
 void ID_PATTERNS;
 
-// ─────────────────────────────── CLI wrapper ───────────────────────────────
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

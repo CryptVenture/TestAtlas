@@ -12,6 +12,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { syncSystemMap } from './lib/sync/sync-system-map.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -56,9 +57,7 @@ export async function syncSystemMapCli(args = {}, _inject = {}) {
 
   return { ...r, dryRun: !!args.dryRun };
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

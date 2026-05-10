@@ -31,6 +31,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { discoverWorkspaces } from './lib/all-workspaces.js';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 import { autoHealFindings } from './lib/validate/autoheal.js';
@@ -258,10 +259,7 @@ function aggregateExitCode(results) {
 
 // ─── CLI wrapper ─────────────────────────────────────────────────────────────
 
-// Cross-platform CLI guard: `new URL(...).pathname` returns "/D:/..." on
-// Windows, which `path.resolve` mangles. `fileURLToPath` is portable.
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

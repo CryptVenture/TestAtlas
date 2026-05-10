@@ -44,6 +44,7 @@ import { renderWindsurf } from './lib/adapters/render-windsurf.js';
 import { renderZed } from './lib/adapters/render-zed.js';
 import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { listCategorizedCommandFiles, listCommandFiles } from './lib/list-command-files.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
@@ -547,9 +548,7 @@ Options:
   --workspace <path>  Workspace root (default: cwd).
   -h, --help          Show this help.
 `;
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

@@ -16,6 +16,7 @@ import { atomicWrite } from './lib/atomic-write.js';
 import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { slugify } from './lib/slug.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -179,9 +180,7 @@ async function updateV2Brain(wsDir, record) {
     await atomicWrite(statePath, `${JSON.stringify(state, null, 2)}\n`);
   }
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

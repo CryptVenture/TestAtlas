@@ -206,7 +206,7 @@ test('Test 7: Tier-5 contract preservation — create-council-session leaves exe
       JSON.stringify({ schema_version: '2.0.0', last_updated: '', sessions: [] }),
     );
     const { createCouncilSession } = await import(
-      path.join(REPO_ROOT, 'scripts', 'create-council-session.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'create-council-session.js')).href
     );
     const result = await createCouncilSession({
       cwd: dir,

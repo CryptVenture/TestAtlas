@@ -159,7 +159,7 @@ test('Test 2: output validates against dashboard_data.schema.json', async () => 
     const { generateDashboardData } = await import(pathToFileURL(SCRIPT).href);
     const out = await generateDashboardData({ cwd: ctx.dir });
     const { loadAllSchemas } = await import(
-      path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
     );
     const ajv = await loadAllSchemas({ cwd: REPO_ROOT });
     const v = ajv.getSchema('https://testatlas.dev/schemas/v2/dashboard_data.schema.json');

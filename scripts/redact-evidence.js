@@ -16,6 +16,7 @@
 import { mkdir, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 /**
  * Each pattern: a regex + a label. Regexes are intentionally narrow — false
@@ -117,7 +118,7 @@ export async function redactEvidence(args = {}) {
   return { ok: true, sensitive: true, hits, redactedPath };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

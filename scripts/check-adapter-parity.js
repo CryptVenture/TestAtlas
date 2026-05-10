@@ -29,6 +29,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { enumerate } from './lib/adapters/parity.js';
+import { isMainModule } from './lib/is-main.js';
 
 /**
  * Re-export so `import { enumerate } from 'scripts/check-adapter-parity.js'`
@@ -147,8 +148,6 @@ function printSummary(result, repoRoot) {
     }
   }
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }

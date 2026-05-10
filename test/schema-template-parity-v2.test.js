@@ -10,6 +10,7 @@ import { strict as assert } from 'node:assert';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCHEMAS_DIR = path.join(REPO_ROOT, '.testatlas', 'schemas');
@@ -83,7 +84,7 @@ async function fileExists(p) {
 
 async function getAjv() {
   const { loadAllSchemas } = await import(
-    path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+    pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
   );
   return loadAllSchemas({ cwd: REPO_ROOT });
 }

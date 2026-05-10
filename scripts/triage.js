@@ -50,6 +50,7 @@ import { atomicWrite } from './lib/atomic-write.js';
 import { regenerateCrossCutIndexes } from './lib/command-lifecycle.js';
 import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers } from './lib/markers.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
@@ -831,10 +832,7 @@ async function refreshCrossCutIndexHashes(wsDir, _atomicWrite) {
   await _atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
-// ─── CLI wrapper ─────────────────────────────────────────────────────────────
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

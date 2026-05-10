@@ -37,6 +37,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 const TEST_FILE_RE =
   /\.(test|spec)\.(js|jsx|ts|tsx|mjs|cjs)$|_test\.go$|_spec\.rb$|^test_.*\.py$|.*_test\.py$|^Test[A-Z].*\.java$|Test\.java$/;
@@ -325,7 +326,7 @@ export async function buildAppMap({ rootDir = process.cwd() } = {}) {
 }
 
 // CLI entry — only run when invoked directly, never on `import`.
-const invokedDirectly = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
+const invokedDirectly = isMainModule(import.meta.url);
 if (invokedDirectly) {
   let outPath;
   let rootDir = process.cwd();

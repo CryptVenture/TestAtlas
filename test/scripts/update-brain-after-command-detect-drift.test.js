@@ -97,6 +97,6 @@ test('B3: existing drift-detection contract preserved (regression pin)', async (
   // detect-drift.js end-to-end. Wave 1 must not regress that contract.
   // We assert here that the detect-drift.js module remains importable
   // and exports `detectDrift` — a minimal regression check.
-  const mod = await import(path.join(REPO_ROOT, 'scripts', 'detect-drift.js'));
+  const mod = await import(pathToFileURL(path.join(REPO_ROOT, 'scripts', 'detect-drift.js')).href);
   assert.equal(typeof mod.detectDrift, 'function', 'detect-drift.js must export detectDrift');
 });

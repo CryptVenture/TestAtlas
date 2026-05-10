@@ -17,6 +17,7 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const PERSONA_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/persona.schema.json';
@@ -128,7 +129,7 @@ export async function createPersona(args = {}) {
   return { ok: true, id, mdPath, jsonPath };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

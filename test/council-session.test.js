@@ -106,7 +106,7 @@ test('Test 2: session.json validates against council_session.schema.json', async
     assert.match(sessionJson.created_at, /^\d{4}-\d{2}-\d{2}T/);
     // AJV validation
     const { loadAllSchemas } = await import(
-      path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
     );
     const ajv = await loadAllSchemas({ cwd: REPO_ROOT });
     const validate = ajv.getSchema('https://testatlas.dev/schemas/v2/council_session.schema.json');

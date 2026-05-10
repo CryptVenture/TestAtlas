@@ -27,6 +27,7 @@ import path from 'node:path';
 
 import { atomicWrite } from './lib/atomic-write.js';
 import { now } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const COVERAGE_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/coverage.schema.json';
@@ -216,7 +217,7 @@ Options:
 
 const isMain = (() => {
   try {
-    return import.meta.url === `file://${process.argv[1]}`;
+    return isMainModule(import.meta.url);
   } catch {
     return false;
   }

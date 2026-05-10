@@ -23,6 +23,7 @@ import path from 'node:path';
 import { appendEvent } from './append-event.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 
 function err(code, msg) {
   const e = new Error(msg);
@@ -125,7 +126,7 @@ export async function updateBrainAfterCommand(args = {}, _inject = {}) {
   return { ok: true, event: ev.event };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

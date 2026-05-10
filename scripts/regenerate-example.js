@@ -23,6 +23,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Command } from 'commander';
+import { isMainModule } from './lib/is-main.js';
 import { regenerateExample } from './lib/regenerate-core.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
@@ -61,6 +62,6 @@ export async function main(argv = process.argv) {
   await program.parseAsync(argv);
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await main();
 }

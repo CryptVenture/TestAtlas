@@ -21,6 +21,7 @@ import {
 } from './lib/command-lifecycle.js';
 import { now, sortedReaddir } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { ID_PATTERNS, padIssueNumber, slugify } from './lib/slug.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -181,10 +182,7 @@ export async function createIssue(args = {}, _inject = {}) {
   return result;
 }
 
-// ─────────────────────────────── CLI wrapper ───────────────────────────────
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

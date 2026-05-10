@@ -24,6 +24,7 @@
 import { mkdir, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const COUNCIL_SESSION_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/council_session.schema.json';
@@ -286,7 +287,7 @@ export async function createCouncilSession(args = {}) {
   return { ok: true, sessionId, sessionDir, outputsDir };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = { participants: [] };

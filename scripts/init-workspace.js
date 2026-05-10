@@ -29,6 +29,7 @@ import { formatErrors } from './lib/ajv-instance.js';
 import { atomicWrite } from './lib/atomic-write.js';
 import { copyV2Artifacts } from './lib/copy-v2-artifacts.js';
 import { now } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers } from './lib/markers.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
@@ -485,12 +486,7 @@ function stripLeadingDot(p) {
 
 // ─────────────────────────────── CLI wrapper ───────────────────────────────
 
-// Cross-platform CLI guard: `new URL(...).pathname` returns "/D:/..." on
-// Windows, which `path.resolve` mangles into "D:\D:\..." — making this branch
-// silently skip when invoked as a child process. `fileURLToPath` is the
-// portable conversion.
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

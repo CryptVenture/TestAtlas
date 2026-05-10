@@ -168,7 +168,7 @@ test('Test 3: claims.jsonl validates against claim.schema.json', async () => {
     const text = await readFile(path.join(ctx.sessionDir, 'claims.jsonl'), 'utf8');
     const claim = JSON.parse(text.trim().split('\n')[0]);
     const { loadAllSchemas } = await import(
-      path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+      pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
     );
     const ajv = await loadAllSchemas({ cwd: REPO_ROOT });
     const validate = ajv.getSchema('https://testatlas.dev/schemas/v2/claim.schema.json');

@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { hashContent } from './lib/content-hash.js';
 import { now, sortedReaddir } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseMarkers, renderSection } from './lib/markers.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -357,9 +358,7 @@ export async function updateIndexes(args = {}, _inject = {}) {
 
   return { indexPath, manifestPath, updatedSections, dryRun };
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

@@ -16,6 +16,7 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 
 async function fileExists(p) {
   try {
@@ -184,7 +185,7 @@ export async function indexArtifacts({ cwd = process.cwd() } = {}) {
   };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   let cwd = process.cwd();
   const argv = process.argv.slice(2);

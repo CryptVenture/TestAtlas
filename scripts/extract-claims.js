@@ -31,6 +31,7 @@
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 // PRD §7.10 valid claim types.
 const VALID_TYPES = new Set([
@@ -175,7 +176,7 @@ export async function extractClaims(args = {}) {
   return { ok: true, count: newRecords.length, sessionId: args.sessionId, claimsPath };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

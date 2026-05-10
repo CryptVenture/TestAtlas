@@ -41,6 +41,7 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import semver from 'semver';
+import { isMainModule } from './lib/is-main.js';
 import { assertCapability } from './lib/safety.js';
 
 // ISSUE-014 defense-in-depth: bump-version is a deliberately-invoked release
@@ -1220,7 +1221,7 @@ async function pollWorkflow(tagName, sha) {
 // Quick 260506-jsc: gate main() so `import bump-version.js` from tests doesn't
 // fire a real bump on the host repo. Standard ESM-CLI entrypoint pattern,
 // matching update.js / install.js.
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isMainModule(import.meta.url)) {
   main().catch((err) => {
     console.error(`bump-version: ${err.message}`);
     process.exit(1);

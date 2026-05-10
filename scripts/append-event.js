@@ -16,6 +16,7 @@
 
 import { mkdir, open, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const EVENT_SCHEMA_ID = 'https://testatlas.dev/schemas/v2/event.schema.json';
@@ -110,7 +111,7 @@ export async function appendEvent(args = {}) {
   return { ok: true, event };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 
 // MUST match the enum in .testatlas/schemas/council_session.schema.json#executionMode.
@@ -123,9 +124,7 @@ export async function recordExecutionMode(args = {}, _inject = {}) {
   }
   return { ok: true, changed, sessionId, mode };
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   const argv = process.argv.slice(2);
   const opts = {};
   for (let i = 0; i < argv.length; i++) {

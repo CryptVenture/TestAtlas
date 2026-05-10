@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { atomicWrite } from './lib/atomic-write.js';
 import { now, sortedReaddir } from './lib/determinism.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { parseFrontmatter } from './lib/parse-frontmatter.js';
 import { buildPerAreaViews, viewsToWritePlan } from './lib/report/per-area-views.js';
@@ -778,10 +779,7 @@ async function buildMonolithicReport(args = {}, _inject = {}) {
 // Suppress unused-import lint for stat (kept for forward-compat extension).
 void stat;
 
-// ─────────────────────────────── CLI wrapper ───────────────────────────────
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

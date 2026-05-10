@@ -43,6 +43,7 @@
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { atomicWrite } from './lib/atomic-write.js';
+import { isMainModule } from './lib/is-main.js';
 
 const DISCLAIMER =
   'Scores aid decisions, not replace judgment. Each metric is a deterministic projection of documented brain state — re-running on the same inputs produces the same score. Treat scores as a triage signal, not absolute truth.';
@@ -493,7 +494,7 @@ export async function scoreQuality(args = {}) {
   };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = isMainModule(import.meta.url);
 if (isMain) {
   const argv = process.argv.slice(2);
   const opts = {};

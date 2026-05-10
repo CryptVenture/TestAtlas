@@ -24,8 +24,8 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { formatErrors } from './lib/ajv-instance.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadAllSchemas } from './lib/schema-loader.js';
 
 const HANDOFF_SCHEMA_ID = 'https://testatlas.dev/schemas/v1/sub-agent-handoff.schema.json';
@@ -53,10 +53,7 @@ export async function validateHandoff(handoffPath, opts = {}) {
   return { valid: !!valid, errors: validator.errors ?? [], handoffPath: absPath };
 }
 
-// Cross-platform CLI guard: `new URL(...).pathname` returns "/D:/..." on
-// Windows, which `path.resolve` mangles. `fileURLToPath` is portable.
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

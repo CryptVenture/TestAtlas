@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { incrementManifestCount } from './lib/command-lifecycle.js';
 import { now } from './lib/determinism.js';
 import { emit } from './lib/emitter.js';
+import { isMainModule } from './lib/is-main.js';
 import { loadConfig } from './lib/load-config.js';
 import { ID_PATTERNS, slugify } from './lib/slug.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
@@ -118,9 +119,7 @@ function err(code, msg) {
   e.code = code;
   return e;
 }
-
-const __thisFile = fileURLToPath(import.meta.url);
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(__thisFile)) {
+if (isMainModule(import.meta.url)) {
   await runCli(process.argv.slice(2));
 }
 

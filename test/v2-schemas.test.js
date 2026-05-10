@@ -9,6 +9,7 @@ import { strict as assert } from 'node:assert';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..');
 const SCHEMAS_DIR = path.join(REPO_ROOT, '.testatlas', 'schemas');
@@ -54,7 +55,7 @@ async function getAjv() {
   // Use loadAllSchemas so vocabulary.json + every schema (V1+V2) is registered
   // BEFORE any cross-file $ref resolves. Idempotent; safe to call per-test.
   const { loadAllSchemas } = await import(
-    path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')
+    pathToFileURL(path.join(REPO_ROOT, 'scripts', 'lib', 'schema-loader.js')).href
   );
   return loadAllSchemas({ cwd: REPO_ROOT });
 }
