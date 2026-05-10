@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Removed
+
+## [2.0.1] - 2026-05-10
+
 ### Fixed
 
 - **Hotfix — `update --force-reinstall` no longer denied by default `safeMode:true`.** v2.0.0 added a `requireCapability(config, 'destructive-fs')` gate at `runUpdate()` entry (Phase 18-01 / ISSUE-011 defense-in-depth) but left no bypass for top-level CLI invocations, so `npx @webventures/testatlas update --force-reinstall` against a fresh install hit `Capability denied (destructive-fs): safeMode is enabled` even though the user explicitly invoked the canonical update command. v2.0.1 adds `opts.bypassSafetyGate` to `runUpdate()` and `runUninstall()`; `bin/testatlas.js` passes `bypassSafetyGate: true` for both subcommands (CLI = explicit user consent). Programmatic / sub-agent callers do NOT pass the flag and remain config-gated, preserving the original ISSUE-011 / ISSUE-014 defense-in-depth value. Two new regression tests in `test/update/update-safety.test.js` pin both paths: bypass honored under `safeMode:true`; absence of bypass still denies under `safeMode:true`.
