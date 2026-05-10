@@ -48,8 +48,10 @@ async function exists(p) {
  *   package/.testatlas/bootstrap.md
  *   package/.testatlas/migrations/v1-to-v2.js
  *   package/.testatlas/adapters/claude-code/init.md
- *   package/package.json    ← outside .testatlas/, must NOT extract
- *   package/scripts/x.js    ← outside .testatlas/, must NOT extract
+ *   package/package.json        ← outside .testatlas/ + outside scripts/, must NOT extract
+ *   package/scripts/x.js        ← agent accelerator, MUST extract to dstDir/scripts/x.js (v2.0.2)
+ *   package/scripts/lib/y.js    ← script lib, MUST extract to dstDir/scripts/lib/y.js (v2.0.2)
+ *   package/scripts/e2e/z.js    ← test infrastructure, must NOT extract (parity with copyValidatorScripts)
  *
  * Mirrors the layout of `npm pack @webventures/testatlas`.
  */
@@ -58,7 +60,8 @@ async function buildFakeNpmTarball(tarballPath, scratchDir) {
   await mkdir(path.join(scratchDir, 'package', '.testatlas', 'adapters', 'claude-code'), {
     recursive: true,
   });
-  await mkdir(path.join(scratchDir, 'package', 'scripts'), { recursive: true });
+  await mkdir(path.join(scratchDir, 'package', 'scripts', 'lib'), { recursive: true });
+  await mkdir(path.join(scratchDir, 'package', 'scripts', 'e2e'), { recursive: true });
   await writeFile(
     path.join(scratchDir, 'package', '.testatlas', 'bootstrap.md'),
     '# bootstrap content\n',
@@ -72,7 +75,18 @@ async function buildFakeNpmTarball(tarballPath, scratchDir) {
     '# claude-code init\n',
   );
   await writeFile(path.join(scratchDir, 'package', 'package.json'), '{"name":"fake"}\n');
-  await writeFile(path.join(scratchDir, 'package', 'scripts', 'x.js'), '// out-of-suite content\n');
+  await writeFile(
+    path.join(scratchDir, 'package', 'scripts', 'x.js'),
+    '// agent accelerator content\n',
+  );
+  await writeFile(
+    path.join(scratchDir, 'package', 'scripts', 'lib', 'y.js'),
+    '// script lib helper\n',
+  );
+  await writeFile(
+    path.join(scratchDir, 'package', 'scripts', 'e2e', 'z.js'),
+    '// test infra — must NOT extract\n',
+  );
   const r = spawnSync('tar', ['-czf', tarballPath, '-C', scratchDir, 'package'], {
     encoding: 'utf8',
   });
@@ -112,7 +126,7 @@ test('extractTarball strips package/.testatlas/ wrapper and leaves suite content
   );
 });
 
-test('extractTarball does NOT extract files outside package/.testatlas/', async (t) => {
+test('extractTarball does NOT extract package.json or `package/` wrapper', async (t) => {
   const scratch = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-strip-scratch2-'));
   const dst = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-strip-dst2-'));
   t.after(async () => {
@@ -124,16 +138,10 @@ test('extractTarball does NOT extract files outside package/.testatlas/', async 
   await buildFakeNpmTarball(tarball, scratch);
   await extractTarball(tarball, dst);
 
-  // Out-of-suite files must NOT extract.
   assert.equal(
     await exists(path.join(dst, 'package.json')),
     false,
-    'tarball-root package.json must NOT land at dstDir/package.json (only suite content)',
-  );
-  assert.equal(
-    await exists(path.join(dst, 'scripts', 'x.js')),
-    false,
-    'tarball-root scripts/ must NOT extract (not part of installed suite tree)',
+    'tarball-root package.json must NOT land at dstDir/package.json',
   );
   assert.equal(
     await exists(path.join(dst, 'package')),
@@ -142,11 +150,66 @@ test('extractTarball does NOT extract files outside package/.testatlas/', async 
   );
 });
 
+// v2.0.2 — package/scripts/ MUST extract to dstDir/scripts/ so the staged
+// tree mirrors a fully-installed `.testatlas/`. Pre-v2.0.2 the script
+// subtree was dropped on the floor, wiping `<target>/.testatlas/scripts/`
+// on every `update --force-reinstall` and forcing every `/atlas:*` command
+// into its slow manual fallback path.
+test('extractTarball lands package/scripts/ at dstDir/scripts/ (v2.0.2)', async (t) => {
+  const scratch = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-scripts-scratch-'));
+  const dst = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-scripts-dst-'));
+  t.after(async () => {
+    await rm(scratch, { recursive: true, force: true });
+    await rm(dst, { recursive: true, force: true });
+  });
+
+  const tarball = path.join(scratch, 'fake.tgz');
+  await buildFakeNpmTarball(tarball, scratch);
+  await extractTarball(tarball, dst);
+
+  assert.equal(
+    await exists(path.join(dst, 'scripts', 'x.js')),
+    true,
+    'package/scripts/x.js MUST land at dstDir/scripts/x.js (v2.0.2 fix)',
+  );
+  assert.equal(
+    await exists(path.join(dst, 'scripts', 'lib', 'y.js')),
+    true,
+    'nested package/scripts/lib/y.js MUST land at dstDir/scripts/lib/y.js',
+  );
+});
+
+// v2.0.2 — scripts/e2e/ must remain excluded. copyValidatorScripts() in
+// install-core.js skips e2e/ on the init path; the update path mirrors that.
+test('extractTarball excludes scripts/e2e/ (parity with copyValidatorScripts)', async (t) => {
+  const scratch = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-e2e-scratch-'));
+  const dst = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-e2e-dst-'));
+  t.after(async () => {
+    await rm(scratch, { recursive: true, force: true });
+    await rm(dst, { recursive: true, force: true });
+  });
+
+  const tarball = path.join(scratch, 'fake.tgz');
+  await buildFakeNpmTarball(tarball, scratch);
+  await extractTarball(tarball, dst);
+
+  assert.equal(
+    await exists(path.join(dst, 'scripts', 'e2e', 'z.js')),
+    false,
+    'scripts/e2e/ must NOT extract (test infrastructure, not runtime)',
+  );
+  assert.equal(
+    await exists(path.join(dst, 'scripts', 'e2e')),
+    false,
+    'the empty scripts/e2e/ directory must not exist either',
+  );
+});
+
 test('extractTarball post-extract layout matches what runUpdate atomic-swap expects', async (t) => {
-  // Sanity end-to-end: post-extract, the dstDir has the same shape that the
-  // existing test fixtures produce via the _testHooks.extractTarball mock.
-  // Specifically: dstDir/bootstrap.md, dstDir/migrations/, etc. — never
-  // dstDir/package/...
+  // Post-extract, dstDir IS what `<target>/.testatlas/` will become after
+  // the atomic swap. Top-level must include: adapters/ + bootstrap.md +
+  // migrations/ (from package/.testatlas/) AND scripts/ (from
+  // package/scripts/, v2.0.2).
   const scratch = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-shape-scratch-'));
   const dst = await mkdtemp(path.join(tmpdir(), 'testatlas-extract-shape-dst-'));
   t.after(async () => {
@@ -157,14 +220,11 @@ test('extractTarball post-extract layout matches what runUpdate atomic-swap expe
   await buildFakeNpmTarball(path.join(scratch, 'fake.tgz'), scratch);
   await extractTarball(path.join(scratch, 'fake.tgz'), dst);
 
-  // Pin the exact contract: rename(dstDir → target/.testatlas) is correct
-  // post-fix because dstDir IS the .testatlas content.
   const { readdir } = await import('node:fs/promises');
   const top = (await readdir(dst, { withFileTypes: true })).map((e) => e.name).sort();
-  // Should contain: adapters, bootstrap.md, migrations
   assert.deepStrictEqual(
     top,
-    ['adapters', 'bootstrap.md', 'migrations'],
-    `dstDir top-level must be the suite content directly; got: ${top.join(',')}`,
+    ['adapters', 'bootstrap.md', 'migrations', 'scripts'],
+    `dstDir top-level must include scripts/ (v2.0.2); got: ${top.join(',')}`,
   );
 });

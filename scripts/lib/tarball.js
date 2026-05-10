@@ -169,21 +169,71 @@ export async function extractTarball(tarballPath, dstDir) {
     throw err;
   }
   // Quick 260506-jsh — the npm tarball wraps everything in `package/`; our
-  // suite content lives at `package/.testatlas/<files>`. We extract ONLY the
+  // suite content lives at `package/.testatlas/<files>`. We extract the
   // suite subtree and strip both wrapper segments so dstDir lands the suite
   // content directly. This matches the contract every test fixture in the
   // repo already assumes (`_testHooks.extractTarball` writes
   // dstDir/bootstrap.md, never dstDir/package/.testatlas/bootstrap.md).
   //
-  // Pre-fix, real-world `npx update` produced `<target>/.testatlas/package/.testatlas/`
-  // (suite tree two dirs too deep) — every consumer install was broken
-  // post-update.
-  await new Promise((resolve, reject) => {
-    const proc = spawn(
-      'tar',
-      ['-xzf', tarballPath, '-C', dstDir, '--strip-components=2', 'package/.testatlas'],
-      { stdio: 'pipe' },
-    );
+  // Pre-260506-jsh, real-world `npx update` produced
+  // `<target>/.testatlas/package/.testatlas/` (suite tree two dirs too deep)
+  // — every consumer install was broken post-update.
+  //
+  // v2.0.2 fix — the npm package also ships `package/scripts/` at the
+  // tarball root (the agent-facing accelerator scripts: create-domain.js,
+  // sync-system-map.js, create-issue.js, etc.). Pre-v2.0.2, extractTarball
+  // dropped this tree on the floor, so every `update --force-reinstall`
+  // wiped `<target>/.testatlas/scripts/` and forced every `/atlas:*`
+  // command into its slow manual fallback path. We now extract
+  // `package/scripts/` into `<dstDir>/scripts/` so the staged tree mirrors
+  // a fully-installed `.testatlas/` (init + update parity).
+  //
+  // The `e2e/` subdirectory is excluded — it's test infrastructure, not
+  // runtime, and copyValidatorScripts() in install-core.js skips it on the
+  // init path. Keeping the exclusion identical preserves init/update
+  // parity.
+  await spawnTar(
+    ['-xzf', tarballPath, '-C', dstDir, '--strip-components=2', 'package/.testatlas'],
+    'package/.testatlas',
+  );
+  await spawnTar(
+    [
+      '-xzf',
+      tarballPath,
+      '-C',
+      dstDir,
+      '--strip-components=1',
+      '--exclude=package/scripts/e2e',
+      'package/scripts',
+    ],
+    'package/scripts',
+  );
+}
+
+/**
+ * Spawn `tar` with the given argv. Resolves on exit code 0; rejects with
+ * `TESTATLAS_TARBALL_EXTRACT_FAILED` on any other code. The `subtree` arg
+ * is for diagnostics only — included in the error message so a failed
+ * extraction names which subtree it was processing.
+ *
+ * Re-asserts the `spawn` capability gate at the callsite (defense-in-depth;
+ * mirrors the gate at extractTarball() entry, satisfying the
+ * safety-callsite-coverage invariant that every spawn() in scripts/ carries
+ * an assertCapability reference within 20 lines).
+ *
+ * @param {string[]} argv
+ * @param {string} subtree
+ * @returns {Promise<void>}
+ */
+function spawnTar(argv, subtree) {
+  const cap = assertCapability({ safeMode: false, allowDestructiveActions: true }, 'spawn');
+  if (!cap.allowed) {
+    const err = new Error(`tarball.spawnTar: ${cap.reason}`);
+    err.code = 'CAPABILITY_DENIED';
+    return Promise.reject(err);
+  }
+  return new Promise((resolve, reject) => {
+    const proc = spawn('tar', argv, { stdio: 'pipe' });
     let stderr = '';
     proc.stderr.on('data', (d) => {
       stderr += d.toString();
@@ -195,7 +245,7 @@ export async function extractTarball(tarballPath, dstDir) {
         return;
       }
       const err = new Error(
-        `tarball.extractTarball: tar exited with code ${code}: ${stderr.trim()}`,
+        `tarball.extractTarball (${subtree}): tar exited with code ${code}: ${stderr.trim()}`,
       );
       err.code = 'TESTATLAS_TARBALL_EXTRACT_FAILED';
       reject(err);
