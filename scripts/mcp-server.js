@@ -226,7 +226,7 @@ Methods supported:
   prompts/get   returns the BOOTSTRAP_PREAMBLE-prefixed source body
 
 Workspace resolution (in order):
-  1. \$TESTATLAS_WORKSPACE environment variable
+  1. $TESTATLAS_WORKSPACE environment variable
   2. walk-up search from the script's directory looking for .testatlas/commands/
 
 Transport: stdin/stdout JSON-RPC line frames. HTTP/SSE is deferred.

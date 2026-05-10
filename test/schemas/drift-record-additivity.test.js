@@ -11,11 +11,11 @@
 // AJV fails additionalProperties on every record.
 
 import { strict as assert } from 'node:assert';
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCHEMA_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'drift_record.schema.json');
@@ -34,10 +34,7 @@ test('Test 1: every record in drift.json validates against drift_record.schema.j
   const drift = JSON.parse(await readFile(DRIFT_PATH, 'utf8'));
   for (const record of drift.drift_records) {
     const ok = validate(record);
-    assert.ok(
-      ok,
-      `record ${record.id} must validate; errors: ${JSON.stringify(validate.errors)}`,
-    );
+    assert.ok(ok, `record ${record.id} must validate; errors: ${JSON.stringify(validate.errors)}`);
   }
 });
 

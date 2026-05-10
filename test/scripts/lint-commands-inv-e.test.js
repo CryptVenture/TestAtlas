@@ -13,9 +13,12 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-
+import {
+  getMcpToolCatalog,
+  isValidMcpToolCall,
+  MCP_TOOL_CATALOG,
+} from '../../scripts/lib/mcp-tool-catalog.js';
 import { checkMcpToolParamValidity } from '../../scripts/lint-commands.js';
-import { MCP_TOOL_CATALOG, isValidMcpToolCall, getMcpToolCatalog } from '../../scripts/lib/mcp-tool-catalog.js';
 
 async function makeFixtureRoot(label) {
   const root = await mkdtemp(path.join(tmpdir(), `lint-inv-e-${label}-`));
@@ -30,10 +33,11 @@ async function writeCmd(commandsDir, name, body) {
 
 test('mcp-tool-catalog: shape — wait_for accepts text/selector/timeout, not settle', () => {
   const cat = getMcpToolCatalog();
-  assert.deepEqual(
-    [...cat['mcp__chrome-devtools__wait_for'].params].sort(),
-    ['selector', 'text', 'timeout'],
-  );
+  assert.deepEqual([...cat['mcp__chrome-devtools__wait_for'].params].sort(), [
+    'selector',
+    'text',
+    'timeout',
+  ]);
 });
 
 test('mcp-tool-catalog: shape — lighthouse_audit has no categories param', () => {
@@ -76,12 +80,7 @@ test('checkMcpToolParamValidity: NEGATIVE — wait_for with settle param flagged
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Use `wait_for({settle: true})` to wait for the route to settle.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Use `wait_for({settle: true})` to wait for the route to settle.', ''].join('\n'),
   );
   const violations = await checkMcpToolParamValidity({ commandsDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -112,12 +111,7 @@ test('checkMcpToolParamValidity: lenient — uncatalogued tool not flagged', asy
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Use `some_undocumented_tool({foo: "bar"})` for X.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Use `some_undocumented_tool({foo: "bar"})` for X.', ''].join('\n'),
   );
   const violations = await checkMcpToolParamValidity({ commandsDir });
   assert.equal(violations.length, 0);
@@ -128,14 +122,7 @@ test('checkMcpToolParamValidity: code-fence example flagged too', async () => {
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '```',
-      'wait_for({settle: true})',
-      '```',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '```', 'wait_for({settle: true})', '```', ''].join('\n'),
   );
   const violations = await checkMcpToolParamValidity({ commandsDir });
   assert.ok(violations.length >= 1);

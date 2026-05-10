@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 // scripts/record-execution-mode.js
 //
 // Phase 22 Plan 02 Task 4 — DEC-006 producer.
@@ -20,11 +21,11 @@
 //   import { recordExecutionMode } from './record-execution-mode.js';
 //   const r = await recordExecutionMode({ cwd, sessionId, mode, justification });
 
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 import { atomicWrite } from './lib/atomic-write.js';
 import { assertNotUpdate } from './lib/workspace-guard.js';
 

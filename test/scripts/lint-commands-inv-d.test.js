@@ -133,14 +133,9 @@ test('checkCapabilityStopNonContradiction: SKIP — only one section present', a
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Capability Degradation',
-      '',
-      '- if shell unavailable, degrade.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Capability Degradation', '', '- if shell unavailable, degrade.', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkCapabilityStopNonContradiction({
     commandsDir,

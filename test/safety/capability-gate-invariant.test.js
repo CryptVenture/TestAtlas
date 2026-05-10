@@ -17,10 +17,10 @@
 // Adding a new entry to ALLOWLIST WITHOUT a justification comment is a
 // review red flag; the helper-call path is preferred.
 
-import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
+import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

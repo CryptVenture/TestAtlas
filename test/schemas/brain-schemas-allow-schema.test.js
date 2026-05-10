@@ -86,8 +86,7 @@ test('ISSUE-007: each brain schema whitelists top-level $schema in properties', 
       `${file}: precondition — additionalProperties must remain false`,
     );
     assert.ok(
-      schema.properties &&
-        Object.prototype.hasOwnProperty.call(schema.properties, '$schema'),
+      schema.properties && Object.hasOwn(schema.properties, '$schema'),
       `${file}: must whitelist "$schema" in properties (ISSUE-007)`,
     );
   }
@@ -117,10 +116,7 @@ test('Brain-schema invariant: every schema with additionalProperties:false white
   for (const f of entries) {
     const schema = JSON.parse(await readFile(path.join(SCHEMA_DIR, f), 'utf8'));
     if (schema.additionalProperties !== false) continue;
-    if (
-      !schema.properties ||
-      !Object.prototype.hasOwnProperty.call(schema.properties, '$schema')
-    ) {
+    if (!schema.properties || !Object.hasOwn(schema.properties, '$schema')) {
       offenders.push(f);
     }
   }

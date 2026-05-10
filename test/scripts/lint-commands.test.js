@@ -17,16 +17,16 @@ import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-
+import { ENUM_FLAGS, REQUIRED_FLAGS } from '../../scripts/lib/script-flag-metadata.js';
 import {
   checkBareScriptPath,
   checkConfigKeyExistence,
   checkEnumValueValidity,
   checkFlagExistence,
   checkFrontmatterScriptForm,
+  checkLifecycleCompleteness,
   checkLifecycleHeadingStrict,
   checkLifecyclePosition,
-  checkLifecycleCompleteness,
   checkMapsPathConsistency,
   checkOptionPairCompleteness,
   checkPathCanonicity,
@@ -39,10 +39,6 @@ import {
   emitManifest,
   runLinter,
 } from '../../scripts/lint-commands.js';
-import {
-  ENUM_FLAGS,
-  REQUIRED_FLAGS,
-} from '../../scripts/lib/script-flag-metadata.js';
 
 // ─── Fixture helpers ────────────────────────────────────────────────────────
 
@@ -76,10 +72,7 @@ async function writeSchema(schemasDir, name, obj) {
 // canonical-paths.json lives at scripts/lib/canonical-paths.json — but for
 // fixture isolation we hand a fresh copy directly to checkPathCanonicity.
 const FIXTURE_CANONICAL = {
-  patterns: [
-    '_testatlas/flows/FLOW-*.{md,json}',
-    '_testatlas/tests/runs/RUN-*.{md,json}',
-  ],
+  patterns: ['_testatlas/flows/FLOW-*.{md,json}', '_testatlas/tests/runs/RUN-*.{md,json}'],
   antiPatterns: [
     {
       match: '_testatlas/runs/',
@@ -135,12 +128,9 @@ test('checkFlagExistence: POSITIVE — supported flags emit no violations', asyn
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Run: `node .testatlas/scripts/validate-workspace.js --auto-heal`',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Run: `node .testatlas/scripts/validate-workspace.js --auto-heal`', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkFlagExistence({ commandsDir, scriptsDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
@@ -209,7 +199,10 @@ test('checkPathCanonicity: NEGATIVE — anti-patterns surface with suggestions',
   assert.ok(violations.length >= 2, `expected >=2 violations, got: ${JSON.stringify(violations)}`);
   const reasons = violations.map((v) => v.detail || v.reason).join(' ');
   assert.ok(/_testatlas\/runs\//.test(reasons), 'expected _testatlas/runs/ flagged');
-  assert.ok(/_testatlas\/flows\/<slug>\//.test(reasons), 'expected _testatlas/flows/<slug>/ flagged');
+  assert.ok(
+    /_testatlas\/flows\/<slug>\//.test(reasons),
+    'expected _testatlas/flows/<slug>/ flagged',
+  );
   assert.ok(violations.every((v) => typeof v.suggestion === 'string' && v.suggestion.length > 0));
   assert.equal(violations[0].invariant, 'path-canonicity');
 });
@@ -543,12 +536,7 @@ test('checkVocabEnumDrift: POSITIVE — list members of testType enum pass', asy
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Test types: smoke, user-flow, exploratory.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Test types: smoke, user-flow, exploratory.', ''].join('\n'),
   );
   const violations = await checkVocabEnumDrift({
     commandsDir,
@@ -652,14 +640,7 @@ test('checkLifecyclePosition: ALLOWLIST — explore.md (umbrella) without ## Lif
   await writeCmd(
     commandsDir,
     'explore.md',
-    [
-      '# Explore (umbrella)',
-      '',
-      '## Stuff',
-      '',
-      '- composes children',
-      '',
-    ].join('\n'),
+    ['# Explore (umbrella)', '', '## Stuff', '', '- composes children', ''].join('\n'),
   );
   const violations = await checkLifecyclePosition({ commandsDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
@@ -694,12 +675,9 @@ test('checkSchemaFileExistence: POSITIVE — referenced schema files that exist 
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Validates against `vocabulary.schema.json` and `flow.schema.json`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Validates against `vocabulary.schema.json` and `flow.schema.json`.', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkSchemaFileExistence({ commandsDir, schemasDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
@@ -712,12 +690,7 @@ test('checkSchemaFileExistence: NEGATIVE — non-existent schema file flags viol
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Validates against `entity.schema.json` (does not exist).',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Validates against `entity.schema.json` (does not exist).', ''].join('\n'),
   );
   const violations = await checkSchemaFileExistence({ commandsDir, schemasDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -775,11 +748,7 @@ const FIXTURE_VOCAB_ISSUE_STATUS = {
 test('checkVocabularyEnumPresence: POSITIVE — closed status literal in known enum passes', async () => {
   const { commandsDir, schemasDir } = await makeFixtureRoot('inv10-pos');
   await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB_ISSUE_STATUS);
-  await writeCmd(
-    commandsDir,
-    'cmd.md',
-    ['# Cmd', '', 'Set status: `closed`.', ''].join('\n'),
-  );
+  await writeCmd(commandsDir, 'cmd.md', ['# Cmd', '', 'Set status: `closed`.', ''].join('\n'));
   const violations = await checkVocabularyEnumPresence({ commandsDir, schemasDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
 });
@@ -787,11 +756,7 @@ test('checkVocabularyEnumPresence: POSITIVE — closed status literal in known e
 test('checkVocabularyEnumPresence: NEGATIVE — reopened literal not in fixture enum flags violation', async () => {
   const { commandsDir, schemasDir } = await makeFixtureRoot('inv10-neg');
   await writeSchema(schemasDir, 'vocabulary.schema.json', FIXTURE_VOCAB_ISSUE_STATUS);
-  await writeCmd(
-    commandsDir,
-    'cmd.md',
-    ['# Cmd', '', 'Set status: `reopened`.', ''].join('\n'),
-  );
+  await writeCmd(commandsDir, 'cmd.md', ['# Cmd', '', 'Set status: `reopened`.', ''].join('\n'));
   const violations = await checkVocabularyEnumPresence({ commandsDir, schemasDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
   assert.equal(violations[0].invariant, 'vocabulary-enum-presence');
@@ -805,12 +770,7 @@ test('checkBareScriptPath: POSITIVE — node .testatlas/scripts/X.js form passes
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Run `node .testatlas/scripts/create-flow.js --domain foo`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Run `node .testatlas/scripts/create-flow.js --domain foo`.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
@@ -821,12 +781,7 @@ test('checkBareScriptPath: NEGATIVE — bare scripts/X.js in body flags violatio
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Run `scripts/create-flow.js --domain foo`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Run `scripts/create-flow.js --domain foo`.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -838,18 +793,7 @@ test('checkBareScriptPath: NEGATIVE — bare scripts/X.js in body flags violatio
 
 test('checkLifecycleHeadingStrict: POSITIVE — exact `## Lifecycle` heading passes', async () => {
   const { commandsDir } = await makeFixtureRoot('inv12-pos');
-  await writeCmd(
-    commandsDir,
-    'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Lifecycle',
-      '',
-      '- step',
-      '',
-    ].join('\n'),
-  );
+  await writeCmd(commandsDir, 'cmd.md', ['# Cmd', '', '## Lifecycle', '', '- step', ''].join('\n'));
   const violations = await checkLifecycleHeadingStrict({ commandsDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
 });
@@ -859,14 +803,7 @@ test('checkLifecycleHeadingStrict: NEGATIVE — `## Post-Operation Brain Update`
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Post-Operation Brain Update',
-      '',
-      '- step',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Post-Operation Brain Update', '', '- step', ''].join('\n'),
   );
   const violations = await checkLifecycleHeadingStrict({ commandsDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -876,11 +813,7 @@ test('checkLifecycleHeadingStrict: NEGATIVE — `## Post-Operation Brain Update`
 
 // ─── Invariant 13: config-key-existence (Quick 260508-syv) ──────────────────
 
-const FIXTURE_CONFIG_KEYS = new Set([
-  'suiteName',
-  'workspaceDir',
-  'idempotencyTtlMs',
-]);
+const FIXTURE_CONFIG_KEYS = new Set(['suiteName', 'workspaceDir', 'idempotencyTtlMs']);
 
 test('checkConfigKeyExistence: POSITIVE — known config key passes', async () => {
   const { commandsDir } = await makeFixtureRoot('inv13-pos');
@@ -979,7 +912,7 @@ test('checkStepCrossReference: POSITIVE — step 4 reference resolves', async ()
       '4. Fourth step — `--refresh` enters here.',
       '5. Fifth step.',
       '',
-      'Note: when invoked with `--refresh` (per step 4\'s preferred path), behavior X.',
+      "Note: when invoked with `--refresh` (per step 4's preferred path), behavior X.",
       '',
     ].join('\n'),
   );
@@ -1003,7 +936,7 @@ test('checkStepCrossReference: NEGATIVE — step 9 reference but only 5 steps fl
       '4. Fourth step.',
       '5. Fifth step.',
       '',
-      'Note: when invoked with `--refresh` (per step 9\'s preferred path), behavior X.',
+      "Note: when invoked with `--refresh` (per step 9's preferred path), behavior X.",
       '',
     ].join('\n'),
   );
@@ -1034,12 +967,7 @@ test('emitManifest: writes structured JSON with documented shape', async () => {
   await writeCmd(
     commandsDir,
     'cmd-b.md',
-    [
-      '# B',
-      '',
-      'Validates against `entity.schema.json`.',
-      '',
-    ].join('\n'),
+    ['# B', '', 'Validates against `entity.schema.json`.', ''].join('\n'),
   );
   const outPath = path.join(root, 'audit.json');
   await emitManifest({

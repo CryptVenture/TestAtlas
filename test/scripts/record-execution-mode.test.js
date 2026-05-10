@@ -11,12 +11,12 @@
 // existing create-council-session.js (passes GREEN — unchanged).
 
 import { strict as assert } from 'node:assert';
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'record-execution-mode.js');
@@ -157,10 +157,7 @@ test('Test 5: invalid mode rejected — session.json untouched', async () => {
       threw = true;
     }
     const after = await readFile(path.join(ctx.sessionDir, 'session.json'));
-    assert.ok(
-      threw || okFalse,
-      'invalid mode must either throw or return {ok:false}',
-    );
+    assert.ok(threw || okFalse, 'invalid mode must either throw or return {ok:false}');
     assert.ok(before.equals(after), 'session.json must be untouched on invalid mode');
   } finally {
     await ctx.cleanup();
@@ -188,10 +185,7 @@ test('Test 6: missing session — returns {ok:false} or throws ENOENT', async ()
         `error must mention not-found / ENOENT / missing; got "${e.message}"`,
       );
     }
-    assert.ok(
-      threw || okFalse,
-      'missing session must either throw or return {ok:false}',
-    );
+    assert.ok(threw || okFalse, 'missing session must either throw or return {ok:false}');
   } finally {
     await ctx.cleanup();
   }
@@ -222,9 +216,7 @@ test('Test 7: Tier-5 contract preservation — create-council-session leaves exe
       mode: 'roundtable-review',
       // both executionMode AND hostHasSubagentSpawn intentionally omitted
     });
-    const sess = JSON.parse(
-      await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'),
-    );
+    const sess = JSON.parse(await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'));
     assert.ok(
       !('executionMode' in sess),
       `Tier-5 contract: executionMode must be ABSENT when both args undefined. Got: ${JSON.stringify(sess.executionMode)}`,

@@ -106,9 +106,7 @@ export async function updateBrainAfterCommand(args = {}, _inject = {}) {
   }
 
   if (args.reconcileCounts) {
-    const fn =
-      _inject.reconcileCounts ??
-      (await import('./reconcile-counts.js')).reconcileCounts;
+    const fn = _inject.reconcileCounts ?? (await import('./reconcile-counts.js')).reconcileCounts;
     await fn({ cwd });
   }
 
@@ -120,8 +118,7 @@ export async function updateBrainAfterCommand(args = {}, _inject = {}) {
   }
 
   if (args.detectDrift) {
-    const fn =
-      _inject.detectDrift ?? (await import('./detect-drift.js')).detectDrift;
+    const fn = _inject.detectDrift ?? (await import('./detect-drift.js')).detectDrift;
     await fn({ cwd });
   }
 

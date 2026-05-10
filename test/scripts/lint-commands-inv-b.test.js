@@ -96,7 +96,11 @@ test('checkOutputsVsRequiredActions: DEFERRED — output-deferred marker suppres
     ].join('\n'),
   );
   const violations = await checkOutputsVsRequiredActions({ commandsDir });
-  assert.equal(violations.length, 0, `deferred marker must suppress: ${JSON.stringify(violations)}`);
+  assert.equal(
+    violations.length,
+    0,
+    `deferred marker must suppress: ${JSON.stringify(violations)}`,
+  );
 });
 
 test('checkOutputsVsRequiredActions: NO-PATHS — Required Actions without paths produces no violation', async () => {
@@ -127,14 +131,7 @@ test('checkOutputsVsRequiredActions: NO-OUTPUTS-SECTION — silently skipped', a
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Required Actions',
-      '',
-      '- Write `_testatlas/maps/apis.json`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Required Actions', '', '- Write `_testatlas/maps/apis.json`.', ''].join('\n'),
   );
   const violations = await checkOutputsVsRequiredActions({ commandsDir });
   // INV-B requires both sections; absence of one is out-of-scope (other

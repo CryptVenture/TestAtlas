@@ -76,10 +76,7 @@ test('checkStopCodeExistence: NEGATIVE — fictional code not in any referenced 
   await writeScript(
     scriptsDir,
     'foo.js',
-    [
-      '#!/usr/bin/env node',
-      "if (!ws) throw new Error('WORKSPACE_MISSING');",
-    ].join('\n'),
+    ['#!/usr/bin/env node', "if (!ws) throw new Error('WORKSPACE_MISSING');"].join('\n'),
   );
   await writeCmd(
     commandsDir,
@@ -155,7 +152,11 @@ test('checkStopCodeExistence: PROSE-ONLY — text-only descriptions not flagged'
     ].join('\n'),
   );
   const violations = await checkStopCodeExistence({ commandsDir, scriptsDir });
-  assert.equal(violations.length, 0, `prose-only stop conditions must not be flagged, got: ${JSON.stringify(violations)}`);
+  assert.equal(
+    violations.length,
+    0,
+    `prose-only stop conditions must not be flagged, got: ${JSON.stringify(violations)}`,
+  );
 });
 
 test('checkStopCodeExistence: ALLOWLIST — generic halt words ignored', async () => {
@@ -178,7 +179,11 @@ test('checkStopCodeExistence: ALLOWLIST — generic halt words ignored', async (
     ].join('\n'),
   );
   const violations = await checkStopCodeExistence({ commandsDir, scriptsDir });
-  assert.equal(violations.length, 0, `generic halt words must be allowlisted: ${JSON.stringify(violations)}`);
+  assert.equal(
+    violations.length,
+    0,
+    `generic halt words must be allowlisted: ${JSON.stringify(violations)}`,
+  );
 });
 
 test('checkStopCodeExistence: code matches any of multiple referenced scripts', async () => {
@@ -201,5 +206,9 @@ test('checkStopCodeExistence: code matches any of multiple referenced scripts', 
     ].join('\n'),
   );
   const violations = await checkStopCodeExistence({ commandsDir, scriptsDir });
-  assert.equal(violations.length, 0, `union over referenced scripts: ${JSON.stringify(violations)}`);
+  assert.equal(
+    violations.length,
+    0,
+    `union over referenced scripts: ${JSON.stringify(violations)}`,
+  );
 });

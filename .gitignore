@@ -69,3 +69,27 @@ tmp/
 .gemini/
 .roo/
 .kiro/
+
+# Adapter outputs under .testatlas/adapters/<name>/<dotdir>/ ARE tracked —
+# they're the suite's per-adapter rendered content that installers copy
+# into target repos. Without these negations, the bare `.claude/` /
+# `.cursor/` / etc. patterns above match the nested adapter paths and
+# silently drop new files at `git add` time (e.g. atlas-create-persona.md
+# was missing from origin until 2026-05-10, breaking every adapter-parity
+# test in CI; the file was on disk locally but `git add` was a no-op).
+# The grandfather rule means already-tracked files keep being tracked,
+# but newly-generated adapter files for new source commands were
+# invisibly dropped. The negations below restore visibility for the
+# whole `.testatlas/adapters/` subtree.
+!.testatlas/adapters/**/.claude/
+!.testatlas/adapters/**/.cursor/
+!.testatlas/adapters/**/.opencode/
+!.testatlas/adapters/**/.kilocode/
+!.testatlas/adapters/**/.aider/
+!.testatlas/adapters/**/.windsurf/
+!.testatlas/adapters/**/.continue/
+!.testatlas/adapters/**/.cline/
+!.testatlas/adapters/**/.codex/
+!.testatlas/adapters/**/.gemini/
+!.testatlas/adapters/**/.roo/
+!.testatlas/adapters/**/.kiro/

@@ -107,10 +107,7 @@ test('Test 4: Each Sub-Agent Orchestration block contains all 6 brief slots', as
     assert.ok(block, `${id}.md: Sub-Agent Orchestration section not found`);
     const lower = block.toLowerCase();
     for (const slot of BRIEF_SLOTS) {
-      assert.ok(
-        lower.includes(slot),
-        `${id}.md orchestration block must mention slot "${slot}"`,
-      );
+      assert.ok(lower.includes(slot), `${id}.md orchestration block must mention slot "${slot}"`);
     }
   }
 });

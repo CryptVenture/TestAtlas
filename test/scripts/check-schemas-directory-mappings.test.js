@@ -16,11 +16,10 @@
 // current dogfood workspace; that's covered by the integration suite.
 
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-
-import { readFile } from 'node:fs/promises';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '../..');
@@ -31,20 +30,14 @@ const repoRoot = path.resolve(__dirname, '../..');
 // (this is a doc-vs-truth pin: if the rules are removed or weakened, the
 // regex search fails the test).
 test('FU-003: check-schemas.js has all 4 directory-mapping rules registered', async () => {
-  const src = await readFile(
-    path.join(repoRoot, 'scripts/lib/validate/check-schemas.js'),
-    'utf8',
-  );
+  const src = await readFile(path.join(repoRoot, 'scripts/lib/validate/check-schemas.js'), 'utf8');
 
   // Rule 1: persona schema mapping (source uses escaped JS regex literal)
   assert.ok(
     src.includes('agents\\/personas\\/(system|generated|project)'),
     'persona directory-mapping rule must be present',
   );
-  assert.ok(
-    src.includes('persona.schema.json'),
-    'persona schema $id must be referenced',
-  );
+  assert.ok(src.includes('persona.schema.json'), 'persona schema $id must be referenced');
 
   // Rule 2: council sessions skip
   assert.ok(
@@ -59,10 +52,7 @@ test('FU-003: check-schemas.js has all 4 directory-mapping rules registered', as
   );
 
   // Rule 4: maps/ skip
-  assert.ok(
-    src.includes("relPath.startsWith('maps/')"),
-    'maps/ skip rule must be present',
-  );
+  assert.ok(src.includes("relPath.startsWith('maps/')"), 'maps/ skip rule must be present');
 
   // Rule 5: reports/dashboard-data.json skip
   assert.ok(

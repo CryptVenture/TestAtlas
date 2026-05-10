@@ -108,10 +108,7 @@ export async function reconcileCounts(args = {}, _inject = {}) {
     path.join(wsDir, 'agents', 'councils', 'sessions'),
     /^COUNCIL-/,
   );
-  const evidenceArtifacts = await countDirsMatching(
-    path.join(wsDir, 'evidence'),
-    /^EVIDENCE-/,
-  );
+  const evidenceArtifacts = await countDirsMatching(path.join(wsDir, 'evidence'), /^EVIDENCE-/);
   const adapters = await listAdapters(path.join(cwd, '.testatlas', 'adapters'));
   const pkg = await readJsonOr(path.join(cwd, 'package.json'), {});
 

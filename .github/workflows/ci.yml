@@ -242,8 +242,9 @@ jobs:
         run: pnpm install --frozen-lockfile=false
 
       - name: Pack suite as a fake tarball for the smoke
-        # `pnpm pack` writes testatlas-<version>.tgz at repo root (npm tarball
-        # layout: top-level dir is `package/`). install.sh's
+        # `pnpm pack` writes `<scope>-<name>-<version>.tgz` for scoped
+        # packages (since 2026-05-04 the suite is `@webventures/testatlas` →
+        # `webventures-testatlas-<version>.tgz`). install.sh's
         # `_TESTATLAS_TARBALL_OVERRIDE` test hook copies this local file in
         # place of a network fetch, fully exercising the extract → invoke
         # node install.js path against a real tarball.
@@ -252,7 +253,11 @@ jobs:
       - name: Smoke install.sh against tmp target
         run: |
           set -eu
-          TARBALL=$(ls testatlas-*.tgz | head -1)
+          # Glob matches both legacy `testatlas-<v>.tgz` (pre-scope) and
+          # current `webventures-testatlas-<v>.tgz` so a future rename
+          # doesn't silently break this gate again.
+          TARBALL=$(ls *testatlas-*.tgz | head -1)
+          test -n "$TARBALL" || { echo 'no testatlas tarball produced by pnpm pack'; exit 1; }
           TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t testatlas)
           _TESTATLAS_TARBALL_OVERRIDE="$PWD/$TARBALL" TARGET="$TARGET" sh install.sh
           test -d "$TARGET/.testatlas" || { echo 'install.sh did not create .testatlas/'; exit 1; }
@@ -261,7 +266,8 @@ jobs:
       - name: Smoke uninstall round-trip
         run: |
           set -eu
-          TARBALL=$(ls testatlas-*.tgz | head -1)
+          TARBALL=$(ls *testatlas-*.tgz | head -1)
+          test -n "$TARBALL" || { echo 'no testatlas tarball produced by pnpm pack'; exit 1; }
           TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t testatlas)
           _TESTATLAS_TARBALL_OVERRIDE="$PWD/$TARBALL" TARGET="$TARGET" sh install.sh
           node bin/testatlas.js uninstall --target "$TARGET"

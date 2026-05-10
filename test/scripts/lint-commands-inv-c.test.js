@@ -128,12 +128,7 @@ test('checkNumericalClaimVsScript: SKIP — no script invocation, no violation',
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Validates 19 JSON + 3 JSONL = 22 brain files.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Validates 19 JSON + 3 JSONL = 22 brain files.', ''].join('\n'),
   );
   const violations = await checkNumericalClaimVsScript({ commandsDir, scriptsDir });
   assert.equal(violations.length, 0);
@@ -161,7 +156,11 @@ const REQUIRED_JSON_FILES = await readArrayFromConfig();
     ].join('\n'),
   );
   const violations = await checkNumericalClaimVsScript({ commandsDir, scriptsDir });
-  assert.equal(violations.length, 0, `dynamic arrays must be silently skipped: ${JSON.stringify(violations)}`);
+  assert.equal(
+    violations.length,
+    0,
+    `dynamic arrays must be silently skipped: ${JSON.stringify(violations)}`,
+  );
 });
 
 test('checkNumericalClaimVsScript: OPT-OUT — count-not-verified marker suppresses', async () => {

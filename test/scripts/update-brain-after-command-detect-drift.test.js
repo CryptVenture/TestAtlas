@@ -85,10 +85,7 @@ test('B2: default off — drift.json untouched when flag absent', async () => {
       summary: 's',
     });
     const after = await readFile(path.join(ctx.brainDir, 'drift.json'));
-    assert.ok(
-      before.equals(after),
-      'drift.json must be untouched when detectDrift flag absent',
-    );
+    assert.ok(before.equals(after), 'drift.json must be untouched when detectDrift flag absent');
   } finally {
     await ctx.cleanup();
   }

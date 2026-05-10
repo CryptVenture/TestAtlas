@@ -14,12 +14,12 @@
 // `assignedRole` line removed, so AJV will report a missing-required
 // violation naming `assignedRole` — that's what Test 2 asserts on.
 
-import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -51,11 +51,7 @@ test('validate-handoff: valid fixture exits 0', () => {
 
 test('validate-handoff: invalid fixture (missing assignedRole) exits 1 with named-field error', () => {
   const r = spawnSync('node', [SCRIPT, INVALID], { encoding: 'utf8', cwd: REPO_ROOT });
-  assert.equal(
-    r.status,
-    1,
-    `expected non-zero exit; stdout:\n${r.stdout}\nstderr:\n${r.stderr}`,
-  );
+  assert.equal(r.status, 1, `expected non-zero exit; stdout:\n${r.stdout}\nstderr:\n${r.stderr}`);
   const out = r.stdout + r.stderr;
   assert.match(out, /assignedRole/, 'output should name the missing field');
 });

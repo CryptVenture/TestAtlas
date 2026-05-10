@@ -31,12 +31,7 @@ test('checkBareScriptPath: POSITIVE — `node .testatlas/scripts/X.js` form pass
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'Run `node .testatlas/scripts/foo.js`.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'Run `node .testatlas/scripts/foo.js`.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.equal(violations.length, 0);
@@ -47,12 +42,7 @@ test('checkBareScriptPath: NEGATIVE — bare `scripts/X.js` in narrative prose f
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'See scripts/foo.js for the implementation.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'See scripts/foo.js for the implementation.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.ok(violations.length >= 1, `expected >=1 violation, got: ${JSON.stringify(violations)}`);
@@ -64,12 +54,7 @@ test('checkBareScriptPath: NEGATIVE — bare `scripts/X.js` inside inline-code f
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      'See `scripts/foo.js` for the implementation.',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', 'See `scripts/foo.js` for the implementation.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.ok(violations.length >= 1);
@@ -112,14 +97,7 @@ test('checkBareScriptPath: NEGATIVE — fenced code with bare path flagged', asy
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '```',
-      'scripts/foo.js --flag',
-      '```',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '```', 'scripts/foo.js --flag', '```', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({ commandsDir });
   assert.ok(violations.length >= 1);
@@ -130,12 +108,7 @@ test('checkBareScriptPath: legacy explicit-file allowlist still honored', async 
   await writeCmd(
     commandsDir,
     'allowed.md',
-    [
-      '# Allowed',
-      '',
-      'See scripts/foo.js for context.',
-      '',
-    ].join('\n'),
+    ['# Allowed', '', 'See scripts/foo.js for context.', ''].join('\n'),
   );
   const violations = await checkBareScriptPath({
     commandsDir,

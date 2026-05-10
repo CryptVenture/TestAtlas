@@ -12,7 +12,7 @@
 // explicit `{schemasDir, vocabPath, configPath}` to obtain a fresh
 // snapshot for hermetic tests.
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -108,8 +108,7 @@ let _configKeysCacheKey = null;
  * @returns {Set<string>}
  */
 export function getConfigKeys(opts = {}) {
-  const configPath =
-    opts.configPath ?? path.join(PROJECT_ROOT, '.testatlas/default.config.json');
+  const configPath = opts.configPath ?? path.join(PROJECT_ROOT, '.testatlas/default.config.json');
   const cacheKey = path.resolve(configPath);
   if (_configKeysCache && _configKeysCacheKey === cacheKey) return _configKeysCache;
   const out = new Set();

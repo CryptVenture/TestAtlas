@@ -24,12 +24,7 @@ import addFormats from 'ajv-formats';
 import { createCouncilSession } from '../../scripts/create-council-session.js';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
-const SCHEMA_PATH = path.join(
-  REPO_ROOT,
-  '.testatlas',
-  'schemas',
-  'council_session.schema.json',
-);
+const SCHEMA_PATH = path.join(REPO_ROOT, '.testatlas', 'schemas', 'council_session.schema.json');
 const ENUM = [
   'parallel-subagents',
   'single-spawn-inline',
@@ -72,9 +67,7 @@ test('Test 1: createCouncilSession accepts executionMode arg and writes it to se
       mode: 'roundtable-review',
       executionMode: 'inline-simulation',
     });
-    const sess = JSON.parse(
-      await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'),
-    );
+    const sess = JSON.parse(await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'));
     assert.equal(
       sess.executionMode,
       'inline-simulation',
@@ -98,9 +91,7 @@ test('Test 2: createCouncilSession without executionMode succeeds and session.js
       participants: ['qa-lead'],
       mode: 'roundtable-review',
     });
-    const sess = JSON.parse(
-      await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'),
-    );
+    const sess = JSON.parse(await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'));
     const validate = await compileSchema();
     assert.ok(validate(sess), `back-compat AJV: ${JSON.stringify(validate.errors)}`);
   } finally {
@@ -151,9 +142,7 @@ test('Test 5: Tier-5 contract — when both executionMode AND hostHasSubagentSpa
       mode: 'roundtable-review',
       // executionMode AND hostHasSubagentSpawn intentionally omitted — Tier-5 path.
     });
-    const sess = JSON.parse(
-      await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'),
-    );
+    const sess = JSON.parse(await readFile(path.join(result.sessionDir, 'session.json'), 'utf8'));
     // HIGH-1 fix: Tier-5 must OMIT the field rather than write a wrong default.
     // The orchestrator agent records executionMode post-hoc; the script does NOT guess.
     assert.equal(

@@ -67,11 +67,7 @@ test('Test 2: idempotent — second run produces byte-identical output', async (
   const after1 = await readFile(path.join(fx.wsDir, '09_artifact_index.md'));
   await updateIndexes({ cwd: fx.cwd });
   const after2 = await readFile(path.join(fx.wsDir, '09_artifact_index.md'));
-  assert.equal(
-    after1.equals(after2),
-    true,
-    '09_artifact_index.md must be byte-equal across runs',
-  );
+  assert.equal(after1.equals(after2), true, '09_artifact_index.md must be byte-equal across runs');
   // Tighten: the council-sessions body must reference COUNCIL-001 (proving the
   // section was actually populated, not just untouched-equal-because-skipped).
   const body = bodyOf(after1.toString('utf8'), 'council-sessions');

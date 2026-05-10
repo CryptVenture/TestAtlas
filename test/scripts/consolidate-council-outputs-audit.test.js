@@ -9,12 +9,12 @@
 // Wave 0 RED: outputs_audit is never populated. Wave 1 Task 4 will add it.
 
 import { strict as assert } from 'node:assert';
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
+import Ajv2020 from 'ajv/dist/2020.js';
+import addFormats from 'ajv-formats';
 
 const REPO_ROOT = path.resolve(import.meta.dirname, '..', '..');
 const SCRIPT = path.join(REPO_ROOT, 'scripts', 'consolidate-council.js');
@@ -98,10 +98,7 @@ test('Test 1: partial materialization → outputs_audit lists missing persona', 
 test('Test 2: full materialization → missing_persona_ids:[] and no mismatch_reason', async () => {
   const ctx = await setupSession({
     participants: ['p1', 'p2'],
-    outputs: [
-      { name: 'p1-output.md' },
-      { name: 'p2-output.json' },
-    ],
+    outputs: [{ name: 'p1-output.md' }, { name: 'p2-output.json' }],
   });
   try {
     const { consolidateCouncil } = await import(SCRIPT);

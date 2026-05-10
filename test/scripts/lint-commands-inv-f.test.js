@@ -30,18 +30,9 @@ test('checkDuplicateSectionHeadings: POSITIVE — single Lifecycle heading passe
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Lifecycle',
-      '',
-      '- step',
-      '',
-      '## Stop Conditions',
-      '',
-      '- none',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Lifecycle', '', '- step', '', '## Stop Conditions', '', '- none', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkDuplicateSectionHeadings({ commandsDir });
   assert.equal(violations.length, 0, `expected no violations, got: ${JSON.stringify(violations)}`);
@@ -52,18 +43,9 @@ test('checkDuplicateSectionHeadings: NEGATIVE — two `## Lifecycle` flagged', a
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Lifecycle',
-      '',
-      '- step',
-      '',
-      '## Lifecycle',
-      '',
-      '- duplicate!',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Lifecycle', '', '- step', '', '## Lifecycle', '', '- duplicate!', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkDuplicateSectionHeadings({ commandsDir });
   assert.equal(violations.length, 1);
@@ -76,18 +58,7 @@ test('checkDuplicateSectionHeadings: NEGATIVE — two `## Outputs` flagged', asy
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Outputs',
-      '',
-      '- foo',
-      '',
-      '## Outputs',
-      '',
-      '- duplicate!',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Outputs', '', '- foo', '', '## Outputs', '', '- duplicate!', ''].join('\n'),
   );
   const violations = await checkDuplicateSectionHeadings({ commandsDir });
   assert.equal(violations.length, 1);
@@ -99,16 +70,7 @@ test('checkDuplicateSectionHeadings: H3 nested with same name does not collide w
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Lifecycle',
-      '',
-      '### Lifecycle',
-      '',
-      '- nested ok',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Lifecycle', '', '### Lifecycle', '', '- nested ok', ''].join('\n'),
   );
   const violations = await checkDuplicateSectionHeadings({ commandsDir });
   assert.equal(violations.length, 0);
@@ -119,18 +81,9 @@ test('checkDuplicateSectionHeadings: case-insensitive — `## Stop Conditions` a
   await writeCmd(
     commandsDir,
     'cmd.md',
-    [
-      '# Cmd',
-      '',
-      '## Stop Conditions',
-      '',
-      '- a',
-      '',
-      '## stop conditions',
-      '',
-      '- b',
-      '',
-    ].join('\n'),
+    ['# Cmd', '', '## Stop Conditions', '', '- a', '', '## stop conditions', '', '- b', ''].join(
+      '\n',
+    ),
   );
   const violations = await checkDuplicateSectionHeadings({ commandsDir });
   assert.equal(violations.length, 1);

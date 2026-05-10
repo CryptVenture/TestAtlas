@@ -15,10 +15,10 @@
 // monolithic matrix.json today; the human-curated matrix.md is the index.
 // The lint should catch drift on any of them.
 
-import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, readdir, stat } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
