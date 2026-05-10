@@ -120,3 +120,64 @@ test('runUpdate proceeds past gate under permissive config', async () => {
     await rm(tmp, { recursive: true, force: true });
   }
 });
+
+// v2.0.1 fix — explicit user-CLI consent bypasses the gate.
+//
+// Pre-fix (v2.0.0): `npx @webventures/testatlas update --force-reinstall`
+// against a fresh install hit `Capability denied (destructive-fs): safeMode
+// is enabled` because the default config seeds `safeMode: true` and the
+// gate denied the user's explicit CLI invocation. v2.0.1 adds an
+// `opts.bypassSafetyGate` flag that `bin/testatlas.js` passes when the
+// user invoked the CLI — explicit consent. Programmatic/sub-agent callers
+// do NOT pass the flag and remain config-gated (Test A above pins that).
+test('runUpdate with bypassSafetyGate:true skips gate even under safeMode:true (CLI explicit-consent path)', async () => {
+  const tmp = await mkdtemp(path.join(tmpdir(), 'upd-bypass-'));
+  try {
+    await seedConfig(tmp, { safeMode: true, allowDestructiveActions: false });
+
+    let err;
+    try {
+      await runUpdate({
+        target: tmp,
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.0', // up-to-date short-circuit avoids network
+        noUpdateCheck: true,
+        logger: () => {},
+        bypassSafetyGate: true, // v2.0.1: CLI = explicit user consent
+      });
+    } catch (e) {
+      err = e;
+    }
+    if (err) {
+      assert.notEqual(
+        err.code,
+        'CAPABILITY_DENIED',
+        `bypassSafetyGate:true must skip the gate; unexpected CAPABILITY_DENIED: ${err.message}`,
+      );
+    }
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('runUpdate WITHOUT bypassSafetyGate still denies under safeMode:true (sub-agent path stays gated)', async () => {
+  const tmp = await mkdtemp(path.join(tmpdir(), 'upd-still-gated-'));
+  try {
+    await seedConfig(tmp, { safeMode: true, allowDestructiveActions: false });
+
+    await assert.rejects(
+      runUpdate({
+        target: tmp,
+        currentVersion: '1.0.0',
+        latestVersion: '1.0.1',
+        noUpdateCheck: true,
+        logger: () => {},
+        // NB: bypassSafetyGate intentionally omitted — programmatic caller.
+      }),
+      (e) => e.code === 'CAPABILITY_DENIED' && e.action === 'destructive-fs',
+      'programmatic call without bypassSafetyGate MUST still throw CAPABILITY_DENIED',
+    );
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});

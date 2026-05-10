@@ -229,6 +229,11 @@ program
       noUpdateCheck: opts.updateCheck === false,
       verifySignature: Boolean(opts.verifySignature),
       verifyChecksum: Boolean(opts.verifyChecksum),
+      // v2.0.1: CLI invocation = explicit user consent → bypass the
+      // destructive-fs capability gate so default safeMode:true does not
+      // block `npx ... update --force-reinstall`. Programmatic / sub-agent
+      // callers do NOT pass this flag and remain config-gated.
+      bypassSafetyGate: true,
     });
     process.exitCode =
       result.status === 'updated' ||
@@ -267,6 +272,11 @@ program
       purge: Boolean(opts.purge),
       forceUntracked: Boolean(opts.forceUntracked),
       dryRun: Boolean(opts.dryRun),
+      // v2.0.1: CLI invocation = explicit user consent → bypass the
+      // destructive-fs capability gate so default safeMode:true does not
+      // block `npx ... uninstall`. Programmatic / sub-agent callers do
+      // NOT pass this flag and remain config-gated.
+      bypassSafetyGate: true,
     });
   });
 

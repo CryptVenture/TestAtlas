@@ -457,10 +457,17 @@ export async function runUpdate(opts) {
   // function entry, before any rm/cp/rename. The downstream destructive ops
   // (orphan prune, backup prune, atomic swap rename, post-swap cleanup) are
   // unreachable without this passing. Throws CAPABILITY_DENIED on denial.
-  // Per PRD review §ISSUE-011 fix sketch: gate uses the on-disk config
-  // (loadConfigSilent verdict). Callers that need to bypass for host-managed
-  // flows MUST seed `<target>/testatlas.config.json` with the override.
-  requireCapability(config, 'destructive-fs');
+  //
+  // v2.0.1 fix: top-level CLI invocations (`testatlas update --force-reinstall`)
+  // are user-explicit consent and MUST bypass the gate — `bin/testatlas.js`
+  // passes `bypassSafetyGate: true`. Programmatic callers (sub-agents,
+  // host-managed flows) do NOT pass the flag and remain gated by the on-disk
+  // config (loadConfigSilent verdict). The default-config + default-safeMode
+  // scenario that broke `npx ... update --force-reinstall` in v2.0.0 is
+  // closed: CLI invocation = consent; sub-agent invocation = config-gated.
+  if (!opts.bypassSafetyGate) {
+    requireCapability(config, 'destructive-fs');
+  }
 
   const disableUpdateCheck = Boolean(opts.noUpdateCheck) || Boolean(config.disableUpdateCheck);
   const ttlHours = typeof config.updateCheckTtlHours === 'number' ? config.updateCheckTtlHours : 24;

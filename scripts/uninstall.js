@@ -137,23 +137,31 @@ export async function runUninstall(opts = {}) {
   // user already opted in by running the command. When a caller DOES pass
   // `opts.config` (host-managed flow) OR the target has a real config with
   // safeMode:true, the assertion is enforced and we hard-fail.
-  let cfg = opts.config ?? null;
-  if (!cfg) {
-    try {
-      cfg = await loadConfig({ cwd: target });
-    } catch {
-      // Config not loadable (e.g. mid-uninstall the .testatlas/ tree may
-      // already be partially gone). Default permissive — uninstall must
-      // remain runnable without a config file.
-      cfg = { safeMode: false, allowDestructiveActions: true };
+  //
+  // v2.0.1: top-level CLI invocations (`testatlas uninstall`) pass
+  // `bypassSafetyGate: true` from `bin/testatlas.js` to express explicit
+  // user consent. The default-config + default-safeMode scenario that
+  // would otherwise block the canonical CLI command is closed: CLI
+  // invocation = consent; programmatic / sub-agent invocation = config-gated.
+  if (!opts.bypassSafetyGate) {
+    let cfg = opts.config ?? null;
+    if (!cfg) {
+      try {
+        cfg = await loadConfig({ cwd: target });
+      } catch {
+        // Config not loadable (e.g. mid-uninstall the .testatlas/ tree may
+        // already be partially gone). Default permissive — uninstall must
+        // remain runnable without a config file.
+        cfg = { safeMode: false, allowDestructiveActions: true };
+      }
     }
-  }
-  const cap = assertCapability(cfg, 'destructive-fs');
-  if (!cap.allowed) {
-    throw new Error(
-      `Refusing to uninstall: ${cap.reason}. Set safeMode:false and ` +
-        'allowDestructiveActions:true in testatlas.config.json (at the target repo root) to proceed.',
-    );
+    const cap = assertCapability(cfg, 'destructive-fs');
+    if (!cap.allowed) {
+      throw new Error(
+        `Refusing to uninstall: ${cap.reason}. Set safeMode:false and ` +
+          'allowDestructiveActions:true in testatlas.config.json (at the target repo root) to proceed.',
+      );
+    }
   }
 
   let manifest = null;
