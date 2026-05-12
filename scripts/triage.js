@@ -204,7 +204,10 @@ function detectDuplicateGroups(issues) {
         union(i, j, 'domain-flow-repro');
         continue;
       }
-      // Heuristic 3: shared evidence reference.
+      // Heuristic 3: shared evidence reference + same type + same severity.
+      // Requires type+severity match to avoid false positives from unrelated
+      // issues referencing the same evidence (e.g., a homepage screenshot used
+      // for both a UX bug and an accessibility finding).
       const eA = new Set(
         (Array.isArray(a.evidence) ? a.evidence : []).map(refToEvidId).filter(Boolean),
       );
@@ -218,7 +221,9 @@ function detectDuplicateGroups(issues) {
           break;
         }
       }
-      if (shared) union(i, j, 'shared-evidence');
+      if (shared && a.type === b.type && a.severity === b.severity) {
+        union(i, j, 'shared-evidence');
+      }
     }
   }
 
