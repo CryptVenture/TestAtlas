@@ -4,7 +4,7 @@
 // release tarball.
 //
 // Sources (in order):
-//   1. npm registry: https://registry.npmjs.org/testatlas/-/testatlas-<v>.tgz
+//   1. npm registry: https://registry.npmjs.org/@webventures/testatlas/-/testatlas-<v>.tgz
 //   2. Fallback to GitHub Releases tarball if (1) returns non-2xx.
 //
 // Extract uses a spawned `tar -xzf` so we don't depend on a JS tar library.
@@ -60,7 +60,7 @@ export const _testHooks = {};
  * @param {string} version
  */
 function npmTarballUrl(version) {
-  return `https://registry.npmjs.org/testatlas/-/testatlas-${version}.tgz`;
+  return `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${version}.tgz`;
 }
 
 /**

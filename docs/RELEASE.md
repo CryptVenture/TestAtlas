@@ -153,7 +153,7 @@ When the Release PR is merged into `main`:
 2. **npm publish** runs with provenance (OIDC bound to `release.yml@refs/tags/vX.Y.Z`). The package lands on the registry with an attestation.
 3. **Sync install.sh** step runs:
    - Reads `package.json` `version`.
-   - Downloads the just-published tarball from `https://registry.npmjs.org/testatlas/-/testatlas-<VERSION>.tgz`.
+   - Downloads the just-published tarball from `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-<VERSION>.tgz`.
    - Computes SHA-256.
    - `sed`s `VERSION="..."` and `TARBALL_SHA256="..."` lines in `install.sh`.
    - Commits the bumped `install.sh` back to `main` as `chore(release): sync install.sh to v<VERSION>`.

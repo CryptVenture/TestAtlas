@@ -82,7 +82,7 @@ You can verify a release entirely outside the install flow:
 
 ```sh
 # 1. Download the published tarball (replace <VERSION> with the target release, e.g. 1.2.6)
-curl -fsSL https://registry.npmjs.org/testatlas/-/testatlas-<VERSION>.tgz -o testatlas.tgz
+curl -fsSL https://registry.npmjs.org/@webventures/testatlas/-/testatlas-<VERSION>.tgz -o testatlas.tgz
 
 # 2. Download the sigstore bundle (from GitHub Releases)
 curl -fsSL https://github.com/CryptVenture/TestAtlas/releases/download/v<VERSION>/testatlas-<VERSION>.tgz.sigstore.json \
@@ -123,7 +123,7 @@ Per release, the following sidecars are attached to the GitHub Release:
 | `testatlas-<VERSION>.tgz.sha256` | SHA-256 checksum of the tarball. Plain text; one line: `<hash>  testatlas-<VERSION>.tgz`. |
 | `testatlas-<VERSION>.tgz.sigstore.json` | The cosign sigstore bundle (DSSE envelope with the SLSA provenance + Fulcio cert). |
 
-npm publishes the same provenance via its attestations API (visible at `https://registry.npmjs.org/testatlas/-/testatlas-<VERSION>.tgz` metadata).
+npm publishes the same provenance via its attestations API (visible at `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-<VERSION>.tgz` metadata).
 
 ## Reporting a verification failure
 
