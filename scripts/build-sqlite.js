@@ -115,9 +115,25 @@ async function readJsonlOr(filePath, fallback) {
  * @returns {Promise<null | typeof import('better-sqlite3')>}
  */
 async function loadSqlite() {
+  let Sqlite;
   try {
     const mod = await import('better-sqlite3');
-    return mod.default || mod;
+    Sqlite = mod.default || mod;
+  } catch {
+    return null;
+  }
+  // better-sqlite3 is a native module — `import()` succeeds whenever the JS
+  // wrapper resolves, but instantiation can still fail later when the
+  // platform-specific binding (.node) wasn't built / wasn't shipped /
+  // doesn't match the current Node ABI. The build-sqlite contract treats
+  // that case identically to "module absent": the consumer asked for an
+  // OPTIONAL projector, so we degrade gracefully rather than crashing.
+  // Probe by trying to instantiate an in-memory DB; if that throws, surface
+  // a missing-dependency result.
+  try {
+    const probe = new Sqlite(':memory:');
+    probe.close();
+    return Sqlite;
   } catch {
     return null;
   }
