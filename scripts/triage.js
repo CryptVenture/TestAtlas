@@ -322,13 +322,30 @@ async function verifyEvidenceOnDisk(wsDir, issues) {
         continue;
       }
       if (!evidIdx.has(evid)) {
-        // Last-chance check: maybe the reference is a relative path that
-        // points at a real file under <wsDir>/. Stat it directly.
-        try {
-          await stat(path.join(wsDir, ref));
-        } catch {
-          missing.push(ref);
+        // Last-chance check: resolve the reference as a filesystem path.
+        // For bare evidence IDs (no path separators), the canonical location
+        // is under <wsDir>/evidence/. For relative paths, resolve from wsDir.
+        const tryPaths = [];
+        if (ref.includes('/') || ref.includes('\\')) {
+          // Relative or absolute path — resolve from wsDir.
+          tryPaths.push(path.join(wsDir, ref));
+        } else {
+          // Bare evidence ID — canonical location is under evidence/.
+          tryPaths.push(path.join(wsDir, 'evidence', ref));
+          // Fallback: legacy location directly under wsDir (backward compat).
+          tryPaths.push(path.join(wsDir, ref));
         }
+        let found = false;
+        for (const p of tryPaths) {
+          try {
+            await stat(p);
+            found = true;
+            break;
+          } catch {
+            // continue
+          }
+        }
+        if (!found) missing.push(ref);
       }
     }
     if (missing.length > 0) out.set(it.parsed.id, missing);

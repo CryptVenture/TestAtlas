@@ -202,6 +202,65 @@ test('triage.js: downgrades confidence to needs-validation when evidence missing
   assert.match(res.stderr + res.stdout, /EVIDENCE-999|missing[- ]evidence/i);
 });
 
+test('triage.js: evidence-path resolver finds bare IDs under evidence/ (not wsDir root)', async (t) => {
+  const fx = await makeValidationFixture('_base-good');
+  t.after(fx.cleanup);
+
+  // Create evidence directory at the canonical location: <wsDir>/evidence/EVIDENCE-050
+  const evidDir = path.join(fx.wsDir, 'evidence', 'EVIDENCE-050');
+  await mkdir(evidDir, { recursive: true });
+  await writeFile(path.join(evidDir, 'record.json'), '{}', 'utf8');
+
+  // Issue references the bare evidence ID (no path).
+  await addIssue(
+    fx.wsDir,
+    makeIssue({
+      id: 'ISSUE-050-bare-evid',
+      status: 'new',
+      confidence: 'confirmed',
+      evidence: ['EVIDENCE-050'],
+    }),
+  );
+
+  const res = runTriage(fx.cwd, []);
+  assert.equal(res.status, 0, `triage exit non-zero: ${res.stderr}`);
+
+  const j = JSON.parse(
+    await readFile(path.join(fx.wsDir, 'to_fix', 'ISSUE-050-bare-evid.json'), 'utf8'),
+  );
+  // Confidence should NOT be downgraded — evidence exists at evidence/EVIDENCE-050.
+  assert.equal(
+    j.confidence,
+    'confirmed',
+    'bare evidence ID in evidence/ dir was falsely flagged as missing',
+  );
+});
+
+test('triage.js: evidence-path resolver still flags truly missing evidence', async (t) => {
+  const fx = await makeValidationFixture('_base-good');
+  t.after(fx.cleanup);
+
+  // Issue cites evidence that does NOT exist anywhere.
+  await addIssue(
+    fx.wsDir,
+    makeIssue({
+      id: 'ISSUE-051-missing-evid',
+      status: 'new',
+      confidence: 'confirmed',
+      evidence: ['EVIDENCE-051-does-not-exist'],
+    }),
+  );
+
+  const res = runTriage(fx.cwd, []);
+  assert.equal(res.status, 0, `triage exit non-zero: ${res.stderr}`);
+
+  const j = JSON.parse(
+    await readFile(path.join(fx.wsDir, 'to_fix', 'ISSUE-051-missing-evid.json'), 'utf8'),
+  );
+  // Confidence SHOULD be downgraded — evidence is truly missing.
+  assert.equal(j.confidence, 'needs-validation', 'truly missing evidence should be downgraded');
+});
+
 test('triage.js: writes triage-report-<ts>.md, blockers.md, groups.md', async (t) => {
   const fx = await makeValidationFixture('_base-good');
   t.after(fx.cleanup);
