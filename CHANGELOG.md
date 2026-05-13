@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
+### Changed
+
+### Removed
+
+## [2.0.9] - 2026-05-13
+
+### Added
+
 - **`better-sqlite3` added to `devDependencies`** — required by recently-added dogfood tooling; absence broke local `pnpm install` for contributors using the explore/brain scripts.
 
 ### Changed
