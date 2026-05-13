@@ -250,24 +250,29 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           # The tarball is briefly unavailable at the registry tarball URL
-          # immediately after `npm publish` returns (observed 2026-05-13 with
-          # v2.0.6: PUT 200 at T=0.0s, curl 404 at T=0.3s). Retry with backoff
-          # while npm's CDN propagates the new version. The registry usually
-          # serves the tarball within ~1-5 seconds; allow up to ~60s.
+          # immediately after `npm publish` returns. Empirical propagation
+          # times observed for this package on registry.npmjs.org:
+          #   v2.0.6 (2026-05-13 18:33): >13s; available within the hour.
+          #   v2.0.9 (2026-05-13 20:23): 5 minutes 4 seconds. The 60-second
+          #     retry budget from the first hardening round was not enough.
+          # Retry with 12s backoff for up to 40 attempts (~8 minutes). The
+          # publish itself has already succeeded by the time we get here —
+          # we're only waiting for npm's CDN to make the immutable blob
+          # retrievable at the URL the manifest already announces.
           TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
           TARBALL="testatlas-${VERSION}.tgz"
           attempt=1
-          max_attempts=10
+          max_attempts=40
           while [ "${attempt}" -le "${max_attempts}" ]; do
             if curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
               echo "Fetched ${TARBALL_URL} on attempt ${attempt}."
               break
             fi
             if [ "${attempt}" -eq "${max_attempts}" ]; then
-              echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts."
+              echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts (~8min)."
               exit 1
             fi
-            sleep 6
+            sleep 12
             attempt=$((attempt + 1))
           done
           SHA=$(sha256sum "$TARBALL" | cut -d' ' -f1)
@@ -288,19 +293,19 @@ jobs:
           if [ ! -f "$TARBALL" ]; then
             # Defensive — the install.sh sync step above should have fetched
             # the tarball already, but if for any reason it's missing here,
-            # retry with the same backoff policy.
+            # retry with the same backoff policy as the sync step.
             TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
             attempt=1
-            max_attempts=10
+            max_attempts=40
             while [ "${attempt}" -le "${max_attempts}" ]; do
               if curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
                 break
               fi
               if [ "${attempt}" -eq "${max_attempts}" ]; then
-                echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts."
+                echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts (~8min)."
                 exit 1
               fi
-              sleep 6
+              sleep 12
               attempt=$((attempt + 1))
             done
           fi
