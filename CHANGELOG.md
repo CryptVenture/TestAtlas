@@ -6,21 +6,25 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
+- **`better-sqlite3` added to `devDependencies`** — required by recently-added dogfood tooling; absence broke local `pnpm install` for contributors using the explore/brain scripts.
+
 ### Changed
+
+- **Release workflow hardened with retry-with-backoff at two known-flaky points.** (1) `npm publish` is now wrapped in a 3-attempt loop with 10s/30s backoff between attempts. The observed failure (v2.0.7 + v2.0.8, 2026-05-13) was `POST 201 oidc/token/exchange` → sigstore-provenance-signed → `PUT 400 OIDC publish authorize: Invalid token`: the OIDC trade succeeded but the actual publish PUT was rejected. npm CLI mints a fresh ID token on each attempt, so retrying clears the failure when it's transient on npm's side; when it's structural (trusted-publisher config drift), all 3 attempts fail and the step exits non-zero with the full verbose log preserved per attempt. (2) The post-publish `curl` of the registry tarball URL (used to compute the SHA-256 for `install.sh` + sigstore sidecar) is now wrapped in a 10-attempt loop with 6s backoff. The race was observed at v2.0.6: `PUT 200` at T+0s, then `curl 404` at T+0.3s — the npm CDN had not yet propagated the new tarball. The pure-publish step now succeeds end-to-end through the install.sh sync, sha256 sidecar emission, sigstore-bundle fetch, and GitHub Release creation in a single workflow run.
 
 ### Removed
 
-## [2.0.8] - 2026-05-13
+- **Phantom 2.0.7 and 2.0.8 git tags + GitHub Releases withdrawn.** Both were cut locally by `bump-version.js` but the release workflow's `npm publish` step was rejected on both attempts (see Changed above), so neither version ever reached the npm registry. Leaving the tags + Releases in place would have confused users running `npx @webventures/testatlas@2.0.7 …` against an `npm view` that doesn't list them. The functional change that v2.0.7 was meant to ship (tarball-URL scope fix below) is rolled forward into this release.
 
-_No notable changes since 2.0.7._
+### Fixed
 
-## [2.0.7] - 2026-05-13
-
-_No notable changes since 2.0.6._
+- **`scripts/lib/tarball.js` registry URL now includes the `@webventures` scope.** Pre-fix, `npmTarballUrl(version)` returned `https://registry.npmjs.org/testatlas/-/testatlas-${version}.tgz` (unscoped path), which 404s for a scoped package; the correct form is `https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${version}.tgz`. Symptom: `npx @webventures/testatlas update` failed with 404 when the workflow fell through to direct registry download. (Originally landed as commit `f501a56d`, was meant to ship in v2.0.7.)
 
 ## [2.0.6] - 2026-05-13
 
-_No notable changes since 2.0.5._
+### Fixed
+
+- **`scripts/triage.js#verifyEvidenceOnDisk` resolves bare evidence IDs under the canonical `evidence/` directory.** Pre-fix, when an issue's `evidence[]` array contained a bare ID (no `/` separator) that wasn't yet present in the evidence index, the fallback `stat()` looked at `<wsDir>/<ID>` instead of `<wsDir>/evidence/<ID>`, causing false-positive missing-evidence flags on `triage` runs against workspaces where evidence existed in the canonical spot but the index was stale. Resolver now tries `<wsDir>/evidence/<ID>` first for bare IDs, falls back to `<wsDir>/<ID>` for back-compat, and treats paths containing `/` or `\` as relative to `<wsDir>` unchanged. New `test/scripts/triage-script.test.js` cases pin both paths.
 
 ## [2.0.5] - 2026-05-12
 

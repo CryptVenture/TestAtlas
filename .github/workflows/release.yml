@@ -191,17 +191,52 @@ jobs:
           NODE_AUTH_TOKEN: ""
           NPM_TOKEN: ""
         run: |
-          echo "Publishing $(node -p 'require("./package.json").name')@$(node -p 'require("./package.json").version') via Trusted Publishing OIDC..."
-          # --loglevel verbose surfaces the OIDC token/exchange lines that
-          # npm support asked us to capture if this fails again.
-          npm publish --access public --provenance --loglevel verbose
+          # Retry-with-backoff around `npm publish`. Observed failure mode
+          # (2026-05-13, v2.0.7 + v2.0.8): the OIDC token-exchange POST
+          # returns 201 ("Successfully retrieved and set token"), the sigstore
+          # provenance statement signs successfully, and then the actual
+          # publish PUT is rejected with `400 Bad Request - OIDC publish
+          # authorize: Invalid token`. The token is single-use; on retry,
+          # npm CLI mints a fresh OIDC ID token and re-exchanges, so a clean
+          # retry succeeds when the failure is transient on npm's side.
+          # If the underlying cause is structural (trusted-publisher config
+          # drift, repo/workflow rename), all attempts fail and the step
+          # exits non-zero with the full verbose log of the LAST attempt.
+          PKG_NAME=$(node -p "require('./package.json').name")
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          echo "Publishing ${PKG_NAME}@${PKG_VERSION} via Trusted Publishing OIDC..."
+          attempt=1
+          max_attempts=3
+          while [ "${attempt}" -le "${max_attempts}" ]; do
+            echo "::group::npm publish attempt ${attempt}/${max_attempts}"
+            # --loglevel verbose surfaces the OIDC token/exchange lines that
+            # npm support asked us to capture if this fails again.
+            if npm publish --access public --provenance --loglevel verbose; then
+              echo "::endgroup::"
+              echo "npm publish succeeded on attempt ${attempt}."
+              break
+            fi
+            rc=$?
+            echo "::endgroup::"
+            if [ "${attempt}" -eq "${max_attempts}" ]; then
+              echo "::error::npm publish failed after ${max_attempts} attempts (last exit code: ${rc})."
+              exit "${rc}"
+            fi
+            # Backoff: 10s, 30s. Short enough to ride out npm OIDC blips,
+            # long enough to let any transient registry condition clear.
+            if [ "${attempt}" -eq 1 ]; then
+              sleep 10
+            else
+              sleep 30
+            fi
+            attempt=$((attempt + 1))
+          done
           # Surface a `published=true` output so downstream steps still gate
           # off it (matches the prior changesets/action contract).
-          PUBLISHED_VERSION=$(node -p "require('./package.json').version")
           {
             echo "published=true"
-            echo "publishedVersion=${PUBLISHED_VERSION}"
-            echo "publishedPackages=[{\"name\":\"$(node -p 'require("./package.json").name')\",\"version\":\"${PUBLISHED_VERSION}\"}]"
+            echo "publishedVersion=${PKG_VERSION}"
+            echo "publishedPackages=[{\"name\":\"${PKG_NAME}\",\"version\":\"${PKG_VERSION}\"}]"
           } >> "$GITHUB_OUTPUT"
 
       # ---------------------------------------------------------------------
@@ -214,12 +249,28 @@ jobs:
         if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          # Prefer dist.shasum (SHA-1) for npm, but compute SHA-256 of the
-          # tarball downloaded from the registry — that's what install.sh
-          # verifies.
+          # The tarball is briefly unavailable at the registry tarball URL
+          # immediately after `npm publish` returns (observed 2026-05-13 with
+          # v2.0.6: PUT 200 at T=0.0s, curl 404 at T=0.3s). Retry with backoff
+          # while npm's CDN propagates the new version. The registry usually
+          # serves the tarball within ~1-5 seconds; allow up to ~60s.
           TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
-          curl -fsSL "$TARBALL_URL" -o "testatlas-${VERSION}.tgz"
-          SHA=$(sha256sum "testatlas-${VERSION}.tgz" | cut -d' ' -f1)
+          TARBALL="testatlas-${VERSION}.tgz"
+          attempt=1
+          max_attempts=10
+          while [ "${attempt}" -le "${max_attempts}" ]; do
+            if curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
+              echo "Fetched ${TARBALL_URL} on attempt ${attempt}."
+              break
+            fi
+            if [ "${attempt}" -eq "${max_attempts}" ]; then
+              echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts."
+              exit 1
+            fi
+            sleep 6
+            attempt=$((attempt + 1))
+          done
+          SHA=$(sha256sum "$TARBALL" | cut -d' ' -f1)
           sed -i.bak "s/^VERSION=.*$/VERSION=\"${VERSION}\"/" install.sh
           sed -i.bak "s/^TARBALL_SHA256=.*$/TARBALL_SHA256=\"${SHA}\"/" install.sh
           rm install.sh.bak
@@ -233,11 +284,27 @@ jobs:
         if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
         run: |
           VERSION=$(node -p "require('./package.json').version")
-          if [ ! -f "testatlas-${VERSION}.tgz" ]; then
-            curl -fsSL "https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz" \
-              -o "testatlas-${VERSION}.tgz"
+          TARBALL="testatlas-${VERSION}.tgz"
+          if [ ! -f "$TARBALL" ]; then
+            # Defensive — the install.sh sync step above should have fetched
+            # the tarball already, but if for any reason it's missing here,
+            # retry with the same backoff policy.
+            TARBALL_URL="https://registry.npmjs.org/@webventures/testatlas/-/testatlas-${VERSION}.tgz"
+            attempt=1
+            max_attempts=10
+            while [ "${attempt}" -le "${max_attempts}" ]; do
+              if curl -fsSL "$TARBALL_URL" -o "$TARBALL"; then
+                break
+              fi
+              if [ "${attempt}" -eq "${max_attempts}" ]; then
+                echo "::error::Failed to fetch ${TARBALL_URL} after ${max_attempts} attempts."
+                exit 1
+              fi
+              sleep 6
+              attempt=$((attempt + 1))
+            done
           fi
-          sha256sum "testatlas-${VERSION}.tgz" > "testatlas-${VERSION}.tgz.sha256"
+          sha256sum "$TARBALL" > "${TARBALL}.sha256"
 
       - name: Fetch sigstore bundle from npm provenance store
         if: github.event.inputs.dry-run != 'true' && steps.publish.outputs.published == 'true'
