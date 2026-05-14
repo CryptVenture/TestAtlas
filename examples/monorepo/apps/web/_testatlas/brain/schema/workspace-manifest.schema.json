@@ -43,7 +43,9 @@
         "issues": { "type": "integer", "minimum": 0 },
         "evidenceRecords": { "type": "integer", "minimum": 0 },
         "testRuns": { "type": "integer", "minimum": 0 },
-        "reports": { "type": "integer", "minimum": 0, "description": "Quick 260506-dyb (G4): count of generated reports/REPORT-*.md (additive optional field; sync-status.js writes it)." }
+        "reports": { "type": "integer", "minimum": 0, "description": "Quick 260506-dyb (G4): count of generated reports/REPORT-*.md (additive optional field; sync-status.js writes it)." },
+        "scenarios": { "type": "integer", "minimum": 0, "description": "Optional: count of generated test scenarios in tests/scenarios/TEST-*.json (written by /atlas:test-generate-scenarios)." },
+        "charters": { "type": "integer", "minimum": 0, "description": "Optional: count of exploratory test charters under tests/charters/." }
       }
     },
     "latestReport": {

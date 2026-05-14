@@ -83,7 +83,73 @@
     },
     "closedAs": {
       "type": "string",
-      "description": "Lifecycle metadata: when an issue is closed, closedAs captures the closure verdict (e.g. 'fixed', 'wont_fix', 'duplicate', 'not_real', or a free-form short reason). Optional. Closes ISSUE-062."
+      "description": "Lifecycle metadata: when an issue is closed, closedAs captures the closure verdict (e.g. 'fixed', 'wont_fix', 'duplicate', 'not_real', 'consolidated_into=ISSUE-NNNN', or a free-form short reason). Optional. Closes ISSUE-062."
+    },
+    "closedOn": {
+      "type": "string",
+      "description": "Lifecycle metadata: closure date in ISO-8601 form (YYYY-MM-DD or full timestamp). Set by sealing scripts when an issue moves to status:closed."
+    },
+    "closedAt": {
+      "type": "string",
+      "description": "Lifecycle metadata: closure timestamp in ISO-8601 form (legacy variant of closedOn used by Phase 47/48 sealing scripts). Optional."
+    },
+    "closedBy": {
+      "type": "string",
+      "description": "Lifecycle metadata: actor (agent identifier or phase tag) that closed the issue. Optional."
+    },
+    "closedNote": {
+      "type": "string",
+      "description": "Lifecycle metadata: free-form note attached to the closure event (e.g. 'fixed in 47-01 W1'). Optional."
+    },
+    "closingPhase": {
+      "type": "string",
+      "description": "Lifecycle metadata: phase number that closed the issue (e.g. '50', '51'). Pairs with closingPlan + closingCommit for full audit trail."
+    },
+    "closingPlan": {
+      "type": "string",
+      "description": "Lifecycle metadata: plan id within the closing phase (e.g. '50-02', '51-04')."
+    },
+    "closingCommit": {
+      "type": "string",
+      "description": "Lifecycle metadata: short git commit hash that landed the fix (e.g. '9b2522d9')."
+    },
+    "closingNote": {
+      "type": "string",
+      "description": "Lifecycle metadata: free-form note attached to closure (Phase 48 sealing variant). Optional."
+    },
+    "closingNotes": {
+      "type": "string",
+      "description": "Lifecycle metadata: free-form notes attached to closure (Phase 48b sealing variant). Optional."
+    },
+    "closingReq": {
+      "type": "string",
+      "description": "Lifecycle metadata: REQ-id that the closing phase mapped to this issue (e.g. 'REQ-50-147')."
+    },
+    "closedByCommits": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Lifecycle metadata: array of short git commit hashes that contributed to the fix (when a single closure spans multiple commits across one plan)."
+    },
+    "closedInPhase": {
+      "type": "string",
+      "description": "Lifecycle metadata: legacy variant of closingPhase used by early sealing scripts. Optional."
+    },
+    "consolidatedInto": {
+      "type": "string",
+      "description": "Lifecycle metadata: canonical issue id this issue was consolidated into (e.g. 'ISSUE-147'). Pairs with closedAs='consolidated_into=ISSUE-NNNN'."
+    },
+    "statusHistory": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "Append-only audit log of status transitions. Each entry records ts, from, to, by, note. Distinct from the broader 'history' field which captures any kind of event."
+    },
+    "by_phase": {
+      "type": "string",
+      "description": "Lifecycle metadata: phase id that closed/retested the issue, in 'NN-WAVE' form (e.g. '47-W1'). Legacy variant used by Phase 47 retest-closure sweeps."
+    },
+    "fix_commit": {
+      "type": "string",
+      "description": "Lifecycle metadata: short git commit hash that landed the fix. Legacy variant of closingCommit used by Phase 47 retest-closure sweeps."
     }
   }
 }

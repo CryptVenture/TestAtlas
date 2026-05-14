@@ -252,7 +252,7 @@ Schema for to_fix/ISSUE-<id>-<slug>.{md,json} (PRD §17).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/issue.schema.json`
 
-**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`, `discoveredByPersona`, `brainClaimIds`, `driftSensitivity`, `automationCandidate`, `councilConsensusLevel`, `evidenceStrength`, `retestPackPath`, `triagedAs`, `closedAs`
+**Top-level properties:** `id`, `slug`, `title`, `status`, `severity`, `confidence`, `type`, `domain`, `flow`, `environment`, `persona`, `foundOn`, `foundBy`, `summary`, `expectedBehavior`, `actualBehavior`, `userImpact`, `reproductionSteps`, `frequency`, `evidence`, `relatedFiles`, `relatedCode`, `suspectedRootCause`, `scope`, `suggestedFixDirection`, `acceptanceCriteria`, `retestNotes`, `history`, `lastUpdatedAt`, `discoveredByPersona`, `brainClaimIds`, `driftSensitivity`, `automationCandidate`, `councilConsensusLevel`, `evidenceStrength`, `retestPackPath`, `triagedAs`, `closedAs`, `closedOn`, `closedAt`, `closedBy`, `closedNote`, `closingPhase`, `closingPlan`, `closingCommit`, `closingNote`, `closingNotes`, `closingReq`, `closedByCommits`, `closedInPhase`, `consolidatedInto`, `statusHistory`, `by_phase`, `fix_commit`
 
 [Source](../.testatlas/schemas/issue.schema.json)
 
@@ -314,11 +314,11 @@ Schema for _testatlas/brain/graph.json. PRD §11.1 (entities) + §11.2 (relation
 
 ## TestAtlas Report
 
-Schema for reports/REPORT-*.{md,json} (PRD §20).
+Schema for reports/REPORT-*.{md,json} (PRD §20). Accepts both V1 (legacy — string-array sections) and V2 (current — object-array sections + 15 named composite sections per generate-report.js).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/report.schema.json`
 
-**Top-level properties:** `id`, `generatedAt`, `runSummary`, `environmentsCovered`, `domainsCovered`, `flowsCovered`, `testsExecuted`, `evidenceCount`, `keyFindings`, `highestSeverityIssues`, `blockers`, `gaps`, `assumptions`, `recommendedNextActions`, `retestRecommendations`, `readinessAssessment`
+**Top-level properties:** `id`, `generatedAt`, `runSummary`, `kind`, `priorReport`, `generationMode`, `environmentsCovered`, `domainsCovered`, `flowsCovered`, `testsExecuted`, `evidenceCount`, `coverage`, `severityBreakdown`, `confidenceBreakdown`, `regressions`, `qualityRisks`, `testPyramidHealth`, `evidenceCatalogSummary`, `capabilityDegradation`, `scorecardSnapshot`, `trendVsPrior`, `runLogTail`, `readinessRationale`, `keyFindings`, `highestSeverityIssues`, `blockers`, `gaps`, `assumptions`, `recommendedNextActions`, `retestRecommendations`, `readinessAssessment`
 
 [Source](../.testatlas/schemas/report.schema.json)
 
@@ -398,7 +398,7 @@ Schema for tests/runs/RUN-<timestamp>.{md,json} (PRD §11).
 
 **`$id`:** `https://testatlas.dev/schemas/v1/test-run.schema.json`
 
-**Top-level properties:** `id`, `startedAt`, `endedAt`, `environment`, `commandsExecuted`, `scenariosRun`, `passed`, `failed`, `blocked`, `evidence`, `issuesCreated`, `flowConfidenceUpdates`
+**Top-level properties:** `id`, `startedAt`, `endedAt`, `environment`, `commandsExecuted`, `scenariosRun`, `passed`, `failed`, `blocked`, `evidence`, `issuesCreated`, `flowConfidenceUpdates`, `executionMode`, `children`, `skipped`, `summary`, `notes`
 
 [Source](../.testatlas/schemas/test-run.schema.json)
 

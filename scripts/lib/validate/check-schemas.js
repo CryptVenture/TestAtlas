@@ -78,11 +78,21 @@ function isRawEvidenceDump(relPath) {
  * @returns {string | null}
  */
 function inferSchemaId(absPath, parsed, wsDir) {
+  const relPath = path.relative(wsDir, absPath).split(path.sep).join('/');
+  const baseName = path.basename(absPath);
+
+  // Path-based SKIP rules fire BEFORE honoring the file's own $schema field.
+  // This keeps V2 stubs/sub-artifacts skippable even when their authors stamped
+  // a $schema pointer at a not-yet-registered schema (e.g. council persona
+  // outputs reference _testatlas/brain/schema/persona_output.schema.json which
+  // does not exist yet).
+  if (/^agents\/councils\/sessions\/[^/]+\/outputs\//.test(relPath) && baseName.endsWith('.json')) {
+    return '__SKIP__';
+  }
+
   if (parsed && typeof parsed.$schema === 'string') {
     return parsed.$schema;
   }
-  const relPath = path.relative(wsDir, absPath).split(path.sep).join('/');
-  const baseName = path.basename(absPath);
 
   // Top-level canonical JSON.
   if (relPath === '11_workspace_manifest.json')
@@ -173,6 +183,42 @@ function inferSchemaId(absPath, parsed, wsDir) {
   // (PRD §16) shaped for downstream UIs / CI status pages, not a single-record
   // schema artifact. Skip until a dedicated dashboard-data.schema.json lands.
   if (relPath === 'reports/dashboard-data.json') {
+    return '__SKIP__';
+  }
+
+  // V2: tests/generated_automation/<framework>/<flow-slug>.meta.json — status
+  // tracker sidecars emitted by /atlas:test-generate-automation. Per the skill
+  // spec the shape is { status, status_history, framework, source_flow, ... }
+  // and "this command writes the documented shape without external schema
+  // validation". Skip until a dedicated automation-meta.schema.json lands.
+  if (
+    /^tests\/generated_automation\/(playwright|cypress|api|cli|contract|smoke)\/[^/]+\.meta\.json$/.test(
+      relPath,
+    )
+  ) {
+    return '__SKIP__';
+  }
+
+  // V2: sessions/<persona>.json — Chrome DevTools storageState captures used
+  // by Playwright + Chrome DevTools MCP runners (auth cookies + localStorage).
+  // Heterogeneous browser-state snapshots; no canonical schema. Skip.
+  if (/^sessions\/[^/]+\.json$/.test(relPath)) {
+    return '__SKIP__';
+  }
+
+  // V2: runs/RUN-*.json — top-level runs/ directory (distinct from tests/runs/
+  // which holds /atlas:test-flow outputs). Contains per-tool run records
+  // (e.g. RUN-*-playwright.json) that are framework-specific. Skip until each
+  // tool's run shape gets a dedicated schema.
+  if (/^runs\/RUN-/.test(relPath) && baseName.endsWith('.json')) {
+    return '__SKIP__';
+  }
+
+  // V2: agents/councils/sessions/<id>/outputs/*.json — council persona outputs
+  // (one file per persona that contributed to the session). The parent rule
+  // above already skips sibling files; this rule extends the skip to the
+  // outputs/ subfolder. Each output's shape is persona-specific.
+  if (/^agents\/councils\/sessions\/[^/]+\/outputs\//.test(relPath) && baseName.endsWith('.json')) {
     return '__SKIP__';
   }
 

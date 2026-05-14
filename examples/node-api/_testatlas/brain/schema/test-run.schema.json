@@ -32,6 +32,21 @@
     "blocked": { "type": "integer", "minimum": 0 },
     "evidence": { "type": "array", "items": { "type": "string" } },
     "issuesCreated": { "type": "array", "items": { "type": "string" } },
-    "flowConfidenceUpdates": { "type": "array", "items": { "type": "object" } }
+    "flowConfidenceUpdates": { "type": "array", "items": { "type": "object" } },
+    "executionMode": {
+      "type": "string",
+      "enum": ["sequential", "sequential-fallback", "parallel-subagents", "all-flows", "all-domains", "inline"],
+      "description": "How the run was executed. Set by /atlas:test-flow, /atlas:test-all, /atlas:test-domain. 'parallel-subagents' indicates spawned obd-executor wave; 'sequential-fallback' indicates inline single-thread execution when subagent-spawn was unavailable."
+    },
+    "children": {
+      "description": "Sub-runs aggregated into this parent record. V1 (/atlas:test-all batch) emitted an object keyed by sub-run-kind (e.g. {'test-flow': {...}, 'test-domain': {...}}). V2 (current) emits an array of objects. Accept both.",
+      "oneOf": [
+        { "type": "array", "items": { "type": "object" } },
+        { "type": "object" }
+      ]
+    },
+    "skipped": { "type": "integer", "minimum": 0, "description": "Optional: count of scenarios that were skipped (capability unavailable, gated, etc.). Distinct from blocked." },
+    "summary": { "type": "string", "description": "Optional: one-line free-form summary of the run." },
+    "notes": { "type": "string", "description": "Optional: free-form notes about the run (deviations, environment particulars, etc.)." }
   }
 }

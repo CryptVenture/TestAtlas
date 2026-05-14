@@ -2,53 +2,207 @@
   "$id": "https://testatlas.dev/schemas/v1/report.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "TestAtlas Report",
-  "description": "Schema for reports/REPORT-*.{md,json} (PRD §20).",
+  "description": "Schema for reports/REPORT-*.{md,json} (PRD §20). Accepts both V1 (legacy — string-array sections) and V2 (current — object-array sections + 15 named composite sections per generate-report.js).",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "id",
     "generatedAt",
     "runSummary",
-    "environmentsCovered",
-    "domainsCovered",
-    "flowsCovered",
-    "testsExecuted",
-    "evidenceCount",
     "keyFindings",
-    "highestSeverityIssues",
     "blockers",
     "gaps",
     "assumptions",
     "recommendedNextActions",
-    "retestRecommendations",
     "readinessAssessment"
   ],
   "properties": {
     "$schema": { "type": "string" },
     "id": { "type": "string", "minLength": 1 },
     "generatedAt": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/isoTimestamp" },
-    "runSummary": { "type": "string", "minLength": 1 },
-    "environmentsCovered": { "type": "array", "items": { "type": "string" } },
+    "runSummary": {
+      "description": "Run summary. V1 emitted a single string; V2 emits an object with section-shaped fields.",
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "object" }
+      ]
+    },
+
+    "kind": {
+      "type": "string",
+      "description": "V2: report kind (e.g. 'snapshot', 'release-readiness', 'domain', 'trend'). Emitted by generate-report.js."
+    },
+    "priorReport": {
+      "description": "V2: pointer to the previous report this report compares against (null for baseline).",
+      "oneOf": [
+        { "type": "null" },
+        { "type": "string" }
+      ]
+    },
+    "generationMode": {
+      "type": "string",
+      "description": "V2: how the report was generated ('script', 'subagent-aggregate', 'human-edited', etc.)."
+    },
+
+    "environmentsCovered": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "V1: list of environments the run executed against. V2 reports may omit and use 'coverage.environments' instead."
+    },
     "domainsCovered": {
       "type": "array",
-      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" }
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/domainId" },
+      "description": "V1: list of domains exercised. V2 reports may omit and use 'coverage.domains' instead."
     },
     "flowsCovered": {
       "type": "array",
-      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" }
+      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/flowId" },
+      "description": "V1: list of flows exercised. V2 reports may omit and use 'coverage.flows' instead."
     },
-    "testsExecuted": { "type": "integer", "minimum": 0 },
-    "evidenceCount": { "type": "integer", "minimum": 0 },
-    "keyFindings": { "type": "array", "items": { "type": "string" } },
+    "testsExecuted": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "V1: tests-executed count. V2 reports may omit and use 'runSummary.tests' or 'coverage.tests' instead."
+    },
+    "evidenceCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "V1: evidence-records count. V2 reports may omit and use 'evidenceCatalogSummary.total' instead."
+    },
+
+    "coverage": {
+      "type": "object",
+      "description": "V2: composite coverage section (domains × flows × environments × tests). Heterogeneous; downstream UIs interpret."
+    },
+    "severityBreakdown": {
+      "type": "object",
+      "description": "V2: count of issues by severity at report-time."
+    },
+    "confidenceBreakdown": {
+      "type": "object",
+      "description": "V2: count of issues by confidence at report-time."
+    },
+    "regressions": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "V2: regression detections in the reporting window."
+    },
+    "qualityRisks": {
+      "type": "array",
+      "items": { "type": "object" },
+      "description": "V2: enumerated quality risks surfaced by the report."
+    },
+    "testPyramidHealth": {
+      "type": "object",
+      "description": "V2: unit/integration/e2e mix + ratios."
+    },
+    "evidenceCatalogSummary": {
+      "type": "object",
+      "description": "V2: aggregate counts + freshness for the evidence catalog."
+    },
+    "capabilityDegradation": {
+      "description": "V2: capability-degradation notes (per bootstrap.md §4). May be an object or an array of objects.",
+      "oneOf": [
+        { "type": "object" },
+        { "type": "array", "items": { "type": "object" } }
+      ]
+    },
+    "scorecardSnapshot": {
+      "type": "object",
+      "description": "V2: snapshot of 13_quality_scorecard.md at report-time."
+    },
+    "trendVsPrior": {
+      "type": "object",
+      "description": "V2: delta-vs-priorReport summary (regression count delta, severity-load delta, coverage delta)."
+    },
+    "runLogTail": {
+      "description": "V2: tail entries from history/run_log.md so the report is self-contained. Accepts an array of objects (machine-readable) OR a string (free-form prose summary or pointer to the canonical md file).",
+      "oneOf": [
+        { "type": "array", "items": { "type": "object" } },
+        { "type": "string" }
+      ]
+    },
+    "readinessRationale": {
+      "type": "string",
+      "description": "V2: free-form rationale supporting the readinessAssessment verdict (cited tallies, blockers list, etc.)."
+    },
+
+    "keyFindings": {
+      "type": "array",
+      "description": "Key findings list. V1 emitted strings; V2 emits objects ({id, summary, evidence[], confidence}).",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
     "highestSeverityIssues": {
       "type": "array",
-      "items": { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" }
+      "description": "V1: issue-id list. V2 reports surface the same info via 'severityBreakdown' / 'blockers'.",
+      "items": {
+        "oneOf": [
+          { "$ref": "https://testatlas.dev/schemas/v1/vocabulary.schema.json#/$defs/issueId" },
+          { "type": "object" }
+        ]
+      }
     },
-    "blockers": { "type": "array", "items": { "type": "string" } },
-    "gaps": { "type": "array", "items": { "type": "string" } },
-    "assumptions": { "type": "array", "items": { "type": "string" } },
-    "recommendedNextActions": { "type": "array", "items": { "type": "string" } },
-    "retestRecommendations": { "type": "array", "items": { "type": "string" } },
-    "readinessAssessment": { "type": "string", "minLength": 1 }
+    "blockers": {
+      "type": "array",
+      "description": "Blocker list. V1 emitted strings; V2 emits objects.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "description": "Gap list. V1 emitted strings; V2 emits objects.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "description": "Assumption list. V1 emitted strings; V2 emits objects.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
+    "recommendedNextActions": {
+      "type": "array",
+      "description": "Next-action list. V1 emitted strings; V2 emits objects.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
+    "retestRecommendations": {
+      "type": "array",
+      "description": "Retest-recommendation list (V1). V2 reports surface this via 'regressions' or 'recommendedNextActions'.",
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
+    },
+    "readinessAssessment": {
+      "description": "Readiness verdict. V1: free-form string. V2: enum-or-string ('ship-ready' | 'needs-work' | 'blocked' | other).",
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "object" }
+      ]
+    }
   }
 }
