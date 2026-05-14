@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file. Format is b
 
 ### Added
 
+### Changed
+
+### Removed
+
+## [2.0.10] - 2026-05-14
+
+### Added
+
 - **`.testatlas/schemas/report.schema.json` V2 composite sections.** 15 new optional top-level properties (`kind`, `priorReport`, `generationMode`, `coverage`, `severityBreakdown`, `confidenceBreakdown`, `regressions`, `qualityRisks`, `testPyramidHealth`, `evidenceCatalogSummary`, `capabilityDegradation`, `scorecardSnapshot`, `trendVsPrior`, `runLogTail`, `readinessRationale`) accept the structured-section shape that `generate-report.js` emits. `runSummary` widened to `oneOf: string | object` so V1 prose-summary reports and V2 structured-summary reports both validate. The V1 `environmentsCovered` / `domainsCovered` / `flowsCovered` / `testsExecuted` / `evidenceCount` properties moved from `required[]` to optional and now carry descriptions pointing at their V2 successors under `coverage` / `runSummary` / `evidenceCatalogSummary`.
 - **`.testatlas/schemas/test-run.schema.json` execution-mode + sub-run shape.** New optional `executionMode` (enum: `sequential`, `sequential-fallback`, `parallel-subagents`, `all-flows`, `all-domains`, `inline`) for the audit-honesty contract `/atlas:test-flow`, `/atlas:test-all`, and `/atlas:test-domain` require; new optional `children` as `oneOf: array | object` so the V1 `/atlas:test-all` sub-run-kind-keyed object and the V2 array shape both validate; new optional `skipped` / `summary` / `notes` run-level fields.
 - **`.testatlas/schemas/workspace-manifest.schema.json` counts surface widened.** `counts.scenarios` (count of `tests/scenarios/TEST-*.json` written by `/atlas:test-generate-scenarios`) and `counts.charters` (count of exploratory charters under `tests/charters/`) added as optional integers. Both are additive — older manifests continue to validate unchanged.
